@@ -21,9 +21,11 @@
 // Klemen Zagar (klemen@zagar.ws)
 // Ian MacLean (ian_maclean@another.com)
 
-using SourceForge.NAnt.Attributes;
 using System;
+using System.Globalization;
 using System.IO;
+
+using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -105,8 +107,8 @@ namespace SourceForge.NAnt.Tasks {
         protected override void ExecuteTask() {
             _arguments = "";
             if (Resources.FileNames.Count > 0) {
-                if (Output != String.Empty ){
-                    throw new BuildException("output attribute is incompatible with fileset use.", Location);
+                if (Output != null && Output.Length != 0) {
+                    throw new BuildException("Output attribute is incompatible with fileset use.", Location);
                 }
                 foreach ( string filename in Resources.FileNames ) {
                     string outputFile = getOutputFile(filename);
@@ -115,7 +117,7 @@ namespace SourceForge.NAnt.Tasks {
                         if (_arguments.Length == 0) {
                             AppendArgument ("/compile");
                         }
-                        AppendArgument (String.Format(" \"{0},{1}\"", filename, outputFile));
+                        AppendArgument (String.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
                     }
                 }
             } else {
@@ -127,7 +129,7 @@ namespace SourceForge.NAnt.Tasks {
                 string outputFile = getOutputFile(inputFile);
 
                 if (NeedsCompiling (inputFile, outputFile)) {
-                    AppendArgument (String.Format ("\"{0}\" \"{1}\"", inputFile, outputFile));
+                    AppendArgument (String.Format(CultureInfo.InvariantCulture, "\"{0}\" \"{1}\"", inputFile, outputFile));
                 }
             }
 
@@ -143,7 +145,7 @@ namespace SourceForge.NAnt.Tasks {
             string outputFile = "";
             
             // If output is empty just change the extension 
-            if (Output == String.Empty) {
+            if (Output == null ||  Output.Length == 0) {
                 outputFile = Path.Combine (ToDirectory, fileInfo.Name);
                 outputFile = Path.ChangeExtension( outputFile, TargetExt );
             } 
@@ -170,7 +172,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
             }                     
         }
-        // 
+
         protected override bool UsesRuntimeEngine{ 
             get {                 
                 // uncomment this when monoresgen no longer crashes when run with the mono runtime.

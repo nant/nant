@@ -19,13 +19,15 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
-using System.Xml;
-using System.IO;
-using System.Reflection;
 using System.Collections;
 using System.Collections.Specialized;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
@@ -78,7 +80,7 @@ namespace SourceForge.NAnt.Tasks {
 
         string _language = "Unknown";
         FileSet _references = new FileSet();        
-        string _mainClass = String.Empty;
+        string _mainClass = "";
         private static Hashtable _compilerMap;
         private string _rootClassName;
         private string _code;
@@ -165,7 +167,7 @@ namespace SourceForge.NAnt.Tasks {
             // Add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
                 try {
-                    if (asm.Location != "") {
+                    if (asm.Location != null && asm.Location.Length != 0) {
                         options.ReferencedAssemblies.Add(asm.Location);
                     }
                 } catch ( NotSupportedException ) {
@@ -178,7 +180,7 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             foreach (string assemblyName in References.Includes) {
-                if (assemblyName != "") {
+                if (assemblyName != null &&  assemblyName.Length != 0) {
                     options.ReferencedAssemblies.Add(assemblyName);
                 }
             }
@@ -199,7 +201,7 @@ namespace SourceForge.NAnt.Tasks {
             }
 
             string mainClass = _rootClassName;
-            if (MainClass != String.Empty) {
+            if (MainClass != null && MainClass.Length != 0) {
                 mainClass += "+" + MainClass;
             }
 
@@ -285,7 +287,7 @@ namespace SourceForge.NAnt.Tasks {
                     nspace.Imports.Add(new CodeNamespaceImport(nameSpace));
                 }
 
-                StringWriter sw = new StringWriter();
+                StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                 CodeGen.GenerateCodeFromNamespace(nspace, sw, null);
                 return sw.ToString();
             }
@@ -294,7 +296,7 @@ namespace SourceForge.NAnt.Tasks {
                 CodeTypeDeclaration typeDecl = new CodeTypeDeclaration(typeName);
                 typeDecl.IsClass = true;
                 typeDecl.TypeAttributes = TypeAttributes.Public;
-                StringWriter sw = new StringWriter();
+                StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                 CodeGen.GenerateCodeFromType(typeDecl, sw, null);
                 string decl = sw.ToString();
 

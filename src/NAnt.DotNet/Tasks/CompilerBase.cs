@@ -61,7 +61,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Generate debug output (<c>true</c>/<c>false</c>).</summary>
         [BooleanValidator()]
         [TaskAttribute("debug")]
-        public bool Debug           { get { return Convert.ToBoolean(_debug); } set { _debug = value; }}
+        public bool Debug           { get { return _debug; } set { _debug = value; }}
 
         /// <summary>Define conditional compilation symbol(s). Corresponds to <c>/d[efine]:</c> flag.</summary>
         [TaskAttribute("define")]
@@ -84,7 +84,7 @@ namespace SourceForge.NAnt.Tasks {
         /// </remarks>
         [BooleanValidator()]
         [TaskAttribute("warnaserror")]
-        public bool WarnAsError     { get { return Convert.ToBoolean(_warnAsError); } set { _warnAsError = value; }}
+        public bool WarnAsError     { get { return _warnAsError; } set { _warnAsError = value; }}
 
         /// <summary>
         /// Specifies which type contains the Main method that you want to use as the entry point into 
@@ -284,7 +284,7 @@ namespace SourceForge.NAnt.Tasks {
                         // Resx args
                         foreach (string fileName in resources.ResxFiles.FileNames ) {
                             string prefix = GetFormNamespace(fileName); // try and get it from matching form
-                            if (prefix == "")
+                            if (prefix == null || prefix.Length == 0)
                                 prefix = resources.Prefix;                        
                             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                             string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
@@ -303,8 +303,7 @@ namespace SourceForge.NAnt.Tasks {
                                 manifestResourceName = manifestResourceName.Replace(".ascx", "");
                                 actualFileName = actualFileName.Replace(".ascx", "");
                             }                        
-                            if(prefix != ""){
-                                //manifestResourceName = prefix + "." + manifestResourceName; 
+                            if(prefix != null && prefix.Length != 0) {
                                 manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );
                             }
                             string resourceoption = tmpResourcePath + "," + manifestResourceName;    

@@ -23,7 +23,7 @@ namespace SourceForge.NAnt.Tasks {
 
     /// <summary>Provides the abstract base class for a Microsoft .Net Framework SDK external program task.</summary>
     public abstract class MsftFXSDKExternalProgramBase : ExternalProgramBase {
-        protected static string FXBin = null;
+
         public override string ProgramFileName  {
             get { 
                 return determineFilePath();
@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks {
         private string determineFilePath(){
             if (Project.CurrentFramework != null ) {
                 string SdkDirectory = "";           
-                SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; //   always returna valid currnet Runtime
+                SdkDirectory = Project.CurrentFramework.SdkDirectory.FullName; //   always returns a valid current Runtime
                                 
                 return Path.Combine(SdkDirectory, ExeName +  ".exe" );               
             } else {

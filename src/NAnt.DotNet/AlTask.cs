@@ -19,8 +19,10 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks {
@@ -123,8 +125,8 @@ namespace SourceForge.NAnt.Tasks {
         protected override void ExecuteTask() {
             if (NeedsCompiling()) {
                 // create temp response file to hold compiler options
-                StringBuilder sb = new StringBuilder ();
-                StringWriter writer = new StringWriter(sb);
+                StringBuilder sb = new StringBuilder();
+                StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);
 
                 try {
                     if (Sources.BaseDirectory == null) {
@@ -154,7 +156,7 @@ namespace SourceForge.NAnt.Tasks {
                     // Make sure to close the response file otherwise contents
                     // Will not be written to disk and ExecuteTask() will fail.
                     writer.Close();
-                    _arguments = sb.ToString ();
+                    _arguments = sb.ToString();
 
                     // display response file contents
                     Log.WriteLineIf(Verbose, _arguments);

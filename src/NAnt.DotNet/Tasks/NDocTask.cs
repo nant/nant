@@ -221,7 +221,7 @@ namespace SourceForge.NAnt.Tasks {
             IDocumenter documenter = null;
             foreach (IDocumenter d in project.Documenters) {
                 // ignore case when comparing documenter names
-                if (String.Compare(d.Name, documenterName, true) == 0) {
+                if (String.Compare(d.Name, documenterName, true, CultureInfo.InvariantCulture) == 0) {
                     documenter = (IDocumenter)d;
                     break;
                 }

@@ -18,12 +18,12 @@
 // Matthew Mastracci (mmastrac@canada.com)
 
 using System;
-using System.IO;
-using System.Reflection;
 using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 
 using SourceForge.NAnt.Attributes;
 
@@ -80,7 +80,7 @@ namespace SourceForge.NAnt.Tasks {
             foreach ( Assembly asmLoaded in AppDomain.CurrentDomain.GetAssemblies() ) {
                 alAssemblies.Add( asmLoaded );
                 try {
-                    alAssemblyFilesLoaded.Add( Path.GetFullPath( asmLoaded.Location ).ToLower() );
+                    alAssemblyFilesLoaded.Add( Path.GetFullPath( asmLoaded.Location ).ToLower(CultureInfo.InvariantCulture) );
                 }
                 catch ( NotSupportedException ) {
                     // Sometimes thrown by dynamic assemblies
@@ -99,7 +99,7 @@ namespace SourceForge.NAnt.Tasks {
                     // See if we've got an absolute path to the assembly
                     if ( File.Exists( strRealAssemblyName ) ) {
                         // Don't load an assembly that has already been loaded (including assemblies loaded before this task)
-                        if ( !alAssemblyFilesLoaded.Contains( Path.GetFullPath( strRealAssemblyName ).ToLower() ) ) {
+                        if ( !alAssemblyFilesLoaded.Contains( Path.GetFullPath( strRealAssemblyName ).ToLower(CultureInfo.InvariantCulture) ) ) {
                             Log.WriteIf( Verbose, " (loaded with real filename)" );
                             asm = Assembly.LoadFrom( strRealAssemblyName );
                         } else {

@@ -19,9 +19,11 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Web.Mail;
-using System.IO;
+
 using SourceForge.NAnt.Attributes;
 using SourceForge.NAnt;
 
@@ -48,7 +50,6 @@ namespace SourceForge.NAnt.Tasks {
     [TaskName("mail")]
     public class MailTask : Task
     {
-        
         string _from = "";      
         string _toList = "";        
         string _ccList = "";        
@@ -58,7 +59,7 @@ namespace SourceForge.NAnt.Tasks {
         string _message = "";        
         string _files = "";        
         string _attachments = "";
-        MailFormat _format = MailFormat.Text;
+        MailFormat _mailFormat = MailFormat.Text;
   
         /// <summary>Email address of sender </summary>
         [TaskAttribute("from", Required=true)]
@@ -102,9 +103,15 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>Format of the message body. Valid values are "Html" or "Text".  Defaults to "Text".</summary>
         [TaskAttribute("format")]
-        public string Format { 
-           get { return _format.ToString(); } 
-           set { _format = (MailFormat)Enum.Parse(typeof(MailFormat), value); } 
+        public MailFormat Format { 
+           get { return _mailFormat; } 
+           set {     
+               if (!Enum.IsDefined(typeof(MailFormat), value)) {
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid format {0} was specified.", value)); 
+                } else {
+                    this._mailFormat = value;
+                }
+            } 
         }
 
        /// <summary>Name(s) of text files to send as part of body of the email message. 
@@ -153,16 +160,14 @@ namespace SourceForge.NAnt.Tasks {
             mailMessage.Bcc = this.BccList;
             mailMessage.Cc = this.CcList;
             mailMessage.Subject = this.Subject;
-            mailMessage.BodyFormat = this._format;
+            mailMessage.BodyFormat = this.Format;
 
             // Begin build message body
-            StringWriter bodyWriter = new StringWriter();
+            StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
             if (Message.Length > 0) {
                 bodyWriter.WriteLine(Message);
                 bodyWriter.WriteLine();
             }
-
-            
 
             // Append file(s) to message body
             if (Files.Length > 0) {
