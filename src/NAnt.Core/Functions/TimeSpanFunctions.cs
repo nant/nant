@@ -53,6 +53,32 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Returns the total number of hours represented by the specified 
+        /// <see cref="TimeSpan" />, expressed in whole and fractional hours.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The total number of hours represented by the given <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-total-hours")]
+        public static double GetTotalHours(TimeSpan value) {
+            return value.TotalHours;
+        }
+
+        /// <summary>
+        /// Returns the total number of minutes represented by the specified 
+        /// <see cref="TimeSpan" />, expressed in whole and fractional minutes.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The total number of minutes represented by the given <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-total-minutes")]
+        public static double GetTotalMinutes(TimeSpan value) {
+            return value.TotalMinutes;
+        }
+
+        /// <summary>
         /// Returns the total number of seconds represented by the specified 
         /// <see cref="TimeSpan" />, expressed in whole and fractional seconds.
         /// </summary>
@@ -64,6 +90,213 @@ namespace NAnt.Core.Functions {
         public static double GetTotalSeconds(TimeSpan value) {
             return value.TotalSeconds;
         }
+
+        /// <summary>
+        /// Returns the total number of milliseconds represented by the specified 
+        /// <see cref="TimeSpan" />, expressed in whole and fractional milliseconds.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The total number of milliseconds represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-total-milliseconds")]
+        public static double GetTotalMilliseconds(TimeSpan value) {
+            return value.TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// Returns the number of whole days represented by the specified 
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of whole days represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-days")]
+        public static int GetDays(TimeSpan value) {
+            return value.Days;
+        }
+
+        /// <summary>
+        /// Returns the number of whole hours represented by the specified 
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of whole hours represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-hours")]
+        public static int GetHours(TimeSpan value) {
+            return value.Hours;
+        }
+
+        /// <summary>
+        /// Returns the number of whole minutes represented by the specified 
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of whole minutes represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-minutes")]
+        public static int GetMinutes(TimeSpan value) {
+            return value.Minutes;
+        }
+
+        /// <summary>
+        /// Returns the number of whole seconds represented by the specified 
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of whole seconds represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-seconds")]
+        public static int GetSeconds(TimeSpan value) {
+            return value.Seconds;
+        }
+
+        /// <summary>
+        /// Returns the number of whole milliseconds represented by the specified
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of whole milliseconds represented by the given 
+        /// <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-milliseconds")]
+        public static int GetMilliseconds(TimeSpan value) {
+            return value.Milliseconds;
+        }
+
+        /// <summary>
+        /// Returns the number of ticks contained in the specified
+        /// <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" />.</param>
+        /// <returns>
+        /// The number of ticks contained in the given <see cref="TimeSpan" />.
+        /// </returns>
+        [Function("get-ticks")]
+        public static long GetTicks(TimeSpan value) {
+            return value.Ticks;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified number
+        /// of days, where the specification is accurate to the nearest millisecond.
+        /// </summary>
+        /// <param name="value">A number of days, accurate to the nearest millisecond.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-days")]
+        public static TimeSpan FromDays(double value) {
+            return TimeSpan.FromDays(value);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified number
+        /// of hours, where the specification is accurate to the nearest 
+        /// millisecond.
+        /// </summary>
+        /// <param name="value">A number of hours, accurate to the nearest millisecond.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-hours")]
+        public static TimeSpan FromHours(double value) {
+            return TimeSpan.FromHours(value);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified number
+        /// of minutes, where the specification is accurate to the nearest 
+        /// millisecond.
+        /// </summary>
+        /// <param name="value">A number of minutes, accurate to the nearest millisecond.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-minutes")]
+        public static TimeSpan FromMinutes(double value) {
+            return TimeSpan.FromMinutes(value);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified number
+        /// of seconds, where the specification is accurate to the nearest 
+        /// millisecond.
+        /// </summary>
+        /// <param name="value">A number of seconds, accurate to the nearest millisecond.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-seconds")]
+        public static TimeSpan FromSeconds(double value) {
+            return TimeSpan.FromSeconds(value);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified number
+        /// of milliseconds.
+        /// </summary>
+        /// <param name="value">A number of milliseconds.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-milliseconds")]
+        public static TimeSpan FromMilliseconds(double value) {
+            return TimeSpan.FromMilliseconds(value);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="TimeSpan" /> that represents a specified time, 
+        /// where the specification is in units of ticks.
+        /// </summary>
+        /// <param name="value">A number of ticks that represent a time.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that represents <paramref name="value" />.
+        /// </returns>
+        [Function("from-ticks")]
+        public static TimeSpan FromTicks(long value) {
+            return TimeSpan.FromTicks(value);
+        }
+
+        /*
+        /// <summary>
+        /// Constructs a <see cref="TimeSpan" /> from a time indicated by a 
+        /// specified string.
+        /// </summary>
+        /// <param name="s">A string.</param>
+        /// <returns>
+        /// A <see cref="TimeSpan" /> that corresponds to <paramref name="s" />.
+        /// </returns>
+        [Function("parse")]
+        public static TimeSpan Parse(string s) {
+            return TimeSpan.Parse(s);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="TimeSpan" /> to its equivalent 
+        /// string representation.
+        /// </summary>
+        /// <param name="value">A <see cref="TimeSpan" /> to convert.</param>
+        /// <returns>
+        /// The string representation of <paramref name="value" />. The format 
+        /// of the return value is of the form: [-][d.]hh:mm:ss[.ff].
+        /// </returns>
+        [Function("to-string")]
+        public static string ToString(TimeSpan value) {
+            return value.ToString();
+        }
+        */
 
         #endregion Public Static Methods
     }
