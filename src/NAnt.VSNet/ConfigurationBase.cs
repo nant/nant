@@ -18,6 +18,8 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -37,6 +39,7 @@ namespace NAnt.VSNet {
         /// <param name="project">The project of the configuration.</param>
         protected ConfigurationBase(ProjectBase project) {
             _project = project;
+            _extraOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
 
         #endregion Protected Instance Constructors
@@ -87,6 +90,23 @@ namespace NAnt.VSNet {
         /// </value>
         public abstract string PlatformName {
             get;
+        }
+
+        /// <summary>
+        /// Gets the set of output files that is specific to the project
+        /// configuration.
+        /// </summary>
+        /// <value>
+        /// The set of output files that is specific to the project
+        /// configuration.
+        /// </value>
+        /// <remarks>
+        /// The key of the case-insensitive <see cref="Hashtable" /> is the 
+        /// full path of the output file and the value is the path relative to
+        /// the output directory.
+        /// </remarks>
+        public Hashtable ExtraOutputFiles {
+            get { return _extraOutputFiles; }
         }
 
         #endregion Public Instance Properties
@@ -198,6 +218,7 @@ namespace NAnt.VSNet {
 
         private readonly ProjectBase _project;
         private readonly Regex _rxMacro = new Regex(@"\$\((\w+)\)");
+        private Hashtable _extraOutputFiles;
 
         #endregion Private Instance Fields
     }

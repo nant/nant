@@ -138,12 +138,12 @@ namespace NAnt.VSNet {
         /// should be copied locally; otherwise, <see langword="false" />.
         /// </value>
         public bool CopyLocal {
-            get 
-            { 
+            get {
                 // Do we need to check the GAC for copy local information?
                 // This prevents locking of files before they are built
-                if ( _deferCopyLocalGacDetermination )
+                if (_deferCopyLocalGacDetermination) {
                     _copyLocal = !GacCache.IsAssemblyInGac(_referenceFile);
+                }
 
                 return _copyLocal; 
             }
@@ -277,24 +277,24 @@ namespace NAnt.VSNet {
             program = _importTool + ".exe";
         }
 
-        public DirectoryInfo GetBaseDirectory(ConfigurationSettings configurationSettings) {
+        public DirectoryInfo GetBaseDirectory(ConfigurationSettings config) {
             if (Project != null) {
-                return Project.GetConfiguration(configurationSettings.Name).OutputDir;
+                return Project.GetConfiguration(config.Name).OutputDir;
             }
             return _baseDirectory;
         }
 
-        public StringCollection GetAssemblyReferences(ConfigurationBase configurationSettings) {
+        public StringCollection GetAssemblyReferences(ConfigurationBase config) {
             StringCollection assemblyReferences = null;
 
             if (IsProjectReference) {
                 // if we're dealing with a project reference, then we need to
                 // reference all assembly references of that project
-                assemblyReferences = Project.GetAssemblyReferences(configurationSettings);
+                assemblyReferences = Project.GetAssemblyReferences(config.Name);
 
                 // and the project output file itself
                 string projectOutputFile = Project.GetConfiguration(
-                    configurationSettings.Name).OutputPath;
+                    config.Name).OutputPath;
                 if (!File.Exists(projectOutputFile)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Output file '{0}' of project '{1}' does not exist.",
@@ -323,27 +323,33 @@ namespace NAnt.VSNet {
             return assemblyReferences;
         }
 
-        public StringCollection GetReferenceFiles(ConfigurationSettings configurationSettings) {
-            StringCollection referencedFiles = new StringCollection();
-
+        /// <summary>
+        /// Gets the complete set of output files for the reference.
+        /// </summary>
+        /// <value>
+        /// The complete set of output files for the reference.
+        /// </value>
+        /// <remarks>
+        /// The key of the case-insensitive <see cref="Hashtable" /> is the 
+        /// full path of the output file and the value is the path relative to
+        /// the output directory.
+        /// </remarks>
+        public Hashtable GetOutputFiles(ConfigurationBase config) {
             // check if we're dealing with a project reference
             if (IsProjectReference) {
-                // get output file of project
-                _referenceFile = Project.GetConfiguration(
-                    configurationSettings.Name).OutputPath;
+                return Project.GetOutputFiles(config.Name);
             }
+
+            // we're dealing with assembly references or assemblies generated
+            // using an import tool
+
+            Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             FileInfo fi = new FileInfo(_referenceFile);
             if (!fi.Exists) {
-                if (!IsProjectReference) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find referenced assembly '{0}'.", _referenceFile), 
-                        Location.UnknownLocation);
-                } else {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find referenced project '{0}' output file, '{1}'.",
-                        Project.Name, _referenceFile), Location.UnknownLocation);
-                }
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Couldn't find referenced assembly '{0}'.", _referenceFile), 
+                    Location.UnknownLocation);
             } else {
                 _referenceFile = fi.FullName;
             }
@@ -363,31 +369,50 @@ namespace NAnt.VSNet {
                     }
                 }
 
-                // now for each reference, get the related files (.xml, .pdf, etc...)
-                string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
-
-                foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
-                    // ignore files that do not have same base filename as reference file
-                    // eg. when reference file is MS.Runtime.dll, we do not want files 
-                    //     named MS.Runtime.Interop.dll
-                    if (string.Compare(Path.GetFileNameWithoutExtension(relatedFile), Path.GetFileNameWithoutExtension(referenceFile), true, CultureInfo.InvariantCulture) != 0) {
-                        continue;
-                    }
-
-                    // ignore any other the garbage files created
-                    string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
-                    if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
-                        continue;
-                    }
-
-                    referencedFiles.Add(new FileInfo(relatedFile).Name);
+                // get list of files related to referenceFile, this will include
+                // referenceFile itself
+                Hashtable relatedFiles = GetRelatedFiles(referenceFile);
+                foreach (DictionaryEntry de in relatedFiles) {
+                    outputFiles[(string) de.Key] = (string) de.Value;
                 }
             }
 
-            return referencedFiles;
+            return outputFiles;
         }
 
         #endregion Public Instance Methods
+
+        #region Public Static Methods
+
+        public static Hashtable GetRelatedFiles(string file) {
+            Hashtable relatedFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            // pattern indicating what files to scan
+            string relatedFilesPattern = Path.GetFileName(Path.ChangeExtension(file, ".*"));
+
+            // iterate over each file matching the pattern
+            foreach (string relatedFile in Directory.GetFiles(Path.GetDirectoryName(file), relatedFilesPattern)) {
+                // ignore files that do not have same base filename as reference file
+                // eg. when reference file is MS.Runtime.dll, we do not want files 
+                //     named MS.Runtime.Interop.dll
+                if (string.Compare(Path.GetFileNameWithoutExtension(relatedFile), Path.GetFileNameWithoutExtension(file), true, CultureInfo.InvariantCulture) != 0) {
+                    continue;
+                }
+
+                // ignore any other the garbage files created
+                string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
+                if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb" && fileExtension != ".mdb") {
+                    continue;
+                }
+
+                relatedFiles[relatedFile] = Path.GetFileName(relatedFile);
+            }
+
+            // return list of related files
+            return relatedFiles;
+        }
+
+        #endregion Public Static Methods
 
         #region Private Instance Methods
 
@@ -688,7 +713,7 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <returns>
         /// <see langword="true" /> if the assembly exists at the specified 
-        /// location; otherwise, see langword="false" />.
+        /// location; otherwise, <see langword="false" />.
         /// </returns>
         private bool ResolveFromPath(string path) {
             FileInfo fileReference = new FileInfo(path);

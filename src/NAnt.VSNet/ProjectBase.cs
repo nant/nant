@@ -43,6 +43,7 @@ namespace NAnt.VSNet {
         protected ProjectBase(SolutionTask solutionTask, TempFileCollection temporaryFiles, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) {
             _projectConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _buildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _extraOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _solutionTask = solutionTask;
             _temporaryFiles = temporaryFiles;
             _outputDir = outputDir;
@@ -131,6 +132,21 @@ namespace NAnt.VSNet {
             get { return _temporaryFiles; }
         }
 
+        /// <summary>
+        /// Gets the extra set of output files for the project.
+        /// </summary>
+        /// <value>
+        /// The extra set of output files for the project.
+        /// </value>
+        /// <remarks>
+        /// The key of the case-insensitive <see cref="Hashtable" /> is the 
+        /// full path of the output file and the value is the path relative to
+        /// the output directory.
+        /// </remarks>
+        public Hashtable ExtraOutputFiles {
+            get { return _extraOutputFiles; }
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
@@ -159,11 +175,11 @@ namespace NAnt.VSNet {
             }
 
             if (!BuildConfigurations.ContainsKey(configuration)) {
-                Log(Level.Info, "Skipping '{0}' [{1}]...", Name, configuration);
+                Log(Level.Info, "Skipping '{0}' [{1}] ...", Name, configuration);
                 return true;
             }
 
-            Log(Level.Info, "Building '{0}' [{1}]...", Name, configuration);
+            Log(Level.Info, "Building '{0}' [{1}] ...", Name, configuration);
 
             // ensure output directory exists
             configurationSettings.OutputDir.Create();
@@ -187,11 +203,21 @@ namespace NAnt.VSNet {
             return (ConfigurationBase) ProjectConfigurations[configuration];
         }
 
-        public StringCollection GetAssemblyReferences(ConfigurationBase configurationSettings) {
+        public StringCollection GetAssemblyReferences(string configuration) {
+            ConfigurationBase config = GetConfiguration(configuration);
+            if (config == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Configuration '{0}' does not exist for project '{1}'.",
+                    configuration, Name), Location.UnknownLocation);
+            }
+            return GetAssemblyReferences(config);
+        }
+
+        public StringCollection GetAssemblyReferences(ConfigurationBase config) {
             Hashtable uniqueReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             foreach (Reference reference in References) {
-                StringCollection references = reference.GetAssemblyReferences(configurationSettings);
+                StringCollection references = reference.GetAssemblyReferences(config);
                 foreach (string assemblyReference in references) {
                     if (!uniqueReferences.ContainsKey(assemblyReference)) {
                         uniqueReferences.Add(assemblyReference, null);
@@ -204,6 +230,72 @@ namespace NAnt.VSNet {
                 assemblyReferences.Add(assemblyReference);
             }
             return assemblyReferences;
+        }
+
+        /// <summary>
+        /// Gets the complete set of output files for the project.
+        /// configuration.
+        /// </summary>
+        /// <value>
+        /// The complete set of output files for the project.
+        /// </value>
+        /// <remarks>
+        /// The key of the case-insensitive <see cref="Hashtable" /> is the 
+        /// full path of the output file and the value is the path relative to
+        /// the output directory.
+        /// </remarks>
+        public Hashtable GetOutputFiles(string configuration) {
+            ConfigurationBase config = GetConfiguration(configuration);
+            if (config == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Configuration '{0}' does not exist for project '{1}'.",
+                    configuration, Name), Location.UnknownLocation);
+            }
+
+            Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            foreach (Reference reference in References) {
+                if (!reference.CopyLocal) {
+                    continue;
+                }
+
+                Hashtable referenceOutputFiles = reference.GetOutputFiles(config);
+                foreach (DictionaryEntry de in referenceOutputFiles) {
+                    outputFiles[de.Key] = de.Value;
+                }
+            }
+
+            // determine output file of project
+            string projectOutputFile = config.OutputPath;
+
+            // ensure output file exists
+            if (!File.Exists(projectOutputFile)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Couldn't find output file '{0}' for project '{1}'.",
+                    projectOutputFile, Name), Location.UnknownLocation);
+            }
+
+            // get list of files related to project output file (eg. debug symbols,
+            // xml doc, ...), this will include the project output file itself
+            Hashtable relatedFiles = Reference.GetRelatedFiles(projectOutputFile);
+
+            // add each related file to set of primary output files
+            foreach (DictionaryEntry de in relatedFiles) {
+                outputFiles[(string) de.Key] = (string) de.Value;
+            }
+
+            // add extra project-level output files
+            foreach (DictionaryEntry de in ExtraOutputFiles) {
+                outputFiles[(string) de.Key] = (string) de.Value;
+            }
+
+            // add extra configuration-level output files
+            foreach (DictionaryEntry de in config.ExtraOutputFiles) {
+                outputFiles[(string) de.Key] = (string) de.Value;
+            }
+
+            // return output files for the project
+            return outputFiles;
         }
 
         #endregion Public Instance Methods
@@ -295,6 +387,7 @@ namespace NAnt.VSNet {
         private Hashtable _buildConfigurations;
         private GacCache _gacCache;
         private ReferencesResolver _refResolver;
+        private Hashtable _extraOutputFiles;
 
         #endregion Private Instance Fields
     }

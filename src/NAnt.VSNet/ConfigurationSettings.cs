@@ -67,6 +67,9 @@ namespace NAnt.VSNet {
 
                 // make sure the output directory for the doc file exists
                 Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
+
+                // add documentation file as extra output file
+                ExtraOutputFiles[_docFilename] = Path.GetFileName(_docFilename);
             }
 
             SolutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
@@ -143,16 +146,6 @@ namespace NAnt.VSNet {
         /// </value>
         public override string PlatformName {
             get { return ".NET"; }
-        }
-
-        public string[] ExtraOutputFiles {
-            get {
-                if (_docFilename == null) {
-                    return new string[0];
-                }
-
-                return new string[] {_docFilename};
-            }
         }
 
         public override string RelativeOutputDir {
