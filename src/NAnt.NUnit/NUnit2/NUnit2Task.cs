@@ -47,15 +47,13 @@ namespace NAnt.NUnit2.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   See the <see href="http://nunit.sf.net">NUnit home page</see> for more 
-    ///   information.
+    ///   The <see cref="HaltOnFailure" /> attribute is only useful when more 
+    ///   than one test suite is used, and you want to continue running other 
+    ///   test suites although a test failed.
     ///   </para>
     ///   <para>
-    ///   The <see cref="HaltOnFailure" /> or <see cref="HaltOnError" /> 
-    ///   attributes are only used when more than one test suite is used.  
-    ///   If any test suite fails, a build error will be thrown.  
     ///   Set <see cref="Task.FailOnError" /> to <see langword="false" /> to 
-    ///   ignore test errors and continue the build.
+    ///   ignore any errors and continue the build.
     ///   </para>
     ///   <para>
     ///   In order to run a test assembly built with NUnit 2.0 or 2.1 using the 
@@ -79,6 +77,10 @@ namespace NAnt.NUnit2.Tasks {
     /// </configuration>
     ///     ]]>
     ///   </code>
+	///   <para>
+	///   See the <see href="http://nunit.sf.net">NUnit home page</see> for more 
+	///   information.
+	///   </para>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -113,7 +115,6 @@ namespace NAnt.NUnit2.Tasks {
         #region Private Instance Fields
 
         private bool _haltOnFailure = false;
-        private bool _haltOnError = true;
         private NUnit2TestCollection _tests = new NUnit2TestCollection();
         private FormatterElementCollection _formatterElements = new FormatterElementCollection();
 
@@ -122,23 +123,13 @@ namespace NAnt.NUnit2.Tasks {
         #region Public Instance Properties
        
         /// <summary>
-        /// Stop the build process if a test fails. The default is <see langword="false" />.
+        /// Stop the test run if a test fails. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
         public bool HaltOnFailure {
             get { return _haltOnFailure; }
             set { _haltOnFailure = value; }
-        }
-
-        /// <summary>
-        /// Build fails on error. The default is <see langword="true" />.
-        /// </summary>
-        [TaskAttribute("haltonerror")]
-        [BooleanValidator()]
-        public bool HaltOnError {
-            get { return _haltOnError; }
-            set { _haltOnError = value; }
         }
 
         /// <summary>
@@ -230,6 +221,12 @@ namespace NAnt.NUnit2.Tasks {
                         // re-throw build exceptions
                         throw;
                     } catch (Exception ex) {
+						if (!FailOnError) {
+							// just log error and continue with next test
+							Log(Level.Error, LogPrefix + "NUnit Error: " + ex.ToString());
+							continue;
+						}
+
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Failure executing test(s). If you assembly is not built using"
                             + " NUnit version {0}, then ensure you have redirected assembly"
