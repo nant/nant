@@ -30,6 +30,7 @@ namespace NAnt.DotNet.Types {
     /// Represents an assembly-level attribute.
     /// </summary>
     [ElementName("attribute")]
+    [Serializable()]
     public class AssemblyAttribute : Element {
         #region Private Instance Fields
 
