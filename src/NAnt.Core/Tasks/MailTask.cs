@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,39 +29,49 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks { 
     /// <summary>
-    /// A task to send SMTP email.
+    /// A task to send an SMTP message.
     /// </summary>
     /// <remarks>
-    /// Text and text files to include in the message body may be specified as well as binary attachments.
+    /// Text and text files to include in the message body may be specified as 
+    /// well as binary attachments.
     /// </remarks>
     /// <example>
-    ///   <para>Sends an email from nant@sourceforge.net to three recipients with a subject about the attachments.  The body of the message will be the combined contents of body1.txt through body4.txt.  The body1.txt through body3.txt files will also be included as attachments.  The message will be sent using the smtpserver.anywhere.com SMTP server.</para>
-    ///   <code><![CDATA[
-    ///     <mail 
-    ///       from="nAnt@sourceforge.net" 
-    ///       tolist="recipient1@sourceforge.net" 
-    ///       cclist="recipient2@sourceforge.net" 
-    ///       bcclist="recipient3@sourceforge.net" 
-    ///       subject="Msg 7: With attachments" 
-    ///       files="body1.txt,body2.txt;body3.txt,body4.txt" 
-    ///       attachments="body1.txt,body2.txt;,body3.txt" 
-    ///       mailhost="smtpserver.anywhere.com"/>
-    ///   ]]></code>
+    ///   <para>
+    ///   Sends an email from <c>nant@sourceforge.net</c> to three recipients 
+    ///   with a subject about the attachments. The body of the message will be
+    ///   the combined contents of <c>body1.txt</c> through <c>body4.txt</c>.
+    ///   The <c>body1.txt</c> through <c>body3.txt</c> files will also be 
+    ///   included as attachments.  The message will be sent using the 
+    ///   <c>smtpserver.anywhere.com</c> SMTP server.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mail 
+    ///     from="nAnt@sourceforge.net" 
+    ///     tolist="recipient1@sourceforge.net" 
+    ///     cclist="recipient2@sourceforge.net" 
+    ///     bcclist="recipient3@sourceforge.net" 
+    ///     subject="Msg 7: With attachments" 
+    ///     files="body1.txt,body2.txt;body3.txt,body4.txt" 
+    ///     attachments="body1.txt,body2.txt;,body3.txt" 
+    ///     mailhost="smtpserver.anywhere.com" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("mail")]
     public class MailTask : Task {
         #region Private Instance Fields
 
-        string _from = null;
-        string _toList = null;
-        string _ccList = null;
-        string _bccList = null;
-        string _mailHost = "localhost";
-        string _subject = "";
-        string _message = "";
-        string _files = "";
-        string _attachments = "";
-        MailFormat _mailFormat = MailFormat.Text;
+        private string _from = null;
+        private string _toList = null;
+        private string _ccList = null;
+        private string _bccList = null;
+        private string _mailHost = "localhost";
+        private string _subject = "";
+        private string _message = "";
+        private string _files = "";
+        private string _attachments = "";
+        private MailFormat _mailFormat = MailFormat.Text;
 
         #endregion Private Instance Fields
 
@@ -73,13 +83,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("from", Required=true)]
         public string From {
             get { return _from; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _from = value; 
-                } else {
-                    _from = null;
-                }
-            }
+            set { _from = SetStringValue(value); }
         }
         
         /// <summary>
@@ -131,18 +135,12 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Host name of mail server. Defaults to "localhost"
+        /// Host name of mail server. Default is <c>localhost</c>.
         /// </summary>
         [TaskAttribute("mailhost")]
         public string Mailhost {
             get { return _mailHost; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _mailHost = value; 
-                } else {
-                    _mailHost = null;
-                }
-            }
+            set { _mailHost = SetStringValue(value); }
         }
   
         /// <summary>
@@ -164,7 +162,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Format of the message body. Valid values are "Html" or "Text".  Defaults to "Text".
+        /// Format of the message - either <see cref="MailFormat.Html" />
+        /// or <see cref="MailFormat.Text" />. Defaults is <see cref="MailFormat.Text" />.
         /// </summary>
         [TaskAttribute("format")]
         public MailFormat Format {
@@ -178,8 +177,8 @@ namespace NAnt.Core.Tasks {
             } 
         }
 
-       /// <summary>
-       /// Name(s) of text files to send as part of body of the email message. 
+        /// <summary>
+        /// Name(s) of text files to send as part of body of the email message. 
         /// Multiple file names are comma- or semicolon-separated.
         /// </summary>
         [TaskAttribute("files")]
@@ -216,7 +215,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
+        ///<summary>
+        ///Initializes task and ensures the supplied attributes are valid.
+        ///</summary>
         ///<param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             if (From == null) {
