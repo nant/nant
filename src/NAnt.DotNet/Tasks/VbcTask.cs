@@ -19,14 +19,15 @@
 // Mike Krueger (mike@icsharpcode.net)
 // Aaron A. Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
 
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 using NAnt.Core.Util;
-
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -67,13 +68,13 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
 
         private string _baseAddress = null;
-        private string _imports = null;
         private string _optionCompare = null;
         private bool _optionExplicit = false;
         private bool _optionStrict = false;
         private bool _optionOptimize = false;
         private bool _removeintchecks = false;
         private string _rootNamespace = null;
+        private NamespaceImportCollection _imports = new NamespaceImportCollection();
 
         #endregion Private Instance Fields
         
@@ -118,9 +119,24 @@ namespace NAnt.DotNet.Tasks {
         /// <code><![CDATA[imports="Microsoft.VisualBasic, System, System.Collections, System.Data, System.Diagnostics"]]></code>
         /// </example>
         [TaskAttribute("imports")]
-        public string Imports {
+        [Obsolete("Use the <imports> element instead.", false)]
+        public string ImportsString {
+            set { 
+                if (!StringUtils.IsNullOrEmpty(value)) {
+                    string[] imports = value.Split(',');
+                    foreach (string import in imports) {
+                        Imports.Add(new NamespaceImport(import));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// The namespaces to import.
+        /// </summary>
+        [BuildElementCollection("imports", "import")]
+        public NamespaceImportCollection Imports {
             get { return _imports; }
-            set { _imports = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -270,8 +286,9 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "define", "TRACE=True");
             }
 
-            if (Imports != null) {
-                WriteOption(writer, "imports", Imports); 
+            string imports = Imports.ToString();
+            if (!StringUtils.IsNullOrEmpty(imports)) {
+                WriteOption(writer, "imports", imports);
             }
 
             if (OptionCompare != null && OptionCompare.ToUpper(CultureInfo.InvariantCulture) != "FALSE") {
