@@ -432,9 +432,16 @@ namespace NAnt.VSNet {
                         + " Project GUID {1} already exists! Conflicting project is {2}.", 
                         projectFileName, projectGuid, _htProjectFiles[projectGuid]));
                 }
-                _htProjectFiles[projectGuid] = projectFileName;
                 if (isReferenceProject) {
                     _htReferenceProjects[projectGuid] = null;
+                } else {
+                    // set-up all other existing projects as dependencies for
+                    // the current project to ensure the project file order
+                    // defined in the build file is retained
+                    foreach (string dependencyGuid in _htProjectFiles.Keys) {
+                        AddProjectDependency(projectGuid, dependencyGuid);
+                    }
+                    _htProjectFiles[projectGuid] = projectFileName;
                 }
             }
         }
