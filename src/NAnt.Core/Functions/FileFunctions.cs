@@ -49,7 +49,14 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
-            return File.GetCreationTime(Project.GetFullPath(path));
+            string filePath = Project.GetFullPath(path);
+
+            if (!File.Exists(filePath)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "File '{0}' does not exist.", filePath));
+            }
+
+            return File.GetCreationTime(filePath);
         }
 
         /// <summary>
@@ -61,7 +68,14 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
-            return File.GetLastWriteTime(Project.GetFullPath(path));
+            string filePath = Project.GetFullPath(path);
+
+            if (!File.Exists(filePath)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "File '{0}' does not exist.", filePath));
+            }
+
+            return File.GetLastWriteTime(filePath);
         }
 
         /// <summary>
@@ -73,7 +87,14 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
-            return File.GetLastAccessTime(Project.GetFullPath(path));
+            string filePath = Project.GetFullPath(path);
+
+            if (!File.Exists(filePath)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "File '{0}' does not exist.", filePath));
+            }
+
+            return File.GetLastAccessTime(filePath);
         }
 
         /// <summary>
@@ -102,14 +123,26 @@ namespace NAnt.Core.Functions {
         /// </returns>
         [Function("up-to-date")]
         public bool UpToDate(string srcFile, string targetFile) {
+            string srcPath = Project.GetFullPath(srcFile);
+            string targetPath = Project.GetFullPath(targetFile);
+
+            if (!File.Exists(srcPath)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Source file '{0}' does not exist.", srcPath));
+            }
+
+            if (!File.Exists(targetPath)) {
+                // if targetFile does not exist, we consider it out-of-date
+                return false;
+            }
+
             // get lastwritetime of targetFile
-            DateTime targetLastWriteTime = File.GetLastWriteTime(
-                Project.GetFullPath(targetFile));
+            DateTime targetLastWriteTime = File.GetLastWriteTime(targetPath);
 
             // determine whether lastwritetime of srcFile is more recent
             // than lastwritetime or targetFile
             string newerFile = FileSet.FindMoreRecentLastWriteTime(
-                Project.GetFullPath(srcFile), targetLastWriteTime);
+                srcPath, targetLastWriteTime);
 
             // return true if srcFile is not newer than target file
             return newerFile == null;
@@ -125,6 +158,12 @@ namespace NAnt.Core.Functions {
         [Function("get-length")]
         public int Length(string file) {
             FileInfo fi = new FileInfo(Project.GetFullPath(file));
+
+            if (!fi.Exists) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "File '{0}' does not exist.", fi.FullName));
+            }
+
             return (int) fi.Length;
         }
 
