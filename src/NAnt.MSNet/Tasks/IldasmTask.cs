@@ -58,7 +58,7 @@ namespace NAnt.MSNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("ildasm")]
-    [ProgramLocation(LocationType.FrameworkDir)]
+    [ProgramLocation(LocationType.FrameworkSdkDir)]
     public class IldasmTask : ExternalProgramBase {
         #region Private Instance Fields
 
