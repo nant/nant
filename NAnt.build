@@ -136,7 +136,7 @@
         <copy todir="${build.dir}/bin/lib">
             <fileset basedir="lib">
                 <include name="**/*" />
-		<exclude name="log4net.dll" />
+                <exclude name="log4net.dll" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
@@ -481,6 +481,8 @@
                 <include name="tests/**" />
                 <include name="examples/**" />
                 <include name="schema/**" />
+                <!-- third party assemblies -->
+                <include name="lib/**" />
                 <!-- website -->
                 <include name="web/**" />
                 <!-- docs -->
