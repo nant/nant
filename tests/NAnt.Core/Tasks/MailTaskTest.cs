@@ -189,7 +189,7 @@ namespace Tests.NAnt.Core.Tasks {
             MailTask mailTask = new MailTask();
             mailTask.Project = new Project();
 
-            _bcclist= _emailAddress1 + "," + _emailAddress2;
+            _bcclist= _emailAddress1 + ";" + _emailAddress2;
             _subject="Msg 3: Test to 2 BCC addresses";
             _message="Test message";
 
@@ -229,7 +229,7 @@ namespace Tests.NAnt.Core.Tasks {
             MailTask mailTask = new MailTask();
             mailTask.Project = new Project();
 
-            _cclist= _emailAddress1 + "," + _emailAddress2;
+            _cclist= _emailAddress1 + ";" + _emailAddress2;
             _subject="Msg 4: Test to 2 CC addresses";
             _message="Test message";
 
