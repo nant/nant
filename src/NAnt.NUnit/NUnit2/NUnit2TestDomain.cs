@@ -69,7 +69,9 @@ namespace NAnt.NUnit2.Tasks {
                 // create testrunner
                 RemoteTestRunner runner = CreateTestRunner(domain);
 
-                // set the file name of the test assembly
+                // set the file name of the test assembly without directory 
+                // information, as the current directory is already set to the 
+                // directory containing the assembly
                 runner.TestFileName = Path.GetFileName(assemblyFile);
 
                 // check whether an individual testcase should be run
