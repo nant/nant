@@ -39,6 +39,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("vjc")]
+    [ProgramLocation(LocationType.FrameworkDir)]
     public class VjcTask : CompilerBase {
         #region Private Instance Fields
 
@@ -60,11 +61,11 @@ namespace NAnt.DotNet.Tasks {
         /// <para>By default, secure scoping is off.</para>
         /// <para>Corresponds to the <c>/securescoping</c> flag.</para>
         /// </summary>
-        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfsecurescopingmakepackage-scopedmembersinaccessibleoutsideassembly.htm">See the Visual J# Reference for details.</a></remarks>
         /// <value>
-        /// <para>The value of this attribute must be either <c>true</c> or <c>false</c>.</para>
-        /// <para>If <c>false</c>, the switch is omitted.</para>
+        /// <c>true</c> if the option should be passed to the compiler; otherwise,
+        /// <c>false</c>.
         /// </value>
+        /// <remarks><a href="ms-help://MS.VSCC/MS.VJSharp/dv_vjsharp/html/vjgrfsecurescopingmakepackage-scopedmembersinaccessibleoutsideassembly.htm">See the Visual J# Reference for details.</a></remarks>
         /// <example>
         /// <code><![CDATA[<vjc securescoping='true'/>]]></code>
         /// </example>
@@ -95,7 +96,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("x")]
         public string X {
             get { return _x; }
-            set { _x = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _x = value;
+                } else {
+                    _x = null;
+                }
+            }
         }
        
         /// <summary>
@@ -109,8 +116,14 @@ namespace NAnt.DotNet.Tasks {
         /// </value>
         [TaskAttribute("libpath")]
         public string LibPath {
-            get{ return _libPath; }
-            set{ _libPath = value; }
+            get { return _libPath; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _libPath = value;
+                } else {
+                    _libPath = null;
+                }
+            }
         }
        
         /// <summary>
@@ -129,7 +142,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("jcpa")]
         public string Jcpa {
             get { return _jcpa; }
-            set { _jcpa = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _jcpa = value;
+                } else {
+                    _jcpa = null;
+                }
+            }
         }
        
         /// <summary>
@@ -146,7 +165,13 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = value; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _codepage = value;
+                } else {
+                    _codepage = null;
+                }
+            }
         }
 
         /// <summary>
@@ -160,7 +185,16 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("warninglevel")]
         [Int32Validator(0, 4)]
-        public string WarningLevel  { get { return _warningLevel; } set {_warningLevel = value;}}
+        public string WarningLevel {
+            get { return _warningLevel; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _warningLevel = value;
+                } else {
+                    _warningLevel = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Specifies a comma-separated list of warnings that should be suppressed 
@@ -173,7 +207,16 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("nowarn")]
-        public string NoWarn  { get { return _noWarn; } set {_noWarn = value;}}
+        public string NoWarn {
+            get { return _noWarn; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _noWarn = value;
+                } else {
+                    _noWarn = null;
+                }
+            }
+        }
 
         #endregion Public Instance Properties
 

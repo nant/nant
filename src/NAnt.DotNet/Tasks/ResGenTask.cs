@@ -46,7 +46,7 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     [TaskName("resgen")]
-    [ProgramLocation( LocationType.FrameworkSdkDir ) ]
+    [ProgramLocation(LocationType.FrameworkSdkDir)]
     public class ResGenTask : ExternalProgramBase {
         #region Private Instance Fields
 
