@@ -209,6 +209,11 @@ namespace NAnt.Core.Tasks {
 
             // add/overwrite properties
             foreach (PropertyTask property in OverrideProperties) {
+                // expand properties in context of current project for non-dynamic
+                // properties
+                if (!property.Dynamic) {
+                    property.Value = Project.ExpandProperties(property.Value, Location);
+                }
                 property.Project = project;
                 property.Execute();
             }
