@@ -75,6 +75,7 @@ namespace NAnt.SourceControl.Tasks
     [TaskName("cvs-rtag")]
     public class RTagTask : AbstractCvsTask {
         private const string CvsCommandName = "rtag";
+        private string _tag;
         /// <summary>
         /// The name of the cvs command that is going to be executed.
         /// </summary>
@@ -97,24 +98,11 @@ namespace NAnt.SourceControl.Tasks
         /// <value>
         /// The name of the tag to assign or remove.
         /// </value>
-        [TaskAttribute("tagname", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string TagName {
-            get { return Tag; }
-            set { Tag = value; }
-        }
-
-        /// <summary>
-        /// The name of the tag to assign or remove.
-        /// </summary>
-        /// <value>
-        /// The name of the tag to assign or remove.
-        /// </value>
         [TaskAttribute("tag", Required=true)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Tag {
-            get {return ((Option)CommandOptions["tag"]).Value;}
-            set {SetCommandOption("tag", String.Format(CultureInfo.InvariantCulture,"{0}", value), true);}
+            get {return this._tag;}
+            set {this._tag = value;}
         }
 
         /// <summary>
@@ -226,5 +214,16 @@ namespace NAnt.SourceControl.Tasks
 
         #endregion Public Instance Constructors
 
+        #region Protected Instance Methods
+        /// <summary>
+        /// Append the tag information to the commandline.
+        /// </summary>
+        protected override void AppendSubCommandArgs() {
+            base.AppendSubCommandArgs ();
+            if (this.Tag != null && this.Tag != string.Empty) {
+                this.AddArg(this.Tag);
+            }
+        }
+        #endregion Protected Instance Methods
     }
 }
