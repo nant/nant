@@ -11,6 +11,8 @@
         <csc target="library" define="${current.build.defines}" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
             <sources>
                 <includes name="**/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="../CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
