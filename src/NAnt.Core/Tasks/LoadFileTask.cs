@@ -15,18 +15,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Gerry Shaw (gerry_shaw@yahoo.com)
-// Ian MacLean (ian_maclean@another.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
-using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
-using NAnt.Core.Util;
-
 using NAnt.Core.Filters;
 
 namespace NAnt.Core.Tasks {
@@ -128,7 +123,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The filterchain definition to use when filter-copying the files.
+        /// The filterchain definition to use.
         /// </summary>
         [BuildElement("filterchain")]
         public FilterChain FilterChain {
