@@ -4,7 +4,7 @@
 
     <!-- global project settings -->
     <property name="project.name" value="nant" />
-    <property name="project.version" value="0.8.4" overwrite="false" />
+    <property name="project.version" value="0.84" overwrite="false" />
 
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
