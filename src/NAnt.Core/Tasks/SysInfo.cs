@@ -152,7 +152,7 @@ namespace NAnt.Core.Tasks {
                     Properties[Prefix + "env." + name] = (string) variables[name];
                 } catch (Exception ex) {
                     if (!FailOnError) {
-                        Log(Level.Warning, "Property could not be created for "
+                        Log(Level.Warning, "Property could not be created for"
                             + " environment variable '{0}' : {1}", name, 
                             ex.Message);
                     } else {
