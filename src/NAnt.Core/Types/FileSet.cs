@@ -25,6 +25,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>
@@ -36,17 +37,17 @@ namespace NAnt.Core.Types {
     /// <history>
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
-    /// 
-	[ElementName("fileset")]
+    [ElementName("fileset")]
     public class FileSet : DataTypeBase {
         #region Private Instance Fields
 
-        bool _hasScanned = false;
-        bool _defaultExcludes = true;
-        bool _failOnEmpty = false;
-        DirectoryScanner _scanner = new DirectoryScanner();
-        StringCollection _asis = new StringCollection();
-        PathScanner _pathFiles = new PathScanner();
+        private bool _hasScanned;
+        private bool _defaultExcludes = true;
+        private bool _failOnEmpty;
+        private string _baseDirectory;
+        private DirectoryScanner _scanner = new DirectoryScanner();
+        private StringCollection _asis = new StringCollection();
+        private PathScanner _pathFiles = new PathScanner();
 
         #endregion Private Instance Fields
 
@@ -114,8 +115,8 @@ namespace NAnt.Core.Types {
         /// </summary>
         [TaskAttribute("basedir")]
         public string BaseDirectory {
-            get { return _scanner.BaseDirectory; }
-            set { _scanner.BaseDirectory = (Project == null ? value : Project.GetFullPath(value)); }
+            get { return (Project == null) ? _baseDirectory : Project.GetFullPath(_baseDirectory); }
+            set { _baseDirectory = StringUtils.ConvertEmptyToNull(value); }
         }
 
         public StringCollection Includes {
@@ -195,9 +196,9 @@ namespace NAnt.Core.Types {
         [BuildElementArray("includesList",typeof(IncludesElement))]
         public IncludesListElement[] SetIncludesList {
             set {
-                foreach (IncludesListElement include in value){
-                    if (include.IfDefined && !include.UnlessDefined) {
-                        foreach (string s in include.Files) {
+                foreach (IncludesListElement includeList in value){
+                    if (includeList.IfDefined && !includeList.UnlessDefined) {
+                        foreach (string s in includeList.Files) {
                             AsIs.Add(s);
                         }
                     }
@@ -210,12 +211,6 @@ namespace NAnt.Core.Types {
         #region Override implementation of Element
 
         protected override void InitializeElement(XmlNode elementNode) {
-            if (BaseDirectory == null) {
-                BaseDirectory = Project.BaseDirectory;
-            } else {
-                BaseDirectory = Project.GetFullPath(BaseDirectory);
-            }
-
             if (DefaultExcludes) {
                 // add default exclude patterns
                 Excludes.Add("**/*~");
@@ -230,22 +225,26 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/vssver.scc");
                 Excludes.Add("**/_vti_cnf/**");
             }
-            base.InitializeElement( elementNode );
+            base.InitializeElement(elementNode);
         }
 
         #endregion Override implementation of Element
-        
-        /// <summary>
-        /// 
-        /// </summary>     
-        public override void Reset( ) {
+
+        #region Override implementation of DataTypeBase
+
+        public override void Reset() {
             // ensure that scanning will happen again for each use
             _hasScanned = false;
         }
+
+        #endregion Override implementation of DataTypeBase
+
         #region Public Instance Methods
 
         public void Scan() {
             try {
+                _scanner.BaseDirectory = BaseDirectory;
+
                 _scanner.Scan();
 
                 // Add all the as-is patterns to the scanned files.
@@ -326,9 +325,9 @@ namespace NAnt.Core.Types {
         public class ExcludesElement : Element {
             #region Private Instance Fields
 
-            string _pattern;
-            bool _ifDefined = true;
-            bool _unlessDefined = false;
+            private string _pattern;
+            private bool _ifDefined = true;
+            private bool _unlessDefined = false;
 
             #endregion Private Instance Fields
 
@@ -372,8 +371,8 @@ namespace NAnt.Core.Types {
         public class IncludesElement : ExcludesElement {
             #region Private Instance Fields
 
-            bool _asIs = false;
-            bool _fromPath = false;
+            private bool _asIs = false;
+            private bool _fromPath = false;
 
             #endregion Private Instance Fields
 
@@ -408,36 +407,30 @@ namespace NAnt.Core.Types {
         public class IncludesListElement : ExcludesElement {
             #region Private Instance Fields
 
-            string[] files;
+            private StringCollection _files = new StringCollection();
 
             #endregion Private Instance Fields
 
             #region Public Instance Properties
 
-            public string[] Files {
-                get { return files; }
+            public StringCollection Files {
+                get { return _files; }
             }
 
             #endregion Public Instance Properties
 
             #region Override implementation of Element
 
-            protected override void InitializeElement(XmlNode elementNode)
-            {
-                StringCollection f=new StringCollection();
-
-                using (System.IO.Stream fil=File.OpenRead(Pattern)) {
-                    if(fil==null) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened",Pattern));
+            protected override void InitializeElement(XmlNode elementNode) {
+                using (Stream file = File.OpenRead(Pattern)) {
+                    if (file == null) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened.", Pattern));
                     }
-                    System.IO.StreamReader rd = new System.IO.StreamReader(fil);
-                    while(rd.Peek()>-1) {
-                        f.Add(rd.ReadLine());
+                    StreamReader rd = new StreamReader(file);
+                    while (rd.Peek() > -1) {
+                        _files.Add(rd.ReadLine());
                     }
                 }
-
-                files=new string[f.Count];
-                f.CopyTo(files,0);
             }
 
             #endregion Override implementation of Element
