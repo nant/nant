@@ -473,7 +473,9 @@ namespace NAnt.Core {
                         collectionNodes = elementNode.SelectNodes("nant:" + buildElementCollectionAttribute.Name, Project.NamespaceManager);
                         
                         if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementCollectionAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Element Required! There must be a least one '{0}' element for <{1} ...//>.", 
+                                buildElementCollectionAttribute.Name, this.Name), Location);
                         }
 
                         if (collectionNodes.Count == 1) {
@@ -482,7 +484,9 @@ namespace NAnt.Core {
 
                             string elementName = Element.GetElementNameFromType(elementType);
                             if (elementName == null) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "No name was assigned to the base element {0} for collection element {1} for <{2} ...//>.", elementType.FullName, buildElementCollectionAttribute.Name, this.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "No name was assigned to the base element '{0}' for collection element {1} for <{2} ...//>.", 
+                                    elementType.FullName, buildElementCollectionAttribute.Name, this.Name), Location);
                             }
 
                             // get actual collection of element nodes
@@ -490,10 +494,15 @@ namespace NAnt.Core {
 
                             // check if its required
                             if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ... />.", elementName, buildElementCollectionAttribute.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
+                                    elementName, buildElementCollectionAttribute.Name), Location);
                             }
                         } else if (collectionNodes.Count > 1) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Use BuildElementArrayAttributes to have multiple Element Required! There must be a least one '{0}' element for <{1} ... />.", buildElementCollectionAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "Use BuildElementArrayAttributes to have multiple Element Required!" +
+                                " There must be a least one '{0}' element for <{1} ... />.", 
+                                buildElementCollectionAttribute.Name, this.Name), Location);
                         }
                     } else {
                         collectionNodes = elementNode.SelectNodes("nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
@@ -502,7 +511,9 @@ namespace NAnt.Core {
                             // remove element from list of remaining items
                             childElementsRemaining.Remove(collectionNodes[0].Name);
                         } else if (buildElementArrayAttribute.Required) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "Element Required! There must be a least one '{0}' element for <{1} ... />.", buildElementArrayAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Element Required! There must be a least one '{0}' element for <{1} ... />.", 
+                                buildElementArrayAttribute.Name, this.Name), Location);
                         }
                     }
 
@@ -561,7 +572,10 @@ namespace NAnt.Core {
                         object collection = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                         if (collection == null) {
                             if (!propertyInfo.CanWrite) {
-                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for <{1} ... />.", buildElementArrayAttribute.Name, this.Name), Location);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "BuildElementArrayAttribute cannot be applied to read-only property with" +
+                                    " uninitialized collection-based value '{0}' element for <{1} ... />.", 
+                                    buildElementArrayAttribute.Name, this.Name), Location);
                             }
                             object instance = Activator.CreateInstance(propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
                             propertyInfo.SetValue(this, instance, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
@@ -589,7 +603,9 @@ namespace NAnt.Core {
 
                     // check if its required
                     if (nestedElementNode == null && buildElementAttribute.Required) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "'{0}' is a required element of <{1} ... />.", buildElementAttribute.Name, this.Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "'{0}' is a required element of <{1} ... />.", 
+                            buildElementAttribute.Name, this.Name), Location);
                     }
                     if (nestedElementNode != null) {
                         //remove item from list. Used to account for each child xmlelement.
@@ -597,6 +613,16 @@ namespace NAnt.Core {
                         
                         //create the child build element; not needed directly. It will be assigned to the local property.
                         CreateChildBuildElement(propertyInfo, nestedElementNode);
+
+                        // output warning to build log when multiple nested elements 
+                        // were specified in the build file, as NAnt will only process
+                        // the first element it encounters
+                        if (elementNode.SelectNodes(buildElementAttribute.Name).Count > 1) {
+                            Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
+                                "<{0} ... /> does not support multiple '{1}' child elements." +
+                                " Only the first element will be processed.", this.Name,
+                                buildElementAttribute.Name));
+                        }
                     }
                 }
 
@@ -673,7 +699,7 @@ namespace NAnt.Core {
             }
 
             // call the set method if we created the object
-            if(setter != null && getter == null) {
+            if (setter != null && getter == null) {
                 setter.Invoke(this, new object[] {childElement});
             }
             
@@ -685,8 +711,9 @@ namespace NAnt.Core {
             DataTypeBase refType = null;
             if (!StringUtils.IsNullOrEmpty(reference.ID)) {
                 // throw exception because of id and ref
-                string msg = string.Format(CultureInfo.InvariantCulture, "Datatype references cannot contain an id attribute.");
-                throw new BuildException(msg, reference.Location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "Datatype references cannot contain an id attribute."),
+                    reference.Location);
             }
             if (Project.DataTypeReferences.Contains(reference.RefID)) {
                 refType = Project.DataTypeReferences[reference.RefID];
@@ -694,8 +721,9 @@ namespace NAnt.Core {
                 refType.Reset();
             } else {
                 // reference not found exception
-                string msg = string.Format(CultureInfo.InvariantCulture, "{0} reference '{1}' not defined.", reference.Name, reference.RefID);
-                throw new BuildException(msg, reference.Location);
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "{0} reference '{1}' not defined.", reference.Name, reference.RefID), 
+                    reference.Location);
             }
             return refType;
         }
@@ -716,8 +744,6 @@ namespace NAnt.Core {
         /// is assigned to the <paramref name="type" />.
         /// </returns>
         private static string GetElementNameFromType(Type type) {
-            string name = null;
-
             if (type == null) {
                 throw new ArgumentNullException("type");
             }
@@ -726,9 +752,10 @@ namespace NAnt.Core {
                 Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
 
             if (elementNameAttribute != null) {
-                name = elementNameAttribute.Name;
+                return elementNameAttribute.Name;
             }
-            return name;
+
+            return null;
         }
 
         /// <summary>
