@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
-
+ 
 namespace NAnt.Core {
     /// <summary>Models a NAnt XML element in the build file.</summary>
     /// <remarks>
@@ -574,6 +574,16 @@ namespace NAnt.Core {
             childElement.Project = Project;
             childElement.Parent = this;
             childElement.Initialize(xml);
+            
+            DataTypeBase dataType = childElement as DataTypeBase;
+            if ( dataType != null && dataType.Ref.Length !=0  ) {
+                
+                // we have a datatype reference
+                childElement = InitDataTypeBase(dataType );
+                // re-set the getter
+                getter = null;
+                childElement.Project = Project;
+            }
 
             //call the set method if we created the object
             if(setter != null && getter == null) {
@@ -582,6 +592,31 @@ namespace NAnt.Core {
             
             //return the new/used object
             return childElement;
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        DataTypeBase InitDataTypeBase( DataTypeBase reference ){
+            DataTypeBase refType = null;
+            if ( reference.Id.Length > 0 )  {
+                // throw exception because of id and ref                
+                string msg = string.Format( CultureInfo.InvariantCulture, "datatype references cannot contain an id attribute");
+                throw new BuildException( msg, reference.Location );
+            }
+            if ( Project.DataTypeReferences.ContainsKey(reference.Ref) ){
+                refType = (DataTypeBase)Project.DataTypeReferences[reference.Ref];               
+                // clear any instance specific state
+                refType.Reset();
+                
+            } else {
+                // reference not found exception
+                string msg = string.Format( CultureInfo.InvariantCulture, "{0} reference '{1}' not defined.", reference.Name, reference.Ref );
+                throw new BuildException( msg, reference.Location );
+            }       
+            return refType;
         }
 
         #endregion Private Instance Methods

@@ -86,9 +86,9 @@ namespace NAnt.Core.Tasks {
             ArrayList taskTypes;
 
             if(_forType == null) {
-                taskTypes = new ArrayList(TaskFactory.Builders.Count);
+                taskTypes = new ArrayList(TypeFactory.TaskBuilders.Count);
 
-                foreach(TaskBuilder tb in TaskFactory.Builders) {
+                foreach(TaskBuilder tb in TypeFactory.TaskBuilders) {
                     taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
                 }
             } else {

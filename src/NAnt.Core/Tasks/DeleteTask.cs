@@ -75,6 +75,7 @@ namespace NAnt.Core.Tasks {
         [FileSet("fileset")]
         public FileSet DeleteFileSet {
             get { return _fileset; }
+            set {_fileset = value; }
         }
 
         protected override void ExecuteTask() {

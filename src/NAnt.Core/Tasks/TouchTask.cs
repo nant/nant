@@ -71,7 +71,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>Fileset to use instead of single file.</summary>
         [FileSet("fileset")]
-        public FileSet TouchFileSet { get { return _fileset; } }
+        public FileSet TouchFileSet { get { return _fileset; } set {_fileset = value; } }
 
         #endregion Public Instance Properties
 

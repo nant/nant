@@ -36,7 +36,8 @@ namespace NAnt.Core.Types {
     /// <history>
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
-    public class FileSet : Element {
+    [ElementName("fileset")]
+    public class FileSet : DataTypeBase {
         #region Private Instance Fields
 
         bool _hasScanned = false;
@@ -226,10 +227,18 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/vssver.scc");
                 Excludes.Add("**/_vti_cnf/**");
             }
+            base.InitializeElement( elementNode );
         }
 
         #endregion Override implementation of Element
-
+        
+        /// <summary>
+        /// 
+        /// </summary>     
+        public override void Reset( ) {
+            // ensure that scanning will happen again for each use
+            _hasScanned = false;
+        }
         #region Public Instance Methods
 
         public void Scan() {

@@ -83,6 +83,7 @@ namespace NAnt.Core.Tasks {
         [FileSet("fileset")]
         public FileSet AttribFileSet {
             get { return _fileset; }
+            set {_fileset = value; }
         }
 
         /// <summary>

@@ -1,0 +1,95 @@
+// NAnt - A .NET build tool
+// Copyright (C) 2001-2002 Gerry Shaw
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+// Ian MacLean (ian_maclean@another.com)
+
+using System;
+using System.Globalization;
+using System.Reflection;
+using System.Xml;
+
+using NAnt.Core.Attributes;
+
+namespace NAnt.Core {
+    /// <summary>
+    /// Provides the abstract base class for tasks.
+    /// </summary>
+    /// <remarks>A task is a piece of code that can be executed.</remarks>
+    public abstract class DataTypeBase : Element {
+    
+        private string _id = "";
+        private string _ref = "";
+        
+        /// <summary>The name of the datatype.</summary>
+        public override string Name {
+            get {
+                string name = null;
+                ElementNameAttribute elementName = (ElementNameAttribute) Attribute.GetCustomAttribute(GetType(), typeof(ElementNameAttribute));
+                if (elementName != null) {
+                    name = elementName.Name;
+                }
+                return name;
+            }
+        }
+               /// <summary>The base of the directory of this file set.  Default is project base directory.</summary>
+        [TaskAttribute("id" )]
+        public string Id
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+        // todo if ref has value then load it from collection ...
+        [TaskAttribute("refid")]
+        public string Ref 
+        {
+            get { return _ref; }  
+            set { _ref = value; }            
+        }
+		
+		/// <summary>
+		/// Should be overridden by derived classes. clones the referenced types data into the current instance
+		/// </summary>		
+		public virtual void Reset( ) {			
+		}     
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementNode"></param>
+        protected override void InitializeElement(XmlNode elementNode) {
+            // only allow 
+            Console.WriteLine( Parent.ToString());
+            if (  Parent.GetType()  ==  typeof(Project) || Parent.GetType()  ==  typeof(Target)) {
+                if (Id.Length  == 0 ) {
+                    string msg = String.Format(CultureInfo.InvariantCulture, "'id' is a required attribute for a <{0}> datatype declaration.", Name );
+				    throw new BuildException( msg, Location );
+                }
+                if ( Ref.Length  > 0 ){
+                    string msg = String.Format(CultureInfo.InvariantCulture, "'refid' attribute is invalid for a <{0}> datatype declaration.", Name );
+				    throw new BuildException( msg, Location );
+                }
+                    
+            } 
+            else {
+                  if (elementNode.ChildNodes.Count  == 0 &&  Ref.Length  == 0 ) {
+                    string msg = String.Format(CultureInfo.InvariantCulture, "'refid' is a required attribute for a <{0}> reference.", Name );
+				    throw new BuildException( msg, Location );
+                  }
+            }
+        }
+		
+    }
+}

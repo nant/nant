@@ -87,7 +87,7 @@ namespace NAnt.Core.Tasks {
         
          /// <summary>Filesets are used to select which directories or individual assemblies to scan.</summary>
         [FileSet("fileset")]
-        public FileSet TaskFileSet      { get { return _fileset; } }
+        public FileSet TaskFileSet      { get { return _fileset; } set {_fileset = value; } }
         
         #endregion Public Instance Properties
 
@@ -117,12 +117,12 @@ namespace NAnt.Core.Tasks {
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
                 Log(Level.Info, LogPrefix + "Loading tasks from assembly {0}.", assemblyPath);
-                TaskFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
+                TypeFactory.AddTasks(Assembly.LoadFrom(assemblyPath));
             }
             // now the filenames
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
                 Log(Level.Info, LogPrefix + "Scanning directory {0} for task assemblies.", scanPath);
-                TaskFactory.ScanDir(scanPath);
+                TypeFactory.ScanDir(scanPath);
             }
         }
 

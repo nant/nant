@@ -21,6 +21,7 @@
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
@@ -78,7 +79,7 @@ namespace NAnt.Core {
 
         #endregion Internal Static Fields
 
-        #region Public Instance Fields
+        #region Public Instance Events
 
         public event BuildEventHandler BuildStarted;
         public event BuildEventHandler BuildFinished;
@@ -88,7 +89,7 @@ namespace NAnt.Core {
         public event BuildEventHandler TaskFinished;
         public event BuildEventHandler MessageLogged;
 
-        #endregion Public Instance Fields
+        #endregion Public Instance Events
 
         #region Private Instance Fields
 
@@ -110,6 +111,7 @@ namespace NAnt.Core {
         FrameworkInfoDictionary _frameworkInfoDictionary = new FrameworkInfoDictionary();
         FrameworkInfo _defaultFramework;
         FrameworkInfo _currentFramework;
+        Hashtable _dataTypeReferences = new Hashtable();
 
         /// <summary>
         /// Holds the default threshold for build loggers.
@@ -511,6 +513,10 @@ namespace NAnt.Core {
             OnMessageLogged(eventArgs);
         }
 
+        public Hashtable DataTypeReferences {
+            get {return _dataTypeReferences; }
+        }
+        
         /// <summary>
         /// Writes a <see cref="Target" /> level message to the build log with 
         /// the given <see cref="Level" />.
@@ -631,7 +637,20 @@ namespace NAnt.Core {
                 OnBuildFinished(this, buildFinishedArgs);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementNode"></param>
+        /// <returns></returns>
+        DataTypeBase CreateDataTypeBase(XmlNode elementNode ) {
+            DataTypeBase type = TypeFactory.CreateDataType( elementNode, this);
 
+            type.Project = this;
+            type.Parent = this;
+            //type.Parent = target;
+            type.Initialize(elementNode);
+            return type;
+        }
         /// <summary>
         /// Creates a new <see ref="Task" /> from the given <see cref="XmlNode" />.
         /// </summary>
@@ -649,7 +668,7 @@ namespace NAnt.Core {
         /// <param name="target">The owner <see cref="Target" />.</param>
         /// <returns>The new <see cref="Task" /> instance.</returns>
         public Task CreateTask(XmlNode taskNode, Target target) {
-            Task task = TaskFactory.CreateTask(taskNode, this);
+            Task task = TypeFactory.CreateTask(taskNode, this);
             task.Project = this;
             task.Parent = target;
             task.Initialize(taskNode);
@@ -778,7 +797,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Inits stuff:
-        ///     <para>TaskFactory: Calls Initialize and AddProject </para>
+        ///     <para>TypeFactory: Calls Initialize and AddProject </para>
         ///     <para>Log.IndentSize set to 12</para>
         ///     <para>Project properties are initialized ("nant.* stuff set")</para>
         ///     <list type="nant.items">
@@ -800,7 +819,7 @@ namespace NAnt.Core {
         protected void CtorHelper(XmlDocument doc, Level threshold, int indentLevel) {
             string newBaseDir = null;
 
-            TaskFactory.AddProject(this);
+            TypeFactory.AddProject(this);
 
             // set the project definition
             _doc = doc;
@@ -944,21 +963,27 @@ namespace NAnt.Core {
                     target.Initialize(childNode);
                     Targets.Add(target);
                 } else if (!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
-                    Task task = CreateTask(childNode);
+                    
+                    if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                        Task task = CreateTask(childNode);
 
-                    //see comments below.                   
-                    //globalTasks.Add(task);
-                    task.Parent = this;
-                    task.Execute();
-
+                        //see comments below.
+                        //globalTasks.Add(task);
+                        task.Parent = this;
+                        task.Execute();
+                    }
+                    
+                    // store datatype references
+                    else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name) ) {
+                        // we are an datatype declaration
+                        DataTypeBase dataType =  CreateDataTypeBase(childNode );
+                        
+                        
+                        Log( Level.Verbose, "adding a {0} reference with id '{1}'", childNode.Name, dataType.Id   );
+                        _dataTypeReferences.Add( dataType.Id, dataType );                        
+                    }                       
                 }
-            }          
-
-            /* Do not do this yet. We need to do lazy init of the Tasks first.
-            foreach(Task task in globalTasks) {
-                task.Execute();
-            }
-            */
+            }                   
         }
 
         #endregion Internal Instance Methods

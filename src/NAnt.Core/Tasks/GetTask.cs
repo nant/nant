@@ -81,7 +81,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>FileSets are used to select files to get.</summary>
         [FileSet("fileset")]
-        public FileSet FileSet { get { return _fileset; }  }
+        public FileSet FileSet { get { return _fileset; } set {_fileset = value; } }
 
         #endregion Public Instance Properties
 
