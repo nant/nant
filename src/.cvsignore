@@ -1,0 +1,6 @@
+*.dat
+*.suo
+*.user
+*.csproj
+bin
+obj

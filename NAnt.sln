@@ -1,0 +1,54 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Console", "Nant.Console\NAnt.Console.csproj", "{859696F8-F405-4018-A155-D34561498A3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNetTasks", "NAnt.DotNetTasks\NAnt.DotNetTasks.csproj", "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VisualCppTasks", "NAnt.VisualCppTasks\NAnt.VisualCppTasks.csproj", "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.ZipTasks", "NAnt.ZipTasks\NAnt.ZipTasks.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDoc.Documenter.NAnt", "NDoc.Documenter.NAnt\NDoc.Documenter.NAnt.csproj", "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Core", "NAnt.Core\NAnt.Core.csproj", "{8F5F8375-4097-4952-B860-784EB9961ABE}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Debug Main NAnt BuildFile
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+		{859696F8-F405-4018-A155-D34561498A3E}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{859696F8-F405-4018-A155-D34561498A3E}.Debug.ActiveCfg = Debug|.NET
+		{859696F8-F405-4018-A155-D34561498A3E}.Debug.Build.0 = Debug|.NET
+		{859696F8-F405-4018-A155-D34561498A3E}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{859696F8-F405-4018-A155-D34561498A3E}.Debug Main NAnt BuildFile.Build.0 = Debug Main NAnt BuildFile|.NET
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug.ActiveCfg = Debug|.NET
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{B50A1067-785B-4686-8FFC-5AF424BEF163}.Debug.ActiveCfg = Debug|.NET
+		{B50A1067-785B-4686-8FFC-5AF424BEF163}.Debug.Build.0 = Debug|.NET
+		{B50A1067-785B-4686-8FFC-5AF424BEF163}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{B50A1067-785B-4686-8FFC-5AF424BEF163}.Debug Main NAnt BuildFile.Build.0 = Debug Main NAnt BuildFile|.NET
+		{A154DB17-7263-44E3-838E-1E4C4946B7D8}.Debug.ActiveCfg = Debug|.NET
+		{A154DB17-7263-44E3-838E-1E4C4946B7D8}.Debug.Build.0 = Debug|.NET
+		{A154DB17-7263-44E3-838E-1E4C4946B7D8}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{A154DB17-7263-44E3-838E-1E4C4946B7D8}.Debug Main NAnt BuildFile.Build.0 = Debug Main NAnt BuildFile|.NET
+		{8F80C098-94A4-44DB-A25D-C9E455FC3120}.Debug.ActiveCfg = Debug|.NET
+		{8F80C098-94A4-44DB-A25D-C9E455FC3120}.Debug.Build.0 = Debug|.NET
+		{8F80C098-94A4-44DB-A25D-C9E455FC3120}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{8F80C098-94A4-44DB-A25D-C9E455FC3120}.Debug Main NAnt BuildFile.Build.0 = Debug Main NAnt BuildFile|.NET
+		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug.ActiveCfg = Debug|.NET
+		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug.ActiveCfg = Debug|.NET
+		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug.Build.0 = Debug|.NET
+		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug Main NAnt BuildFile.ActiveCfg = Debug Main NAnt BuildFile|.NET
+		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug Main NAnt BuildFile.Build.0 = Debug Main NAnt BuildFile|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
