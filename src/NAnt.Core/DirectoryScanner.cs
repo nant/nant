@@ -57,7 +57,7 @@ namespace NAnt.Core {
     /// <example>
     ///     <para>Simple client code for testing the class.</para>
     ///     <code>
-    ///         while(true) {
+    ///         while (true) {
     ///             DirectoryScanner scanner = new DirectoryScanner();
     ///
     ///             Console.Write("Scan Basedirectory : ");
@@ -98,26 +98,26 @@ namespace NAnt.Core {
     public class DirectoryScanner {
         #region Private Instance Fields
 
-        // Set to current directory in Scan if user doesn't specify something first.
-        // Keeping it null, lets the user detect if it's been set or not.
-        string _baseDirectory = null; 
+        // set to current directory in Scan if user doesn't specify something first.
+        // keeping it null, lets the user detect if it's been set or not.
+        private string _baseDirectory = null; 
 
         // holds the nant patterns (absolute or relative paths)
-        DirScannerStringCollection _includes = new DirScannerStringCollection();
-        DirScannerStringCollection _excludes = new DirScannerStringCollection();
+        private DirScannerStringCollection _includes = new DirScannerStringCollection();
+        private DirScannerStringCollection _excludes = new DirScannerStringCollection();
 
         // holds the nant patterns converted to regular expression patterns (absolute canonized paths)
-        DirScannerStringCollection _includePatterns = null;
-        DirScannerStringCollection _excludePatterns = null;
+        private DirScannerStringCollection _includePatterns = null;
+        private DirScannerStringCollection _excludePatterns = null;
 
         // holds the result from a scan
-        DirScannerStringCollection _fileNames = null;
-        DirScannerStringCollection _directoryNames = null;
+        private DirScannerStringCollection _fileNames = null;
+        private DirScannerStringCollection _directoryNames = null;
 
         // directories that should be scanned and directories scanned so far
-        DirScannerStringCollection _searchDirectories = null;
-        DirScannerStringCollection _pathsAlreadySearched = null;
-        ArrayList	 _searchDirIsRecursive = null;
+        private DirScannerStringCollection _searchDirectories = null;
+        private DirScannerStringCollection _scannedDirectories = null;
+        private ArrayList _searchDirIsRecursive = null;
 
         #endregion Private Instance Fields
 
@@ -129,10 +129,16 @@ namespace NAnt.Core {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets the collection of include patterns.
+        /// </summary>
         public DirScannerStringCollection Includes {
             get { return _includes; }
         }
 
+        /// <summary>
+        /// Gets the collection of exclude patterns.
+        /// </summary>
         public DirScannerStringCollection Excludes {
             get { return _excludes; }
         }
@@ -142,6 +148,9 @@ namespace NAnt.Core {
             set { _baseDirectory = value; }
         }
 
+        /// <summary>
+        /// Gets the list of files that match the given patterns.
+        /// </summary>
         public DirScannerStringCollection FileNames {
             get {
                 if (_fileNames == null) {
@@ -151,12 +160,27 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Gets the list of directories that match the given patterns.
+        /// </summary>
         public DirScannerStringCollection DirectoryNames {
             get {
                 if (_directoryNames == null) {
                     Scan();
                 }
                 return _directoryNames;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of directories that were scanned for files.
+        /// </summary>
+        public DirScannerStringCollection ScannedDirectories {
+            get {
+                if (_scannedDirectories == null) {
+                    Scan();
+                }
+                return _scannedDirectories;
             }
         }
 
@@ -183,7 +207,7 @@ namespace NAnt.Core {
             _directoryNames = new DirScannerStringCollection();
             _searchDirectories = new DirScannerStringCollection();
             _searchDirIsRecursive = new ArrayList();
-            _pathsAlreadySearched = new DirScannerStringCollection();
+            _scannedDirectories = new DirScannerStringCollection();
 
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
@@ -200,7 +224,8 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         /// <summary>
-        /// Parses specified NAnt search patterns for search directories and corresponding regex patterns.
+        /// Parses specified NAnt search patterns for search directories and 
+        /// corresponding regex patterns.
         /// </summary>
         /// <param name="nantPatterns">In. NAnt patterns. Absolute or relative paths.</param>
         /// <param name="regexPatterns">Out. Regex patterns. Absolute canonical paths.</param>
@@ -212,20 +237,26 @@ namespace NAnt.Core {
             string searchDirectory;
             string regexPattern;
             bool isRecursive;
+
             foreach (string nantPattern in nantPatterns) {
                 ParseSearchDirectoryAndPattern(nantPattern, out searchDirectory, out isRecursive, out regexPattern);
-                if (!regexPatterns.Contains(regexPattern))
+                if (!regexPatterns.Contains(regexPattern)) {
                     regexPatterns.Add(regexPattern);
-                if (!addSearchDirectories)
+                } 
+                if (!addSearchDirectories) {
                     continue;
+                }
                 int index = _searchDirectories.IndexOf(searchDirectory);
-                // If the directory was found before, but wasn't recursive and is now, mark it as so
+
+                // if the directory was found before, but wasn't recursive 
+                // and is now, mark it as so
                 if (index > -1) {
                     if (!(bool)_searchDirIsRecursive[index] && isRecursive) {
                         _searchDirIsRecursive[index] = isRecursive;
                     }
                 }
-                // If the directory has not been added, add it
+
+                // if the directory has not been added, add it
                 if (index == -1) {
                     _searchDirectories.Add(searchDirectory);
                     _searchDirIsRecursive.Add(isRecursive);
@@ -234,7 +265,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        ///     Given a NAnt search pattern returns a search directory and an regex search pattern.
+        /// Given a NAnt search pattern returns a search directory and an regex 
+        /// search pattern.
         /// </summary>
         /// <param name="originalNAntPattern">NAnt searh pattern (relative to the Basedirectory OR absolute, relative paths refering to parent directories ( ../ ) also supported)</param>
         /// <param name="searchDirectory">Out. Absolute canonical path to the directory to be searched</param>
@@ -289,8 +321,7 @@ namespace NAnt.Core {
             //We only prepend BaseDirectory when s represents a relative path.
             if (Path.IsPathRooted(s)) {
                 searchDirectory = new DirectoryInfo(s).FullName;
-            }
-            else {
+            } else {
                 //We also (correctly) get to this branch of code when s.Length == 0
                 searchDirectory = new DirectoryInfo(Path.Combine(BaseDirectory, s)).FullName;
             }
@@ -298,19 +329,20 @@ namespace NAnt.Core {
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
             regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
 
-            //Specify pattern as case-insensitive if appropriate to this file system.
+            // specify pattern as case-insensitive if appropriate to this file system.
             if (!IsCaseSensitiveFileSystem(searchDirectory)) {
                 regexPattern = "(?i)" + regexPattern;
             }
         }
 
         private bool IsCaseSensitiveFileSystem(string path) {
-            //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
+            // Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
             return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar))); 
         }
 
         /// <summary>
-        ///     Searches a directory recursively for files and directories matching the search criteria
+        /// Searches a directory recursively for files and directories matching 
+        /// the search criteria.
         /// </summary>
         /// <param name="path">Directory in which to search (absolute canonical path)</param>
         /// <param name="recursive">Whether to scan recursively or not</param>
@@ -319,19 +351,22 @@ namespace NAnt.Core {
         /// </history>
         private void ScanDirectory(string path, bool recursive) {
             // scan each directory only once
-            if (_pathsAlreadySearched.Contains(path)) {
+            if (_scannedDirectories.Contains(path)) {
                 return;
             }
-            _pathsAlreadySearched.Add(path);
 
-            //if the path doesn't exist, return.
-            if(!Directory.Exists(path)) {
+            // add directory to list of scanned directories
+            _scannedDirectories.Add(path);
+
+            // if the path doesn't exist, return.
+            if (!Directory.Exists(path)) {
                 return;
             }
 
             // get info for the current directory
             DirectoryInfo currentDirectoryInfo = new DirectoryInfo(path);
-            
+
+            // check whether directory is on case-sensitive volume
             bool caseSensitive = VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar));
 
             foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
@@ -354,7 +389,7 @@ namespace NAnt.Core {
                 }
             }
 
-            // Check current path last so that delete task will correctly
+            // check current path last so that delete task will correctly
             // delete empty directories.  This may *seem* like a special case
             // but it is more like formalizing something in a way that makes
             // writing the delete task easier :)
@@ -474,11 +509,12 @@ namespace NAnt.Core {
         /// <summary>
         /// Creates a string representing a list of the strings in the collection.
         /// </summary>
-        /// <returns>A string that represents the contents.</returns>
-        public override string ToString() {
-            StringBuilder sb = new StringBuilder(base.ToString());
+        /// <returns>
+        /// A string that represents the contents.
+        /// </returns>
+        public override string ToString() {            StringBuilder sb = new StringBuilder(base.ToString());
             sb.Append(":" + Environment.NewLine);
-            foreach(string s in this) {
+            foreach (string s in this) {
                 sb.Append(s);
                 sb.Append(Environment.NewLine);
             }
