@@ -25,6 +25,8 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Used to wrap log messages in xml &lt;message/&gt; elements.
@@ -117,6 +119,13 @@ namespace NAnt.Core {
         /// This event will still be fired if an error occurred during the build.
         /// </remarks>
         public void BuildFinished(object sender, BuildEventArgs e) {
+            if (e.Exception != null) {
+                _xmlWriter.WriteStartElement("failure");
+                WriteErrorNode(e.Exception);
+                _xmlWriter.WriteEndElement();
+            }
+
+            // close buildresults node
             _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
         }
@@ -272,6 +281,71 @@ namespace NAnt.Core {
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+
+
+        private void WriteErrorNode(Exception exception) {
+            if (exception == null) {
+                // build success
+                return;
+            } else {
+                BuildException buildException = null;
+
+                if (typeof(BuildException).IsAssignableFrom(exception.GetType())) {
+                    buildException = (BuildException) exception;
+                }
+
+                if (buildException != null) {
+                    // start build error node
+                    _xmlWriter.WriteStartElement("builderror");
+                } else {
+                    // start build error node
+                    _xmlWriter.WriteStartElement("internalerror");
+                }
+
+                // write exception type
+                _xmlWriter.WriteElementString("type", exception.GetType().FullName);
+
+                // write location for build exceptions
+                if (buildException != null) {
+                    // write raw exception message
+                    if (buildException.RawMessage != null) {
+                        _xmlWriter.WriteStartElement("message");
+                        _xmlWriter.WriteCData(StripCData(buildException.RawMessage));
+                        _xmlWriter.WriteEndElement();
+                    }
+
+                    if (buildException.Location != null) {
+                        if (!StringUtils.IsNullOrEmpty(buildException.Location.ToString())) {
+                            _xmlWriter.WriteStartElement("location");
+                            _xmlWriter.WriteElementString("filename", buildException.Location.FileName);
+                            _xmlWriter.WriteElementString("linenumber", 
+                                buildException.Location.LineNumber.ToString(CultureInfo.InvariantCulture));
+                            _xmlWriter.WriteElementString("columnnumber", 
+                                buildException.Location.ColumnNumber.ToString(CultureInfo.InvariantCulture));
+                            _xmlWriter.WriteEndElement();
+                        }
+                    }
+                } else {
+                    // write exception message
+                    if (exception.Message != null) {
+                        _xmlWriter.WriteStartElement("message");
+                        _xmlWriter.WriteCData(StripCData(exception.Message));
+                        _xmlWriter.WriteEndElement();
+                    }
+                }
+
+                // write stacktrace of exception to build log
+                _xmlWriter.WriteStartElement("stacktrace");
+                _xmlWriter.WriteCData(exception.StackTrace);
+                _xmlWriter.WriteEndElement();
+
+                // write information about inner exception
+                WriteErrorNode(exception.InnerException);
+
+                // close failure node
+                _xmlWriter.WriteEndElement();
+            }
+        }
 
         private bool IsValidXml(string message) {
             if (Regex.Match(message, @"^<.*>").Success) {
