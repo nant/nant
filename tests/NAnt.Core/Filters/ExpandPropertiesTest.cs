@@ -18,54 +18,50 @@
 
 using System;
 using System.Text;
-using NAnt.Core.Filters;
+
 using NUnit.Framework;
+
+using NAnt.Core.Filters;
 
 namespace Tests.NAnt.Core.Filters {
     /// <summary>
-    /// Tests the ExpandExpressions class.
+    /// Tests the ExpandProperties filter.
     /// </summary>
     [TestFixture]
-    public class ExpandExpressionsTest : FilterTestBase {
-        const string _tagName = "expandexpressions";
+    public class ExpandPropertiesTest : FilterTestBase {
+        const string _tagName = "expandproperties";
         const char _stringChar = 'A';
         const int _minStringExpressionLength = 5;
 
         [Test]
         public void InstantiationTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", " ", " ");
-        }
-
-        [Test]
-        public void EmptyFileTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", "", "");
-        }
-
-        [Test]
-        [ExpectedException(typeof(TestBuildException))]
-        public void NoOrderTest () {
             base.TestFilter(@"<" + _tagName + @" />", " ", " ");
         }
 
         [Test]
+        public void EmptyFileTest () {
+            base.TestFilter(@"<" + _tagName + @" />", "", "");
+        }
+
+        [Test]
         public void ExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", "${'la' + 'la'}", "lala");
+            base.TestFilter(@"<" + _tagName + @" />", "${'la' + 'la'}", "lala");
         }
 
         [Test]
         public void MaxSafeExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", GetString(4090) + GetStringExpression(2048), GetString(4090) + GetString(2048 - _minStringExpressionLength));
+            base.TestFilter(@"<" + _tagName + @" />", GetString(4090) + GetStringExpression(2048), GetString(4090) + GetString(2048 - _minStringExpressionLength));
         }
 
         [Test]
         public void UnsafeButExpandedExpressionTest () {
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", GetStringExpression(4095), GetString(4095 - _minStringExpressionLength));
+            base.TestFilter(@"<" + _tagName + @" />", GetStringExpression(4095), GetString(4095 - _minStringExpressionLength));
         }
 
         [Test]
         public void UnsafeAndIgnoredExpressionTest () {
             string temp = GetString(1) + GetStringExpression(4095);
-            base.TestFilter(@"<" + _tagName + @" order=""0"" />", temp, temp);
+            base.TestFilter(@"<" + _tagName + @" />", temp, temp);
         }
 
         private string GetStringExpression (int expressionLength) {
