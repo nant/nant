@@ -386,7 +386,8 @@ namespace NAnt.DotNet.Tasks {
                 if (node.NodeType == XmlNodeType.Element) {
                     ExpandPropertiesInNodes(node.ChildNodes);
                     foreach (XmlAttribute attr in node.Attributes) {
-                        attr.Value = Project.ExpandProperties(attr.Value, Location);
+                        // use "this" keyword as workaround for Mono bug #71992
+                        attr.Value = this.Project.ExpandProperties(attr.Value, Location);
                     }
 
                     // convert output directory to full path relative to project base directory
@@ -394,7 +395,8 @@ namespace NAnt.DotNet.Tasks {
                     if (outputDirProperty != null) {
                         XmlAttribute valueAttribute = (XmlAttribute) outputDirProperty.Attributes.GetNamedItem("value");
                         if (valueAttribute != null) {
-                            valueAttribute.Value = Project.GetFullPath(valueAttribute.Value);
+                            // use "this" keyword as workaround for Mono bug #71992
+                            valueAttribute.Value = this.Project.GetFullPath(valueAttribute.Value);
                         }
                     }
                 }
