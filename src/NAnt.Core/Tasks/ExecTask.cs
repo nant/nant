@@ -196,18 +196,14 @@ namespace NAnt.Core.Tasks {
                 if (Path.IsPathRooted(FileName)) {
                     return FileName;
                 } else if (_baseDirectory == null) {
-                    // check if spefified program contains directory information
-                    // directory if program contains directory information
-                    if (!StringUtils.IsNullOrEmpty(Path.GetDirectoryName(FileName))) {
-                        // resolve program to full path relative to project's base
-                        // directory if program contains directory information
-                        return Path.GetFullPath(Path.Combine(Project.BaseDirectory, 
-                            FileName));
-                    } else {
-                        // just use the filename to scan the directories on the 
-                        // PATH
-                        return FileName;
+                    // resolve program to full path relative to project directory
+                    string fullPath = Project.GetFullPath(FileName);
+                    // check if the program exists in that location
+                    if (File.Exists(fullPath)) {
+                        // return full path to program (which we know exists)
+                        return fullPath;
                     }
+                    return FileName;
                 } else {
                     return Path.GetFullPath(Path.Combine(BaseDirectory.FullName, 
                         FileName));

@@ -235,20 +235,9 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            // store original current directory
-            string oldCurrentDirectory = Directory.GetCurrentDirectory();
-
-            try {
-                // change current directory to directory of the build file that
-                // will be run
-                Directory.SetCurrentDirectory(buildFile.DirectoryName);
-                // run the given build
-                if (!project.Run()) {
-                    throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
-                }
-            } finally {
-                // restore current directory to original value
-                Directory.SetCurrentDirectory(oldCurrentDirectory);
+            // run the given build
+            if (!project.Run()) {
+                throw new BuildException("Nested build failed.  Refer to build log for exact reason.");
             }
         }
 
