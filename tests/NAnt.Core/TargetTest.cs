@@ -125,6 +125,24 @@ namespace Tests.NAnt.Core {
             Assert.AreEqual(1, listener.GetTargetExecutionCount("Target3"), "Target3 should have executed once." + Environment.NewLine + result);
         }
 
+        /// <summary>
+        /// Ensures dependencies of a target are executed before the condition
+        /// is checked. Meaning, dependencies are executed even if the target
+        /// itself should not be executed (because of condition that is not met).
+        /// </summary>
+        [Test]
+        public void Test_Depends3() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // run the build
+            string result = RunBuild(FormatBuildFile("Target3", "true", "true", "Target2"), listener);
+
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target1"), "Target1 should not have executed." + Environment.NewLine + result);
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("Target2"), "Target2 should have executed once." + Environment.NewLine + result);
+            Assert.AreEqual(0, listener.GetTargetExecutionCount("Target3"), "Target3 should not have executed." + Environment.NewLine + result);
+        }
+
         [Test]
         public void Test_Wild() {
             // create new listener that allows us to track build events
