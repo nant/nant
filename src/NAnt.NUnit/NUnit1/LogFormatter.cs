@@ -16,6 +16,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+//
+// TO-DO : replace Console.WriteLine methods with logging method calls
 
 using System;
 using System.IO;
@@ -25,7 +27,7 @@ using NUnit.Framework;
 
 namespace SourceForge.NAnt.Tasks.NUnit {
     /// <summary>
-    /// Prints information about running tests directly to the <see cref="Log" /> class.
+    /// Prints information about running tests directly to the build log.
     /// </summary>
     public class LogFormatter : IResultFormatter {
         #region Public Instance Constructors
@@ -61,17 +63,20 @@ namespace SourceForge.NAnt.Tasks.NUnit {
 
         /// <summary>Called when the whole test suite has started.</summary>
         public void StartTestSuite(NUnitTestData suite) {
-            Log.WriteLineIf(Verbose, Prefix + "------------------------------------------");
+            if (Verbose) {
+                Console.WriteLine(Prefix + "------------------------------------------");
+            }
         }
 
         /// <summary>Called when the whole test suite has ended.</summary>
         public void EndTestSuite(TestResultExtra result) {
-            Log.WriteLineIf(Verbose, Prefix + "------------------------------------------");
+            if (Verbose) {
+                Console.WriteLine(Prefix + "------------------------------------------");
+            }
             if (result.WasSuccessful) {
-                Log.WriteLine(Prefix + "{0} tests: ALL SUCCESSFUL", result.RunCount);
+                Console.WriteLine(Prefix + "{0} tests: ALL SUCCESSFUL", result.RunCount);
             } else {
-                Log.WriteLine(Prefix + "{0} tests: FAILURES: {1} ERRORS: {2}",
-                    result.RunCount, result.FailureCount, result.ErrorCount);
+                Console.WriteLine(Prefix + "{0} tests: FAILURES: {1} ERRORS: {2}", result.RunCount, result.FailureCount, result.ErrorCount);
             }
         }
 
@@ -80,19 +85,25 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         #region Implementation of ITestListener
 
         public void AddError(ITest test, Exception e) {
-            Log.WriteLine(Prefix + "ERROR: " + GetTestSummary(test));
-            Log.WriteLine(FormatError(e.StackTrace, e.Message));
-            Log.WriteLineIf(Verbose, e.StackTrace);
+            Console.WriteLine(Prefix + "ERROR: " + GetTestSummary(test));
+            Console.WriteLine(FormatError(e.StackTrace, e.Message));
+            if (Verbose) {
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
         public void AddFailure(ITest test, AssertionFailedError e) {
-            Log.WriteLine(Prefix + "FAILURE: " + GetTestSummary(test));
-            Log.WriteLine(FormatError(e.StackTrace, e.Message));
-            Log.WriteLineIf(Verbose, e.StackTrace);
+            Console.WriteLine(Prefix + "FAILURE: " + GetTestSummary(test));
+            Console.WriteLine(FormatError(e.StackTrace, e.Message));
+            if (Verbose) {
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
         public void StartTest(ITest test) {
-            Log.WriteLineIf(Verbose, Prefix + GetTestSummary(test));
+            if (Verbose) {
+                Console.WriteLine(Prefix + GetTestSummary(test));
+            }
         }
 
         public void EndTest(ITest test) {
