@@ -377,13 +377,29 @@ namespace NAnt.VSNet {
         private void GetDependenciesFromProjects() {
             Log(Level.Verbose, LogPrefix + "Gathering additional dependencies...");
 
-            // First get all of the output files
+            // first get all of the output files
             foreach (DictionaryEntry de in _htProjects) {
                 string projectGuid = (string) de.Key;
                 Project p = (Project) de.Value;
 
                 foreach (string configuration in p.Configurations) {
                     _htOutputFiles[p.GetConfigurationSettings(configuration).FullOutputFile] = projectGuid;
+                }
+            }
+
+            // if one of output files resides in reference search path - circle began
+            // we must build project with that outputFile before projects referencing it
+            // (similar to project dependency) VS.NET 7.0/7.1 do not address this problem
+
+            // build list of output which reside in such folders
+            Hashtable outputsInAssemblyFolders = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
+            foreach (DictionaryEntry de in _htOutputFiles) {
+                string outputfile = (string)de.Key;
+                string folder = Path.GetDirectoryName(outputfile);
+
+                if (_solutionTask.AssemblyFolders.DirectoryNames.Contains(folder) || _solutionTask.DefaultAssemlyFolders.DirectoryNames.Contains(folder)) {
+                    outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
                 }
             }
 
@@ -397,6 +413,8 @@ namespace NAnt.VSNet {
                         AddProjectDependency(projectGUID, reference.Project.GUID);
                     } else if (_htOutputFiles.Contains(reference.Filename)) {
                         AddProjectDependency(projectGUID, (string) _htOutputFiles[reference.Filename]);
+                    } else if (outputsInAssemblyFolders.Contains(Path.GetFileName(reference.Filename))) {
+                        AddProjectDependency(projectGUID, (string) outputsInAssemblyFolders[Path.GetFileName(reference.Filename)]);
                     }
                 }
             }
