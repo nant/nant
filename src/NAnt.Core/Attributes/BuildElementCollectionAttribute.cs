@@ -29,19 +29,32 @@ namespace NAnt.Core.Attributes {
     /// strongly typed collections.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public sealed class BuildElementCollectionAttribute : BuildElementAttribute {
+    public sealed class BuildElementCollectionAttribute : BuildElementArrayAttribute{
         #region Public Instance Constructors
-
+		
+		private string _elementName = null;
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildElementCollectionAttribute" /> with the 
         /// specified name.
         /// </summary>
-        /// <param name="name">The name of the attribute.</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="childName">The name of the child elements in the collection</param>
+        /// <param name="collectionType">The type of collection being used. If you are unsure, use object, otherwise specify the type</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
-        public BuildElementCollectionAttribute(string name) : base(name) {
-        }
+        public BuildElementCollectionAttribute(string collectionName, string childName, Type collectionType) : base(collectionName, collectionType) {
+			_elementName = childName;
+		}
 
         #endregion Public Instance Constructors
-    }
+
+		/// <summary>
+		/// The name of the child element within the collection
+		/// </summary>
+		/// <value> The name to check for in the xml of the elements in the collection</value>
+		/// <remarks>This can be used for validation and schema generation.</remarks>
+		public string ChildElementName {
+			get {return _elementName;}
+		}
+	}
 }
