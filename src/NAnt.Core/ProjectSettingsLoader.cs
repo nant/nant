@@ -136,61 +136,52 @@ namespace NAnt.Core {
 
         private void ProcessPlatform(XmlNode platformNode) {
             // process platform task assemblies
-            FileSet platformTaskAssemblies = new FileSet();
-            platformTaskAssemblies.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            platformTaskAssemblies.Project = Project;
-            platformTaskAssemblies.NamespaceManager = NamespaceManager;
-            platformTaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
-            platformTaskAssemblies.ID = "platform-task-assemblies"; // avoid warnings by assigning an id
-            XmlNode taskAssembliesNode = platformNode.SelectSingleNode(
-                "nant:task-assemblies", NamespaceManager);
-            if (taskAssembliesNode != null) {
-                platformTaskAssemblies.Initialize(taskAssembliesNode, 
-                    Project.Properties, null);
-            }
-
             if (!ScannedTasks) {
-                foreach (string taskAssembly in platformTaskAssemblies.FileNames) {
-                    TypeFactory.ScanAssembly(taskAssembly);
+                FileSet platformTaskAssemblies = new FileSet();
+                platformTaskAssemblies.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+                platformTaskAssemblies.Project = Project;
+                platformTaskAssemblies.NamespaceManager = NamespaceManager;
+                platformTaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
+                platformTaskAssemblies.ID = "platform-task-assemblies"; // avoid warnings by assigning an id
+                XmlNode taskAssembliesNode = platformNode.SelectSingleNode(
+                    "nant:task-assemblies", NamespaceManager);
+                if (taskAssembliesNode != null) {
+                    platformTaskAssemblies.Initialize(taskAssembliesNode, 
+                        Project.Properties, null);
                 }
 
-                foreach (string taskDir in platformTaskAssemblies.DirectoryNames) {
-                    TypeFactory.ScanDir(taskDir);
-                }
+                // scan platform extensions assemblies
+                LoadTasksTask loadTasks = new LoadTasksTask();
+                loadTasks.Project = Project;
+                loadTasks.NamespaceManager = NamespaceManager;
+                loadTasks.Parent = Project;
+                loadTasks.TaskFileSet = platformTaskAssemblies;
+                loadTasks.FailOnError = false;
+                loadTasks.Threshold = (Project.Threshold == Level.Debug) ? 
+                    Level.Debug : Level.Warning;
+                loadTasks.Execute();
+
+                // scan NAnt.Core
+                TypeFactory.ScanAssembly(Assembly.GetExecutingAssembly(), loadTasks);
             }
 
             // process the framework nodes of the current platform
             ProcessFrameworks(platformNode);
 
-            // only scan the task assemblies for the runtime framework once
+            // process runtime framework task assemblies
             if (!ScannedTasks) {
-                /*
-                foreach (string scannedDir in Project.RuntimeFramework.TaskAssemblies.ScannedDirectories) {
-                    // check if directory is subdirectory of AppDomain base dir
-                    if (scannedDir.StartsWith(AppDomain.CurrentDomain.BaseDirectory)) {
-                        string relPath = scannedDir.Remove(0, 
-                            AppDomain.CurrentDomain.BaseDirectory.Length);
-                        if (relPath.StartsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
-                            relPath = relPath.Remove(0, 1);
-                        }
+                LoadTasksTask loadTasks = new LoadTasksTask();
+                loadTasks.Project = Project;
+                loadTasks.NamespaceManager = NamespaceManager;
+                loadTasks.Parent = Project;
+                loadTasks.TaskFileSet = Project.RuntimeFramework.TaskAssemblies;
+                loadTasks.FailOnError = false;
+                loadTasks.Threshold = (Project.Threshold == Level.Debug) ? 
+                    Level.Debug : Level.Warning;
+                loadTasks.Execute();
 
-                        if (relPath.Length != 0) {
-                            AppDomain.CurrentDomain.AppendPrivatePath(relPath);
-                        }
-                    }
-                }
-                */
-
-                foreach (string taskAssembly in Project.RuntimeFramework.TaskAssemblies.FileNames) {
-                    TypeFactory.ScanAssembly(taskAssembly);
-                }
-
-                foreach (string taskDir in Project.RuntimeFramework.TaskAssemblies.DirectoryNames) {
-                    TypeFactory.ScanDir(taskDir);
-                }
-
-                // ensure we don't scan the task assemblies for the current
-                // runtime framework again
+                // ensure we don't scan task assemblies for the current
+                // runtime framework and platform again
                 ScannedTasks = true;
             }
         }

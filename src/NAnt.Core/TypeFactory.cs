@@ -28,6 +28,7 @@ using System.Xml;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -45,19 +46,6 @@ namespace NAnt.Core {
         private static ArrayList _projects = new ArrayList();
 
         #endregion Private Static Fields
-
-        #region Static Constructor
-
-        /// <summary> 
-        /// Initializes the tasks in the executing assembly, and basedir of the 
-        /// current domain.
-        /// </summary>
-        static TypeFactory() {
-            ScanAssembly(Assembly.GetExecutingAssembly());
-            ScanAssembly(Assembly.GetCallingAssembly());
-        }
-
-        #endregion Static Constructor
 
         #region Internal Static Properties
 
@@ -99,89 +87,98 @@ namespace NAnt.Core {
         /// Scans the given assembly for tasks, types, functions and filters.
         /// </summary>
         /// <param name="assemblyFile">The assembly to scan for tasks, types, functions and filters.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static bool ScanAssembly(string assemblyFile) {
-            Assembly assembly = null;
-
-            try {
-                assembly = Assembly.LoadFrom(assemblyFile);
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error loading assembly '{0}' for scan.", 
-                    assemblyFile), ex);
-            }
-
-            if (assembly != null) {
-                return ScanAssembly(assembly);
-            } else {
-                return false;
-            }
+        public static bool ScanAssembly(string assemblyFile, Task task) {
+            Assembly assembly = Assembly.LoadFrom(assemblyFile);
+            return ScanAssembly(assembly, task);
         }
 
         /// <summary>
         /// Scans the given assembly for tasks, types, functions and filters.
         /// </summary>
         /// <param name="assembly">The assembly to scan for tasks, types, functions and filters.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="assembly" /> contains at 
         /// least one "extension"; otherwise, <see langword="false" />.
         /// </returns>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static bool ScanAssembly(Assembly assembly) {
-            logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                "Scanning '{0}' for tasks, types, filters and functions.", 
-                assembly.GetName().Name));
+        public static bool ScanAssembly(Assembly assembly, Task task) {
+            task.Log(Level.Info, "Scanning assembly \"{0}\" for extensions.", 
+                assembly.GetName().Name);
 
             bool extensionAssembly = false;
 
-            try {
-                foreach (Type type in assembly.GetTypes()) {
-                    //
-                    // each extension type is exclusive, meaning a given type 
-                    // cannot be both a task and data type
-                    //
-                    // so it doesn't make sense to scan a type for, for example,
-                    // data types if the type has already been positively
-                    // identified as a task
-                    //
+            foreach (Type type in assembly.GetTypes()) {
+                //
+                // each extension type is exclusive, meaning a given type 
+                // cannot be both a task and data type
+                //
+                // so it doesn't make sense to scan a type for, for example,
+                // data types if the type has already been positively
+                // identified as a task
+                //
 
-                    bool extensionFound = ScanTypeForTasks(type);
+                bool extensionFound = ScanTypeForTasks(type, task);
 
-                    if (!extensionFound) {
-                        extensionFound = ScanTypeForDataTypes(type);
-                    }
-
-                    if (!extensionFound) {
-                        extensionFound = ScanTypeForFunctions(type);
-                    }
-
-                    if (!extensionFound) {
-                        extensionFound = ScanTypeForFilters(type);
-                    }
-
-                    // if extension is found in type, then mark assembly as
-                    // extension assembly
-                    extensionAssembly = extensionAssembly || extensionFound;
+                if (!extensionFound) {
+                    extensionFound = ScanTypeForDataTypes(type, task);
                 }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning '{0}' for tasks, types, functions and filters.", 
-                    assembly.GetName().Name), ex);
+
+                if (!extensionFound) {
+                    extensionFound = ScanTypeForFunctions(type, task);
+                }
+
+                if (!extensionFound) {
+                    extensionFound = ScanTypeForFilters(type, task);
+                }
+
+                // if extension is found in type, then mark assembly as
+                // extension assembly
+                extensionAssembly = extensionAssembly || extensionFound;
             }
 
-            return extensionAssembly;
+            // if no extension could be found at all, then we might be dealing
+            // with an extension assembly that was built using an older version
+            // of NAnt(.Core)
+            if (!extensionAssembly) {
+                AssemblyName coreAssemblyName = Assembly.GetExecutingAssembly().
+                    GetName(false);
+
+                foreach (AssemblyName assemblyName in assembly.GetReferencedAssemblies()) {
+                    if (assemblyName.Name == coreAssemblyName.Name) {
+                        // the given assembly references NAnt.Core, so check whether
+                        // it doesn't reference an older version of NAnt.Core
+                        if (assemblyName.Version != coreAssemblyName.Version) {
+                            task.Log(Level.Warning, "Assembly \"{0}\" is built"
+                                + "using version {1} of the NAnt. If any problems"
+                                + " arise, then try using a version that is built"
+                                + " for NAnt version {2}.", assembly.GetName().Name, 
+                                assemblyName.Version, coreAssemblyName.Version);
+                        }
+                    }
+                }
+            }
+
+            return extensionAssembly;                
         }
 
         /// <summary>
         /// Scans the path for any task assemblies and adds them.
         /// </summary>
         /// <param name="path">The directory to scan in.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
+        /// <param name="failOnError"><see cref="bool" /> indicating whether scanning of the directory should halt on first error.</param>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
-        public static void ScanDir(string path) {
+        public static void ScanDir(string path, Task task, bool failOnError) {
             // don't do anything if we don't have a valid directory path
             if (StringUtils.IsNullOrEmpty(path)) {
                 return;
             }
+
+            task.Log(Level.Info, "Scanning directory \"{0}\" for extension"
+                + " assemblies.", path);
 
             // scan all dll's for tasks, types and functions
             DirectoryScanner scanner = new DirectoryScanner();
@@ -189,7 +186,16 @@ namespace NAnt.Core {
             scanner.Includes.Add("*.dll");
 
             foreach (string assemblyFile in scanner.FileNames) {
-                TypeFactory.ScanAssembly(assemblyFile);
+                try {
+                    TypeFactory.ScanAssembly(assemblyFile, task);
+                } catch (Exception ex) {
+                    if (failOnError) {
+                        throw;
+                    }
+                    
+                    task.Log(Level.Error, "Failure scanning \"{0}\" for extensions: {1}",
+                        assemblyFile, ex.Message);
+                }
             }
         }
 
@@ -200,21 +206,37 @@ namespace NAnt.Core {
         /// <param name="project">The project to work from.</param>
         public static void AddProject(Project project) {
             if (!StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
-                ScanDir(project.BaseDirectory);
+                LoadTasksTask loadTasks = new LoadTasksTask();
+                loadTasks.Project = project;
+                loadTasks.NamespaceManager = project.NamespaceManager;
+                loadTasks.Parent = project;
+                loadTasks.FailOnError = false;
+                loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
+                    Level.Debug : Level.Warning;
 
-                // add framework-neutral assemblies
-                ScanDir(Path.Combine(project.BaseDirectory, "tasks"));
+                // scan project base directory
+                ScanDir(project.BaseDirectory, loadTasks, false);
 
-                // add framework family assemblies
-                ScanDir(Path.Combine(
-                    Path.Combine(project.BaseDirectory, "tasks"), 
-                    project.RuntimeFramework.Family));
+                // scan framework-neutral assemblies
+                ScanDir(Path.Combine(project.BaseDirectory, "tasks"), loadTasks,
+                    false);
 
-                // add framework version specific assemblies
-                ScanDir(Path.Combine(Path.Combine(Path.Combine(
-                    project.BaseDirectory, "tasks"), 
-                    project.RuntimeFramework.Family), project.RuntimeFramework.Version));
+                // skip further processing if runtime framework has not yet 
+                // been set
+                if (project.RuntimeFramework == null) {
+                    return;
+                }
+
+                // scan framework-specific assemblies
+                ScanDir(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
+                    project.RuntimeFramework.Family), loadTasks, false);
+
+                // scan framework version specific assemblies
+                ScanDir(Path.Combine(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
+                    project.RuntimeFramework.Family), project.RuntimeFramework.Version), 
+                    loadTasks, false);
             }
+
             // create weakref to project. It is possible that project may go 
             // away, we don't want to hold it
             _projects.Add(new WeakReference(project));
@@ -389,61 +411,63 @@ namespace NAnt.Core {
         /// Scans a given <see cref="Type" /> for tasks.
         /// </summary>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// <see cref="Task" />; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForTasks(Type type) {
+        private static bool ScanTypeForTasks(Type type, Task task) {
             try {
                 TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
 
                 if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                        "Creating TaskBuilder for '{0}'", type.Name));
+                    task.Log(Level.Debug, "Creating TaskBuilder for \"{0}\".", 
+                        type.Name);
                     TaskBuilder tb = new TaskBuilder(type.FullName, type.Assembly.Location);
                     if (TaskBuilders[tb.TaskName] == null) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture,
-                            "Adding '{0}' from {1}:{2}", tb.TaskName, 
-                            tb.AssemblyFileName, tb.ClassName));
+                        task.Log(Level.Debug, "Adding \"{0}\" from {1}:{2}.", 
+                            tb.TaskName, tb.AssemblyFileName, tb.ClassName);
 
                         TaskBuilders.Add(tb);
                         foreach(WeakReference wr in _projects) {
                             if (!wr.IsAlive) {
-                                logger.Error("Project WeakRef is dead.");
+                                task.Log(Level.Warning, "WeakReference for project is dead.");
                                 continue;
                             }
                             Project p = wr.Target as Project;
                             if (p == null) {
-                                logger.Error("WeakRef not a project! This should not be possible.");
+                                task.Log(Level.Warning, "WeakReference is not a"
+                                    + " project! This should not be possible.");
                                 continue;
                             }
                             UpdateProjectWithBuilder(p, tb);
                         }
-
-                        // specified type represents a task
-                        return true;
                     }
-                }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning type '{0}' for tasks.", 
-                    type.AssemblyQualifiedName), ex);
-            }
 
-            // specified type does not represent valid task
-            return false;
+                    // specified type represents a task
+                    return true;
+                } else {
+                    // specified type does not represent valid task
+                    return false;
+                }
+            } catch {
+                task.Log(Level.Error, "Failure scanning \"{0}\" for tasks.", 
+                    type.AssemblyQualifiedName);
+                throw;
+            }
         }
 
         /// <summary>
         /// Scans a given <see cref="Type" /> for data type.
         /// </summary>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// data type; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForDataTypes(Type type) {
+        private static bool ScanTypeForDataTypes(Type type, Task task) {
             try {
                 ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
@@ -462,26 +486,27 @@ namespace NAnt.Core {
 
                     // specified type represents a data type
                     return true;
+                } else {
+                    // specified type does not represent valid data type
+                    return false;
                 }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning type '{0}' for data types.", 
-                    type.AssemblyQualifiedName), ex);
+            } catch {
+                task.Log(Level.Error, "Failure scanning \"{0}\" for data types.", 
+                    type.AssemblyQualifiedName);
+                throw;
             }
-
-            // specified type does not represent valid data type
-            return false;
         }        
 
         /// <summary>
         /// Scans a given <see cref="Type" /> for functions.
         /// </summary>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// valid set of funtions; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForFunctions(Type type) {
+        private static bool ScanTypeForFunctions(Type type, Task task) {
             try {
                 FunctionSetAttribute functionSetAttribute = (FunctionSetAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(FunctionSetAttribute));
@@ -501,9 +526,9 @@ namespace NAnt.Core {
                     if (prefix != null && prefix != String.Empty) {
                         prefix += "::";
                     } else {
-                        logger.Warn(string.Format(CultureInfo.InvariantCulture, 
-                            "Ignoring functions in type '{0}': no prefix was set.",
-                            type.AssemblyQualifiedName));
+                        task.Log(Level.Warning, "Ignoring functions in type \"{0}\":"
+                            + " no prefix was set.", type.AssemblyQualifiedName);
+
                         // specified type does not represent a valid functionset
                         return false;
                     }
@@ -538,53 +563,54 @@ namespace NAnt.Core {
 
                     // specified type represents a valid functionset
                     return true;
+                } else {
+                    // specified type does not represent a valid functionset
+                    return false;
                 }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning type '{0}' for functions.", 
-                    type.AssemblyQualifiedName), ex);
+            } catch {
+                task.Log(Level.Error, "Failure scanning \"{0}\" for functions.", 
+                    type.AssemblyQualifiedName);
+                throw;
             }
-
-            // specified type does not represent a valid functionset
-            return false;
         }
 
         /// <summary>
         /// Scans a given <see cref="Type" /> for filters.
         /// </summary>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
+        /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// <see cref="Filter" />; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForFilters(Type type) {
+        private static bool ScanTypeForFilters(Type type, Task task) {
             try {
                 ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
 
                 if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                        "Creating FilterBuilder for {0}", type.Name));
+                    task.Log(Level.Debug, "Creating FilterBuilder for \"{0}\".", 
+                        type.Name);
                     FilterBuilder builder = new FilterBuilder(type.FullName, type.Assembly.Location);
                     if (FilterBuilders[builder.FilterName] == null) {
                         FilterBuilders.Add(builder);
 
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                            "Adding filter '{0}' from {1}:{2}", builder.FilterName, 
-                            builder.AssemblyFileName, builder.ClassName));
+                        task.Log(Level.Debug, "Adding filter \"{0}\" from {1}:{2}.", 
+                            builder.FilterName, builder.AssemblyFileName, 
+                            builder.ClassName);
                     }
 
                     // specified type represents a filter
                     return true;
                 }
-            } catch (Exception ex) {
-                logger.Error(string.Format(CultureInfo.InvariantCulture, 
-                    "Error scanning type '{0}' for filters.", 
-                    type.AssemblyQualifiedName), ex);
-            }
 
-            // specified type does not represent a valid filter
-            return false;
+                // specified type does not represent a valid filter
+                return false;
+            } catch {
+                task.Log(Level.Error, "Failure scanning \"{0}\" for filters.", 
+                    type.AssemblyQualifiedName);
+                throw;
+            }
         }
 
         #endregion Private Static Methods

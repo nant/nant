@@ -892,7 +892,6 @@ namespace NAnt.Core {
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));
 
-                Log(Level.Info, string.Empty);
                 Log(Level.Info, "Buildfile: {0}", BuildFileUri);
 
                 // write verbose project information after Initialize to make 
@@ -1169,8 +1168,6 @@ namespace NAnt.Core {
             _properties = new PropertyDictionary(this);
             _frameworkNeutralProperties = new PropertyDictionary(this);
 
-            TypeFactory.AddProject(this);
-
             // set the project definition
             _doc = doc;
 
@@ -1182,6 +1179,9 @@ namespace NAnt.Core {
 
             // set the project message threshold
             Threshold = threshold;
+
+            // load project-level extensions assemblies
+            TypeFactory.AddProject(this);
 
             // add default logger
             CreateDefaultLogger();

@@ -125,28 +125,44 @@ namespace NAnt.Core.Tasks {
             if (AssemblyPath != null) { // single file case
                 if (!AssemblyPath.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Assembly '{0}' does not exist. Can't scan for extensions.", 
+                        "Assembly \"{0}\" does not exist. Can't scan for extensions.", 
                         AssemblyPath.FullName), Location);
                 }  
                 TaskFileSet.FileNames.Add(AssemblyPath.FullName);
             } else if (Path != null) {
                 if (!Path.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Path '{0}' does not exist. Can't scan for extensions.", 
+                        "Path \"{0}\" does not exist. Can't scan for extensions.", 
                         Path), Location);
                 }
                 TaskFileSet.DirectoryNames.Add(Path.FullName);
             }
+
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
-                Log(Level.Info, "Loading tasks from assembly '{0}'.", 
-                    assemblyPath);
-                TypeFactory.ScanAssembly(assemblyPath);
+                try {
+                    TypeFactory.ScanAssembly(assemblyPath, this);
+                } catch (Exception ex) {
+                    string message = string.Format(CultureInfo.InvariantCulture,
+                        "Failure scanning \"{0}\" for extensions.", assemblyPath);
+
+                    if (FailOnError) {
+                        throw new BuildException(message, Location, ex);
+                    } else {
+                        Log(Level.Error, message + " " + ex.Message);
+                    }
+                }
             }
-            // now the filenames
+
+            // process the path
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
-                Log(Level.Info, "Scanning directory '{0}' for extension assemblies.", scanPath);
-                TypeFactory.ScanDir(scanPath);
+                try {
+                    TypeFactory.ScanDir(scanPath, this, FailOnError);
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Failure scanning \"{0}\" for extensions.", scanPath),
+                        Location, ex);
+                }
             }
         }
 

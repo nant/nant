@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -71,11 +72,11 @@ namespace NAnt.Core {
 
                 if (!cmdlineOptions.NoLogo) {
                     Console.WriteLine(commandLineParser.LogoBanner);
+                    // insert empty line
+                    Console.WriteLine();
                 }
 
                 if (cmdlineOptions.ShowHelp) {
-                    // insert empty line
-                    Console.WriteLine();
                     ConsoleDriver.ShowHelp(commandLineParser);
                     return 0;
                 }
@@ -91,9 +92,9 @@ namespace NAnt.Core {
 
                 if (cmdlineOptions.BuildFile != null) {
                     if (project != null) {
+                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileUri));
                         // insert empty line
                         Console.WriteLine();
-                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileUri));
                     }
 
                     project = new Project(cmdlineOptions.BuildFile, projectThreshold, cmdlineOptions.IndentationLevel);
@@ -106,7 +107,7 @@ namespace NAnt.Core {
                 }
 
                 // load extension asseemblies
-                LoadExtensionAssemblies(cmdlineOptions.ExtensionAssemblies);
+                LoadExtensionAssemblies(cmdlineOptions.ExtensionAssemblies, project);
 
                 PropertyDictionary buildOptionProps = new PropertyDictionary(project);
 
@@ -143,8 +144,6 @@ namespace NAnt.Core {
                     if (frameworkInfo != null) {
                         project.TargetFramework = frameworkInfo; 
                     } else {
-                        // insert empty line
-                        Console.Error.WriteLine();
                         Console.Error.WriteLine("Invalid framework '{0}' specified.", 
                             cmdlineOptions.TargetFramework);
 
@@ -181,9 +180,9 @@ namespace NAnt.Core {
                 // Write logo banner to console if parser was created successfully
                 if (commandLineParser != null) {
                     Console.WriteLine(commandLineParser.LogoBanner);
+                    // insert empty line
+                    Console.Error.WriteLine();
                 }
-                // insert empty line
-                Console.Error.WriteLine();
                 // Write message of exception to console
                 Console.Error.WriteLine(ex.Message);
                 // get first nested exception
@@ -388,18 +387,20 @@ namespace NAnt.Core {
         /// and scans them for extensions.
         /// </summary>
         /// <param name="extensionAssemblies">The extension assemblies to load.</param>
-        private static void LoadExtensionAssemblies(StringCollection extensionAssemblies) {
+        /// <param name="project">The <see cref="Project" /> which will be used to output messages to the build log.</param>
+        private static void LoadExtensionAssemblies(StringCollection extensionAssemblies, Project project) {
+            LoadTasksTask loadTasks = new LoadTasksTask();
+            loadTasks.Project = project;
+            loadTasks.NamespaceManager = project.NamespaceManager;
+            loadTasks.Parent = project;
+            loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
+                Level.Debug : Level.Warning;
+
             foreach (string extensionAssembly in extensionAssemblies) {
-                try {
-                    Assembly assembly = Assembly.LoadFrom(Path.Combine(
-                        Directory.GetCurrentDirectory(), extensionAssembly));
-                    TypeFactory.ScanAssembly(assembly);
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Extension assembly '{0}' could not be loaded.",
-                        extensionAssembly), Location.UnknownLocation, ex);
-                }
+                loadTasks.TaskFileSet.Includes.Add(extensionAssembly);
             }
+
+            loadTasks.Execute();
         }
 
         /// <summary>
