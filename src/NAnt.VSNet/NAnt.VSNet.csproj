@@ -97,6 +97,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "CommonAssemblyInfo.cs"
+                    Link = "..\CommonAssemblyInfo.cs"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ConfigurationSettings.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
