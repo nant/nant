@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Functions;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -85,6 +86,41 @@ namespace NAnt.Core.Tasks {
     ///       <description>The temporary directory.</description>
     ///     </item>
     ///   </list>
+    ///   <para>
+    ///   When the name of an environment variable is not a valid property name,
+    ///   the task will fail. In that case, set <see cref="Task.FailOnError" /> to 
+    ///   <see langword="true" /> to allow that environment variable to be 
+    ///   skipped.
+    ///   </para>
+    ///   <note>
+    ///   we advise you to use the following functions instead:
+    ///   </note>
+    ///   <list type="table">
+    ///     <listheader>
+    ///         <term>Function</term>
+    ///         <description>Description</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><see cref="EnvironmentFunctions.GetOperatingSystem()" /></term>
+    ///         <description>Gets a <see cref="OperatingSystem" /> object that identifies this operating system.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="EnvironmentFunctions.GetFolderPath(Environment.SpecialFolder)" /></term>
+    ///         <description>Gets the path to a system special folder.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="EnvironmentFunctions.GetVariable(string)" /></term>
+    ///         <description>Returns the value of a environment variable.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="PathFunctions.GetTempPath()" /></term>
+    ///         <description>Gets the path to the temporary directory.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="EnvironmentFunctions.GetVersion()" /></term>
+    ///         <description>Gets the Common Language Runtime version.</description>
+    ///     </item>
+    ///   </list>  
     /// </remarks>
     /// <example>
     ///   <para>Register the properties with the default property prefix.</para>
