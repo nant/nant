@@ -17,65 +17,74 @@
 
 // Ian MacLean (ian_maclean@another.com)
 
-using NUnit.Framework;
 using System;
 using System.Xml;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
-	
-	/// <summary>
-	/// The built-in formatter types.
-	/// </summary>
-	public enum FormatterType {
+    /// <summary>
+    /// The built-in formatter types.
+    /// </summary>
+    public enum FormatterType {
         Plain,
         Xml,
         Custom
     }
     
-	/// <summary>class to represent the FormatterElement of the NUnit task.</summary>
-	[ElementName("formatter")]
-	public class FormatterElement : Element {
+    /// <summary>
+    /// Represents the FormatterElement of the NUnit task.
+    /// </summary>
+    [ElementName("formatter")]
+    public class FormatterElement : Element {
+        #region Private Instance Fields
+
         private FormatterData _data = new FormatterData();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
         
-        // Attribute properties
-        
-        /// <summary>Type of formatter ( means we will load a class of the form (type)Formatter</summary>       
+        /// <summary>Type of formatter ( means we will load a class of the form (type)Formatter</summary>
         [TaskAttribute("type", Required=false)]
         public FormatterType Type { get { return _data.Type; } set { _data.Type = value; } }
                          
         /// <summary>Name of a custom formatter class.</summary> 
         [TaskAttribute("classname", Required=false)]
-        public string ClassName { get { return _data.ClassName; } set { _data.ClassName = value ;} }        
+        public string ClassName { get { return _data.ClassName; } set { _data.ClassName = value ;} }
 
         /// <summary>Extension to append to the output filename..</summary> 
         [TaskAttribute("extension", Required=false)]
-        public string Extension { get { return _data.Extension; } set { _data.Extension = value ;} }        
+        public string Extension { get { return _data.Extension; } set { _data.Extension = value ;} }
         
         /// <summary>Boolean that determines whether output should be sent to a file.</summary> 
-        [TaskAttribute("usefile")]   
+        [TaskAttribute("usefile")]
         [BooleanValidator()]
-        public bool UseFile { get { return _data.UseFile; } set { _data.UseFile = value; } } 
+        public bool UseFile { get { return _data.UseFile; } set { _data.UseFile = value; } }
 
         public FormatterData Data {
-           get { return _data; }
+            get { return _data; }
         }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of Element
 
         // Custom validation here
         protected override void InitializeElement(XmlNode elementNode) {
-            if ((Type != FormatterType.Custom ) && ClassName != null ) {
-                throw new BuildException("Specify either type or classname - not both.", Location);     
+            if ((Type != FormatterType.Custom ) && ClassName != null) {
+                throw new BuildException("Specify either type or classname - not both.", Location);
             }
             if (ClassName != null && Extension == null) {
-                throw new BuildException("If using classname the file extension must be specified.", Location);  
+                throw new BuildException("If using classname the file extension must be specified.", Location);
             }
             if (Type == FormatterType.Xml){
                 Extension = ".xml";
             } else if (Type == FormatterType.Plain || Extension == null) {
-                //
-                 Extension = ".txt";
-            }            
+                Extension = ".txt";
+            }
         }
 
-	}
+        #endregion Override implementation of Element
+    }
 }
