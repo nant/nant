@@ -287,7 +287,7 @@ namespace NAnt.Core {
             int level = 0;
 
             if (nantSettingsNode != null) { 
-                #region Construct XPATH expression for locating configuration node
+                #region Construct XPath expression for locating configuration node
 
                 Element parentElement = this as Element;
 
@@ -324,7 +324,7 @@ namespace NAnt.Core {
 
                 xpath += "]";
 
-                #endregion Construct XPATH expression for locating configuration node
+                #endregion Construct XPath expression for locating configuration node
 
                 #region Retrieve framework-specific configuration node
 

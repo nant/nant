@@ -384,7 +384,11 @@ namespace NAnt.Core {
                 if (Document == null || StringUtils.IsNullOrEmpty(Document.BaseURI)) {
                     return null; //new Uri("http://localhost");
                 } else {
-                    return new Uri(Document.BaseURI);
+                    // manually escape '#' in URI (why doesn't .NET do this?) to allow
+                    // projects in paths containing a '#' character
+		            string escapedUri = Document.BaseURI.Replace("#", Uri.HexEscape('#'));
+                    // return escaped URI
+                    return new Uri(escapedUri);
                 }
             }
         }
