@@ -41,10 +41,11 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
 
         /// <summary>
-        /// Returns current date and time
+        /// Gets a <see cref="DateTime" /> that is the current local date and 
+        /// time on this computer.
         /// </summary>
         /// <returns>
-        /// The current date and time.
+        /// A <see cref="DateTime" /> whose value is the current date and time.
         /// </returns>
         [Function("now")]
         public static DateTime Now() {
@@ -52,34 +53,169 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Adds the specified number of seconds to the date value.
-        /// </summary>
-        /// <param name="date">date value</param>
-        /// <param name="seconds">number of seconds to add to the date value</param>
-        /// <returns>
-        /// New date which is <paramref name="seconds" /> seconds later than 
-        /// <paramref name="date" />.
-        /// </returns>
-        /// <remarks>
-        /// It may be useful to know some magic numbers: One hour is 3600 seconds, 
-        /// 24 hours is 86400 seconds.
-        /// </remarks>
-        [Function("add-seconds")]
-        public static DateTime AddSeconds(DateTime date, double seconds) {
-            return date.AddSeconds(seconds);
-        }
-
-        /// <summary>
         /// Gets the year component of the specified date.
         /// </summary>
         /// <param name="date">The date of which to get the year component.</param>
         /// <returns>
-        /// The year component of the specified date.
+        /// The year, between 1 and 9999.
         /// </returns>
         [Function("get-year")]
         public static int GetYear(DateTime date) {
             return date.Year;
         }
+
+        /// <summary>
+        /// Gets the month component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the month component.</param>
+        /// <returns>
+        /// The month, between 1 and 12.
+        /// </returns>
+        [Function("get-month")]
+        public static int GetMonth(DateTime date) {
+            return date.Month;
+        }
+
+        /// <summary>
+        /// Gets the day of the month represented by the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the day of the month.</param>
+        /// <returns>
+        /// The day value, between 1 and 31.
+        /// </returns>
+        [Function("get-day")]
+        public static int GetDay(DateTime date) {
+            return date.Day;
+        }
+
+        /// <summary>
+        /// Gets the hour component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the hour component.</param>
+        /// <returns>
+        /// The hour, between 0 and 23.
+        /// </returns>
+        [Function("get-hour")]
+        public static int GetHour(DateTime date) {
+            return date.Hour;
+        }
+
+        /// <summary>
+        /// Gets the minute component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the minute component.</param>
+        /// <returns>
+        /// The minute, between 0 and 59.
+        /// </returns>
+        [Function("get-minute")]
+        public static int GetMinute(DateTime date) {
+            return date.Minute;
+        }
+
+        /// <summary>
+        /// Gets the seconds component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the seconds component.</param>
+        /// <returns>
+        /// The seconds, between 0 and 59.
+        /// </returns>
+        [Function("get-second")]
+        public static int GetSecond(DateTime date) {
+            return date.Second;
+        }
+
+        /// <summary>
+        /// Gets the milliseconds component of the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the milliseconds component.</param>
+        /// <returns>
+        /// The millisecond, between 0 and 999.
+        /// </returns>
+        [Function("get-millisecond")]
+        public static int GetMillisecond(DateTime date) {
+            return date.Millisecond;
+        }
+
+        /// <summary>
+        /// Gets the number of ticks that represent the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the number of ticks.</param>
+        /// <returns>
+        /// The number of ticks that represent the date and time of the 
+        /// specified date.
+        /// </returns>
+        [Function("get-ticks")]
+        public static long GetTicks(DateTime date) {
+            return date.Ticks;
+        }
+
+        /// <summary>
+        /// Gets the day of the week represented by the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the day of the week.</param>
+        /// <returns>
+        /// The day of the week, ranging from zero, indicating Sunday, to six, 
+        /// indicating Saturday.
+         /// </returns>
+        [Function("get-day-of-week")]
+        public static int GetDayOfWeek(DateTime date) {
+            return (int) date.DayOfWeek;
+        }
+
+        /// <summary>
+        /// Gets the day of the year represented by the specified date.
+        /// </summary>
+        /// <param name="date">The date of which to get the day of the year.</param>
+        /// <returns>
+        /// The day of the year, between 1 and 366.
+        /// </returns>
+        [Function("get-day-of-year")]
+        public static int GetDayOfYear(DateTime date) {
+            return (int) date.DayOfWeek;
+        }
+
+        /// <summary>
+        /// Returns the number of days in the specified month of the specified 
+        /// year.
+        /// </summary>
+        /// <param name="year">The year.</param>
+        /// <param name="month">The month (a number ranging from 1 to 12).</param>
+        /// <returns>
+        /// The number of days in <paramref name="month" /> for the specified 
+        /// <paramref name="year" />.
+        /// </returns>
+        public static int GetDaysInMonth(int year, int month) {
+        }
+
+        /*
+        /// <summary>
+        /// Converts the specified string representation of a date and time to 
+        /// its <see cref="DateTime" /> equivalent.
+        /// </summary>
+        /// <param name="s">A string containing a date and time to convert.</param>
+        /// <returns>
+        /// A <see cref="DateTime" /> equivalent to the date and time contained 
+        /// in <paramref name="s" />.
+        /// </returns>
+        [Function("parse")]
+        public static DateTime Parse(string s) {
+            return DateTime.Parse(s);
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="DateTime" /> to its equivalent
+        /// string representation.
+        /// </summary>
+        /// <param name="value">A <see cref="DateTime" /> to convert.</param>
+        /// <returns>
+        /// A string representation of <paramref name="value" /> formatted using
+        /// the general format specifier ("G").
+        /// </returns>
+        [Function("to-string")]
+        public static string ToString(DateTime value) {
+            return value.ToString();
+        }
+        */
 
         #endregion Public Static Methods
     }
