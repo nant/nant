@@ -185,7 +185,7 @@ namespace NAnt.VSNet {
                 foreach (XmlElement elemReference in nlImports) {
                     _imports += elemReference.Attributes["Namespace"].Value.ToString(CultureInfo.InvariantCulture) + ",";
                 }
-                if (_imports.Length > 0) {
+                if (!StringUtils.IsNullOrEmpty(_imports)) {
                     _imports = "/Imports:" + _imports;
                 }
             }
