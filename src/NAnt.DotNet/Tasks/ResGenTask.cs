@@ -596,7 +596,8 @@ namespace NAnt.DotNet.Tasks {
 
                 // determine the number of <data> elements that have a "type"
                 // attribute with a value that does not start with "System."
-                int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.'))]").Count;
+                // or is not fully qualified
+                int count = xpathDoc.CreateNavigator().Select("/root/data[@type and (not(starts-with(@type, 'System.') or not(contains(@type,'PublicKeyToken='))]").Count;
 
                 // if there are no <data> elements of a third party type, we 
                 // assume that the resource file does not reference types from
