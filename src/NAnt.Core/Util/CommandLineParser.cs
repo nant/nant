@@ -100,7 +100,7 @@ namespace NAnt.Core.Util {
                     }
                 } else {
                     FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
-                    logoBanner.Append(" version " + info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart);
+                    logoBanner.Append(" version " + info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart + "." + info.FilePrivatePart);
                 }
 
                 // Add copyright information to logo banner
