@@ -71,6 +71,29 @@ namespace NAnt.DotNet.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///     <para>
+    ///     Create a C# AssemblyInfo file containing an attribute with multiple
+    ///     named properties by setting the <see cref="AssemblyAttribute.AsIs" /> 
+    ///     attribute on the <see cref="AssemblyAttribute" /> element to 
+    ///     <see langword="true" />.
+    ///     </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <asminfo output="AssemblyInfo.cs" language="CSharp">
+    ///     <imports>
+    ///         <import name="log4net.Config" />
+    ///     </imports>
+    ///     <attributes>
+    ///         <attribute type="DOMConfiguratorAttribute" value="ConfigFile=&quot;config.log4net&quot;,Watch=true" asis="true" />
+    ///     </attributes>
+    ///     <references>
+    ///         <includes name="log4net.dll" />
+    ///     </references>
+    /// </asminfo>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("asminfo")]
     [Serializable()]
     public class AssemblyInfoTask : Task {
