@@ -18,10 +18,6 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Kevin Dente (kevindente@yahoo.com)
 
-// This is useful for debugging where filesets are scanned from - scanning is one
-// of the most intensive activities for NAnt
-//#define DEBUG_REGEXES
-
 /*
 Examples:
 "**\*.class" matches all .class files/dirs in a directory tree.
@@ -440,7 +436,7 @@ namespace NAnt.Core {
             
             // if it's not a wildcard, just return
             if (indexOfFirstWildcard == -1) {
-                regexPattern = CleanPath(searchDirectory, modifiedNAntPattern, true);
+                regexPattern = CleanPath(searchDirectory, modifiedNAntPattern);
                 isRegex = false;
                 return;
             }
@@ -585,26 +581,23 @@ namespace NAnt.Core {
                 }
             }
 
- #if DEBUG_REGEXES
-             Console.WriteLine("Test: {0} = {1}", path, included);
- #endif
-           return included;
+            return included;
         }
 
         #endregion Private Instance Methods
 
         #region Private Static Methods
 
-        private static string CleanPath(string baseDir, string nantPath, bool ensurePathIsRooted) {
+        private static string CleanPath(string baseDir, string nantPath) {
             StringBuilder path = new StringBuilder(nantPath);
 
             // NAnt patterns can use either / \ as a directory seperator.
             // We must replace both of these characters with Path.DirectorySeperatorChar
             path.Replace('/',  Path.DirectorySeparatorChar);
             path.Replace('\\', Path.DirectorySeparatorChar);
-            
+
             // Patterns MUST be full paths.
-            if (ensurePathIsRooted && !Path.IsPathRooted(path.ToString())) {
+            if (!Path.IsPathRooted(path.ToString())) {
                 path = new StringBuilder(Path.Combine(baseDir, path.ToString()));
             }
 
@@ -621,24 +614,7 @@ namespace NAnt.Core {
         ///     <change date="20020220" author="Ari Hännikäinen">Added parameter baseDir, using  it instead of class member variable</change>
         /// </history>
         private static string ToRegexPattern(string baseDir, string nantPattern) {
-            bool wildcardStart = false;
-            bool wildcardEnd = false;
-
-            // Don't bother with ^ and $ if the pattern starts or ends with a wildcard
-            // "^.*pattern.*$" is about twice as slow as "pattern" and perfectly equivalent!
-            if (nantPattern.Length >= 2) {            
-                if (nantPattern.StartsWith("**")) {
-                    nantPattern = nantPattern.Remove(0, 2);            
-                    wildcardStart = true;
-                }
-
-                if (nantPattern.EndsWith("**")) {
-                    nantPattern = nantPattern.Remove(nantPattern.Length - 2, 2);
-                    wildcardEnd = true;
-                }
-            }
-            
-            StringBuilder pattern = new StringBuilder(CleanPath(baseDir, nantPattern, !wildcardStart));
+            StringBuilder pattern = new StringBuilder(CleanPath(baseDir, nantPattern));
 
             // The '\' character is a special character in regular expressions
             // and must be escaped before doing anything else.
@@ -665,27 +641,21 @@ namespace NAnt.Core {
 
             // Convert NAnt pattern characters to regular expression patterns.
 
-            // Start with ? - it's used below            
-            pattern.Replace("?", "[^" + seperator + "]?");
-            
             // SPECIAL CASE: to match subdirectory OR current directory.  If
             // we don't do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace(seperator + "**", seperator + "?.|");
+            pattern.Replace(seperator + "**", "(" + seperator + ".|)|");
 
             // | is a place holder for * to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
             pattern.Replace("*", "[^" + seperator + "]*");
+            pattern.Replace("?", "[^" + seperator + "]?");
             pattern.Replace('|', '*'); // replace place holder string
 
             // Help speed up the search
-            if (pattern.Length > 0) {
-                if (!wildcardStart)
-                    pattern.Insert(0, '^'); // start of line
-                if (!wildcardEnd)
-                    pattern.Append('$'); // end of line
-            }
+            pattern.Insert(0, '^'); // start of line
+            pattern.Append('$'); // end of line
 
             return pattern.ToString();
         }
