@@ -33,8 +33,11 @@ using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
-using NAnt.VSNet.Tasks;
+
 using NAnt.VisualCpp.Tasks;
+
+using NAnt.VSNet.Tasks;
+using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet {
     /// <summary>
@@ -619,6 +622,18 @@ namespace NAnt.VSNet {
                         break;
                 }
             }
+
+            // check for shared MFC
+            if (baseConfig.UseOfMFC == UseOfMFC.Shared) {
+                clTask.Arguments.Add(new Argument("/D"));
+                clTask.Arguments.Add(new Argument("_AFXDLL"));
+            }
+
+            // check for shared ATL
+            if (baseConfig.UseOfATL == UseOfATL.Shared) {
+                clTask.Arguments.Add(new Argument("/D"));
+                clTask.Arguments.Add(new Argument("_ATL_DLL"));
+            }
                 
             // enable/disable Managed Extensions for C++
             clTask.ManagedExtensions = fileConfig.ManagedExtensions;
@@ -698,6 +713,11 @@ namespace NAnt.VSNet {
                     }
                     options.AppendFormat("/I \"{0}\" ", addIncludeDir);
                 }
+            }
+
+            // check for shared MFC
+            if (fileConfig.UseOfMFC == UseOfMFC.Shared) {
+                options.AppendFormat("/d \"_AFXDLL\"");
             }
 
             if (options.Length > 0)

@@ -18,6 +18,7 @@
 // Dmitry Jemerov <yole@yole.ru>
 // Scott Ford (sford@RJKTECH.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Hani Atassi (haniatassi@users.sourceforge.net)
 
 using System;
 using System.Collections;
@@ -30,6 +31,8 @@ using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Types;
+
+using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet {
     /// <summary>
@@ -99,6 +102,24 @@ namespace NAnt.VSNet {
                     ExpandMacros(referencesPathAttribute.Value));
             } else if (_parentConfig != null) {
                 _referencesPath = _parentConfig.ReferencesPath;
+            }
+
+            // get MFC settings
+            string useOfMFC = GetXmlAttributeValue(elem, "UseOfMFC");
+            if (useOfMFC != null) {
+                _useOfMFC = (UseOfMFC) Enum.ToObject(typeof(UseOfMFC), 
+                    int.Parse(useOfMFC, CultureInfo.InvariantCulture));
+            } else if (_parentConfig != null) {
+                _useOfMFC = _parentConfig.UseOfMFC;
+            }
+
+            // get ATL settings
+            string useOfATL = GetXmlAttributeValue(elem, "UseOfATL");
+            if (useOfATL != null) {
+                _useOfATL = (UseOfATL) Enum.ToObject(typeof(UseOfATL), 
+                    int.Parse(useOfATL, CultureInfo.InvariantCulture));
+            } else if (_parentConfig != null) {
+                _useOfATL = _parentConfig.UseOfATL;
             }
 
             XmlNodeList tools = elem.GetElementsByTagName("Tool");
@@ -335,6 +356,20 @@ namespace NAnt.VSNet {
             get { return _referencesPath; }
         }
 
+        /// <summary>
+        /// Gets a value indicating how MFC is used by the configuration.
+        /// </summary>
+        public UseOfMFC UseOfMFC {
+            get { return _useOfMFC; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating how ATL is used by the configuration.
+        /// </summary>
+        public UseOfATL UseOfATL {
+            get { return _useOfATL; }
+        }
+
         #endregion Public Instance Properties
 
         #region Internal Instance Properties
@@ -454,6 +489,8 @@ namespace NAnt.VSNet {
         private readonly bool _excludeFromBuild;
         private readonly CharacterSet _characterSet = CharacterSet.NotSet;
         private readonly string _referencesPath;
+        private readonly UseOfMFC _useOfMFC = UseOfMFC.NotUsing;
+        private readonly UseOfATL _useOfATL = UseOfATL.NotUsing;
 
         #endregion Private Instance Fields
     }

@@ -263,6 +263,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\UseOfATL.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\UseOfMFC.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\WebMap.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
