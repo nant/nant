@@ -26,42 +26,67 @@ using System.Globalization;
 
 using NUnit.Framework;
 
+using NAnt.Core.Tasks;
+
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
     /// <summary>
-    /// <para>Tests move task.</para>
+    /// Tests <see cref="MoveTask" />.
     /// </summary>
     [TestFixture]
     public class MoveTest : BuildTestBase {
-        const string _xmlProjectTemplate = @"
-            <project>
-                <move file='{1}' tofile='{0}'/>
-            </project>";
+        #region Private Instance Fields
 
-        string tempDirDest;
-        string tempFileSrc;
+        private string _tempDirDest;
+        private string _tempFileSrc;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private const string _xmlProjectTemplate = 
+            "<project>" 
+                + "<move file=\"{0}\" tofile=\"{1}\" overwrite=\"{2}\" />"
+            + "</project>";
+
+        #endregion Private Static Fields
 
 		[SetUp]
         protected override void SetUp() {
             base.SetUp();
-            tempDirDest = CreateTempDir("foob");
-            tempFileSrc = CreateTempFile("foo.xml");
+            _tempDirDest = CreateTempDir("foob");
+            _tempFileSrc = CreateTempFile("foo.xml");
         }
 
 		[Test]
         public void Test_Move() {
-            Assertion.Assert("File should have been created:" + tempDirDest, File.Exists(tempFileSrc));
-            Assertion.Assert("Dir should have been created:" + tempDirDest, Directory.Exists(tempDirDest));
-
-            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, Path.Combine(tempDirDest,"foo.xml"), tempFileSrc));
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _xmlProjectTemplate, _tempFileSrc, Path.Combine(_tempDirDest, "foo.xml"),
+                "false"));
             
-            Assertion.Assert("File should have been removed (during move):" + result, !File.Exists(tempFileSrc));
-            Assertion.Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(tempDirDest, "foo.xml")));
+            Assertion.Assert("File should have been removed (during move):" + result, !File.Exists(_tempFileSrc));
+            Assertion.Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(_tempDirDest, "foo.xml")));
+        }
 
-            //hopefully this file won't be there, if things worked
-            File.Delete(tempFileSrc);
-            TempDir.Delete(tempDirDest);
+        [Test]
+        public void Test_MoveOverwrite() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"));
+
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_MoveNoOverwrite() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo-dest.xml"));
+
+            // ensure source file is more recent than destination file
+            File.SetLastWriteTime(_tempFileSrc, DateTime.Now.AddDays(1));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
         }
     }
 }
