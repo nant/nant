@@ -260,7 +260,7 @@ namespace NAnt.VSNet {
 
             string includeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
             if (!StringUtils.IsNullOrEmpty(includeDirs)) {
-                foreach (string includeDir in includeDirs.Split(new char[] {',', ';'})) {
+                foreach (string includeDir in includeDirs.Split(',', ';')) {
                     clTask.IncludeDirs.DirectoryNames.Add(includeDir);
                 }
             }
@@ -461,7 +461,7 @@ namespace NAnt.VSNet {
 
             string addLibDirs = baseConfig.GetToolSetting(linkerTool, "AdditionalLibraryDirectories");
             if (addLibDirs != null) {
-                foreach (string addLibDir in addLibDirs.Split(',')) {
+                foreach (string addLibDir in addLibDirs.Split(',', ';')) {
                     linkTask.LibDirs.DirectoryNames.Add(addLibDir);
                 }
             }
