@@ -52,10 +52,29 @@ namespace SourceForge.NAnt.Tasks {
         int _ziplevel = 6; 
         FileSet _fileset = new FileSet();
         Crc32 crc = new Crc32();
+        DateTime _stampDateTime = DateTime.MinValue;
+        string _comment = null;
 
         /// <summary>The zip file to create.</summary>
         [TaskAttribute("zipfile", Required=true)]
         public string ZipFileName { get { return Project.GetFullPath(_zipfile); } set {_zipfile = value; } }
+
+        /// <summary>The comment for the file</summary>
+        [TaskAttribute("comment", Required=false)]
+        public string Comment { set {_comment = value; } }
+
+
+        /// <summary>An optional date/time stamp for the files.</summary>
+        [TaskAttribute("stampdatetime", Required=false)]
+        public string Stamp { 
+            set {
+                try {
+                    _stampDateTime = DateTime.Parse(value);
+                } catch {
+                    _stampDateTime = DateTime.Now;
+                }
+            } 
+        }
         
         /// <summary>Desired level of compression (default is 6).</summary>
         /// <value>0 - 9 (0 - STORE only, 1-9 DEFLATE (1-lowest, 9-highest))</value>
@@ -80,6 +99,11 @@ namespace SourceForge.NAnt.Tasks {
             }
             string basePath = Path.GetDirectoryName(Project.GetFullPath(ZipFileSet.BaseDirectory));
             
+            //set comment
+            if(_comment != null){
+                zOutstream.SetComment(_comment);
+            }
+
             foreach (string file in ZipFileSet.FileNames) {
                 if (File.Exists(file)) {
                     // read source file
@@ -93,9 +117,14 @@ namespace SourceForge.NAnt.Tasks {
                     string entryName = file.Substring(basePath.Length + 1);
                    
                     ZipEntry entry = new ZipEntry(entryName);
-                    //write datetime from file (adjust for bug in lib).
-                    //TODO: Remove when bug is fixed.~!
-                    entry.DateTime = File.GetLastWriteTime(file).AddMonths(-1);
+                    
+                    //set time/date stamp on files
+                    if(_stampDateTime != DateTime.MinValue) {
+                        entry.DateTime = _stampDateTime;
+                    }
+                    else {
+                        entry.DateTime = File.GetLastWriteTime(file);
+                    }
 
                     if (Verbose) {
                         Log.WriteLine(LogPrefix + "Adding {0}", entryName);

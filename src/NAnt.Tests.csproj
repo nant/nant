@@ -226,11 +226,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Core.Tests\Tasks\MailTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NAnt.Core.Tests\Tasks\MkDirTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -252,11 +247,6 @@
                 />
                 <File
                     RelPath = "NAnt.Core.Tests\Tasks\ReadRegistryTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core.Tests\Tasks\ScriptTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -334,11 +324,6 @@
                 />
                 <File
                     RelPath = "NAnt.DotNetTasks.Tests\ResourceFileSetTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNetTasks.Tests\ResxTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

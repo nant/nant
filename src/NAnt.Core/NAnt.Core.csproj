@@ -366,11 +366,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Tasks\MailTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Tasks\MkDirTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -397,11 +392,6 @@
                 />
                 <File
                     RelPath = "Tasks\ReadRegistryTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Tasks\ScriptTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

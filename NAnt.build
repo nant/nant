@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="nant" default="test" >
+<project name="nant" default="test" xmlns="http://nant.sourceforge.net/schema/nant-current.xsd">
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.2" />
@@ -46,13 +46,13 @@
                 <includes name="NDoc.Documenter.Msdn.dll" />
                 <includes name="nunit.framework.dll" />
                 <includes name="NUnitCore.dll" />
-                <includes name="SharpZipLib.dll" />
+                <includes name="ICSharpCode.SharpZipLib.dll" />
                 <includes name="log4net-net-1.0.dll"/>
             </fileset>
         </copy>
         <!-- build NAnt.Core -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
-            <sources basedir="src/NAnt.Core">
+            <sources basedir="src/NAnt.Core" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
             <resources basedir="src/NAnt.Core/Resources">
@@ -65,7 +65,7 @@
         </csc>
         <!-- build NAnt.Core.Tests -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
-            <sources basedir="src/NAnt.Core.Tests">
+            <sources basedir="src/NAnt.Core.Tests" failonempty="true">
                 <includes name="**/*.cs" />
                 
                 <!-- requires internet access and server resources -->
@@ -83,7 +83,7 @@
         </csc>
         <!-- build NAnt.Console -->
         <csc target="exe" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
-            <sources basedir="src/NAnt.Console">
+            <sources basedir="src/NAnt.Console" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
@@ -94,7 +94,7 @@
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/NAnt.Console.exe.config" />
         <!-- compile NAnt.Console.Tests -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
-            <sources basedir="src/NAnt.Console.Tests">
+            <sources basedir="src/NAnt.Console.Tests" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
@@ -135,10 +135,10 @@
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
-            <sources basedir="src/NDoc.Documenter.NAnt">
+            <sources basedir="src/NDoc.Documenter.NAnt" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
-            <references>
+            <references failonempty="true">
                 <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
             <arg value="/resource:src/NDoc.Documenter.NAnt\Resources\tags.xslt,Documenter.xslt.tags.xslt" />
@@ -230,7 +230,13 @@
         nant debug package
     -->
     <target name="package" depends="cleanall release test userdoc sdkdoc" description="Creates a package zip file.">
+        <!-- generate schema -->
+        <mkdir dir="${build.dir}/schema"/>
+        <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
+        
+        <!-- move config file -->
         <move file="${build.dir}/bin/NAnt.exe.config" tofile="${build.dir}/bin/${nant.console.name}.exe.config" />
+        
         <!-- remove non-release files -->
         <delete>
             <fileset basedir="${build.dir}/bin">
@@ -239,12 +245,14 @@
                 <includes name="NAnt.Console.*" />
             </fileset>
         </delete>
+        
         <!-- copy project files -->
         <copy todir="${build.dir}">
             <fileset>
                 <includes name="doc/**" />
                 <includes name="src/**" />
                 <includes name="examples/**" />
+                <includes name="schema/**" />
                 <includes name="*" />
         
                 <!--Start "Exclude VS.Net stuff" -->

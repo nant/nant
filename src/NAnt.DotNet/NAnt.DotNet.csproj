@@ -118,11 +118,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LicenseTask.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "McsTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -149,11 +144,6 @@
                 />
                 <File
                     RelPath = "ResourceFileSet.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ResxTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

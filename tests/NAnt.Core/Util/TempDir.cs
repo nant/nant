@@ -58,8 +58,11 @@ namespace SourceForge.NAnt.Tests {
                     string[] fileNames = Directory.GetFiles(path);
                     foreach(string fileName in fileNames) 
                         File.Delete(fileName);
-                    Directory.Delete(path);
+                    Directory.Delete(path, true);
                 }
+            }
+            catch(Exception e) {
+                throw new AssertionException("Unable to cleanup '" + path + "'.", e);
             }
             finally {
                 if (Directory.Exists(path)) {

@@ -3,42 +3,24 @@
         ProjectType = "Local"
         ProductVersion = "7.0.9466"
         SchemaVersion = "1.0"
-        ProjectGuid = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
+        ProjectGuid = "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "NAnt.ZipTasks"
+                AssemblyName = "Nant.Win32Tasks"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.ZipTasks"
+                RootNamespace = "SourceForge.NAnt.Tasks.Win32"
                 StartupObject = ""
             >
                 <Config
                     Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = ""
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "true"
-                    Optimize = "false"
-                    OutputPath = "..\..\build.VS.Net\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
-                />
-                <Config
-                    Name = "Debug Main NAnt BuildFile"
                     AllowUnsafeBlocks = "false"
                     BaseAddress = "285212672"
                     CheckForOverflowUnderflow = "false"
@@ -78,32 +60,36 @@
                     AssemblyName = "System.Web"
                 />
                 <Reference
+                    Name = "Microsoft.JScript"
+                    AssemblyName = "Microsoft.JScript"
+                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\Microsoft.JScript.dll"
+                />
+                <Reference
+                    Name = "log4net-net-1.0"
+                    AssemblyName = "log4net-net-1.0"
+                    HintPath = "..\..\bin\log4net-net-1.0.dll"
+                />
+                <Reference
                     Name = "NAnt.Core"
                     Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                    Private = "False"
-                />
-                <Reference
-                    Name = "ICSharpCode.SharpZipLib"
-                    AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\bin\ICSharpCode.SharpZipLib.dll"
                 />
             </References>
         </Build>
         <Files>
             <Include>
                 <File
-                    RelPath = "AssemblyInfo.cs"
+                    RelPath = "LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "UnZipTask.cs"
+                    RelPath = "MailTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ZipTask.cs"
+                    RelPath = "ScriptTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

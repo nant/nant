@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit2Tasks", "NAnt.NU
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit1Tasks", "NAnt.NUnitTasks\NUnit1\NAnt.NUnit1Tasks.csproj", "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Win32Tasks", "NAnt.Win32Tasks\NAnt.Win32Tasks.csproj", "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -50,6 +52,7 @@ Global
 		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug.ActiveCfg = Debug|.NET
 		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug.Build.0 = Debug|.NET
 		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug Main NAnt BuildFile.ActiveCfg = Debug|.NET
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
 		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug NAnt Tests.ActiveCfg = Debug|.NET
 		{F77EA08E-9473-436A-BBA3-880139A341B1}.Debug NAnt Tests.Build.0 = Debug|.NET
 		{B50A1067-785B-4686-8FFC-5AF424BEF163}.Debug.ActiveCfg = Debug|.NET
@@ -73,6 +76,7 @@ Global
 		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug.ActiveCfg = Debug|.NET
 		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug.Build.0 = Debug|.NET
 		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug Main NAnt BuildFile.ActiveCfg = Debug|.NET
+		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
 		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug NAnt Tests.ActiveCfg = Debug|.NET
 		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.Debug NAnt Tests.Build.0 = Debug|.NET
 		{8F5F8375-4097-4952-B860-784EB9961ABE}.Debug.ActiveCfg = Debug|.NET
@@ -99,6 +103,12 @@ Global
 		{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
 		{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}.Debug NAnt Tests.ActiveCfg = Debug|.NET
 		{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}.Debug NAnt Tests.Build.0 = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug.ActiveCfg = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug.Build.0 = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug Main NAnt BuildFile.ActiveCfg = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug Main NAnt BuildFile.Build.0 = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug NAnt Tests.ActiveCfg = Debug|.NET
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.Debug NAnt Tests.Build.0 = Debug|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		Item:1 = ..\NAnt.build

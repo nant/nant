@@ -209,43 +209,36 @@ namespace SourceForge.NAnt {
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementArrayAttribute));
                 if (buildElementArrayAttribute != null) {
                     
-                    // get collection of nodes  ( TODO - do this without using xpath )
-                    XmlNodeList nodes  = elementNode.SelectNodes( buildElementArrayAttribute.Name );
-                    
-                    // check if its required
-                    if (nodes == null && buildElementArrayAttribute.Required) {
-                        throw new BuildException(String.Format(" there must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
-                    }                                       
-                    string typeName = propertyInfo.PropertyType.FullName;               
-                    if (typeName.Substring( typeName.Length -2, 2 ) != "[]") {
+                    if(!propertyInfo.PropertyType.IsArray) {
                         throw new BuildException(String.Format(" BuildElementArrayAttribute must be applied to array types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
                     }
-                    // get the type of the array elements ( strip off the '[]' )
-                    string elementType = typeName.Substring( 0, typeName.Length - 2 );
                     
+                    // get collection of nodes  ( TODO - do this without using xpath )
+                    XmlNodeList nodes  = elementNode.SelectNodes( "nant:" + buildElementArrayAttribute.Name, Project.NamespaceManager);
+
+                    // check if its required
+                    if (nodes == null && buildElementArrayAttribute.Required) {
+                        throw new BuildException(String.Format(" Element Required! There must be a least one '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                    }
+
+                    // get the type of the array elements
+                    Type elementType = propertyInfo.PropertyType.GetElementType();
                     // create new array of the required size - even if size is 0
-                    object[] args = new object[1];
-                    args[0] = nodes.Count;
-                    
-                    System.Array list = (System.Array)propertyInfo.PropertyType.Assembly.CreateInstance( typeName, false, 
-                                                                        BindingFlags.CreateInstance, 
-                                                                        null, 
-                                                                        args, 
-                                                                        null, 
-                                                                        null );                 
-                    
+                    System.Array list = Array.CreateInstance(elementType, nodes.Count);
+
                     int arrayIndex =0;
-                    foreach ( XmlNode childNode in nodes ) {                        
+                    foreach ( XmlNode childNode in nodes ) {
                         // Create a child element
-                        Element childElement = (Element)propertyInfo.PropertyType.Assembly.CreateInstance( elementType );                                           
+                        Element childElement = (Element) Activator.CreateInstance(elementType); 
                         
                         childElement.Project = Project;
                         childElement.Initialize(childNode);
-                        list.SetValue(childElement, arrayIndex );
+                        list.SetValue(childElement, arrayIndex);
                         arrayIndex ++;
                     }
+                    
                     // set the memvber array to our newly created array
-                    propertyInfo.SetValue(this, list, null );
+                    propertyInfo.SetValue(this, list, null);
                 }
                 // now do nested BuildElements
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 

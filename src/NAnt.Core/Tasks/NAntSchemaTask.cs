@@ -97,7 +97,7 @@ namespace SourceForge.NAnt.Tasks {
             /// <summary>
             /// Creates a new SchemaGenerator.
             /// </summary>
-            /// <param name="tasks"><see cref="NAntSchemaGenerator.ctor"/></param>
+            /// <param name="tasks"></param>
             /// <param name="targetNS">The namespace to use.
             /// <example> http://tempuri.org/nant.xsd </example>
             /// </param>

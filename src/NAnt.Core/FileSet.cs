@@ -38,6 +38,7 @@ namespace SourceForge.NAnt {
     /// <change date="20030224" author="Brian Deacon (bdeacon at vidya dot com">Added support for the failonempty attribute</change>
     /// </history>
     public class FileSet : Element {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         // copy constructor 
         public FileSet( FileSet source)        {            
@@ -59,9 +60,11 @@ namespace SourceForge.NAnt {
                 if (Path.IsPathRooted(fileName)) {
                     FileInfo fileInfo = new FileInfo(fileName);
                     if (!fileInfo.Exists) {
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is not newer than {1})", fileName, targetLastWriteTime));
                         return fileName;
                     }
                     if (fileInfo.LastWriteTime > targetLastWriteTime) {
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, targetLastWriteTime));
                         return fileName;
                     }
                 }
@@ -163,7 +166,7 @@ namespace SourceForge.NAnt {
             _hasScanned = true;
 
             if (FailOnEmpty && _scanner.FileNames.Count == 0) {
-                throw new ValidationException("The fileset specified is empty.", Location);
+                throw new ValidationException(string.Format(CultureInfo.InvariantCulture, "The fileset specified is empty after scanning '{0}' for: {1}", _scanner.BaseDirectory, _scanner.Includes.ToString()), Location);
             }
         }
 
@@ -195,12 +198,15 @@ namespace SourceForge.NAnt {
                 foreach(IncludesElement include in value) {
                     if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", include.Pattern));
                             AsIs.Add(include.Pattern);
                         } 
                         else if (include.FromPath) {
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", include.Pattern));
                             PathFiles.Add(include.Pattern);
                         } 
                         else {
+                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including pattern", include.Pattern));
                             Includes.Add(include.Pattern);
                         }
                     }
@@ -213,6 +219,7 @@ namespace SourceForge.NAnt {
             set {
                 foreach(ExcludesElement exclude in value){
                     if (exclude.IfDefined && !exclude.UnlessDefined) {
+                        logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding pattern", exclude.Pattern));
                         Excludes.Add(exclude.Pattern);
                     }
                 }

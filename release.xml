@@ -17,7 +17,8 @@
     <include buildfile="nant.build"/>
     
     <target name="1" depends="release package" description="Perform a 'release' package and uploads to sf.net">
-    	<move file="${project.zip-path}" tofile="${project.zip-path}.${date}.zip"/>
+	<move file="${project.zip-path}" tofile="${project.zip-path}.${date}.zip"/>
+	
 	<!-- copy the build up to sourceforge -->
 	<scp file="${project.zip-path}.${date}.zip" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
 

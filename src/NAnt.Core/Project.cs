@@ -75,11 +75,12 @@ namespace SourceForge.NAnt {
         string _defaultTargetName = null;
         bool   _verbose = false;
 
-        StringCollection   _buildTargets = new StringCollection();
-        TargetCollection   _targets = new TargetCollection();
-        LocationMap        _locationMap = new LocationMap();
-        PropertyDictionary _properties = new PropertyDictionary();
-        XmlDocument    _doc = null; // set in ctorHelper
+        StringCollection    _buildTargets = new StringCollection();
+        TargetCollection    _targets = new TargetCollection();
+        LocationMap         _locationMap = new LocationMap();
+        PropertyDictionary  _properties = new PropertyDictionary();
+        XmlDocument         _doc = null; // set in ctorHelper
+        XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         
         // info about framework information
         FrameworkInfoHashTable _frameworkInfoTable = new FrameworkInfoHashTable();
@@ -196,6 +197,24 @@ namespace SourceForge.NAnt {
             _verbose = verbose;
             
             string newBaseDir = null;
+
+            //fill the namespace manager up. So we can make qualified xpath expressions.
+            if(doc.DocumentElement.NamespaceURI == null || doc.DocumentElement.NamespaceURI.Equals(string.Empty)){
+                string defURI;
+                if(doc.DocumentElement.Attributes["xmlns", "nant"] == null){
+                    defURI = @"http://none";
+                }else {
+                    defURI = doc.DocumentElement.Attributes["xmlns", "nant"].Value;
+                }
+                XmlAttribute attr = doc.CreateAttribute("xmlns");
+                attr.Value= defURI;
+                doc.DocumentElement.Attributes.Append(attr);
+                
+                //if(!defURI.Equals(doc.DocumentElement.NamespaceURI))
+                //    throw new BuildException(string.Format("Default namespace is bad! {0}!={1}", defURI, doc.DocumentElement.NamespaceURI));
+            }
+            
+            _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
             //check to make sure that the root element in named correctly
             if(!doc.DocumentElement.Name.Equals(ROOT_XML))
@@ -646,6 +665,12 @@ namespace SourceForge.NAnt {
                 Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name; 
             }
         }
+
+        public XmlNamespaceManager NamespaceManager{
+            get{
+                return _nm;
+            }
+        }
         
         #region Settings file Load routines
         
@@ -770,31 +795,29 @@ namespace SourceForge.NAnt {
                 Log.WriteLine("Settings not found. Using none!");
                 return;
             }
-            //try {   
-                           
-                XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
-                ProcessFrameworkInfo(frameworkInfoNodes);
+
+            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
+            //If a default namespace is specified this will fail.
+            XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
+            ProcessFrameworkInfo(frameworkInfoNodes);
+            
+            string defaultFramework = node.Attributes["defaultframework"].Value;
+            if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
                 
-                string defaultFramework = node.Attributes["defaultframework"].Value;
-                if ( _frameworkInfoTable.ContainsKey( defaultFramework ) ) {
-                    
-                    Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );                                                   
-                    Properties.Add("nant.settings.currentframework", defaultFramework );
-                    
-                    DefaultFramework = _frameworkInfoTable[defaultFramework];
-                    CurrentFramework = _defaultFramework;                                                                              
-                }   
-                else {        
-                    throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
-                }                              
+                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );                                                   
+                Properties.Add("nant.settings.currentframework", defaultFramework );
                 
-                // now load the efault property set
-                XmlNodeList propertyNodes = node.SelectNodes("properties/property");
-                ProcessGlobalProperties( propertyNodes );
-            /*} 
-            catch ( Exception e)  {
-                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings." + e.Message), e ); 
-            }*/            
+                DefaultFramework = _frameworkInfoTable[defaultFramework];
+                CurrentFramework = _defaultFramework;                                                                              
+            }   
+            else {        
+                throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,  "framework {0} does not exist or is not specified in the config. Defaulting to no known framework", defaultFramework ) );                  
+            }                              
+
+            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
+            // now load the default property set
+            XmlNodeList propertyNodes = node.SelectNodes("properties/property");
+            ProcessGlobalProperties( propertyNodes );
         }
         #endregion
     }

@@ -125,7 +125,8 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         protected override void InitializeTask(XmlNode taskNode) {
-            XmlNodeList codeList = taskNode.SelectNodes("code");
+            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
+            XmlNodeList codeList = taskNode.SelectNodes("nant:code", Project.NamespaceManager);
             if (codeList.Count < 1) {
                 throw new BuildException("<code> block not found.", Location);
             }
@@ -138,7 +139,8 @@ namespace SourceForge.NAnt.Tasks {
             _rootClassName = "nant" + System.Guid.NewGuid().ToString().Replace("-", "");
 
             _imports.Clear();
-            XmlNodeList importsList = taskNode.SelectNodes("imports/import");
+            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
+            XmlNodeList importsList = taskNode.SelectNodes("nant:imports/nant:import", Project.NamespaceManager);
             foreach (XmlNode import in importsList) {
                 _imports.Add(import.Attributes["name"].InnerText);
             }

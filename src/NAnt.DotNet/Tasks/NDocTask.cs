@@ -117,8 +117,9 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Initialize taks and verify parameters.</summary>
         /// <param name="taskNode">Node that contains the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
+            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             // Expand and store the xml node
-            _docNodes = taskNode.Clone().SelectNodes("documenters/documenter");
+            _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", Project.NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
             // check for valid documenters (any other validation can be done by NDoc itself at project load time)
             foreach( XmlNode node in _docNodes) {

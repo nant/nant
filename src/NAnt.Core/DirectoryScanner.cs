@@ -43,7 +43,6 @@ foreach (string filename in GetIncludedFiles()) {
 */
 
 using System;
-using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -93,6 +92,7 @@ namespace SourceForge.NAnt {
     ///     </change>
     /// </history>
     public class DirectoryScanner {
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         // Set to current directory in Scan if user doesn't specify something first.
         // Keeping it null, lets the user detect if it's been set or not.
@@ -281,16 +281,16 @@ namespace SourceForge.NAnt {
             regexPattern = ToRegexPattern(searchDirectory, modifiedNAntPattern);
 
             //Specify pattern as case-insensitive if appropriate to this file system.
-            if (!IsCaseSensitiveFileSystem()) {
+            if (!IsCaseSensitiveFileSystem(searchDirectory)) {
                 regexPattern = "(?i)" + regexPattern;
             }
             
             
         }
 
-        bool IsCaseSensitiveFileSystem() {
+        bool IsCaseSensitiveFileSystem(string path) {
             //Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
-            return (Path.DirectorySeparatorChar != '\\'); 
+            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetDirectoryName(path) + Path.DirectorySeparatorChar))); 
         }
 
         /// <summary>
@@ -448,6 +448,21 @@ namespace SourceForge.NAnt {
             pattern.Append('$'); // end of line
 
             return pattern.ToString();
+        }
+    }
+    public class StringCollection : System.Collections.Specialized.StringCollection{
+        /// <summary>
+        /// Creates a string representing a list of the strings in the collection.
+        /// </summary>
+        /// <returns>A string that represents the contents.</returns>
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder(base.ToString());
+            sb.Append(":" + Environment.NewLine);
+            foreach(string s in this) {
+                sb.Append(s);
+                sb.Append(Environment.NewLine);
+            }
+            return sb.ToString();
         }
     }
 }
