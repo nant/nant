@@ -70,6 +70,7 @@ namespace NAnt.VSNet {
             
             if (projectSettings.Type == ProjectType.CSharp) {
                 htStringSettings["WarningLevel"] = "/warn:{0}";
+                htStringSettings["NoWarn"] = "/nowarn:{0}";
                 htBooleanSettings["IncrementalBuild"] = "/incremental";
             }
 
@@ -80,15 +81,15 @@ namespace NAnt.VSNet {
             htBooleanSettings["Optimize"] = "/optimize";
 
             foreach (DictionaryEntry de in htStringSettings) {
-                string strValue = elemConfig.GetAttribute(de.Key.ToString());
-                if (strValue != null && strValue.Length > 0) {
-                    _settings.Add(String.Format(de.Value.ToString(), strValue));
+                string value = elemConfig.GetAttribute(de.Key.ToString());
+                if (value != null && value.Trim().Length > 0) {
+                    _settings.Add(string.Format(CultureInfo.InvariantCulture, de.Value.ToString(), value));
                 }
             }
 
             foreach (DictionaryEntry de in htBooleanSettings) {
                 string value = elemConfig.GetAttribute(de.Key.ToString());
-                if (value != null && value.Length > 0) {
+                if (value != null && value.Trim().Length > 0) {
                     if (value == "true") {
                         _settings.Add(de.Value.ToString() + "+");
                     } else if (value == "false") {
