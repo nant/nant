@@ -32,8 +32,7 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     /// <para>
-    /// If the file specified in the single-file case does not exist, the task 
-    /// will create it.
+    /// If the file specified does not exist, the task will create it.
     /// </para>
     /// </remarks>
     /// <example>
@@ -45,7 +44,10 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Touch all executable files in the current directory and its subdirectories.</para>
+    ///   <para>
+    ///   Touch all executable files in the project base directory and its 
+    ///   subdirectories.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <touch>
@@ -62,8 +64,8 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private FileInfo _file;
-        private string _millis;
-        private string _datetime;
+        private long _millis;
+        private DateTime _datetime;
         private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
@@ -84,17 +86,18 @@ namespace NAnt.Core.Tasks {
         /// since midnight Jan 1 1970.
         /// </summary>
         [TaskAttribute("millis")]
-        public string Millis {
+        public long Millis {
             get { return _millis; }
             set { _millis = value; }
         }
 
         /// <summary>
         /// Specifies the new modification time of the file in the format 
-        /// MM/DD/YYYY HH:MM AM_or_PM.
+        /// MM/DD/YYYY HH:MM:SS.
         /// </summary>
         [TaskAttribute("datetime")]
-        public string Datetime {
+        [DateTimeValidator()]
+        public DateTime Datetime {
             get { return _datetime; }
             set { _datetime = value; }
         }
@@ -118,8 +121,9 @@ namespace NAnt.Core.Tasks {
         /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             // limit task to either millis or a date string
-            if (Millis != null && Datetime != null) {
-                throw new BuildException("Cannot specify 'millis' and 'datetime' in the same touch task.", Location);
+            if (Millis != 0 && Datetime != DateTime.MinValue) {
+                throw new BuildException("Cannot specify 'millis' and 'datetime'"
+                    + " in the same <touch> task.", Location);
             }
 
             // limit task to touching either a file or fileset
@@ -138,10 +142,10 @@ namespace NAnt.Core.Tasks {
                 TouchFileSet.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            if (Millis != null) {
-                touchDateTime = GetDateTime(Convert.ToInt64(Millis, CultureInfo.InvariantCulture));
-            } else if (Datetime != null) {
-                touchDateTime = GetDateTime(Datetime);
+            if (Millis != 0) {
+                touchDateTime = GetDateTime(Millis);
+            } else if (Datetime != DateTime.MinValue) {
+                touchDateTime = Datetime;
             }
 
             // try to touch specified file
@@ -187,20 +191,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
-        private DateTime GetDateTime(string dateText){
-            DateTime touchDateTime = new DateTime();
-
-            if (!StringUtils.IsNullOrEmpty(dateText)) {
-                touchDateTime = DateTime.Parse(dateText, CultureInfo.InvariantCulture);
-            } else {
-                touchDateTime = DateTime.Now;
-            }
-            return touchDateTime;
-        }
-
         private DateTime GetDateTime(long milliSeconds) {
-            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00", CultureInfo.InvariantCulture).Add(TimeSpan.FromMilliseconds(milliSeconds));            
-            return touchDateTime;
+            DateTime touchDateTime = DateTime.Parse("01/01/1970 00:00:00", CultureInfo.InvariantCulture);
+            return touchDateTime.Add(TimeSpan.FromMilliseconds(milliSeconds));            
         }
 
         #endregion Private Instance Methods
