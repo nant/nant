@@ -444,35 +444,59 @@ namespace NAnt.Core {
 
                 if (buildElementArrayAttribute != null || buildElementCollectionAttribute != null) {
                     if (!propertyInfo.PropertyType.IsArray && !(typeof(ICollection).IsAssignableFrom(propertyInfo.PropertyType))) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, " BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "BuildElementArrayAttribute and BuildElementCollection attributes" +
+                            " must be applied to array or collection-based types '{0}' element" +
+                            "for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), 
+                            Location);
                     }
                     
                     Type elementType = null;
 
-                    if (propertyInfo.PropertyType.IsArray) {
-                        elementType = propertyInfo.PropertyType.GetElementType();
+                    // determine type of child elements
+                    if (buildElementArrayAttribute != null) {
+                        elementType = buildElementArrayAttribute.ElementType;
+                    } else {
+                        elementType = buildElementCollectionAttribute.ElementType;
+                    }
 
+                    if (propertyInfo.PropertyType.IsArray) {
                         if (!propertyInfo.CanWrite) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to read-only array-based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "BuildElementArrayAttribute cannot be applied to read-only" +
+                                " array-based properties. '{0}' element for <{1} ...//>.", 
+                                buildElementArrayAttribute.Name, this.Name), Location);
+                        }
+
+                        if (elementType == null) {
+                            elementType = propertyInfo.PropertyType.GetElementType();
                         }
                     } else {
                         if (!propertyInfo.CanRead) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute cannot be applied to write-only collection-based properties. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "BuildElementArrayAttribute cannot be applied to write-only" +
+                                " collection-based properties. '{0}' element for <{1} ...//>.", 
+                                buildElementArrayAttribute.Name, this.Name), Location);
                         }
 
-                        // locate Add method with 1 parameter, type of that parameter is parameter type
-                        foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
-                            if (method.Name == "Add" && method.GetParameters().Length == 1) {
-                                ParameterInfo parameter = method.GetParameters()[0];
-                                elementType = parameter.ParameterType;
-                                break;
+                        if (elementType == null) {
+                            // locate Add method with 1 parameter, type of that parameter is parameter type
+                            foreach (MethodInfo method in propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                                if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                    ParameterInfo parameter = method.GetParameters()[0];
+                                    elementType = parameter.ParameterType;
+                                    break;
+                                }
                             }
                         }
                     }
 
                     // make sure the element is strongly typed
                     if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, "BuildElementArrayAttribute and BuildElementCollectionAttribute can only be applied to strongly typed collection of Elements or classes that derive from Element. '{0}' element for <{1} ...//>.", buildElementArrayAttribute.Name, this.Name), Location);
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                            "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
+                            " should have an element type assigned that derives from Element" +
+                            " for <{0} ...//>.", this.Name), Location);
                     }
 
                     XmlNodeList collectionNodes = null;
@@ -508,8 +532,8 @@ namespace NAnt.Core {
                             }
                         } else if (collectionNodes.Count > 1) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "Use BuildElementArrayAttributes to have multiple Element Required!" +
-                                " There must be a least one '{0}' element for <{1} ... />.", 
+                                "Use BuildElementArrayAttributes to have array like elements!" +
+                                " There must be at most one '{0}' element for <{1} ... />.", 
                                 buildElementCollectionAttribute.Name, this.Name), Location);
                         }
                     } else {
@@ -529,30 +553,30 @@ namespace NAnt.Core {
                     Array list = Array.CreateInstance(elementType, collectionNodes.Count);
 
                     int arrayIndex = 0;
-					foreach (XmlNode childNode in collectionNodes) {
-						//skip non-nant namespace elements and special elements like comments, pis, text, etc.
-						if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
-							continue;	
-						}
+                    foreach (XmlNode childNode in collectionNodes) {
+                        //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                        if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                            continue;
+                        }
 
-						// Create a child element
-						Element childElement = (Element) Activator.CreateInstance(elementType); 
-                        
-						childElement.Project = Project;
-						childElement.Parent = this;
-						childElement.Initialize(childNode);
-						// if subtype of DataTypeBase
-						DataTypeBase dataType = childElement as DataTypeBase;
-						if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
-							// we have a datatype reference
-							childElement = InitDataTypeBase(dataType );
-							childElement.Project = Project;
-							childElement.Parent = this;
-						}
-                       
-						list.SetValue(childElement, arrayIndex);
-						arrayIndex ++;
-					}
+                        // Create a child element
+                        Element childElement = (Element) Activator.CreateInstance(elementType); 
+
+                        childElement.Project = Project;
+                        childElement.Parent = this;
+                        childElement.Initialize(childNode);
+                        // if subtype of DataTypeBase
+                        DataTypeBase dataType = childElement as DataTypeBase;
+                        if (dataType != null && !StringUtils.IsNullOrEmpty(dataType.RefID)) {
+                            // we have a datatype reference
+                            childElement = InitDataTypeBase(dataType );
+                            childElement.Project = Project;
+                            childElement.Parent = this;
+                        }
+
+                        list.SetValue(childElement, arrayIndex);
+                        arrayIndex ++;
+                    }
 
                     // check if property is deprecated
                     ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) Attribute.GetCustomAttribute(propertyInfo, typeof(ObsoleteAttribute));
@@ -570,16 +594,41 @@ namespace NAnt.Core {
                     }
                     
                     if (propertyInfo.PropertyType.IsArray) {
-                        // set the member array to our newly created array
-                        propertyInfo.SetValue(this, list, null);
+                        try {
+                            // set the member array to our newly created array
+                            propertyInfo.SetValue(this, list, null);
+                        } catch (Exception ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Child element type {0} is not assignable to the type" +
+                                " of the underlying array ({1} for property {2} for <{3} ... />.", 
+                                elementType.FullName, propertyInfo.PropertyType.FullName, 
+                                propertyInfo.Name, this.Name), Location, ex);
+                        }
                     } else {
-                        // find public instance method called 'Add' which accepts one parameter
-                        // corresponding with the underlying type of the collection
-                        MethodInfo addMethod = propertyInfo.PropertyType.GetMethod("Add", 
-                            BindingFlags.Public | BindingFlags.Instance,
-                            null,
-                            new Type[] {elementType},
-                            null);
+                        MethodInfo addMethod = null;
+
+                        // get array of public instance methods
+                        MethodInfo[] addMethods = propertyInfo.PropertyType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+
+                        // search for a method called 'Add' which accepts a parameter
+                        // to which the element type is assignable
+                        foreach (MethodInfo method in addMethods) {
+                            if (method.Name == "Add" && method.GetParameters().Length == 1) {
+                                ParameterInfo parameter = method.GetParameters()[0];
+                                if (parameter.ParameterType.IsAssignableFrom(elementType)) {
+                                    addMethod = method;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (addMethod == null) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Child element type {0} cannot be added to collection" +
+                                " {1} for underlying property {2} for <{3} ... />.", elementType.FullName,
+                                propertyInfo.PropertyType.FullName, propertyInfo.Name, this.Name),
+                                Location);
+                        }
 
                         // if value of property is null, create new instance of collection
                         object collection = propertyInfo.GetValue(this, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
@@ -838,7 +887,7 @@ namespace NAnt.Core {
 
                 if (Project.CurrentFramework != null) {
                     // locate framework node for current framework
-                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
+                        XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("nant:frameworks/nant:framework[@name=\"" + Project.CurrentFramework.Name + "\"]", Project.NamespaceManager);
 
                     if (frameworkNode != null) {
                         // locate framework-specific configuration node
