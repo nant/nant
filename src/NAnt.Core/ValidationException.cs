@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez
+// Copyright (C) 2002-2003 Scott Hernandez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,55 +19,71 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace SourceForge.NAnt {
-    /// <summary>
-    /// Summary description for ValidationException.
-    /// </summary>
-
-    [Serializable]
+    [Serializable()]
     public class ValidationException : BuildException {
-        /// <summary>
-        /// Constructs a build exception with no descriptive information.
-        /// </summary>
-        public ValidationException() : base() {}
+        #region Public Instance Constructors
 
         /// <summary>
-        /// Constructs an exception with a descriptive message.
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class.
         /// </summary>
+        public ValidationException() : base() {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class with a descriptive message.
+        /// </summary>
+        /// <param name="message">A descriptive message to include with the exception.</param>
         public ValidationException(String message) : base(message) {}
 
         /// <summary>
-        /// Constructs an exception with a descriptive message and an
-        /// instance of the Exception that is the cause of the current Exception.
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class with the specified descriptive message and inner exception.
         /// </summary>
-        public ValidationException(String message, Exception e) : base(message, e) {}
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
+        public ValidationException(String message, Exception innerException) : base(message, innerException) {
+        }
 
         /// <summary>
-        /// Constructs an exception with a descriptive message and location
-        /// in the build file that caused the exception.
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class with a descriptive message and the location in the build file 
+        /// that caused the exception.
         /// </summary>
-        /// <param name="message">The error message that explains the reason for the exception.</param>
-        /// <param name="location">Location in the build file where the exception occured.</param>
-        public ValidationException(String message, Location location) : base(message, location) {}
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="location">The location in the build file where the exception occured.</param>
+        public ValidationException(String message, Location location) : base(message, location) {
+        }
 
         /// <summary>
-        /// Constructs an exception with the given descriptive message, the
-        /// location in the build file and an instance of the Exception that
-        /// is the cause of the current Exception.
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class with a descriptive message, the location in the build file and 
+        /// an instance of the exception that is the cause of the current 
+        /// exception.
         /// </summary>
-        /// <param name="message">The error message that explains the reason for the exception.</param>
-        /// <param name="location">Location in the build file where the exception occured.</param>
-        /// <param name="e">An instance of Exception that is the cause of the current Exception.</param>
-        public ValidationException(String message, Location location, Exception e) : base(message, location, e) {}
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="location">The location in the build file where the exception occured.</param>
+        /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
+        public ValidationException(String message, Location location, Exception innerException) : base(message, location, innerException) {
+        }
 
-        /// <summary>Initializes a new instance of the ValidationException class with serialized data.</summary>
-        protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+        #endregion Public Instance Constructors
 
-        /// <summary>Sets the SerializationInfo object with information about the exception.</summary>
-        /// <param name="info">The object that holds the serialized object data. </param>
-        /// <param name="context">The contextual information about the source or destination. </param>
-        /// <remarks>For more information, see SerializationInfo in the Microsoft documentation.</remarks>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context) {}
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidationException" /> 
+        /// class with serialized data.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
+        protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) {
+        }
+
+        #endregion Protected Instance Constructors
       }
 }

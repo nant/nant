@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
@@ -31,28 +31,30 @@ namespace SourceForge.NAnt {
     /// Maps XML nodes to the text positions from their original source.
     /// </summary>
     public class LocationMap {
-
-        struct TextPosition {
-            public static readonly TextPosition InvalidPosition = new TextPosition(-1,-1);
-
-            public TextPosition(int line, int column) {
-                Line = line;
-                Column = column;
-            }
-
-            public int Line;
-            public int Column;
-        }
+        #region Private Instance Fields
 
         // The LocationMap uses a hash table to map filenames to resolve specific maps.
         Hashtable _fileMap = new Hashtable();
 
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LocationMap" /> class.
+        /// </summary>
         public LocationMap() {
         }
 
-        /// <summary>Add a XmlDocument to the map.</summary>
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Adds an <see cref="XmlDocument" /> to the map.
+        /// </summary>
         /// <remarks>
-        ///   <para>A document can only be added to the map once.</para>
+        /// An <see cref="XmlDocument" /> can only be added to the map once.
         /// </remarks>
         public void Add(XmlDocument doc) {
             // prevent duplicate mapping
@@ -60,8 +62,9 @@ namespace SourceForge.NAnt {
             string fileName = doc.BaseURI;
             
             //check for non-backed documents
-            if(fileName == "")
+            if (fileName.Length == 0) {
                 return;
+            }
 
             if (_fileMap.ContainsKey(fileName)) {
                 throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "XmlDocument '{0}' already mapped.", fileName), "doc");
@@ -154,14 +157,17 @@ namespace SourceForge.NAnt {
 
         }
 
-        /// <summary>Return the <see cref="Location"/> in the xml file for the given node.</summary>
+        /// <summary>
+        /// Returns the <see cref="Location"/> in the xml file for the given node.
+        /// </summary>
         /// <remarks>
-        ///   <para>The <c>node</c> passed in must be from a XmlDocument that has been added to the map.</para>
+        /// The <paramref name="node" /> must be from an <see cref="XmlDocument" /> 
+        /// that has been added to the map.
         /// </remarks>
         public Location GetLocation(XmlNode node) {
             // find hashtable this node's file is mapped under
             string fileName = node.BaseURI;
-            if (fileName == "" ) {
+            if (fileName.Length == 0) {
                 return new Location(null, 0, 0 ); // return null location because we have a fileless node.
             } 
             if (!_fileMap.ContainsKey(fileName)) {
@@ -180,6 +186,10 @@ namespace SourceForge.NAnt {
             return location;
         }
 
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
         private string GetXPathFromNode(XmlNode node) {
             // IM TODO review this algorithm - tidy up
             XPathNavigator nav = node.CreateNavigator();
@@ -187,7 +197,7 @@ namespace SourceForge.NAnt {
             string xpath = "";
             int index = 0;
 
-            while (nav.NodeType.ToString() != "Root") {
+            while (nav.NodeType.ToString(CultureInfo.InvariantCulture) != "Root") {
                 // loop thru children until we find ourselves
                 XPathNavigator navParent = nav.Clone();
                 navParent.MoveToParent();
@@ -206,9 +216,9 @@ namespace SourceForge.NAnt {
                 nav.MoveToParent(); // do loop condition here               
                 index++; // Convert to 1 based index
 
-                string thisNode = "child::node()[" + index  + "]";
+                string thisNode = "child::node()[" + index.ToString(CultureInfo.InvariantCulture) + "]";
 
-                if (xpath == "") {
+                if (xpath.Length == 0) {
                     xpath = thisNode;
                 } else {
                     // build xpath string
@@ -220,6 +230,42 @@ namespace SourceForge.NAnt {
             xpath = "/" + xpath;
 
             return xpath;
+        }
+
+        #endregion Private Instance Methods
+
+        /// <summary>
+        /// Represents a position in the build file.
+        /// </summary>
+        private struct TextPosition {
+            #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="TextPosition" />
+            /// with the speified line and column.
+            /// </summary>
+            /// <param name="line">The line coordinate of the position.</param>
+            /// <param name="column">The column coordinate of the position.</param>
+            public TextPosition(int line, int column) {
+                Line = line;
+                Column = column;
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Fields
+
+            /// <summary>
+            /// The line coordinate of the position.
+            /// </summary>
+            public int Line;
+
+            /// <summary>
+            /// The column coordinate of the position.
+            /// </summary>
+            public int Column;
+
+            #endregion Public Instance Fields
         }
     }
 }
