@@ -11,11 +11,11 @@
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
-    <target name="nightly" depends="set-net-1.0-runtime-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
+    <target name="nightly" depends="set-net-1.0-framework-configuration, package, deploy-sf, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
     <target name="deploy-sf" depends="deploy-zip-sf, deploy-schema-sf, deploy-help-sf, deploy-web-sf, deploy-nightly-web-sf" />
     <!-- copy the zipped nighly build to sourceforge -->
-    <target name="deploy-zip-sf" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-zip-sf" depends="set-net-1.0-framework-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
         <!-- determine filename of distribution package on sf.net -->
         <property name="deploy.zip.file" value="${project.name}-${project.version}-${build.date}.zip" />
@@ -42,7 +42,7 @@
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema-sf" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- determine filename of schema on sf.net -->
         <property name="deploy.schema.file" value="${project.name}-${project.version}-${build.date}.xsd" />
         <!-- make sure the directory tree exists -->
@@ -69,7 +69,7 @@
         </exec>
     </target>
     <!-- copy help to sourceforge -->
-    <target name="deploy-help-sf" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-help-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -100,7 +100,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web-sf" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-web-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -148,7 +148,7 @@
         </exec>
     </target>
     <!-- copy nightly website to sourceforge -->
-    <target name="deploy-nightly-web-sf" depends="set-net-1.0-runtime-configuration, package">
+    <target name="deploy-nightly-web-sf" depends="set-net-1.0-framework-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -196,7 +196,7 @@
         </exec>
     </target>
     <!-- copies NAnt to install dir -->
-    <target name="install" depends="set-net-1.0-runtime-configuration, package">
+    <target name="install" depends="set-net-1.0-framework-configuration, package">
         <!-- ensure install directory was specified -->
         <if test="${not(property::exists('install.dir'))}">
             <fail>Please specify the directory to where NAnt should be installed on the commandline.</fail>
