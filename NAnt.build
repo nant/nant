@@ -5,7 +5,6 @@
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.4" overwrite="false" />
-    <property name="project.html-help.dir" value="C:\Program Files\HTML Help Workshop" />
 
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
@@ -201,7 +200,7 @@
     </target>
 
     <target name="self-sdkdoc" depends="init">
-        <ndoc failonerror="false">
+        <ndoc>
             <assemblies basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
                 <includes name="NAnt.*Tasks.dll" />
@@ -210,8 +209,9 @@
             <documenters>
                 <documenter name="MSDN">
                     <property name="OutputDirectory" value="${build.dir}/doc/sdk" />
+                    <property name="OutputTarget" value="HtmlHelp" />
+                    <property name="LinkToSdkDocVersion" value="${link.sdkdoc.version}" />
                     <property name="HtmlHelpName" value="NAnt-SDK" />
-                    <property name="HtmlHelpCompilerFilename" value="${project.html-help.dir}\hhc.exe" />
                     <property name="IncludeFavorites" value="False" />
                     <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
                     <property name="SplitTOCs" value="False" />
@@ -222,6 +222,8 @@
                     <property name="ShowMissingParams" value="${build.debug}" />
                     <property name="ShowMissingReturns" value="${build.debug}" />
                     <property name="ShowMissingValues" value="${build.debug}" />
+                    <property name="DocumentAttributes" value="True" />
+                    <property name="ShowTypeIdInAttributes" value="True" />
                     <property name="DocumentInternals" value="False" />
                     <property name="DocumentPrivates" value="False" />
                     <property name="DocumentProtected" value="True" />
@@ -229,6 +231,7 @@
                     <property name="IncludeAssemblyVersion" value="False" />
                     <property name="CopyrightText" value="Copyright (C) 2001-2003 Gerry Shaw" />
                     <property name="CopyrightHref" value="http://nant.sourceforge.net" />
+                    <property name="EditorBrowsableFilter" value="Off" />
                 </documenter>
             </documenters>
         </ndoc>
@@ -269,7 +272,7 @@
             <fileset>
                 <includes name="doc/**" />
                 <includes name="src/**" />
-                <includes name="tests/**" />                
+                <includes name="tests/**" />
                 <includes name="examples/**" />
                 <includes name="schema/**" />
                 <includes name="*" />
@@ -377,6 +380,7 @@
         <property name="current.runtime.version" value="1.0" />
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.0" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_0" />
+        <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
@@ -388,6 +392,7 @@
         <property name="current.runtime.version" value="1.1" />
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.1" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_1" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
@@ -399,6 +404,7 @@
         <property name="current.runtime.version" value="1.2" />
         <property name="current.runtime.description" value="Microsoft .NET Framework 1.2" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_2" />
+        <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
@@ -410,6 +416,7 @@
         <property name="current.runtime.version" value="1.0" />
         <property name="current.runtime.description" value="Microsoft .NET Compact Framework 1.0" />
         <property name="current.build.defines" value="${build.defines}NETCF,NETCF_1_0" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
@@ -421,6 +428,7 @@
         <property name="current.runtime.version" value="1.0" />
         <property name="current.runtime.description" value="Mono 1.0" />
         <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
+        <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <ifnot propertyexists="linux" propertytrue="linux">
             <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
@@ -434,6 +442,7 @@
         <property name="current.runtime.version" value="1.0" />
         <property name="current.runtime.description" value="Mono 1.0" />
         <property name="current.build.defines" value="${build.defines}MONO,MONO_1_0" />
+        <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="mono-1.0-linux" />
         <property name="sourceconfig" value="NAnt.Console.exe.config.linux"/>
@@ -445,6 +454,7 @@
         <property name="current.runtime.version" value="1.0" />
         <property name="current.runtime.description" value="Microsoft Shared Source CLI 1.0" />
         <property name="current.build.defines" value="${build.defines}SSCLI,SSCLI_1_0" />
+        <property name="link.sdkdoc.version" value="MsdnOnline" />
         <property name="lib.dir" value="lib/${current.runtime.config}/${current.runtime.version}" />
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
