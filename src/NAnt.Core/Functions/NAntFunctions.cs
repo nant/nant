@@ -62,6 +62,23 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Gets the name of the target being executed.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that contains the name of the target
+        /// being executed.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">No target is being executed.</exception>
+        [Function("get-current-target")]
+        public string GetCurrentTarget() {
+            Target target = Project.CurrentTarget;
+            if (target == null) {
+                throw new InvalidOperationException("No target is being executed.");
+            }
+            return target.Name;
+        }
+
+        /// <summary>
         /// Checks whether the specified target has already been executed.
         /// </summary>
         /// <param name="name">The target to test.</param>
@@ -215,6 +232,23 @@ namespace NAnt.Core.Functions {
         [Function("exists")]
         public bool Exists(string name) {
             return Project.Frameworks.ContainsKey(name);
+        }
+
+        /// <summary>
+        /// Checks whether the SDK for the specified framework is installed.
+        /// </summary>
+        /// <param name="name">The framework to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the SDK for specified framework is installed; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("sdk-exists")]
+        public bool SdkExists(string name) {
+            if (Project.Frameworks.ContainsKey(name)) {
+                return Project.Frameworks[name].SdkDirectory != null;
+            } else {
+                return false;
+            }
         }
 
         /// <summary>
