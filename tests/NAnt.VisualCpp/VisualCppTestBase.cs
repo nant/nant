@@ -176,11 +176,11 @@ namespace Tests.NAnt.VisualCpp {
             foreach (string compiler in compilers) {
                 // get major version of compiler
                 int majorVersion = VersionFunctions.GetMajor(
-                    FileVersionInfoFunctions.GetFileVersion(
-                        FileVersionInfo.GetVersionInfo(compiler)));
+                    FileVersionInfoFunctions.GetProductVersion(
+                    FileVersionInfo.GetVersionInfo(compiler)));
                 // the MS compiler supports Managed Extensions starting from 
-                // version 13
-                if (majorVersion < 13) {
+                // product version 7 (VS.NET 2002)
+                if (majorVersion < 7) {
                     // stop at first compiler that does not meet the required
                     // version, as we're not sure which entry in the PATH the
                     // <cl> task will use
@@ -217,24 +217,25 @@ namespace Tests.NAnt.VisualCpp {
         #region Private Static Fields
 
         private static string[] _expectedLibs = new string[] {
-            "kernel32.lib",
-            "user32.lib",
-            "gdi32.lib",
-            "winspool.lib",
-            "comdlg32.lib",
-            "advapi32.lib",
-            "shell32.lib",
-            "ole32.lib",
-            "oleaut32.lib",
-            "uuid.lib",
-            "odbc32.lib",
-            "odbccp32.lib"
-        };
+                                                                 "kernel32.lib",
+                                                                 "user32.lib",
+                                                                 "gdi32.lib",
+                                                                 "winspool.lib",
+                                                                 "comdlg32.lib",
+                                                                 "advapi32.lib",
+                                                                 "shell32.lib",
+                                                                 "ole32.lib",
+                                                                 "oleaut32.lib",
+                                                                 "uuid.lib",
+                                                                 "odbc32.lib",
+                                                                 "odbccp32.lib"
+                                                             };
         private static readonly string[] _expectedHeaderFiles = new string[] {
-            "stdio.h",
-            "windows.h"
-        };
-        private static readonly bool _compilerPresent = CheckCompilerPresent();
+                                                                                 "stdio.h",
+                                                                                 "windows.h"
+                                                                             };
+
+        private static readonly bool _compilerPresent = _compilerPresent = CheckCompilerPresent();
         private static readonly bool _libsPresent = CheckLibsPresent();
         private static readonly bool _headerFilesPresent = CheckHeaderFilesPresent();
         private static readonly bool _supportedCompiler = CheckSupportedCompiler();
