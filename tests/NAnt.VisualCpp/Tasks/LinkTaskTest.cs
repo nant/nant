@@ -188,9 +188,9 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildSourceChanged() {
             Test_BuildAll();
-            Console.Write( "in BuildSourceChanged");
+            System.Console.Write("in BuildSourceChanged");
             for (int i = 0; i < _sourceCount; ++i) {
-                Console.Write( "time test loop obj name is {0}", _objPathName[i]);
+                System.Console.Write("time test loop obj name is {0}", _objPathName[i]);
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);
                 string result = RunBuild(_test_build);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
