@@ -43,6 +43,13 @@ namespace NAnt.Compression.Types {
 
         #endregion Private Instance Fields
 
+        #region Private Static Fields
+
+        private const int _dirFlag = 040000;
+        private const int _fileFlag = 0100000;
+
+        #endregion Private Static Fields
+
         #region Public Instance Properties
 
         /// <summary>
@@ -53,7 +60,7 @@ namespace NAnt.Compression.Types {
         //[TaskAttribute("filemode")]
         public int FileMode {
             get { return _fileMode; }
-            set { _fileMode = value; }
+            set { _fileMode = _fileFlag | value; }
         }
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace NAnt.Compression.Types {
         //[TaskAttribute("dirmode")]
         public int DirMode {
             get { return _dirMode; }
-            set { _dirMode = value; }
+            set { _dirMode = _dirFlag | value; }
         }
 
         /// <summary>
