@@ -1,33 +1,21 @@
 <?xml version="1.0"?>
 <project name="nant" default="1">
-    
-    <script language="C#">
-        <code>
-			<![CDATA[
-			public static void ScriptMain(Project project) {
-				project.Properties.AddReadOnly("date", DateTime.Now.ToString("yyyyMMdd"));
-			}
-			]]>
-		</code>
-    </script>
-    
     <property name="sf.net.ssh.server" value="shell1.sf.net"/>
     <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs/builds"/>
-    
+    <!-- include master build file -->
     <include buildfile="nant.build"/>
-    
+    <!-- perform a 'release' package and upload to sf.net -->
     <target name="1" depends="release package" description="Perform a 'release' package and uploads to sf.net">
-	<move file="${project.zip-path}" tofile="${project.zip-path}.${date}.zip"/>
-	
-	<!-- copy the build up to sourceforge -->
-	<scp file="${project.zip-path}.${date}.zip" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
-
-	<!-- make sure files are readable -->
-	<exec program="ssh">
-		<arg value="${sf.net.ssh.server}"/>
-		<arg value="chmod a+r ${sf.net.build.path}/*"/>
-	</exec>
-		
+        <!-- create property holding current date/time in yyyyMMdd format -->
+        <tstamp property="date" pattern="yyyyMMdd" />
+        <!-- move distribution zip to filename containing current date/time -->
+        <move file="${project.zip-path}" tofile="${project.zip-path}.${date}.zip"/>
+        <!-- copy the build up to sourceforge -->
+        <scp file="${project.zip-path}.${date}.zip" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
+        <!-- make sure files are readable -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}"/>
+            <arg value="chmod a+r ${sf.net.build.path}/*"/>
+        </exec>
     </target>
-    
 </project>

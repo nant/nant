@@ -1,90 +1,67 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <project name="nant" default="nightly" xmlns-ds="http://nant.sourceforge.net/schema/nant-current.xsd">
-    
-    <script language="C#">
-        <code>
-			<![CDATA[
-			public static void ScriptMain(Project project) {
-				project.Properties.AddReadOnly("project.version", DateTime.Now.ToString("yyyyMMdd"));
-			}
-			]]>
-		</code>
-    </script>
-    
-    <property name="sf.net.ssh.server" value="shell1.sf.net"/>
-    <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs"/>
-    
-    <include buildfile="nant.build"/>
-    
+    <!-- set project.version to current date/time in yyyyMMdd format -->
+    <tstamp property="project.version" pattern="yyyyMMdd" />
+    <property name="sf.net.ssh.server" value="shell1.sf.net" />
+    <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs" />
+    <!-- include master build file -->
+    <include buildfile="nant.build" />
+    <!-- Perform a 'nightly' build, and update the version of NAnt that is executing -->
     <target name="nightly" depends="package" description="Perform a 'nightly' package, and updates the version of NAnt that is executing.">
-		<sysinfo/>
-		
-		<property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}"/>
-		
-		<regex 
-			input="${project.zip-path}"
-			pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" 
-			/>
-			
-		<!-- copy the build up to sourceforge -->
-		<!-- used to use scp task in nantcontrib
-		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>-->
-		
-		<exec workingdir="${execpath}" program="scp">
-			<arg value="${execfilename}"/>
-			<arg value="${serverpart}/builds/${execfilename}"/>
-		</exec>
-		<echo message="Copied nightly build over to SF.Net"/>		
-		
-		<!-- copy schema -->
-		<!-- used to use scp task in nantcontrib
-		<scp file="${build.dir}/schema" server="${sf.net.ssh.server}" path="${sf.net.build.path}/../..">
-			<arg value="-r"/>
-		</scp>
-		-->
-		<exec workingdir="${build.dir}/schema" program="scp" failonerror="false">
-			<arg value="-r"/>
-			<arg value="*"/>
-			<arg value="${serverpart}/schema"/>
-		</exec>
-		<echo message="Copied schema over to SF.Net"/>
-
-		<!-- copy docs -->
-		<!-- used to use scp task in nantcontrib
-		<scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
-			<arg value="-r"/>
-		</scp>
-		-->
-		<exec workingdir="${build.dir}/doc" program="scp" failonerror="false">
-			<arg value="-r"/>
-			<arg value="*"/>
-			<arg value="${serverpart}/builds/doc"/>
-		</exec>
-		<echo message="Copied docs over to SF.Net"/>
-		
-		<!-- make sure files are readable -->
-		<exec program="ssh" failonerror="false">
-			<arg value="${sf.net.ssh.server}"/>
-			<arg value="chmod -R 755 ${sf.net.build.path}/builds/*"/>
-		</exec>
-		
-		<exec program="ssh" failonerror="false">
-			<arg value="${sf.net.ssh.server}"/>
-			<arg value="chmod -R 755 ${sf.net.build.path}/schema/*"/>
-		</exec>
-		
-		<!-- Try to do the update -->
-		<call target="UpdateRunningNAnt" failonerror="false"/>
+        <sysinfo />
+        <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
+        <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
+        <!-- copy the build up to sourceforge -->
+        <!-- used to use scp task in nantcontrib
+        <scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>-->
+        <exec workingdir="${execpath}" program="scp">
+            <arg value="${execfilename}" />
+            <arg value="${serverpart}/builds/${execfilename}" />
+        </exec>
+        <echo message="Copied nightly build over to SF.Net" />
+        <!-- copy schema -->
+        <!-- used to use scp task in nantcontrib
+        <scp file="${build.dir}/schema" server="${sf.net.ssh.server}" path="${sf.net.build.path}/../..">
+            <arg value="-r"/>
+        </scp>
+        -->
+        <exec workingdir="${build.dir}/schema" program="scp" failonerror="false">
+            <arg value="-r" />
+            <arg value="*" />
+            <arg value="${serverpart}/schema" />
+        </exec>
+        <echo message="Copied schema over to SF.Net" />
+        <!-- copy docs -->
+        <!-- used to use scp task in nantcontrib
+        <scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
+            <arg value="-r"/>
+        </scp>
+        -->
+        <exec workingdir="${build.dir}/doc" program="scp" failonerror="false">
+            <arg value="-r" />
+            <arg value="*" />
+            <arg value="${serverpart}/builds/doc" />
+        </exec>
+        <echo message="Copied docs over to SF.Net" />
+        <!-- make sure files are readable -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 755 ${sf.net.build.path}/builds/*" />
+        </exec>
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 755 ${sf.net.build.path}/schema/*" />
+        </exec>
+        <!-- Try to do the update -->
+        <call target="UpdateRunningNAnt" failonerror="false" />
     </target>
-
     <!-- Copies files to the nant executing dir. -->
     <target name="UpdateRunningNAnt">
         <copy todir="${nant.location}" overwrite="true">
             <fileset basedir="${build.dir}/bin/">
                 <includes name="NAnt*" />
-                
                 <excludes name="*Test*" />
-                <excludes name="${nant.console.name}.xml" /> 
+                <excludes name="${nant.console.name}.xml" />
                 <excludes name="NAnt.exe" />
             </fileset>
         </copy>
