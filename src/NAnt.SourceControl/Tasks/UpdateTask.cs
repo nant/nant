@@ -1,6 +1,6 @@
 #region "Nant Copyright notice"
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,70 +20,76 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.IO;
-
-using NAnt.Core.Tasks;
-using NAnt.Core.Attributes;
 
 using ICSharpCode.SharpCvsLib.Commands;
 using ICSharpCode.SharpCvsLib.Misc;
 using ICSharpCode.SharpCvsLib.FileSystem;
 
-using log4net;
+using NAnt.Core.Attributes;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
-    ///     <remarks>
-    ///         <para>Updates the module in the specified working directory.</para>
-    ///     </remarks>
-    ///         
-    ///     <example>
-    ///         <para>Update nant.</para>
-    ///             <code>&lt;cvs-update destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant" /&gt;</code>
-    ///         <para>Checkout your favorite build tool to the specified directory.</para>
-    ///             <code>
-    ///                 <![CDATA[
-    ///                 <cvs-update destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
-    ///                 ]]>
-    ///             </code>
-    ///     </example>
+    /// Updates a CVS module in a local working directory.
     /// </summary>
+    /// <example>
+    ///   <para>Update nant.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <cvs-update destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("cvs-update")]
     public class UpdateTask : AbstractCvsTask {
-        private readonly ILog LOGGER = LogManager.GetLogger (typeof (UpdateTask));
+        #region Private Static Fields
+
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #endregion Private Static Fields
+
+        #region Public Instance Constructors
+
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="UpdateTask" /> 
+        /// class.
         /// </summary>
         public UpdateTask() {
         }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of AbstractCvsTask
 
         /// <summary>
         /// Creates an instance of the update command.
         /// </summary>
         /// <returns>An instance of the update command.</returns>
         protected override ICommand CreateCommand () {
-            this.PopulateFolders (this.Working);
-            return
-                new UpdateCommand2 (this.Working);
+            this.PopulateFolders (this.WorkingDirectory);
+            return new UpdateCommand2(this.WorkingDirectory);
         }
 
+        #endregion Override implementation of AbstractCvsTask
+
+        #region Private Instance Methods
+
         /// <summary>
-        /// Create a list of files that need to be compared
-        ///     against the server and then updated.
+        /// Creates a list of files that need to be compared against the server 
+        /// and updated if necessary.
         /// </summary>
-        /// <param name="workingDirectory">The directory to
-        ///     use in the comparison.
-        /// </param>
+        /// <param name="workingDirectory">The directory to use in the comparison.</param>
         private void PopulateFolders (WorkingDirectory workingDirectory) {
-            if (LOGGER.IsDebugEnabled) {
-                String msg = "Reading all the working directory entries.  " +
-                    "workingDirectory=[" + workingDirectory + "]";
-                LOGGER.Debug (msg);
-            }
-            Manager manager = new Manager ();
-            String updateAll = Path.Combine (this.Destination, this.Module);
-            workingDirectory.FoldersToUpdate = 
-                manager.FetchFilesToUpdate (updateAll);
+            Logger.Debug(string.Format(CultureInfo.InvariantCulture,
+                "Reading all directory entries from working directory {0}.",
+                workingDirectory.WorkingDirectoryName));
+
+            Manager manager = new Manager();
+            workingDirectory.FoldersToUpdate = manager.FetchFilesToUpdate(
+                Path.Combine(this.Destination, this.Module));
         }
+
+        #endregion Private Instance Methods
     }
 }

@@ -20,200 +20,230 @@
 #endregion
 
 using System;
-
 using System.IO;
 
-using NAnt.Core;
-using NAnt.Core.Tasks;
-using NAnt.Core.Attributes;
-
-using ICSharpCode.SharpCvsLib;
 using ICSharpCode.SharpCvsLib.Client;
-using ICSharpCode.SharpCvsLib.Requests;
 using ICSharpCode.SharpCvsLib.Commands;
 using ICSharpCode.SharpCvsLib.Misc;
 
-using log4net;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
 namespace NAnt.SourceControl.Tasks {
-    /// <summary>Performs cvs client commands on a cvs repository.</summary>
-    /// <remarks>
-    ///   <para>Checks out the specified module to the required directory.</para>
-    ///   <para>Takes a password parameter as an attribute.</para>
-    /// </remarks>
-    ///         
-    /// <example>
-    ///   <para>Checkout nant.</para>
-    ///   <code>&lt;cvs destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant" /&gt;</code>
-    ///   <para>Checkout your favorite build tool to the specified directory.</para>
-    ///   <code>
-    /// <![CDATA[
-    /// <cvs destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
-    /// ]]>
-    ///   </code>
-    /// </example>
-    [TaskName("cvs")]
+    /// <summary>
+    /// A base class for creating tasks for executing CVS client commands on a 
+    /// CVS repository.
+    /// </summary>
     public abstract class AbstractCvsTask : Task {
-        private readonly ILog LOGGER = 
-            LogManager.GetLogger (typeof (AbstractCvsTask));
+        #region Private Instance Fields
 
-        private String _cvsroot;
-        private String _module;
-        private String _destination;
-        private String _password;
-
+        private string _cvsRoot;
+        private string _module;
+        private string _destination;
+        private string _password;
         private CvsRoot _root;
-        private WorkingDirectory _working;
+        private WorkingDirectory _workingDirectory;
         private CVSServerConnection _connection;
         private ICommand _command;
+
+        #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        #endregion Private Static Fields
+
+        #region Protected Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
+        /// class.
+        /// </summary>
+        protected AbstractCvsTask () {
+        }
+
+        #endregion Protected Instance Constructors
+
+        #region Public Instance Properties
 
         /// <summary>
         /// Cvsroot Variable.
         /// </summary>
-        [TaskAttribute("cvsroot")]
-        public String Cvsroot {
-            get {return this._cvsroot;}
-            set {this._cvsroot = value;}
+        [TaskAttribute("cvsroot", Required=true)]
+        public string CvsRoot {
+            get {return this._cvsRoot;}
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _cvsRoot = value;
+                } else {
+                    _cvsRoot = null;
+                }
+            }
         }
 
         /// <summary>
-        /// The module to check out.
+        /// The module to perform an operation on.
         /// </summary>
-        [TaskAttribute ("module")]
-        public String Module {
-            get {return this._module;}
-            set {this._module = value;}
+        /// <value>The module to perform an operation on.</value>
+        [TaskAttribute("module", Required=true)]
+        public string Module {
+            get {return _module;}
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _module = value;
+                } else {
+                    _module = null;
+                }
+            }
         }
 
         /// <summary>
-        /// Destination directory for the checked out/ updated files.
+        /// Destination directory for the checked out / updated files.
         /// </summary>
-        [TaskAttribute ("destination")]
-        public String Destination {
-            get {return this._destination;}
-            set {this._destination = value;}
+        /// <value>
+        /// The destination directory for the checked out or updated files.
+        /// </value>
+        [TaskAttribute ("destination", Required=true)]
+        public string Destination {
+            get { return (_destination != null) ? Project.GetFullPath(_destination) : null; }
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _destination = value;
+                } else {
+                    _destination = null;
+                }
+            }
         }
 
         /// <summary>
-        /// Set the password for logging in.  
+        /// Gets or sets the password for logging in to the CVS repository.
         /// </summary>
+        /// <value>
+        /// The password for logging in to the CVS repository.
+        /// </value>
         [TaskAttribute ("password")]
-        public String Password {
-            get {return this._password;}
-            set {this._password = value;}
+        public string Password {
+            get { return _password;}
+            set { 
+                if (value != null && value.Trim().Length != 0) {
+                    _password = value;
+                } else {
+                    _password = null;
+                }
+            }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets or sets the root of the CVS repository.
+        /// </summary>
+        /// <value>The root of the CVS repository.</value>
+        protected CvsRoot Root {
+            get { return this._root; }
+            set { this._root = value; }
         }
 
         /// <summary>
-        /// The Cvsroot of the repository.
+        /// Gets or sets the directory where checked out sources are placed.
         /// </summary>
-        protected CvsRoot Root 
-        {
-            get {return this._root;}
-            set {this._root = value;}
+        /// <value>the directory where checked out sources are placed.</value>
+        protected WorkingDirectory WorkingDirectory {
+            get { return this._workingDirectory; }
+            set { this._workingDirectory = value; }
         }
 
         /// <summary>
-        /// Working Directory to place checked out source in.
+        /// Gets or sets the connection used to connect to the CVS repository.
         /// </summary>
-        protected WorkingDirectory Working {
-            get {return this._working;}
-            set {this._working = value;}
-        }
-
-        /// <summary>
-        /// Connection object that is used to connect to the repository.
-        /// </summary>
+        /// <value>The connection used to connect to the CVS repository.</value>
         protected CVSServerConnection Connection {
-            get {return this._connection;}
-            set {this._connection = value;}
+            get { return this._connection; }
+            set { this._connection = value; }
         }
 
         /// <summary>
-        /// Command to execute, command must implement
-        ///     <see cref="ICSharpCode.SharpCvsLib.Commands.ICommand"/>
+        /// Gets or sets the <see cref="ICommand" /> to execute.
         /// </summary>
+        /// <value>The <see cref="ICommand" /> to execute.</value>
         protected ICommand Command {
-            get {return this._command;}
-            set {this._command = value;}
+            get { return this._command; }
+            set { this._command = value; }
         }
 
-        /// <summary>
-        /// Create a new abstract cvs task.
-        /// </summary>
-        public AbstractCvsTask () {
-        }
+        #endregion Protected Instance Properties
+
+        #region Protected Instance Methods
 
         /// <summary>
-        /// Exectute the cvs command specified.
+        /// Executes the CVS command.
         /// </summary>
         protected override void ExecuteTask () {
-            if (!Directory.Exists (this.Destination)) {
-                if (LOGGER.IsDebugEnabled) {
-                    String msg =
-                        "Creating directory=[" + this.Destination + "]";
-                    LOGGER.Debug (msg);
-                }
-                Directory.CreateDirectory (this.Destination);
+            if (!Directory.Exists(this.Destination)) {
+                Logger.Debug("Creating directory=[" + this.Destination + "]");
+                Directory.CreateDirectory(this.Destination);
             }
 
-            this.Root = new CvsRoot (this.Cvsroot);
-            this.Working = 
-                new WorkingDirectory (this.Root, 
-                                        this.Destination, 
-                                        this.Module);
+            this.Root = new CvsRoot(this.CvsRoot);
+            this.WorkingDirectory = new WorkingDirectory(this.Root, 
+                this.Destination, this.Module);
+            this.Connection = new CVSServerConnection();
+            this.Command = this.CreateCommand();
 
-            this.Connection = new CVSServerConnection ();
-            this.Command = this.CreateCommand ();
+            this.Validate ();
 
-            this.validate ();
+            Logger.Debug("Before trying to get a connection.");
+            this.Connection.Connect(this.WorkingDirectory, this.Password);
+            Logger.Debug("After trying to get a connection.");
 
-            if (LOGGER.IsDebugEnabled) {
-                String msg = "Before trying to get a connection.";
-                LOGGER.Debug (msg);
-            }
-            this.Connection.Connect (this.Working, this.Password);
-
-            if (LOGGER.IsDebugEnabled) {
-                String msg = "After trying to get a connection.";
-                LOGGER.Debug (msg);
-            }
-
-            this.Command.Execute (this.Connection);
-            this.Connection.Close ();
+            this.Command.Execute(this.Connection);
+            this.Connection.Close();
         }
 
         /// <summary>
-        /// Validates that the required object are not null.
-        /// 
-        /// <throws>NullReferenceException if any of the required
-        ///     fields is null.</throws>
+        /// Creates the CVS command object to execute against the specified 
+        /// CVS repository.
         /// </summary>
-        private void validate () {
-            if (null == this.Cvsroot || 
-                null == this.Working ||
-                null == this.Connection ||
-                null == this.Command) {
-                    String msg = 
-                        "Cvsroot, working directory, connection and command cannot be null.";
-                    throw new NullReferenceException (msg);
-            } 
-            if (LOGGER.IsDebugEnabled) {
-                String msg = "In validate.  " +
-                    ";  Cvsroot=[" + this.Working.CvsRoot + "]" +
-                    ";  Local directory=[" + this.Working.LocalDirectory + "]" + 
-                    ";  Working directory name=[" + this.Working.WorkingDirectoryName + "]" +
-                    "Command=[" + this.Command + "]";
-                LOGGER.Warn (msg);
-                System.Console.WriteLine (msg);
-            }
-        }
-
-        /// <summary>
-        /// Creates the cvs command object to execute against the 
-        ///     specified repository.
-        /// </summary>
-        /// <returns>Command to execute against the repository.</returns>
+        /// <returns>
+        /// The <see cref="ICommand" /> to execute against the CVS repository.
+        /// </returns>
         protected abstract ICommand CreateCommand ();
 
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Validates that all required information is available.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///     <para><see cref="CvsRoot" /> is <see langword="null" /></para>
+        ///     <para>-or-</para>
+        ///     <para><see cref="WorkingDirectory" /> is <see langword="null" /></para>
+        ///     <para>-or-</para>
+        ///     <para><see cref="Connection" /> is <see langword="null" /></para>
+        ///     <para>-or-</para>
+        ///     <para><see cref="Command" /> is <see langword="null" /></para>
+        /// </exception>
+        private void Validate() {
+            if (null == this.CvsRoot || null == this.WorkingDirectory || 
+                null == this.Connection || null == this.Command) {
+                throw new ArgumentNullException(
+                    "Cvsroot, working directory, connection and command cannot be null.");
+            } 
+            if (Logger.IsDebugEnabled) {
+                string msg = "In validate. " +
+                    ";  Cvsroot=[" + this.WorkingDirectory.CvsRoot + "]" +
+                    ";  Local directory=[" + this.WorkingDirectory.LocalDirectory + "]" + 
+                    ";  Working directory name=[" + this.WorkingDirectory.WorkingDirectoryName + "]" +
+                    "Command=[" + this.Command + "]";
+                Logger.Info(msg);
+            }
+        }
+
+        #endregion Private Instance Methods
     }
 }

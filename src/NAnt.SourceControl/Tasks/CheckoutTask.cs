@@ -27,40 +27,39 @@ using NAnt.Core.Attributes;
 using ICSharpCode.SharpCvsLib.Commands;
 
 namespace NAnt.SourceControl.Tasks {
-
     /// <summary>
-    ///     <remarks>
-    ///         <para>Checks out the specified module to the required directory.</para>
-    ///         <para>Takes a password parameter as an attribute.</para>
-    ///     </remarks>
-    ///         
-    ///     <example>
-    ///         <para>Checkout nant.</para>
-    ///             <code>&lt;cvs-checkout destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant" /&gt;</code>
-    ///         <para>Checkout your favorite build tool to the specified directory.</para>
-    ///             <code>
-    ///                 <![CDATA[
-    ///                 <cvs-checkout destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
-    ///                 ]]>
-    ///             </code>
-    ///     </example>
+    /// Checks out a CVS module to the required directory.
     /// </summary>
-    [TaskName("cvs-checkout")]  
+    /// <example>
+    ///   <para>Checkout NAnt.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <cvs-checkout destination="c:\src\nant\" cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" password="" module="nant"/>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
+        #region Public Instance Constructors
+
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the <see cref="CheckoutTask" /> class.
         /// </summary>
         public CheckoutTask() {
-
         }
+
+        #endregion Public Instance Constructors
+
+        #region Override implementation of AbstractCvsTask
 
         /// <summary>
         /// Creates the checkout command.
         /// </summary>
         /// <returns>An instance of the checkout command.</returns>
         protected override ICommand CreateCommand () {
-            return
-                new CheckoutModuleCommand (this.Working);
+            return new CheckoutModuleCommand(this.WorkingDirectory);
         }
+
+        #endregion Override implementation of AbstractCvsTask
     }
 }
