@@ -47,10 +47,12 @@ namespace NAnt.SourceControl.Tasks {
     ///   </code>
     /// </example>
     [TaskName("cvs-pass")]
-    public class CvsPass : AbstractCvsTask {
+    public class CvsPass : Task {
         #region Private Instance Fields
 
         private string _password;
+        private FileInfo _passFile;
+        private string _cvsRoot;
 
         #endregion Private Instance Fields
 
@@ -60,7 +62,7 @@ namespace NAnt.SourceControl.Tasks {
         /// Password to append or update to the .cvspass file.
         /// </summary>
         [TaskAttribute("password", Required=true)]
-        public new string Password {
+        public string Password {
             get { return _password; }
             set { _password = value; }
         }
@@ -70,30 +72,29 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <value></value>
         [TaskAttribute("passfile", Required=false)]
-        public override FileInfo PassFile {
-            get { return base.PassFile; }
-            set { base.PassFile = value; }
+        public FileInfo PassFile {
+            get { return this._passFile; }
+            set { this._passFile = value; }
+        }
+
+        /// <summary>
+        /// The current working directory.
+        /// </summary>
+        public virtual DirectoryInfo DestinationDirectory {
+            get { return new DirectoryInfo(Environment.CurrentDirectory); }
+        }
+
+        /// <summary>
+        /// The repository root string.
+        /// </summary>
+        [TaskAttribute("cvsroot", Required=false)]
+        [StringValidator(AllowEmpty=false)]
+        public string Root {
+            get { return this._cvsRoot; }
+            set { this._cvsRoot = value; }
         }
 
         #endregion Public Instance Properties
-
-        #region Override implementation of AbstractCvsTask
-
-        /// <summary>
-        /// The cvs command to execute.
-        /// </summary>
-        public override string CommandName {
-            get { return "login"; }
-        }
-
-        /// <summary>
-        /// Specify if the module is needed for this cvs command.  
-        /// </summary>
-        protected override bool IsModuleNeeded {
-            get { return false; }
-        }
-
-        #endregion Override implementation of AbstractCvsTask
 
         #region Override implementation of Task
 
