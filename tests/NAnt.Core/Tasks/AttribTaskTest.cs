@@ -28,7 +28,7 @@ using NUnit.Framework;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
-	[TestFixture]
+    [TestFixture]
     public class AttribTaskTest : BuildTestBase {
 
         const string _format = @"<?xml version='1.0'?>
@@ -37,16 +37,19 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
         string _tempFileName;
+        FileAttributes _normalFileAttributes;
 
-		[SetUp]
+        [SetUp]
         protected override void SetUp() {
             base.SetUp();
-			_tempFileName = Path.Combine(TempDirName, "myfile.txt");
+            _tempFileName = Path.Combine(TempDirName, "myfile.txt");
             TempFile.Create(_tempFileName);
             File.SetAttributes(_tempFileName, FileAttributes.Normal);
-		}
+            // Handle case when temp folder is compressed
+            _normalFileAttributes = File.GetAttributes(_tempFileName) & (FileAttributes.Normal | FileAttributes.Compressed);
+        }
 
-		[Test]
+        [Test]
         public void Test_Normal() {
             File.SetAttributes(_tempFileName, FileAttributes.Archive|FileAttributes.Hidden|FileAttributes.ReadOnly|FileAttributes.System);
             Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
@@ -58,38 +61,38 @@ namespace Tests.NAnt.Core.Tasks {
             Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
             Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);
             Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
-            Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Normal) != 0);
+            Assertion.Assert(_tempFileName + " should have Normal file attribute.", (File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0);
         }
 
-		[Test]
+        [Test]
         public void Test_Archive() {
             Assertion.Assert(_tempFileName + " should not have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0);
             RunBuild(FormatBuildFile("archive='true'"));
             Assertion.Assert(_tempFileName + " should have Archive file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0);
         }
         
-		[Test]
+        [Test]
         public void Test_Hidden() {
             Assertion.Assert(_tempFileName + " should not have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0);
             RunBuild(FormatBuildFile("hidden='true'"));
             Assertion.Assert(_tempFileName + " should have Hidden file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0);
         }
 
-		[Test]
+        [Test]
         public void Test_ReadOnly() {
             Assertion.Assert(_tempFileName + " should not have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0);
             RunBuild(FormatBuildFile("readonly='true'"));
             Assertion.Assert(_tempFileName + " should have ReadOnly file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0);
         }
 
-		[Test]
+        [Test]
         public void Test_System() {
             Assertion.Assert(_tempFileName + " should not have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) == 0);
             RunBuild(FormatBuildFile("system='true'"));
             Assertion.Assert(_tempFileName + " should have System file attribute.", (File.GetAttributes(_tempFileName) & FileAttributes.System) != 0);
         }
-		
-		[Test]
+        
+        [Test]
         public void Test_Multiple() {
             for (int i = 0; i < 10; i++) {
                 string fileName = Path.Combine(TempDirName, "myfile" + i + ".txt");
