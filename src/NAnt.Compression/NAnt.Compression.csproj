@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.ZipTasks"
+                RootNamespace = "NAnt.Zip"
                 StartupObject = ""
             >
                 <Config
@@ -91,12 +91,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "UnZipTask.cs"
+                    RelPath = "Tasks\UnZipTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ZipTask.cs"
+                    RelPath = "Tasks\ZipTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
