@@ -78,9 +78,9 @@ namespace SourceForge.NAnt.Tasks {
             return xmlReader;
         }
 
-        XmlWriter CreateXmlWriter(string filepath) {
+        TextWriter CreateWriter(string filepath) {
             string xmlPath = filepath;
-            XmlWriter xmlWriter = null;
+            TextWriter writer = null;
 
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(xmlPath));
             if (targetDir != null && targetDir != "" && !Directory.Exists(targetDir)) {
@@ -89,11 +89,9 @@ namespace SourceForge.NAnt.Tasks {
             // UTF-8 encoding will be used
             //xmlWriter = new XmlTextWriter(xmlPath, null);
             // Create text writer first
-            XmlTextWriter writer = new XmlTextWriter(xmlPath, null);
-            writer.Formatting = Formatting.Indented; // make indenting formatted
-            xmlWriter = writer;
+            writer = new StreamWriter(xmlPath);
 
-            return xmlWriter;
+            return writer;
         }
 
         ///<param name="taskNode"> taskNode used to define this task instance </param>
@@ -154,12 +152,12 @@ namespace SourceForge.NAnt.Tasks {
             if (destOutdated) {
                 XmlReader xmlReader = null;
                 XmlReader xslReader = null;
-                XmlWriter xmlWriter = null;
+                TextWriter writer = null;
 
                 try {
                     xmlReader = CreateXmlReader(srcPath);
                     xslReader = CreateXmlReader(xsltPath);
-                    xmlWriter = CreateXmlWriter(destPath);
+                    writer = CreateWriter(destPath);
 
                     if (Verbose) {
                         Log.WriteLine(LogPrefix + "Transforming into " + destdirPath );
@@ -181,7 +179,7 @@ namespace SourceForge.NAnt.Tasks {
                     }
 
                     Log.WriteLine(LogPrefix + "Processing " + Path.GetFullPath(srcPath) + " to " + Path.GetFullPath(destPath));
-                    xslt.Transform(xml, scriptargs, xmlWriter);
+                    xslt.Transform(xml, scriptargs, writer);
 
                 } catch (Exception e) {
                     throw new BuildException("Could not perform XSLT transformation.", Location, e);
@@ -189,7 +187,7 @@ namespace SourceForge.NAnt.Tasks {
                     // Ensure file handles are closed
                     if (xmlReader != null) { xmlReader.Close(); }
                     if (xslReader != null) { xslReader.Close(); }
-                    if (xmlWriter != null) { xmlWriter.Close(); }
+                    if (writer != null) { writer.Close(); }
                 }
             }
         }
