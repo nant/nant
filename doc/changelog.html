@@ -19,6 +19,10 @@
 		<li>If more than one build file matches the criteria, e.g. two files ending in .build than nant will report an error.</li>
 		<li>-find option added, causes nant to search up the directory tree looking for the buildfile.  Use in conjunction with -buildfile:foo.* to find the first foo.* file up the directory tree.</li>
 		<li>-projecthelp option added, callable targets should now include a description attribute to describe briefly what they do.</li>
+		<li>CompilerBase tasks now check for changed resources and recompile if out of date.</li>
+		<li>compiler tasks report what caused the rebuild when verbose is on, try 'nant -verbose'</li>
+		<li>improved Log class</li>
+		<li>PlainText NUnit formatter, see nant's build file for example</li>
 	</ul>
 
 	<h3>0.7.749 January 19, 2002</h3>

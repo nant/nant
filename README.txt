@@ -29,7 +29,7 @@ Documentation is available in HTML format, in the doc/ directory.
 
 License
 -------
-Copyright (C) 2001 Gerry Shaw
+Copyright (C) 2001-2002 Gerry Shaw
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -19,20 +19,15 @@
 			string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
 			StreamReader reader = File.OpenText(assemblyInfoFileName);
 
-			Regex commentRE = new Regex("^(\\s)*//");
-			Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+");
-
-			string line = reader.ReadLine();
 			try {
+				// Regular expression built with Regex: http://www.organicbit.com/regex/
+				Regex expression = new Regex(@"^\[assembly: AssemblyVersion\(\""([0-9]+)\.([0-9]+)");
+				string line = reader.ReadLine();
 				while (line != null) {
-					// make sure the line has not been commented out
-					if (!commentRE.Match(line).Success) {
-						// find version string
-						Match versionMatch = versionRE.Match(line);
-						if (versionMatch.Success) {
-							project.Properties["project.version"] = versionMatch.Value;
-							break;
-						}
+					Match match = expression.Match(line);
+					if (match.Success) {
+						project.Properties["project.version"] = match.Result("$1.$2");
+						break;
 					}
 					line = reader.ReadLine();
 				}
@@ -118,8 +113,8 @@
 				<includes name="**/*.cs"/>
 
 				<!-- these tests should be run during intergration because they use third party network resources -->
-                <excludes name="GetTest.cs"/>
-				<excludes name="MailTest.cs"/>
+                <excludes name="**/GetTaskTest.cs"/>
+				<excludes name="**/MailTaskTest.cs"/>
 			</sources>
 			<references>
 				<includes name="${build.dir}/NUnit.Core.dll"/>
@@ -137,6 +132,7 @@
     <target name="test" depends="build" description="run unit tests">
 		<nunit basedir="${src.dir}\${project.FormalName}.Tests" verbose="false" haltOnError="true" haltOnFailure="true">
             <formatter type="xml"/>
+            <formatter type="plain"/>
             <test class="SourceForge.NAnt.Tests.AllTests" assembly="${build.dir}\${project.FormalName}.Tests.dll" outfile="${build.dir}\TestResult" />
 		</nunit>
     </target>
@@ -146,7 +142,7 @@
     </target>
 
     <target name="doc" depends="build" description="build documenation">
-		<echo message="Requires Html Help Workshop to be installed and in the system path"/>
+		<echo message="Requires HtmlHelp compiler (hhc.exe) to be installed and in the system path"/>
 		<ndoc outputDir="${build.dir}\docs" helpName="NAnt" showMissing="true" showPrivate="false">
             <assemblies basedir="${build.dir}">
                 <includes name="NAnt.exe"/>
