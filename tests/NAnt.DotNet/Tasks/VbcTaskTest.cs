@@ -740,7 +740,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
-                resources.BaseDirectory.FullName, "ResourceFile.cs"));
+                resources.BaseDirectory.FullName, "ResourceFile." + vbcTask.Extension));
             // assert manifest resource name
             Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.en-US.resources", 
                 vbcTask.GetManifestResourceName(resources, resourceFile));
@@ -752,7 +752,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             CreateTempFile(resourceFile);
             // create dependent file
             TempFile.CreateWithContents(_sourceCode, Path.Combine(
-                resources.BaseDirectory.FullName, "ResourceFile.cs"));
+                resources.BaseDirectory.FullName, "ResourceFile." + vbcTask.Extension));
             // assert manifest resource name
             Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.en-US.resources", 
                 vbcTask.GetManifestResourceName(resources, resourceFile));
