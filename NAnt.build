@@ -98,7 +98,6 @@
                 <includes name="${build.dir}/NZipLib.dll"/>
 				<includes name="${build.dir}/SourceSafe.Interop.dll"/>
             </references>
-            <arg value="/debug"/>
             <arg value="/nowarn:1591"/>
             <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
@@ -111,7 +110,6 @@
             <references>
                 <includes name="${build.dir}/${project.FormalName}.Core.dll"/>
             </references>
-            <arg value="/debug"/>
             <arg value="/nowarn:1591"/>
         </csc>
 
@@ -188,6 +186,10 @@
         </copy>
 
         <delete file="${dist.name}" failonerror="false"/>
-        <exec program="bin/zip.exe" commandline="-r -q ${dist.name} ${dist.dir}/*"/>
+		<zip zipfile="${dist.name}">
+			<fileset basedir="${dist.dir}">
+				<includes name="**"/>
+			</fileset>
+		</zip>
     </target>
 </project>
