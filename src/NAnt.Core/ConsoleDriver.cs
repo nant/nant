@@ -71,9 +71,9 @@ namespace SourceForge.NAnt {
 
                 if (cmdlineOptions.BuildFile != null) {
                     if(project != null) {
-                        Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile.FullName, project.BuildFileURI);
+                        Log.WriteLine("Buildfile has already been loaded! Using new value '{0}'; discarding old project file '{1}'", cmdlineOptions.BuildFile, project.BuildFileURI);
                     }
-                    project = new Project(cmdlineOptions.BuildFile.FullName, cmdlineOptions.Verbose);
+                    project = new Project(cmdlineOptions.BuildFile, cmdlineOptions.Verbose);
                 }
 
                 if (cmdlineOptions.Indent != 0) {

@@ -32,8 +32,11 @@ namespace SourceForge.NAnt {
         /// Gets or sets the buildfile that should be executed.
         /// </summary>
         /// <value>The buildfile that should be executed.</value>
+        /// <remarks>
+        /// Can be both a file or an URI.
+        /// </remarks>
         [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name="buildfile", ShortName="f",  Description="use given buildfile")]
-        public FileInfo BuildFile {
+        public string BuildFile {
             get { return _buildFile; }
             set { _buildFile = value; }
         }
@@ -172,7 +175,7 @@ namespace SourceForge.NAnt {
 
         #region Private Instance Fields
 
-        private FileInfo _buildFile;
+        private string _buildFile;
         private bool _noLogo;
         private bool _showHelp;
         private bool _verbose;
