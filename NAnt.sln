@@ -131,10 +131,11 @@ Global
 		{DD434690-B4DF-4BF9-91FE-F139A41E2474}.Debug NAnt Tests.Build.0 = Debug Main NAnt BuildFile|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
-		Item:1 = NAnt.build
-		Item:2 = bin\nant.exe.config
-		Item:3 = nightly.xml
-		Item:4 = release.xml
+		Item:1 = Makefile
+		Item:2 = NAnt.build
+		Item:3 = bin\nant.exe.config
+		Item:4 = nightly.xml
+		Item:5 = release.xml
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
