@@ -101,8 +101,9 @@ namespace NAnt.Core.Tasks {
             set { base.CopyFileSet = value; }
         }
         /// <summary>
-        /// ignore directory structure of source directory, move all files into a single directory,
-        /// specified by the todir attribute (default is <see langword="false" /> ).
+        /// Ignore directory structure of source directory, move all files into 
+        /// a single directory, specified by the <see cref="ToDirectory" /> 
+        /// attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("flatten")]
         [BooleanValidator()]
@@ -119,8 +120,8 @@ namespace NAnt.Core.Tasks {
                 // loop thru our file list
                 foreach (string sourcePath in FileCopyMap.Keys) {
                     string destinationPath = (string) FileCopyMap[sourcePath];
-                    if ( Flatten ) {
-                        destinationPath = Path.Combine( ToDirectory, Path.GetFileName( destinationPath ) );
+                    if (Flatten) {
+                        destinationPath = Path.Combine(ToDirectory, Path.GetFileName(destinationPath));
                     }
                     if (sourcePath == destinationPath) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);

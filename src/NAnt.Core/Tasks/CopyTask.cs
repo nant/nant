@@ -121,8 +121,9 @@ namespace NAnt.Core.Tasks {
         }
         
         /// <summary>
-        /// ignore directory structure of source directory, copy all files into a single directory,
-        /// specified by the todir attribute (default is <see langword="false" /> ).
+        /// Ignore directory structure of source directory, copy all files into 
+        /// a single directory, specified by the <see cref="ToDirectory" /> 
+        /// attribute. The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("flatten")]
         [BooleanValidator()]
@@ -205,6 +206,12 @@ namespace NAnt.Core.Tasks {
                         EncodingName), Location);
                 }
             }
+
+            if (Flatten && StringUtils.IsNullOrEmpty(ToDirectory)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "'flatten' attribute requires that 'todir' has been set."), 
+                    Location);
+            }
         }
 
         /// <summary>
@@ -216,11 +223,6 @@ namespace NAnt.Core.Tasks {
             // use the FileInfo an DirectoryInfo classes to normalize paths like:
             // c:\work\nant\extras\buildserver\..\..\..\bin
             
-            if ( Flatten && StringUtils.IsNullOrEmpty(ToDirectory) ) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "flatten attribute requires that todir has been set"), 
-                        Location);
-            }
             // copy a single file.
             if (SourceFile != null) {
                 FileInfo srcInfo = new FileInfo(SourceFile);
@@ -329,8 +331,9 @@ namespace NAnt.Core.Tasks {
                 // loop thru our file list
                 foreach (string sourceFile in FileCopyMap.Keys) {
                     string destinationFile = (string) FileCopyMap[sourceFile];
-                    if ( Flatten ){
-                        destinationFile = Path.Combine( ToDirectory, Path.GetFileName( destinationFile ) );
+                    if (Flatten){
+                        destinationFile = Path.Combine(ToDirectory, 
+                            Path.GetFileName(destinationFile));
                     }
                     if (sourceFile == destinationFile) {
                         Log(Level.Verbose, LogPrefix + "Skipping self-copy of {0}.", sourceFile);
