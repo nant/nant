@@ -41,31 +41,34 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>Checkout NAnt.</para>
     ///   <code>
     ///     <![CDATA[
-    ///    <cvschangelog   destination="e:/test/nant/sourcecontrol/"
-    ///                    cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///                    password="" 
-    ///                    module="nant"
-    ///                    start="2004/06/01"
-    ///                    end="2004/07/25"
-    ///                    xmlfile="e:/test/nant/sourcecontrol/changelog-nant.xml" 
-    ///                    />
+    /// <cvs-changelog
+    ///     destination="e:/test/nant/sourcecontrol/"
+    ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant"
+    ///     password=""
+    ///     module="nant"
+    ///     start="2004/06/01"
+    ///     end="2004/07/25"
+    ///     xmlfile="e:/test/nant/sourcecontrol/changelog-nant.xml"
+    /// />
     ///     ]]>
     ///   </code>
     /// </example>
-    [TaskName("cvschangelog")]
-    public class CvsChangeLogTask : AbstractCvsTask {
-
+    [TaskName("cvs-changelog")]
+    public class ChangeLogTask : AbstractCvsTask {
         #region Public Constants
+
         /// <summary>
         /// The command being executed.
         /// </summary>
         public const string CvsCommandName = "xml";
 
-        #endregion
+        #endregion Public Constants
 
-        #region Private Instance Fields
+        #region Private Static Fields
+
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        #endregion
+
+        #endregion Private Static Fields
 
         #region Public Instance Properties
 
@@ -87,7 +90,7 @@ namespace NAnt.SourceControl.Tasks {
                     this.DestinationDirectory = 
                         new DirectoryInfo(Path.GetDirectoryName(value));
                 }
-                SetCommandOption("destfile", String.Format(CultureInfo.InvariantCulture, "-oxml {0}", value), true);}
+                SetCommandOption("destfile", string.Format(CultureInfo.InvariantCulture, "-oxml {0}", value), true);}
         }
 
         /// <summary>
@@ -97,7 +100,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime StartDate {
             get {return Convert.ToDateTime(((Option)CommandOptions["start"]).Value);}
-            set {SetCommandOption("start", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
+            set {SetCommandOption("start", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
         }
 
         /// <summary>
@@ -107,7 +110,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime EndDate {
             get {return Convert.ToDateTime(((Option)CommandOptions["end"]).Value);}
-            set {SetCommandOption("end", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
+            set {SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
         }
 
         #endregion
