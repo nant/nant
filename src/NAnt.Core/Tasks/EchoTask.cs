@@ -189,7 +189,11 @@ namespace NAnt.Core.Tasks {
             if (File != null) { // output to file
                 try {
                     // ensure the output directory exists
-                    File.Directory.Create();
+                    if (!File.Directory.Exists) {
+                        File.Directory.Create();
+                        File.Directory.Refresh();
+                    }
+
                     // write the message to the file
                     using (StreamWriter writer = new StreamWriter(File.FullName, Append)) {
                         if (!StringUtils.IsNullOrEmpty(Message)) {
