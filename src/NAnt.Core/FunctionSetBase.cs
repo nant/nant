@@ -27,7 +27,7 @@ namespace NAnt.Core {
     public abstract class FunctionSetBase {
         #region Protected Instance Constructors
 
-        protected FunctionSetBase(Project project, PropertyDictionary propDict) {
+        protected FunctionSetBase(Project project, PropertyDictionary properties) {
             _project = project;
         }
         
