@@ -76,6 +76,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "Tasks\AxImpTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\ReadRegistryTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
