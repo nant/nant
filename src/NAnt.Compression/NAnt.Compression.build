@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="NAnt.Zip" default="build">
+<project name="NAnt.Compression" default="build">
     <!--
         Required properties:
             * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin

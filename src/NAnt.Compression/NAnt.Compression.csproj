@@ -92,7 +92,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NAnt.Zip.build"
+                    RelPath = "NAnt.Compression.build"
                     BuildAction = "None"
                 />
                 <File
