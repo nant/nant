@@ -122,15 +122,20 @@ namespace Tests.NAnt.Console {
             // expect an exception - multiple *.build files found
             try {               
                 ConsoleDriver.GetBuildFileName(subDirectory, null, true);
-                Assert.Fail("ApplicationException not thrown.");
+                Assert.Fail("ApplicationException not thrown (#1).");
             } catch (ApplicationException) {
             }
 
             // try to find a build file that doesn't exist
             // expect an exception - build file not found
+            // 
+            // however, we might find a "default.build" file if there's one in 
+            // one of the parent directories (eg. the root)
             try {
-                ConsoleDriver.GetBuildFileName(subDirectory, "foobar.xml", true);
-                Assert.Fail("ApplicationException not thrown.");
+                string buildFile = ConsoleDriver.GetBuildFileName(subDirectory, "foobarmustnotexist.xml", true);
+                if (Path.GetFileName(buildFile) != "default.build") {
+                    Assert.Fail("ApplicationException not thrown (#2).");
+                }
             } catch (ApplicationException) {
             }
 
