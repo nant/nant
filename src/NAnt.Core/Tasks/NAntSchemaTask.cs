@@ -494,7 +494,8 @@ namespace NAnt.Core.Tasks {
                 XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
                 XmlSchemaObjectCollection attributesCollection = ct.Attributes;
 
-                if (false && t.IsSubclassOf(typeof(TaskContainer))) {
+                /*
+                if (t.IsSubclassOf(typeof(TaskContainer))) {
                     //
                     // a failed attempt to map the class hierarchy to XSD
                     // I don't know how to do it because of "target" task which
@@ -506,11 +507,11 @@ namespace NAnt.Core.Tasks {
                     ct.ContentModel = new XmlSchemaComplexContent();
                     ct.ContentModel.Content = ext;
                     attributesCollection = ext.Attributes;
-                }
-                else {
+                } else {
+                */
                     ct.Particle = group1;
                     attributesCollection = ct.Attributes;
-                }
+                //}
 
                 foreach (MemberInfo memInfo in t.GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
                     if (memInfo.DeclaringType.Equals(typeof(object))) {
