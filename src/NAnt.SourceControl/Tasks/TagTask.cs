@@ -71,7 +71,10 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-tag")]
     public class TagTask : AbstractCvsTask {
-        private const string CvsCommandName = "tag";
+        /// <summary>
+        /// Cvs command to be executed.
+        /// </summary>
+        public const string CvsCommandName = "tag";
 
         private string _tag;
         /// <summary>

@@ -490,8 +490,8 @@ namespace NAnt.SourceControl.Tasks {
             }
 
             AppendSubCommandArgs();
-
             AppendFiles();
+
             if (IsModuleNeeded && null == Module) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Cvs module is required for this action."), 

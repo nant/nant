@@ -82,6 +82,9 @@ namespace NAnt.SourceControl.Tasks {
                     case "commit":
                         moduleNeeded = false;
                         break;
+                    case TagTask.CvsCommandName:
+                        moduleNeeded = false;
+                        break;
                     default:
                         moduleNeeded = true;
                         break;
