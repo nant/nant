@@ -46,6 +46,27 @@ namespace SourceForge.NAnt.Tasks
     [TaskName("mcs")]
     public class McsTask : CompilerBase
     {
+        private bool _nostdlib = false;
+        private bool _noconfig = false;
+        
+        /// <summary>Instructs the compiler not to import core assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/nostdlib[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nostdlib")]
+        public bool NoStdLib     { get { return _nostdlib; } set {_nostdlib = value; } }
+
+        /// <summary>Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/noconfig[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("noconfig")]
+        public bool NoConfig     { get { return _noconfig; } set {_noconfig = value; } }
+
         protected override void WriteOption(TextWriter writer, string name) {
             if (name.Equals("nologo")) {
                 return;
@@ -63,6 +84,17 @@ namespace SourceForge.NAnt.Tasks
                 writer.WriteLine("--{0} {1}", name, arg);
             }
         }
+
+        protected override void WriteOptions(TextWriter writer) {
+            if ( NoStdLib) {
+                WriteOption(writer, "nostdlib");
+            }
+
+            if (NoConfig && ! Args.Contains("/noconfig")) {
+               Args.Add("/noconfig");
+            }
+        }            
+
         protected override string GetExtension(){ return "cs";}
     }
 }

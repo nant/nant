@@ -41,6 +41,8 @@ namespace SourceForge.NAnt.Tasks {
     public class CscTask : MsftFXCompilerBase {
        
         string _doc = null;
+        bool _nostdlib = false;
+        bool _noconfig = false;
         
         // C# specific compiler options
         /// <summary>The name of the XML documentation file to generate.
@@ -48,19 +50,46 @@ namespace SourceForge.NAnt.Tasks {
         [TaskAttribute("doc")]
         public string Doc        { get { return _doc; } set {_doc = value; } }
 
+        /// <summary>Instructs the compiler not to import mscorlib.dll (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/nostdlib[+|-]</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nostdlib")]
+        public bool NoStdLib     { get { return _nostdlib; } set {_nostdlib = value; } }
+
+        /// <summary>Instructs the compiler not to use implicit references to assemblies (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/noconfig</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("noconfig")]
+        public bool NoConfig     { get { return _noconfig; } set {_noconfig = value; } }
+
         protected override void WriteOptions(TextWriter writer) {
-            //writer.WriteLine("/fullpaths");
             WriteOption(writer, "fullpaths");
-            if (_doc != null) {             
-                WriteOption(writer, "doc", _doc);
+
+            if (Doc != null) {             
+                WriteOption(writer, "doc", this.Doc);
             }
-          
+
             if (Debug) {
                 WriteOption(writer, "debug");
                 WriteOption(writer, "define", "DEBUG");
                 WriteOption(writer, "define", "TRACE");
             }
+
+            if (NoStdLib) {
+                WriteOption(writer, "nostdlib");
+            }
+
+            if (NoConfig && ! Args.Contains("/noconfig")) {
+                Args.Add("/noconfig");
+            }
         }
+
         protected override string GetExtension(){ return "cs";}
     }
 }

@@ -41,6 +41,8 @@ namespace SourceForge.NAnt.Tasks {
         bool _debug = false;      
         string _define = null;       
         string _win32icon = null;      
+        bool _warnAsError = false;
+        string _mainType = null;
         FileSet _references = new FileSet();        
         ResourceFileSet _resources = new ResourceFileSet();       
         FileSet _modules = new FileSet();       
@@ -67,6 +69,37 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>Icon to associate with the application. Corresponds to <c>/win32icon:</c> flag.</summary>
         [TaskAttribute("win32icon")]
         public string Win32Icon     { get { return _win32icon; } set { _win32icon = value; }}
+
+        /// <summary>
+        /// Instructs the compiler to treat all warnings as errors (<c>true</c>/<c>false</c>). Default is <c>&quot;false&quot;</c></summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/warnaserror[+|-]</c> flag of the compiler.
+        /// </para>
+        /// <para>
+        /// When this attribute is set to <c>true</c>, any messages that would ordinarily be reported 
+        /// as warnings will instead be reported as errors.
+        /// </para>
+        /// </remarks>
+        [BooleanValidator()]
+        [TaskAttribute("warnaserror")]
+        public bool WarnAsError     { get { return Convert.ToBoolean(_warnAsError); } set { _warnAsError = value; }}
+
+        /// <summary>
+        /// Specifies which type contains the Main method that you want to use as the entry point into 
+        /// the program.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This attribute corresponds to the <c>/m[ain]:</c> flag of the compiler.
+        /// </para>
+        /// <para>
+        /// Use this attribute when creating an executable file. If this attribute is omitted, the 
+        /// compiler searches for a valid Main in all public classes.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("main")]
+        public string MainType        { get { return _mainType; } set { _mainType = value; }}
 
         /// <summary>Reference metadata from the specified assembly files.</summary>
         [FileSet("references")]
@@ -205,6 +238,23 @@ namespace SourceForge.NAnt.Tasks {
                     if (Win32Icon != null) {
                         WriteOption(writer, "win32icon", Win32Icon);                        
                     }
+
+                    /*
+                     * writes the option that specifies the class containing the Main method that should 
+                     * be called when the program starts.
+                     */
+                    if (this.MainType != null) {
+                        WriteOption(writer, "main", this.MainType);
+                    }
+
+                    /* 
+                     * writes the option that specifies whether the compiler should consider warnings
+                     * as errors.
+                     */
+                    if (this.WarnAsError) {
+                        WriteOption(writer, "warnaserror");
+                    }
+
                     //TODO: I changed the References.FileNames to References.Includes
                     //      Otherwise the system dlls never make it into the references.
                     //      Not too sure of the other implications of this change, but the
