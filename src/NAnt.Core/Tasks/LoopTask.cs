@@ -40,6 +40,11 @@ namespace NAnt.Core.Tasks {
     ///   The property is returned to its normal value once it is used. Read-only 
     ///   parameters cannot be overridden in this loop.
     ///   </para>
+    ///   <para>
+    ///     <note>
+    ///   The "in/items" element can be used for filesystem operations. Please remove the "in" attribute if you use the element syntax.
+    ///     </note>
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Loops over the files in <c>c:\</c>.</para>
@@ -212,6 +217,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Stuff to operate in. Just like the in attribute, but supports more 
         /// complicated things like filesets and such.
+        /// <note>
+        /// Please remove the in attribute if you are using element.
+        /// </note>
         /// </summary>
         [BuildElement("in")]
         public InElement InElement {
