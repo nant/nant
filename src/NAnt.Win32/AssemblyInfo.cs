@@ -26,8 +26,8 @@ using System.Runtime.InteropServices;
 // Mark NAnt.Win32Tasks CLS compliant
 [assembly: CLSCompliant(true)]
 
-// Make NAnt.Win32Tasks visible to COM
-[assembly: ComVisible(true)]
+// Make NAnt.Win32Tasks as NOT visible to COM
+[assembly: ComVisible(false)]
 
 [assembly: AssemblyTitle("NAnt")]
 [assembly: AssemblyDescription("A .NET Build Tool")]
