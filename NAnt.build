@@ -4,7 +4,7 @@
     
     <!-- global project settings -->
     <property name="project.name" value="nant" />
-    <property name="project.version" value="0.8.3" />
+    <property name="project.version" value="0.8.4" />
     <property name="project.html-help.dir" value="C:\Program Files\HTML Help Workshop" />
 
     <!-- default configuration -->
