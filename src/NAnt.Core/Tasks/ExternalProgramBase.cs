@@ -379,6 +379,8 @@ namespace NAnt.Core.Tasks {
             process.StartInfo.RedirectStandardError = true;
             //required to allow redirects
             process.StartInfo.UseShellExecute = false;
+            // do not start process in new window
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.WorkingDirectory = BaseDirectory.FullName;
 
             // set framework-specific environment variables if executing the 
