@@ -59,6 +59,13 @@ namespace NAnt.Console {
                 }
 
                 XmlNode nantNode = (XmlNode) ConfigurationSettings.GetConfig("nant");
+                if (nantNode == null) {
+                    System.Console.WriteLine("The \"nant\" section in the NAnt"
+                        + " configuration file ({0}) is not available.",
+                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                    return null;
+                }
+
                 XmlElement frameworkNode = (XmlElement) nantNode.SelectSingleNode("frameworks/platform[@name='" + Platform + "']/framework[@family='" + FrameworkFamily + "' and @clrversion='" + Environment.Version.ToString(3) + "']");
                 
                 if (frameworkNode == null) {
