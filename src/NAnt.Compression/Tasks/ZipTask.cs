@@ -163,8 +163,6 @@ namespace NAnt.Zip.Tasks {
                 if (ZipLevel > 0) {
                     zOutstream.SetLevel(ZipLevel);
                 } else {
-                    zOutstream.SetMethod(ZipOutputStream.STORED);
-
                     // setting the method to store still compresses the files
                     // setting the level to 0 fixes this
                     zOutstream.SetLevel(ZipLevel);
