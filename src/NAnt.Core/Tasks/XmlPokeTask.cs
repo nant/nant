@@ -42,9 +42,10 @@ namespace NAnt.Core.Tasks {
     /// </remarks>
     /// <example>
     ///   <para>
-    ///   The example provided assumes that the following XML file (App.config)
-    ///   exists in the current build directory.
+    ///   Change the <c>server</c> setting in the configuration from <c>testhost.somecompany.com</c> 
+    ///   to <c>productionhost.somecompany.com</c>.
     ///   </para>
+    ///   <para>XML file:</para>
     ///   <code>
     ///     <![CDATA[
     /// <?xml version="1.0" encoding="utf-8" ?>
@@ -55,19 +56,36 @@ namespace NAnt.Core.Tasks {
     /// </configuration>
     ///     ]]>
     ///   </code>
-    /// </example>
-    /// <example>
-    ///   <para>
-    ///   The example will change the <c>server</c> setting in the above 
-    ///   configuration from <c>testhost.somecompany.com</c> to
-    ///   <c>productionhost.somecompany.com</c>.
-    ///   </para>
+    ///   <para>Build fragment:</para>
     ///   <code>
     ///     <![CDATA[
     /// <xmlpoke
     ///     file="App.config"
     ///     xpath="/configuration/appSettings/add[@key = 'server']/@value"
     ///     value="productionhost.somecompany.com" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Modify the <c>noNamespaceSchemaLocation</c> in an XML file.
+    ///   </para>
+    ///   <para>XML file:</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <?xml version="1.0" encoding="utf-8" ?>
+    /// <Commands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Path Value">
+    /// </Commands>
+    ///     ]]>
+    ///   </code>
+    ///   <para>Build fragment:</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <xmlpoke file="test.xml" xpath="/Commands/@xsi:noNamespaceSchemaLocation" value="d:\Commands.xsd">
+    ///     <namespaces>
+    ///         <namespace prefix="xsi" uri="http://www.w3.org/2001/XMLSchema-instance" />
+    ///     </namespaces>
+    /// </xmlpoke>
     ///     ]]>
     ///   </code>
     /// </example>
