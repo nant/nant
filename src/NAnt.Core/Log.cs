@@ -32,6 +32,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Remoting.Lifetime;
 using System.Text;
 using System.Web.Mail;
 
