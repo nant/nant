@@ -58,12 +58,19 @@ namespace SourceForge.NAnt.Tasks
 				string strGUID = m.Groups[ "guid" ].Value;
 
                 string strFullPath;
-                Uri uri = new Uri( strProject );
-                if ( uri.Scheme == Uri.UriSchemeFile )
-				    strFullPath = Path.Combine( fiSolution.DirectoryName, strProject );
-                else
-                    strFullPath = strProject;
-
+                try
+                {
+					Uri uri = new Uri( strProject );
+					if ( uri.Scheme == Uri.UriSchemeFile )
+						strFullPath = Path.Combine( fiSolution.DirectoryName, uri.LocalPath );
+					else
+						strFullPath = strProject;
+				}
+				catch ( UriFormatException )
+				{
+					strFullPath = Path.Combine( fiSolution.DirectoryName, strProject );
+				}
+				
 				if ( Project.IsEnterpriseTemplateProject( strFullPath ) )
 					RecursiveLoadTemplateProject( strFullPath );
 				else
