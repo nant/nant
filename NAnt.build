@@ -9,7 +9,6 @@
     <property name="build.dir" value="build"/>
     <property name="dist.dir" value="${project.name}"/>
 
-    <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
     <property name="backup.name" value="..\${project.name}-backup-${nant.dstamp}-${nant.tstamp}.zip" />
     <property name="project.version" value="x.x"/>
 
@@ -43,13 +42,14 @@
             }
         ]]></code>
         </script>
+	    <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
         <echo message="Building ${project.name}-${project.version} (release)"/>
     </target>
 
     <target name="clean" description="cleans up everything">
-        <delete dir="${build.dir}" verbose="true" failonerror="false"/>
-        <delete dir="${dist.dir}" verbose="true" failonerror="false"/>
-        <delete file="${dist.name}" verbose="true" failonerror="false"/>
+        <delete dir="${build.dir}" failonerror="false"/>
+        <delete dir="${dist.dir}" failonerror="false"/>
+        <delete file="${dist.name}" failonerror="false"/>
     </target>
 
     <target name="build" description="compiles the source code">
@@ -118,7 +118,7 @@
         <csc target="library" output="${build.dir}\${project.FormalName}.Tests.dll" debug="${debug}">
             <sources basedir="${src.dir}\${project.FormalName}.Tests">
                 <includes name="**/*.cs"/>
-                <!-- these tests should not be run during intergration because they use third party network resources -->
+                <!-- these tests should not be run during integration because they use third party network resources -->
                 <excludes name="**/GetTaskTest.cs"/>
                 <excludes name="**/MailTaskTest.cs"/>
             </sources>
@@ -154,7 +154,7 @@
         <nant buildfile="Sourcesafe.build" basedir="${src.dir}\Extras\Sourcesafe\" />       
     </target>
     
-    <target name="doc" depends="build" description="build documenation">
+    <target name="doc" depends="build" description="build documentation">
         <echo message="Requires HtmlHelp compiler (hhc.exe) to be in the system path"/>
         <ndoc failonerror="false">
             <assemblies basedir="${build.dir}">
@@ -189,7 +189,7 @@
         <copy file="${build.dir}/docs/MSDN/NAnt.chm" todir="${build.dir}"/>
     </target>
 
-    <target name="userdoc" depends="build" description="build documenation">
+    <target name="userdoc" depends="build" description="build documentation">
         <copy todir="${build.dir}\docs">
             <fileset basedir="doc\help">
                 <includes name="style.css"/>
