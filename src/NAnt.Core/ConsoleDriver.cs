@@ -309,8 +309,6 @@ namespace SourceForge.NAnt {
         /// Spits out generic help info to the console.
         /// </summary>
         private static void ShowHelp(CommandLineParser parser) {
-            Console.WriteLine("http://nant.sourceforge.net");
-            Console.WriteLine();
             Console.WriteLine("NAnt comes with ABSOLUTELY NO WARRANTY.");
             Console.WriteLine("This is free software, and you are welcome to redistribute it under certain");
             Console.WriteLine("conditions set out by the GNU General Public License.  A copy of the license");

@@ -78,7 +78,7 @@ namespace SourceForge.NAnt {
                     assembly = Assembly.GetCallingAssembly();
                 }
 
-                #region Add description to logo banner
+                // Add description to logo banner
 
                 object[] productAttributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false);
                 if (productAttributes.Length > 0) {
@@ -90,9 +90,7 @@ namespace SourceForge.NAnt {
                     logoBanner.Append(assembly.GetName().Name);
                 }
 
-                #endregion
-
-                #region Add version information to logo banner
+                // Add version information to logo banner
 
                 object[] informationalVersionAttributes = assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
                 if (informationalVersionAttributes.Length > 0) {
@@ -105,9 +103,7 @@ namespace SourceForge.NAnt {
                     logoBanner.Append(" version " + info.FileMajorPart + "." + info.FileMinorPart + "." + info.FileBuildPart);
                 }
 
-                #endregion
-
-                #region Add copyright information to logo banner
+                // Add copyright information to logo banner
 
                 object[] copyrightAttributes = assembly.GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
                 if (copyrightAttributes.Length > 0) {
@@ -119,7 +115,16 @@ namespace SourceForge.NAnt {
 
                 logoBanner.Append('\n');
 
-                #endregion
+                // Add company information to logo banner
+
+                object[] companyAttributes = assembly.GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
+                if (companyAttributes.Length > 0) {
+                    AssemblyCompanyAttribute companyAttribute = (AssemblyCompanyAttribute) companyAttributes[0];
+                    if (companyAttribute.Company != null && companyAttribute.Company.Length != 0) {
+                        logoBanner.Append(companyAttribute.Company);
+                        logoBanner.Append('\n');
+                    }
+                }
 
                 return logoBanner.ToString();
             }
@@ -137,7 +142,7 @@ namespace SourceForge.NAnt {
                     assembly = Assembly.GetCallingAssembly();
                 }
 
-                #region Add usage instructions to helptext
+                // Add usage instructions to helptext
 
                 if (helpText.Length > 0) {
                     helpText.Append('\n');
@@ -155,9 +160,7 @@ namespace SourceForge.NAnt {
 
                 helpText.Append('\n');
 
-                #endregion
-
-                #region Add options to helptext
+                // Add options to helptext
 
                 helpText.Append("Options : ");
                 helpText.Append('\n');
@@ -194,8 +197,6 @@ namespace SourceForge.NAnt {
                     }
                     helpText.Append('\n');
                 }
-
-                #endregion
 
                 return helpText.ToString();
             }
