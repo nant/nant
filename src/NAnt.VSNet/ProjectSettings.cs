@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using NAnt.Core;
 using NAnt.Core.Util;
 
 namespace NAnt.VSNet {
@@ -37,13 +38,21 @@ namespace NAnt.VSNet {
 
             string extension = string.Empty;
 
+            // check whether build file is valid
+            if (elemRoot.FirstChild == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project file '{0}' is not valid.", Project.ProjectPath),
+                    Location.UnknownLocation);
+            }
+
             if (elemRoot.FirstChild.Name == "VisualBasic") {
                 _type = ProjectType.VBNet;
             } else {
                 _type = ProjectType.CSharp;
             }
 
-            _guid = ProjectSettings.GetProjectGuid(elemRoot);
+            _guid = ProjectSettings.GetProjectGuid(project.ProjectPath,
+                elemRoot);
 
             // initialize hashtable for holding string settings
             Hashtable htStringSettings = new Hashtable();
@@ -253,13 +262,21 @@ namespace NAnt.VSNet {
         /// Gets the project GUID from the given <see cref="XmlElement" /> 
         /// holding a <c>&lt;VisualStudioProject&gt;</c> node.
         /// </summary>
+        /// <param name="projectFile">The path of the project file.</param>
         /// <param name="elemRoot">The <c>&lt;VisualStudioProject&gt;</c> node from which the project GUID should be retrieved.</param>
         /// <returns>
         /// The project GUID from specified <c>&lt;VisualStudioProject&gt;</c> node.
         /// </returns>
-        public static string GetProjectGuid(XmlElement elemRoot) {
-            return elemRoot.FirstChild.Attributes["ProjectGuid"].Value.
-                ToUpper(CultureInfo.InvariantCulture);
+        public static string GetProjectGuid(string projectFile, XmlElement elemRoot) {
+            XmlAttribute projectGuid = (XmlAttribute) elemRoot.FirstChild.
+                Attributes["ProjectGuid"];
+            if (projectGuid == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project file '{0}' is not valid. There's no \"ProjectGuid\""
+                    + " attribute on the <{1} ... /> node.", projectFile, 
+                    elemRoot.FirstChild.Name), Location.UnknownLocation);
+            }
+            return projectGuid.Value.ToUpper(CultureInfo.InvariantCulture);
         }
 
         #endregion Public Static Methods

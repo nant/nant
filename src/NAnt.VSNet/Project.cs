@@ -642,7 +642,7 @@ namespace NAnt.VSNet {
         public static string LoadGuid(string fileName) {
             try {
                 XmlDocument doc = LoadXmlDocument(fileName);
-                return ProjectSettings.GetProjectGuid(doc.DocumentElement);
+                return ProjectSettings.GetProjectGuid(fileName, doc.DocumentElement);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error loading GUID of project '{0}'.", fileName), 

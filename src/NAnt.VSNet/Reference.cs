@@ -95,13 +95,14 @@ namespace NAnt.VSNet {
                         _name), Location.UnknownLocation);
                 }
 
-                string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("Project"));
-
                 TempFileCollection temporaryFiles = solution.TemporaryFiles;
                 if (ps != null) {
                     temporaryFiles = ps.TemporaryFiles;
                 }
 
+                // load referenced project
+                string projectFile = solution.GetProjectFileFromGuid(elemReference.GetAttribute("Project"));
+                Log(Level.Verbose, "Loading referenced project '{0}'.", projectFile);
                 ProjectBase project = ProjectFactory.LoadProject(solution, parent.SolutionTask, temporaryFiles, _gacCache, _refResolver, outputDir, projectFile);
 
                 // we don't know what the timestamp of the project is going to be, 
