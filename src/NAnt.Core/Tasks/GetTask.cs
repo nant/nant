@@ -82,7 +82,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private string _src;
-        private string _dest;
+        private FileInfo _destFile;
         private string _httpProxy;
         private Proxy _proxy;
         private int _timeout = 100000;
@@ -107,10 +107,9 @@ namespace NAnt.Core.Tasks {
         /// The file where to store the retrieved file.
         /// </summary>
         [TaskAttribute("dest", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Destination {
-            get { return Project.GetFullPath(_dest); }
-            set { _dest = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo DestinationFile {
+            get { return _destFile; }
+            set { _destFile = value; }
         }
 
         /// <summary>
@@ -186,20 +185,9 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-            if (Source == null) {
-                throw new BuildException("src attribute is required.", Location);
-            }
-
-            if (Destination == null) {
-                throw new BuildException("dest attribute is required.", Location);
-            }
-
-            if (Directory.Exists(Destination)) {
-                throw new BuildException("Specified destination is a directory.", Location);
-            }
-
-            if (File.Exists(Destination) && (FileAttributes.ReadOnly == (File.GetAttributes(Destination) & FileAttributes.ReadOnly))) {
-                throw new BuildException("Cannot write to " + Destination, Location);
+            if (DestinationFile.Exists && (FileAttributes.ReadOnly == (File.GetAttributes(DestinationFile.FullName) & FileAttributes.ReadOnly))) {
+                throw new BuildException(string.Format("Destination file '{0}' is read-only.", 
+                    DestinationFile.FullName), Location);
             }
 
             if (Proxy != null && HttpProxy != null) {
@@ -215,9 +203,10 @@ namespace NAnt.Core.Tasks {
                 //set the timestamp to the file date.
                 DateTime fileTimeStamp = new DateTime();
 
-                if (UseTimeStamp && File.Exists(Destination)) {
-                    fileTimeStamp = File.GetLastWriteTime(Destination);
-                    Log(Level.Verbose, LogPrefix + "Local file time stamp: {0}.", fileTimeStamp.ToString(CultureInfo.InvariantCulture));
+                if (UseTimeStamp && DestinationFile.Exists) {
+                    fileTimeStamp = DestinationFile.LastWriteTime;
+                    Log(Level.Verbose, LogPrefix + "Local file time stamp is {0}.", 
+                        fileTimeStamp.ToString(CultureInfo.InvariantCulture));
                 }
 
                 //set up the URL connection
@@ -237,7 +226,8 @@ namespace NAnt.Core.Tasks {
                     } catch (IOException ex) {
                         if (tryCount > 3) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Unable to download '{0}' to '{1}'.", Source, Destination), Location);
+                                "Unable to download '{0}' to '{1}'.", Source, 
+                                DestinationFile.FullName), Location);
                         } else {
                             Log(Level.Warning, LogPrefix + "Unable to open connection to '{0}' (try {1} of 3): " + ex.Message, Source, tryCount);
                         }
@@ -248,9 +238,11 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // open file for writing
-                BinaryWriter destWriter = new BinaryWriter(new FileStream(Destination, FileMode.Create));
+                BinaryWriter destWriter = new BinaryWriter(new FileStream(
+                    DestinationFile.FullName, FileMode.Create));
                 
-                Log(Level.Info, LogPrefix + "Retrieving '{0}' to '{1}'.", Source, Destination);
+                Log(Level.Info, LogPrefix + "Retrieving '{0}' to '{1}'.", 
+                    Source, DestinationFile.FullName);
 
                 // Read in stream from URL and write data in chunks
                 // to the dest file.
@@ -262,7 +254,7 @@ namespace NAnt.Core.Tasks {
 
                 do {
                     totalReadCount = responseStream.Read(buffer, 0, bufferSize);
-                    if ( totalReadCount != 0 ) { // zero means EOF
+                    if (totalReadCount != 0) { // zero means EOF
                         // write buffer into file
                         destWriter.Write(buffer, 0, totalReadCount);
                         // increment byte counters
@@ -284,20 +276,22 @@ namespace NAnt.Core.Tasks {
                 if (totalBytesReadFromStream > bufferSize) {
                     Log(Level.Verbose, "");
                 }
-                Log(Level.Verbose, LogPrefix + "Number of bytes read: {0}.", totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
+                Log(Level.Verbose, LogPrefix + "Number of bytes read: {0}.", 
+                    totalBytesReadFromStream.ToString(CultureInfo.InvariantCulture));
 
                 // clean up response streams
                 destWriter.Close();
                 responseStream.Close();
 
                 //check to see if we actually have a file...
-                if(!File.Exists(Destination)) {
+                if(!DestinationFile.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to download '{0}' to '{1}'.", Source, Destination), Location);
+                        "Unable to download '{0}' to '{1}'.", Source, 
+                        DestinationFile.FullName), Location);
                 }
 
-                //if (and only if) the use file time option is set, then the
-                //saved file now has its timestamp set to that of the downloaded file
+                // if (and only if) the use file time option is set, then the
+                // saved file now has its timestamp set to that of the downloaded file
                 if (UseTimeStamp)  {
                     // HTTP only
                     if (webRequest is HttpWebRequest) {
@@ -306,13 +300,17 @@ namespace NAnt.Core.Tasks {
                         // get timestamp of remote file
                         DateTime remoteTimestamp = httpResponse.LastModified;
 
-                        Log(Level.Verbose, LogPrefix + "{0} last modified on {1}.", Destination, remoteTimestamp.ToString(CultureInfo.InvariantCulture));
-                        TouchFile(Destination, remoteTimestamp);
+                        Log(Level.Verbose, LogPrefix + "'{0}' last modified on {1}.", 
+                            Source, remoteTimestamp.ToString(CultureInfo.InvariantCulture));
+
+                        // update timestamp of local file to match that of the 
+                        // remote file
+                        TouchFile(DestinationFile, remoteTimestamp);
                     }
                 }
-            } catch (BuildException ex) {
-                // rethrow exception
-                throw ex;
+            } catch (BuildException) {
+                // re-throw the exception
+                throw;
             } catch (WebException ex) {
                 // If status is WebExceptionStatus.ProtocolError,
                 //   there has been a protocol error and a WebResponse
@@ -326,21 +324,23 @@ namespace NAnt.Core.Tasks {
                         //and trace out something so the user doesn't think that the
                         //download happened when it didn't
 
-                        Log(Level.Verbose, LogPrefix + "{0} not downloaded.  Not modified since {1}.", Destination, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
+                        Log(Level.Verbose, LogPrefix + "'{0}' not downloaded.  Not modified since {1}.", 
+                            Source, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Unable to download '{0}' to '{1}'.", Source, 
-                            Destination), Location, ex);
+                            DestinationFile.FullName), Location, ex);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to download '{0}' to '{1}'.", Source, Destination), 
+                        "Unable to download '{0}' to '{1}'.", Source, DestinationFile.FullName), 
                         Location, ex);
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unable to download '{0}' to '{1}'.", Source, Destination), Location, ex);
+                    "Unable to download '{0}' to '{1}'.", Source, DestinationFile.FullName), 
+                    Location, ex);
             }
         }
 
@@ -351,11 +351,12 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Sets the timestamp of a given file to a specified time.
         /// </summary>
-        protected void TouchFile(string fileName, DateTime touchDateTime) {
+        protected void TouchFile(FileInfo file, DateTime touchDateTime) {
             try {
-                if (File.Exists(fileName)) {
-                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", fileName, touchDateTime.ToString(CultureInfo.InvariantCulture));
-                    File.SetLastWriteTime(fileName, touchDateTime);
+                if (file.Exists) {
+                    Log(Level.Verbose, LogPrefix + "Touching file {0} with {1}.", 
+                        file.FullName, touchDateTime.ToString(CultureInfo.InvariantCulture));
+                    file.LastWriteTime = touchDateTime;
                 } else {
                     throw new FileNotFoundException();
                 }
@@ -423,4 +424,3 @@ namespace NAnt.Core.Tasks {
         #endregion Private Instance Methods
     }
 }
-
