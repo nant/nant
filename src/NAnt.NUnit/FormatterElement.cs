@@ -57,22 +57,44 @@ namespace NAnt.NUnit.Types {
 
         #region Public Instance Properties
         
-        /// <summary>Type of formatter ( means we will load a class of the form (type)Formatter</summary>
+        /// <summary>
+        /// Type of formatter - either <see cref="FormatterType.Plain" />, 
+        /// <see cref="FormatterType.Xml" /> or <see cref="FormatterType.Custom" />.
+        /// Default is <see cref="FormatterType.Plain" />.
+        /// </summary>
         [TaskAttribute("type", Required=false)]
-        public FormatterType Type { get { return _data.Type; } set { _data.Type = value; } }
+        public FormatterType Type {
+            get { return _data.Type; }
+            set { _data.Type = value; }
+        }
                          
-        /// <summary>Name of a custom formatter class.</summary> 
+        /// <summary>
+        /// Name of a custom formatter class.
+        /// </summary> 
         [TaskAttribute("classname", Required=false)]
-        public string ClassName { get { return _data.ClassName; } set { _data.ClassName = value ;} }
+        public string ClassName {
+            get { return _data.ClassName; }
+            set { _data.ClassName = value; }
+        }
 
-        /// <summary>Extension to append to the output filename.</summary> 
+        /// <summary>
+        /// Extension to append to the output filename.
+        /// </summary> 
         [TaskAttribute("extension", Required=false)]
-        public string Extension { get { return _data.Extension; } set { _data.Extension = value ;} }
+        public string Extension {
+            get { return _data.Extension != null ? _data.Extension : string.Empty; }
+            set { _data.Extension = value; }
+        }
         
-        /// <summary>Boolean that determines whether output should be sent to a file.</summary> 
-        [TaskAttribute("usefile")]
+        /// <summary>
+        /// Determines whether output should be sent to a file.
+        /// </summary> 
+        [TaskAttribute("usefile", Required=false)]
         [BooleanValidator()]
-        public bool UseFile { get { return _data.UseFile; } set { _data.UseFile = value; } }
+        public bool UseFile {
+            get { return _data.UseFile; }
+            set { _data.UseFile = value; }
+        }
 
         /// <summary>
         /// Gets the underlying <see cref="FormatterData" /> for the element.
@@ -90,16 +112,8 @@ namespace NAnt.NUnit.Types {
         /// </summary>
         /// <param name="elementNode"><see cref="XmlNode" /> containing the XML fragment used to initialize this element instance.</param>
         protected override void InitializeElement(XmlNode elementNode) {
-            if ((Type != FormatterType.Custom ) && ClassName != null) {
-                throw new BuildException("Specify either type or classname - not both.", Location);
-            }
-            if (ClassName != null && Extension == null) {
-                throw new BuildException("If using classname the file extension must be specified.", Location);
-            }
-            if (Type == FormatterType.Xml){
-                Extension = ".xml";
-            } else if (Type == FormatterType.Plain || Extension == null) {
-                Extension = ".txt";
+            if (Type != FormatterType.Custom && ClassName != null) {
+                throw new BuildException("The classname attribute should only be specified for a custom formatter.", Location);
             }
         }
 
