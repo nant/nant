@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2002 Scott Hernandez
+// Copyright (C) 2002-2003 Scott Hernandez
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,18 +40,26 @@ namespace SourceForge.NAnt {
     /// </note>
     /// </summary>
     public class TaskContainer : Task {
+        #region Private Instance Fields
+
         private StringCollection _subXMLElements = null;
 
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        #endregion Private Instance Fields
+
+        #region Override implementation of Task
+
+        protected override void InitializeTask(XmlNode taskNode) {
             base.InitializeTask(taskNode);
 
             //Exclude any BuildElements (like FileSets, etc.) from our execution elements.
             _subXMLElements = new StringCollection();
-            foreach(MemberInfo memInfo in this.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
-                if(memInfo.DeclaringType.Equals(typeof(object))) continue;
+            foreach (MemberInfo memInfo in this.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public)) {
+                if(memInfo.DeclaringType.Equals(typeof(object))) {
+                    continue;
+                }
 
-                BuildElementAttribute  buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
-                if(buildElemAttr != null) {
+                BuildElementAttribute buildElemAttr = (BuildElementAttribute) Attribute.GetCustomAttribute(memInfo, typeof(BuildElementAttribute), true);
+                if (buildElemAttr != null) {
                     _subXMLElements.Add(buildElemAttr.Name);
                 }
             }
@@ -61,18 +69,27 @@ namespace SourceForge.NAnt {
             ExecuteChildTasks();
         }
 
+        #endregion Override implementation of Task
+
+        #region Protected Instance Methods
+
         /// <summary>
-        /// Creates and Executes the embedded (child xml nodes) elements.
+        /// Creates and executes the embedded (child xml nodes) elements.
         /// </summary>
-        /// <remarks> Skips any element defined by the host task that has an BuildElementAttribute (included filesets and special xml) defined.</remarks>
+        /// <remarks>
+        /// Skips any element defined by the host <see cref="Task" /> that has 
+        /// a <see cref="BuildElementAttribute" /> defined.
+        /// </remarks>
         protected virtual void ExecuteChildTasks() {
-            foreach(XmlNode childNode in XmlNode) {
+            foreach (XmlNode childNode in XmlNode) {
                 if(childNode.Name.StartsWith("#") && 
                     childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
 
-                if(IsPrivateXMLElement(childNode)) continue;
+                if (IsPrivateXmlElement(childNode)) {
+                    continue;
+                }
 
                 Task task = CreateChildTask(childNode);
                 // for now, we should assume null tasks are because of incomplete metadata about the xml.
@@ -86,18 +103,17 @@ namespace SourceForge.NAnt {
         protected virtual Task CreateChildTask(XmlNode node) {
             try {
                 return Project.CreateTask(node);
-            }
-            catch(BuildException be) {
-                Log(Level.Error, "{0} Failed to created Task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , be.ToString());
+            } catch (BuildException ex) {
+                Log(Level.Error, "{0} Failed to created task for '{1}' xml element for reason: \n {2}", LogPrefix, node.Name , ex.ToString());
             }
             return null;
         }
         
-        protected virtual bool IsPrivateXMLElement(XmlNode node) {
+        protected virtual bool IsPrivateXmlElement(XmlNode node) {
             return (_subXMLElements != null && _subXMLElements.Contains(node.Name));
         }
 
-        protected virtual void AddPrivateXMLElementName(string name) {
+        protected virtual void AddPrivateXmlElementName(string name) {
             if(_subXMLElements == null) {
                 _subXMLElements = new StringCollection();
             }
@@ -106,5 +122,7 @@ namespace SourceForge.NAnt {
                 _subXMLElements.Add(name);
             }
         }
+
+        #endregion Protected Instance Methods
     }
 }
