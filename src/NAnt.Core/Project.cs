@@ -157,8 +157,7 @@ namespace SourceForge.NAnt {
                 }
             }
             catch(Exception e) {
-                //do nothing.
-                e.ToString();
+                logger.Debug("Error creating URI in project constructor. Moving on... ", e);
             }
             finally{
                 if(path == null)
