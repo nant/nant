@@ -245,8 +245,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Reference packages 
         /// </summary>
-        // TODO : Do not expose this for now, need to discuss this further
-        //[BuildElement("pkg-references")]
+        [BuildElement("pkg-references")]
         public virtual PackageCollection Packages {
             get { return _packages; }
             set { _packages = value; }
@@ -578,7 +577,7 @@ namespace NAnt.DotNet.Tasks {
             CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile, dependentFile);
 
             // determine the resource type
-            switch (Path.GetExtension(resourceFile)) {
+            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InstalledUICulture)) {
                 case ".resx":
                     // try and get manifest resource name from dependent file
                     ResourceLinkage resourceLinkage = GetResourceLinkage(
@@ -680,7 +679,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             // determine the resource type
-            switch (Path.GetExtension(resourceFile)) {
+            switch (Path.GetExtension(resourceFile).ToLower(CultureInfo.InstalledUICulture)) {
                 case ".resx":
                     // open matching source file if it exists
                     string dependentFile = Path.ChangeExtension(resourceFile, Extension);
