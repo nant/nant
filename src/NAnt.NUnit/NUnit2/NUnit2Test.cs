@@ -78,7 +78,7 @@ namespace NAnt.NUnit2.Types {
         }
 
         /// <summary>
-        /// Build fails on failure.
+        /// Build fails on failure. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
