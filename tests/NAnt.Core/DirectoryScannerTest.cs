@@ -135,6 +135,62 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
+        /// <summary>
+        /// Test wildcard matching base directory.
+        /// </summary>
+        [Test]
+        public void Test_WildcardMatching_BaseDirectory1() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "Foo2.txt")
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "Foo1.txt")
+                                                      };
+            string[] includedDirs = new string[] {
+                                                     _folder3
+                                                 };
+            string[] excludedDirs = new string[] {
+                                                     _tempDir,
+                                                     _folder2
+                                                 };
+
+            // the folder2 directory should NOT be matched
+            _scanner.Includes.Add("folder2/**/*");
+            _scanner.Excludes.Add("folder2/**/Foo1.txt");
+
+            // the folder2 directory should not be included in the DirectoryNames 
+            // collection
+            CheckScan(includedFileNames, excludedFileNames, includedDirs, excludedDirs);
+        }
+
+        /// <summary>
+        /// Test wildcard matching base directory.
+        /// </summary>
+        [Test]
+        public void Test_WildcardMatching_BaseDirectory2() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "Foo2.txt")
+                                                      };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "Foo1.txt")
+                                                      };
+            string[] includedDirs = new string[] {
+                                                     _folder2,
+                                                     _folder3
+                                                 };
+            string[] excludedDirs = new string[] {
+                                                     _tempDir,
+                                                 };
+
+            // the folder2 directory should now be matched
+            _scanner.Includes.Add("folder2/**");
+            _scanner.Excludes.Add("folder2/**/Foo1.txt");
+
+            // the folder2 directory should be included in the DirectoryNames 
+            // collection
+            CheckScan(includedFileNames, excludedFileNames, includedDirs, excludedDirs);
+        }
+
         /// <summary>Tests without wildcards.</summary>
         /// <remarks>
         ///   Try to match the files without wildcards.
@@ -429,7 +485,9 @@ namespace Tests.NAnt.Core {
 
         #region Private Instance Methods
 
-        /// <summary>Helper function for running scan tests.</summary>
+        /// <summary>
+        /// Helper function for running scan tests.
+        /// </summary>
         private void CheckScan(string[] includedFileNames, string[] excludedFileNames) {
             // create all the files
             foreach (string fileName in includedFileNames) {
@@ -449,6 +507,32 @@ namespace Tests.NAnt.Core {
             }
             foreach (string fileName in excludedFileNames) {
                 Assert.IsTrue(_scanner.FileNames.IndexOf(fileName) == -1, fileName + " included.");
+            }
+        }
+
+        /// <summary>
+        /// Helper function for running scan tests.
+        /// </summary>
+        private void CheckScan(string[] includedFiles, string[] excludedFiles, string[] includedDirs, string[] excludedDirs) {
+            // create all the directories
+            foreach (string dir in includedDirs) {
+                if (!Directory.Exists(dir)) {
+                    Directory.CreateDirectory(dir);
+                }
+            }
+            foreach (string dir in excludedDirs) {
+                if (!Directory.Exists(dir)) {
+                    Directory.CreateDirectory(dir);
+                }
+            }
+
+            CheckScan(includedFiles, excludedFiles);
+
+            foreach (string dir in includedDirs) {
+                Assert.IsTrue(_scanner.DirectoryNames.IndexOf(dir) != -1, dir + " not included.");
+            }
+            foreach (string dir in excludedDirs) {
+                Assert.IsTrue(_scanner.DirectoryNames.IndexOf(dir) == -1, dir + " included.");
             }
         }
 
