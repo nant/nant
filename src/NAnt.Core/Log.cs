@@ -88,7 +88,7 @@ namespace SourceForge.NAnt {
         }
     }
     
-    /// <summary>The standard logger that will suffice for any command line based nant runner.</summary>
+    /// <summary>The standard logger that will suffice for any command-line based nant runner.</summary>
     public class ConsoleLogger : LogListener {
         public override void Write(string message) {
             Console.Write(message);
