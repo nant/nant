@@ -102,8 +102,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        public void Test_Delete() {
-            string result;
+        public void Test_Delete() {            
 
             Assert.IsTrue(File.Exists(tempFile1), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
@@ -118,7 +117,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(tempDir3), "Dir should have been created:" + tempDir3);
             Assert.IsTrue(Directory.Exists(tempDir4), "Dir should have been created:" + tempDir4);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile6 ));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile6 ));
             
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
             Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
@@ -133,7 +132,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
             Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
             Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
@@ -148,7 +147,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
             Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile1 ));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile1 ));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
             Assert.IsTrue(File.Exists(tempFile2), "File should not have been deleted:" + tempFile2);
@@ -180,7 +179,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.b"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -218,7 +217,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.d"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -260,7 +259,7 @@ namespace Tests.NAnt.Core.Tasks {
             /// a directory containing files, will NOT cause that directory to be 
             /// removed.
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.e"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -285,7 +284,7 @@ namespace Tests.NAnt.Core.Tasks {
             /// pattern that does not match the directory itself, will not CAUSE
             /// that directory to be removed.
 
-            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.e/a.ee"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -309,7 +308,7 @@ namespace Tests.NAnt.Core.Tasks {
             /// Checks whether an include pattern that matches all files in an 
             /// empty directory, will NOT cause that directory to be removed.
 
-            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.e/**/*"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -334,7 +333,7 @@ namespace Tests.NAnt.Core.Tasks {
             /// empty directory and the directory itself, will cause that 
             /// directory to be removed.
 
-            result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xmlProjectTemplateFileSet, TempDirName, "a.e/**"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -372,7 +371,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName, "a.e/**"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -410,7 +409,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, tempDir1, "**/*"));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -444,7 +443,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
 
             // pattern should match both directories and files named "boo"
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName, "**/boo"));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should not have been deleted:" + tempFile1);
@@ -480,7 +479,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, tempDir1));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -514,7 +513,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, tempDir1));
 
             Assert.IsTrue(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -548,7 +547,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -582,7 +581,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -616,7 +615,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);
@@ -650,7 +649,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </delete>
                 </project>";
 
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 xmlProjectTemplateFileSet, TempDirName));
 
             Assert.IsFalse(File.Exists(tempFile1), "File should have been deleted:" + tempFile1);

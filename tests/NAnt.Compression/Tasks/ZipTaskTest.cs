@@ -45,7 +45,7 @@ namespace Tests.NAnt.Compression.Tasks {
 
             CreateTempDir("src");
             CreateTempFile("src\\temp1.file","hello");
-            string result = RunBuild(projectXML);
+            RunBuild(projectXML);
             Assert.IsTrue(File.Exists(Path.Combine(TempDirName,"test.zip")),
                 "Zip File not created.");
         }
@@ -59,9 +59,8 @@ namespace Tests.NAnt.Compression.Tasks {
             <project>
                 <zip zipfile='test.zip' />
             </project>";
-            //do the build
-            //yep
-            string result = RunBuild(projectXML);
+            //do the build            
+            RunBuild(projectXML);
             Assert.IsTrue(File.Exists(Path.Combine(TempDirName, "test.zip")),
                 "Zip File not created.");
         }

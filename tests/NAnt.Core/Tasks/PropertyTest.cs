@@ -128,7 +128,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <property name='foo2' value='I love ${foo}' dynamic='true' />
                         <echo message='I Love ${foo}'/>
                     </project>";
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
 
         [Test]
@@ -140,7 +140,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <property name='foo2' value='${foo}' dynamic='true' />
                         <echo message='${foo}' />
                     </project>";
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
 
         [Test]

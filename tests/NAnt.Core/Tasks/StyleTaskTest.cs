@@ -98,11 +98,10 @@ namespace Tests.NAnt.Core.Tasks {
                 <project>
                     <style style='{0}' in='{1}' out='{2}' />
                 </project>";
-
-            string result = null;
+            
             string outputFN = Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture,
+            RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
             Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
@@ -118,11 +117,10 @@ namespace Tests.NAnt.Core.Tasks {
                         </parameters>
                     </style>
                 </project>";
-
-            string result = null;
+            
             string outputFN = Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture,
+            RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
             Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
@@ -134,9 +132,8 @@ namespace Tests.NAnt.Core.Tasks {
                 <project>
                     <style style='{0}' in='{1}' extension='{2}' />
                 </project>";
-
-            string result = null;
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture,
+           
+            RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, _outputFileExtension));
 
             Assertion.Assert("Output file not created.",File.Exists(Path.Combine(TempDirName, _xmlSrcFileName + "." +
@@ -154,9 +151,8 @@ namespace Tests.NAnt.Core.Tasks {
                         </infiles>
                     </style>
                 </project>";
-
-            string result = null;
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture,
+            
+            RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _outputFileExtension,_xmlSrcFileNameFull,
                 _xmlSrcFile2NameFull ));
 
@@ -171,9 +167,8 @@ namespace Tests.NAnt.Core.Tasks {
                 <project>
                     <style style='{0}' />
                 </project>";
-
-            string result = null;
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture,
+            
+            RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileName));
         }
 
@@ -188,10 +183,8 @@ namespace Tests.NAnt.Core.Tasks {
                         </infiles>
                     </style>
                 </project>";
-
-            string result = null;
-            
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
+           
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
         }
 
         [Test]
@@ -201,12 +194,10 @@ namespace Tests.NAnt.Core.Tasks {
                 <project>
                     <style style='{0}' in='{1}' out='{2}' />
                 </project>";
-
-            string result = null;
+           
             
             File.Delete(_xslSrcFileNameFull);
-
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
         }
 
         [Test]
@@ -216,12 +207,10 @@ namespace Tests.NAnt.Core.Tasks {
                 <project>
                     <style style='{0}' in='{1}' out='{2}' />
                 </project>";
-
-            string result = null;
-            
+                       
             File.Delete(_xmlSrcFileNameFull);
 
-            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
         }
     }
 }

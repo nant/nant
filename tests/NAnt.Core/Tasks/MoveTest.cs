@@ -85,7 +85,7 @@ namespace Tests.NAnt.Core.Tasks {
             // ensure source file is more recent than destination file
             File.SetLastWriteTime(_tempFileSrc, DateTime.Now.AddDays(1));
             try {
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
                 // on non-windows platforms overwriting a file is permitted without a warning or exception
                 if (PlatformHelper.IsWin32) {

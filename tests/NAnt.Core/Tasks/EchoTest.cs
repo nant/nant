@@ -104,7 +104,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <echo message='Go Away!' level='Invalid' />
                     </project>";
-            string result = RunBuild(_xml, Level.Error);
+            RunBuild(_xml, Level.Error);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <echo message='Go Away!' level='Debug'>Go Away!</echo>
                     </project>";
-            string result = RunBuild(_xml, Level.Info);
+            RunBuild(_xml, Level.Info);
         }
     }
 }

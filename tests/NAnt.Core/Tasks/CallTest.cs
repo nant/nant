@@ -98,7 +98,7 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
 
             // run the build
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
     }
 }

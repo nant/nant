@@ -56,7 +56,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <regex pattern=""(?'digit'\d)$"" input='This is a test sentence' />
                         <echo message='${digit}'/>
                     </project>";
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
     }
 }

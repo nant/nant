@@ -123,11 +123,10 @@ namespace Tests.NAnt.Core.Tasks {
         /// Copy only the directory given.
         /// </summary>
         [Test]
-        public void Test_Copy_Only_Directory() {
-            string results;
+        public void Test_Copy_Only_Directory() {            
             string dest = CreateTempDir("a.99");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1, string.Empty));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1, string.Empty));
 
             Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should not have been created:" + tempFile1);
             Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should not have been created:" + tempFile2);
@@ -167,11 +166,10 @@ namespace Tests.NAnt.Core.Tasks {
         /// ensure it exists.
         /// </summary>
         [Test]
-        public void Test_Copy_Structure() {
-            string results;
+        public void Test_Copy_Structure() {           
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", string.Empty));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", string.Empty));
 
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should have been created:" + tempFile2);
@@ -193,11 +191,10 @@ namespace Tests.NAnt.Core.Tasks {
         /// ensure it exists.
         /// </summary>
         [Test]
-        public void Test_Copy_Structure_IncludeEmptyDirs() {
-            string results;
+        public void Test_Copy_Structure_IncludeEmptyDirs() {            
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='true' "));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='true' "));
 
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should have been created:" + tempFile2);
@@ -219,11 +216,10 @@ namespace Tests.NAnt.Core.Tasks {
         /// ensure it exists. Do NOT copy empty dirs.
         /// </summary>
         [Test]
-        public void Test_Copy_Structure_ExcludeEmptyDirs() {
-            string results;
+        public void Test_Copy_Structure_ExcludeEmptyDirs() {            
             string dest = CreateTempDir("a.xx");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='false' "));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", " includeemptydirs='false' "));
 
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should have been created:" + tempFile2);
@@ -241,11 +237,10 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        public void Test_Copy_Structure_Overwrite() {
-            string results;
+        public void Test_Copy_Structure_Overwrite() {           
             string dest = CreateTempDir("a.c");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
 
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should have been created:" + tempFile2);
@@ -273,7 +268,7 @@ namespace Tests.NAnt.Core.Tasks {
             File.SetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5), FileAttributes.ReadOnly);
 
             // run it again to overwrite
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
 
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should have been created:" + tempFile1);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should have been created:" + tempFile2);
@@ -298,11 +293,10 @@ namespace Tests.NAnt.Core.Tasks {
         /// are not created and up-to-date checking compares the flattened files.
         /// </summary>
         [Test]
-        public void Test_Copy_Files_Flatten() {
-            string results;
+        public void Test_Copy_Files_Flatten() {            
             string dest = CreateTempDir("a.f");
             
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
 
             Assert.IsTrue(File.Exists(GetPath(dest, tempFile1)), "File should have been created:" + tempFile1);
@@ -319,7 +313,7 @@ namespace Tests.NAnt.Core.Tasks {
             File.SetAttributes(GetPath(dest, tempFile1), FileAttributes.ReadOnly);
 
             // run build again
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
 
             // if up-to-date check works, build should not have failed and 
             // read-only file should still be read-only
@@ -366,28 +360,25 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        public void Test_Copy_Files_No_Overwrite() {
-            string results;
+        public void Test_Copy_Files_No_Overwrite() {            
 
             File.Delete(tempFile2);
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
         }
 
         [Test]
-        public void Test_Copy_Files_Overwrite() {
-            string results;
+        public void Test_Copy_Files_Overwrite() {            
 
-            results = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
         }
 
         [Test]
-        public void Test_Copy_Files_Overwrite_Readonly() {
-            string results;
+        public void Test_Copy_Files_Overwrite_Readonly() {            
 
             File.SetAttributes(tempFile2, FileAttributes.ReadOnly);
-            results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
         }
 
@@ -402,7 +393,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Structure_Directories() {
-            string results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, string.Empty));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, string.Empty));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "destination", "source","test"));
@@ -419,7 +410,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Structure_Directories_ExcludeEmptyDirs() {
-            string results = RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, " includeemptydirs='false' "));
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, " includeemptydirs='false' "));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
             Assert.IsFalse(Directory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"));

@@ -62,7 +62,7 @@ namespace Tests.NAnt.Core.Tasks {
             </project>";
 
            try {
-              string result = RunBuild(xml);
+               RunBuild(xml);
            } catch(BuildException e) {
               Assert.Fail("Duplicate sysinfo tasks should've worked" + Environment.NewLine + e.ToString());
            }

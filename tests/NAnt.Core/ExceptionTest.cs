@@ -164,7 +164,7 @@ namespace Tests.NAnt.Core {
 
         private void CheckException(Assembly assembly, Type t) {
             // check to see that the exception is correctly named, with "Exception" at the end
-            bool validName = t.Name.EndsWith("Exception");
+            t.Name.EndsWith("Exception");
             Assert.IsTrue(t.Name.EndsWith("Exception"), t.Name + " class name must end with Exception.");
 
             // Does the exception have the 3 standard constructors?

@@ -364,12 +364,7 @@ namespace Tests.NAnt.Console {
                 string.Format("xmlns{2}{1}=\"{0}\"",nantNamespace,prefix,colon);
             // write build file to temp file
             string buildFileName = CreateTempFile("buildfile.xml", string.Format(buildFileContents,namespaceDecl,prefix,colon));
-            Assert.IsTrue(File.Exists(buildFileName), buildFileName + " does not exist.");
-
-            string[] args = {
-                "-projecthelp",
-                String.Format("-buildfile:{0}", buildFileName),
-            };
+            Assert.IsTrue(File.Exists(buildFileName), buildFileName + " does not exist.");         
 
             X.XmlDocument document = new Project(buildFileName,Level.Warning,0).Document;
             Assert.AreEqual(nantNamespace,document.DocumentElement.NamespaceURI);

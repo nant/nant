@@ -99,7 +99,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <project>
                         <fail message='Death Sucks!'>Death Sucks!</fail>
                     </project>";
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
     }
 }

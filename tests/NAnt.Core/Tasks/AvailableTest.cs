@@ -100,7 +100,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
             // unix accepts most characters ( except / ) so this test won't fail there.
             if (! PlatformHelper.IsUnix ) {
-                string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                RunBuild(string.Format(CultureInfo.InvariantCulture, 
                     xml, AvailableTask.ResourceType.File.ToString(CultureInfo.InvariantCulture), 
                     "###-?", "${file.exists}"));
             } else {
@@ -151,7 +151,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
             // unix accepts most characters ( except / ) so this test won't fail there.
             if (! PlatformHelper.IsUnix ) {
-                string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                RunBuild(string.Format(CultureInfo.InvariantCulture, 
                     xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), 
                     "###-?", "${dir.exists}"));
             }   else {
@@ -168,7 +168,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <echo message='file.exists={2}'/>
                 </project>";
             
-            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+            RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 xml, "InvalidResourceType", @"\\#(){/}.dddd", "${file.exists}"));
         }
 

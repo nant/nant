@@ -64,12 +64,11 @@ namespace Tests.NAnt.Core.Tasks {
             }
             string tempFileName = Path.Combine(TempDirName, "bigfile.txt");
             TempFile.Create(tempFileName);
-
-            string result = "";
+			            
             if (PlatformHelper.IsWin32) {
-                result = RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type &quot;" + tempFileName + "&quot;'", ""));
+                RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type &quot;" + tempFileName + "&quot;'", ""));
             } else {
-                result = RunBuild(FormatBuildFile("program='cat' commandline=' &quot;" + tempFileName + "&quot;'", ""));
+                RunBuild(FormatBuildFile("program='cat' commandline=' &quot;" + tempFileName + "&quot;'", ""));
             }
             // if we get here then we passed, ie, no hang = bug fixed
         }

@@ -154,20 +154,20 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(TestBuildException))]
         public void Test_MissingRequiredAttribute() {
             // required attribute named 'required' is missing
-            string result = RunBuild(FormatBuildFile("requirednotempty=\"ok\""));
+            RunBuild(FormatBuildFile("requirednotempty=\"ok\""));
         }
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_EmptyRequiredAttribute() {
             // requirednotempty attribute does not allow empty value
-            string result = RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"\""));
+            RunBuild(FormatBuildFile("required=\"ok\" requirednotempty=\"\""));
         }
 
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_UnknownAttribute() {
-            string result = RunBuild(FormatBuildFile("FaIL='false'"));
+            RunBuild(FormatBuildFile("FaIL='false'"));
         }
 
         #endregion Public Instance Methods

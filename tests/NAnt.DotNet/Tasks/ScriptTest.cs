@@ -125,7 +125,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </script>
             </project>";
 
-            string result = RunBuild(_xml);
+            RunBuild(_xml);
         }
     }
 }

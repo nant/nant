@@ -47,7 +47,7 @@ namespace Tests.NAnt.Core.Tasks {
                         <loadtasks assembly='foo.dll'  />
                     </project>";
             try {                
-                string result = RunBuild(_xml);
+                RunBuild(_xml);
                 Assert.Fail("Invalid assembly path did not generate an exception");
             } catch (TestBuildException be) { 
                 if( be.InnerException.Message.IndexOf("'does not exist") != -1) {
@@ -65,7 +65,7 @@ namespace Tests.NAnt.Core.Tasks {
                 <loadtasks  path ='c:\cvs\NAntContrib\build' assembly='foo.dll'  />
             </project>";
             try {                
-                string result = RunBuild(_xml);
+                RunBuild(_xml);
                 Assert.Fail("Invalid attribute combination did not generate an exception");
             } catch (TestBuildException e) {
                 if (!(e.InnerException is BuildException))

@@ -41,8 +41,7 @@ namespace Tests.NAnt.Core {
             foreach (string resName in Assembly.GetExecutingAssembly().GetManifestResourceNames()){
                 if (resName.StartsWith("XML:.Build.Files")) {
                     TextReader file = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(resName));
-                    bool success = false;
-                    string exception = null;
+                    bool success = false;                    
                     string stuff = null;
 
                     try {
@@ -52,8 +51,7 @@ namespace Tests.NAnt.Core {
                         stuff = BuildTestBase.ExecuteProject(p);
                         success = true;
                     }
-                    catch(Exception e){
-                        exception = e.ToString();
+                    catch(Exception){                        
                     }
                     finally {
                         if (resName.IndexOf(".Invalid.") > 0){
