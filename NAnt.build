@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <project name="NAnt" default="build" basedir=".">
-	<property name="debug" value="true"/>
+	<property name="debug" value="false"/>
 
 	<target name="clean">
 		<delete dir="build" recursive="true"/>
