@@ -199,7 +199,7 @@ namespace NAnt.VSNet.Tasks {
         /// </summary>
         [TaskAttribute("outputdir", Required=false)]
         public string OutputDir {
-            get { return _outputDir; }
+            get { return (_outputDir != null) ? Project.GetFullPath(_outputDir) : null; }
             set { _outputDir = StringUtils.ConvertEmptyToNull(value); }
         }
 
