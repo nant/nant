@@ -29,10 +29,8 @@ namespace NAnt.Core.Tasks {
     /// Checks if a resource is available at runtime.
     /// </summary>
     /// <remarks>
-    ///   <para>
-    ///   The specified property is set to <c>true</c> if the requested resource is 
-    ///   available at runtime, and <c>false</c> if the resource is not available.
-    ///   </para> 
+    /// The specified property is set to <c>true</c> if the requested resource 
+    /// is available at runtime, and <c>false</c> if the resource is not available.
     /// </remarks>
     /// <example>
     ///   <para>
@@ -45,9 +43,9 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Sets the <c>build.dir.present</c> property to <c>true</c> if the directory 
-    ///   is available on the filesystem and <c>false</c> if the directory is not
-    ///   available.
+    ///   Sets the <c>build.dir.present</c> property to <c>true</c> if the 
+    ///   directory is available on the filesystem and <c>false</c> if the 
+    ///   directory is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -55,23 +53,50 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     ///   <para>
-    ///   Sets the <c>mono-0.21.framework.present</c> property to <c>true</c> if the 
-    ///   Mono 0.21 framework is available on the current system and <c>false</c> if the 
-    ///   framework is not.
+    ///   Sets the <c>mono-0.21.framework.present</c> property to <c>true</c> 
+    ///   if the Mono 0.21 framework is available on the current system and 
+    ///   <c>false</c> if the framework is not available.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <available type="Framework" resource="mono-0.21" property="mono-0.21.framework.present" />
     ///     ]]>
     ///   </code>
+    ///   <para>
+    ///   Sets the <c>net-1.1.frameworksdk.present</c> property to <c>true</c> 
+    ///   if the .NET 1.1 Framework SDK is available on the current system and 
+    ///   <c>false</c> if the SDK is not available.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <available type="FrameworkSDK" resource="net-1.1" property="net-1.1.frameworksdk.present" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("available")]
     public class AvailableTask : Task {
-
+        /// <summary>
+        /// Defines the possible resource checks.
+        /// </summary>
         public enum ResourceType : int {
+            /// <summary>
+            /// Determines whether a given file exists.
+            /// </summary>
             File = 1,
+
+            /// <summary>
+            /// Determines whether a given directory exists.
+            /// </summary>
             Directory = 2,
+
+            /// <summary>
+            /// Determines whether a given framework is available.
+            /// </summary>
             Framework = 3,
+
+            /// <summary>
+            /// Determines whether a given SDK is available.
+            /// </summary>
             FrameworkSDK = 4
         }
 
