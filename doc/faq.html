@@ -28,7 +28,7 @@
                 </td>
             </tr>
         </table>
-        <h3>Contents</h3>
+        <h2>Contents</h2>
         <div style="margin-left: 20px;">
             <a href="#building">Building NAnt</a>
             <div style="margin-left: 20px;">
@@ -62,15 +62,14 @@
                 </div>
             </div>
         </div>
-        <h3>
-            <a id="building" />Building NAnt</h3>
+        <h2><a id="building" />Building NAnt</h2>
         <div style="margin-left: 20px;">
-            <h4 style="margin-left: 20px;">
-                <a id="building-mono" />Mono</h4>
+            <h3><a id="building-mono" />Mono</h3>
             <div style="margin-left: 20px;">
-                <h5>
+                <h4>
                     <a id="building-mono-1" />How can I avoid getting a NullReferenceException when 
-                    building NAnt on Mono?</h5>
+                    building NAnt on Mono?
+                </h4>
                 <div style="margin-left: 20px;">
                     <p>
                         There are currently some regressions in Mono CVS (<a href="http://bugzilla.ximian.com/show_bug.cgi?id=55996">bug 
@@ -89,11 +88,13 @@ $ mono bin/NAnt.exe clean build
                     </pre>
                 </div>
             </div>
-            <h4 style="margin-left: 20px;">
-                <a id="building-vsnet" />Visual Studio.NET</h4>
+            <h3>
+                <a id="building-vsnet" />Visual Studio.NET
+            </h3>
             <div style="margin-left: 20px;">
-                <h5>
-                    <a id="building-vsnet-1" />How can I debug NAnt using Visual Studio.NET?</h5>
+                <h4>
+                    <a id="building-vsnet-1" />How can I debug NAnt using Visual Studio.NET?
+                </h4>
                 <div style="margin-left: 20px;">
                     <p>
                         NAnt cannot be built using VS.NET, as VS.NET (prior to VS.NET 2005) is unable 
@@ -119,21 +120,23 @@ $ mono bin/NAnt.exe clean build
                 </div>
             </div>
         </div>
-        <h3>
-            <a id="general" />General</h3>
+        <h2><a id="general" />General</h2>
         <div style="margin-left: 20px;">
-            <h4 style="margin-left: 20px;">
-                <a id="framework-support" />Framework support</h4>
+            <h3>
+                <a id="framework-support" />Framework support
+            </h3>
             <div style="margin-left: 20px;">
-                <h5>
-                    <a id="default-framework" />What framework does NAnt target by default?</h5>
+                <h4>
+                    <a id="default-framework" />What framework does NAnt target by default?
+                </h4>
                 <div style="margin-left: 20px;">
                     <p>
                         As from NAnt 0.85, NAnt by default targets the framework on which its running.
                     </p>
                 </div>
-                <h5>
-                    <a id="change-targetframework" />How do I change the target framework?</h5>
+                <h4>
+                    <a id="change-targetframework" />How do I change the target framework?
+                </h4>
                 <div style="margin-left: 20px;">
                     <p>
                         NAnt supports three ways for changing the target framework:
@@ -171,37 +174,38 @@ NAnt.exe -t:net-1.0
                 </div>
             </div>
         </div>
-        <h3>
+        <h2>
             <a id="third-party" />Third-party tools
-        </h3>
+        </h2>
         <div style="margin-left: 20px;">
-            <h4 style="margin-left: 20px;">
+            <h3>
                 <a id="third-party-vsnet" />Visual Studio.NET
-            </h4>
+            </h3>
             <div style="margin-left: 20px;">
-                <h5>
-                    <a id="build-as-xml" />How do I get Visual Studio.NET to recognize a .build file
-                        as an XML file?
-                </h5>
+                <h4>
+                    <a id="build-as-xml" />How do I get Visual Studio.NET to recognize a .build 
+                    file as an XML file?
+                </h4>
                 <div style="margin-left: 20px;">
                     <ol>
                         <li>
-                            In "Solution Explorer", right-click a .build file and choose "Open With". 
+                            In "Solution Explorer", right-click a .build file and choose "Open With".
                         </li>
                         <li>
-                            In the "Open With" dialog, select "HTML/XML Editor" and click the "Set as Default" button.
+                            In the "Open With" dialog, select "HTML/XML Editor" and click the "Set as 
+                            Default" button.
                         </li>
                     </p>
                 </div>
-                <h5>
+                <h4>
                     <a id="enable-intellisense" />How do I enable intellisense for .build files?
-                </h5>
+                </h4>
                 <div style="margin-left: 20px;">
                     <p>
-                            To get full Intellisense, you have to copy the schema for your version of NAnt 
-                            from the schema folder in the NAnt distribution to the 
-                            "Common7\Packages\schemas\xml" subdirectory of your Visual Studio.NET installation 
-                            (eg. C:\Program Files\Microsoft Visual Studio .NET 2003).
+                        To get full Intellisense, you have to copy the schema for your version of NAnt 
+                        from the schema folder in the NAnt distribution to the 
+                        "Common7\Packages\schemas\xml" subdirectory of your Visual Studio.NET 
+                        installation (eg. C:\Program Files\Microsoft Visual Studio .NET 2003).
                     </p>
                 </div>
             </div>
