@@ -540,6 +540,176 @@ namespace Tests.NAnt.DotNet.Tasks {
                 cscTask.GetManifestResourceName(resources, resourceFile));
         }
 
+
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_DynamicPrefix() {
+            CscTask cscTask = new CscTask();
+            cscTask.Project = CreateEmptyProject();
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_Prefix_With_DynamicPrefix() {
+            CscTask cscTask = new CscTask();
+            cscTask.Project = CreateEmptyProject();
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.en-US.dunno.en-US.resources", cscTask.GetManifestResourceName(
+                resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_Prefix() {
+            CscTask cscTask = new CscTask();
+            cscTask.Project = CreateEmptyProject();
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = false;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                cscTask.GetManifestResourceName(resources, resourceFile));
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
