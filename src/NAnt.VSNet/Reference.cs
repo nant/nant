@@ -150,10 +150,18 @@ namespace NAnt.VSNet {
                         _baseDirectory = fiRef.Directory;
                         _referenceFile = fiRef.FullName;
                         _referenceTimeStamp = GetTimestamp(_referenceFile);
-                    }
-                    _copyLocal = _privateSpecified ? _isPrivate : true;
-                }
 
+                        if (!_privateSpecified) {
+                            // assembly should only be copied locally if its not
+                            // installed in the GAC
+                            _copyLocal = !IsAssemblyInGac(_referenceFile);
+                        } else {
+                            _copyLocal = _isPrivate;
+                        }
+                    } else {
+                        _copyLocal = _privateSpecified ? _isPrivate : true;
+                    }
+                }
             }
         }
 
@@ -302,22 +310,54 @@ namespace NAnt.VSNet {
                         "Couldn't find referenced project '{0}' output file, '{1}'.",
                         Project.Name, _referenceFile), Location.UnknownLocation);
                 }
+            } else {
+                _referenceFile = fi.FullName;
             }
 
-            // get a list of the references in the output directory
-            foreach (string referenceFile in GetAllReferencedModules(_referenceFile)) {
-                // now for each reference, get the related files (.xml, .pdf, etc...)
-                string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
+            string[] referencedModules = GetAllReferencedModules(_referenceFile);
 
-                foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
-                    // ignore any other the garbage files created
-                    string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
-                    if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
-                        continue;
+            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+
+            try {
+                ReferencesResolver referencesResolver =
+                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                    typeof(ReferencesResolver).FullName).Unwrap());
+
+                // get a list of the references in the output directory
+                foreach (string referenceFile in referencedModules) {
+                    // skip module if module is not the assembly referenced by 
+                    // the project and is installed in GAC
+                    if (string.Compare(referenceFile, _referenceFile, true, CultureInfo.InvariantCulture) != 0) {
+                        // skip referenced module if the assembly referenced by
+                        // the project is a system reference or the module itself
+                        // is installed in the GAC
+                        if (IsSystem || referencesResolver.IsAssemblyInGac(referenceFile)) {
+                            continue;
+                        }
                     }
 
-                    referencedFiles.Add(new FileInfo(relatedFile).Name);
+                    // now for each reference, get the related files (.xml, .pdf, etc...)
+                    string relatedFiles = Path.GetFileName(Path.ChangeExtension(referenceFile, ".*"));
+
+                    foreach (string relatedFile in Directory.GetFiles(fi.DirectoryName, relatedFiles)) {
+                        // ignore files that do not have same base filename as reference file
+                        // eg. when reference file is MS.Runtime.dll, we do not want files 
+                        //     named MS.Runtime.Interop.dll
+                        if (string.Compare(Path.GetFileNameWithoutExtension(relatedFile), Path.GetFileNameWithoutExtension(referenceFile), true, CultureInfo.InvariantCulture) != 0) {
+                            continue;
+                        }
+
+                        // ignore any other the garbage files created
+                        string fileExtension = Path.GetExtension(relatedFile).ToLower(CultureInfo.InvariantCulture);
+                        if (fileExtension != ".dll" && fileExtension != ".xml" && fileExtension != ".pdb") {
+                            continue;
+                        }
+
+                        referencedFiles.Add(new FileInfo(relatedFile).Name);
+                    }
                 }
+            } finally {
+                AppDomain.Unload(temporaryDomain);
             }
 
             return referencedFiles;
@@ -404,6 +444,14 @@ namespace NAnt.VSNet {
                     _referenceFile = fiRef.FullName;
                     _baseDirectory = fiRef.Directory;
                     _referenceTimeStamp = GetTimestamp(_referenceFile);
+
+                    if (!_privateSpecified) {
+                        // assembly should only be copied locally if its not
+                        // installed in the GAC
+                        _copyLocal = !IsAssemblyInGac(_referenceFile);
+                    } else {
+                        _copyLocal = _isPrivate;
+                    }
                     return true;
                 }
             }
@@ -437,18 +485,33 @@ namespace NAnt.VSNet {
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(tlbVersionKey)) {
                 if (registryKey != null && registryKey.GetValue("PrimaryInteropAssemblyName") != null) {
                     string primaryInteropAssemblyName = (string) registryKey.GetValue("PrimaryInteropAssemblyName");
+
+                    // construct separate appdomain used to obtain information
+                    // on primary interop assembly
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+
                     try {
-                        // TO-DO : assembly should be loaded into separate appdomain
-                        Assembly asmRef = Assembly.Load(primaryInteropAssemblyName);
-                        _referenceFile = new Uri(asmRef.CodeBase).LocalPath;
+                        ReferencesResolver referencesResolver =
+                            ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                            typeof(ReferencesResolver).FullName).Unwrap());
+                        // get filename of primary interop assembly
+                        _referenceFile = referencesResolver.GetAssemblyFileName(
+                            primaryInteropAssemblyName);
+                        // determine base directory of primary interop assembly
                         _baseDirectory = new DirectoryInfo(Path.GetDirectoryName(_referenceFile));
+                        // primary interop assembly is located in GAC, so do not
+                        // copy it locally unless explicitly specified in project
+                        // file
                         _copyLocal = _privateSpecified ? _isPrivate : false;
+                        // get timestamp of primary interop assembly
                         _referenceTimeStamp = GetTimestamp(_referenceFile);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             "Primary Interop Assembly '{0}' could not be loaded.", 
                             primaryInteropAssemblyName), Location.UnknownLocation, 
                             ex);
+                    } finally {
+                        AppDomain.Unload(temporaryDomain);
                     }
 
                     // if the import tool is aximp, we'll use the primary interop 
@@ -503,6 +566,35 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Determines whether the specified assembly is installed in the Global
+        /// Assembly Cache.
+        /// </summary>
+        /// <param name="assemblyFile">The assembly file to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
+        /// installed in the Global Assembly Cache; otherwise, 
+        /// <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// To determine whether the specified assembly is installed in the 
+        /// Global Assembly Cache, the assembly is loaded into a separate
+        /// <see cref="AppDomain" />.
+        /// </remarks>
+        private bool IsAssemblyInGac(string assemblyFile) {
+            AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain");
+
+            try {
+                ReferencesResolver referencesResolver =
+                    ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                    typeof(ReferencesResolver).FullName).Unwrap());
+
+                return referencesResolver.IsAssemblyInGac(assemblyFile);
+            } finally {
+                AppDomain.Unload(temporaryDomain);
+            }
+        }
+
         #endregion Private Instance Methods
 
         #region Private Instance Fields
@@ -544,6 +636,38 @@ namespace NAnt.VSNet {
                     unresolvedReferences.Add(fullPathToReferencedAssembly, null);
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines whether the specified assembly is installed in the Global
+        /// Assembly Cache.
+        /// </summary>
+        /// <param name="assemblyFile">The assembly file to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
+        /// installed in the Global Assembly Cache; otherwise, 
+        /// <see langword="false" />.
+        /// </returns>
+        public bool IsAssemblyInGac(string assemblyFile) {
+            try {
+                AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                Assembly assembly = Assembly.Load(assemblyName);
+                return assembly.GlobalAssemblyCache;
+            } catch {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the file name of the assembly with the given assembly name.
+        /// </summary>
+        /// <param name="assemblyName">The assembly name of the assembly of which the file name should be returned.</param>
+        /// <returns>
+        /// The file name of the assembly with the given assembly name.
+        /// </returns>
+        public string GetAssemblyFileName(string assemblyName) {
+            Assembly assembly = Assembly.Load(assemblyName);
+            return (new Uri(assembly.CodeBase)).LocalPath;
         }
     }
 }
