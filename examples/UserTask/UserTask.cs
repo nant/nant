@@ -1,6 +1,7 @@
 namespace SourceForge.NAnt.SampleTask {
 
     using SourceForge.NAnt;
+    using SourceForge.NAnt.Attributes;
 
     [TaskName("usertask")]
     public class TestTask : Task {

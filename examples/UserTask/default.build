@@ -9,7 +9,7 @@
 			<includes name="UserTask.cs"/>
 		</sources>
 		<references basedir="..\..\build">
-			<includes name="NAnt.exe"/>
+			<includes name="NAnt.Core.dll"/>
 		</references>
 	</csc>
 
