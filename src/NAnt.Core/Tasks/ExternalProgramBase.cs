@@ -51,25 +51,37 @@ namespace SourceForge.NAnt.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets the application to start.
+        /// Gets the filename of the external program to start.
         /// </summary>
+        /// <value>The filename of the external program.</value>
         public abstract string ProgramFileName { get; }
 
         /// <summary>
-        /// Gets the command line arguments for the application.
+        /// Gets the command-line arguments for the external program.
         /// </summary>
+        /// <value>
+        /// The command-line arguments for the external program.
+        /// </value>
         public abstract string ProgramArguments { get; }
 
         /// <summary>
-        /// The file to which the standard output will be redirected.
+        /// Gets the file to which the standard output should be redirected.
         /// </summary>
+        /// <value>
+        /// The file to which the standard output should be redirected.
+        /// </value>
         public virtual string OutputFile { 
             get { return null; } 
         }
         
         /// <summary>
-        /// true if the output file is to be appended to.
+        /// Gets a value indicating whether output will be appended to the 
+        /// <see cref="OutputFile" />.
         /// </summary>
+        /// <value>
+        /// <c>true</c> if output should be appended to the <see cref="OutputFile" />; 
+        /// otherwise, <c>false</c>.
+        /// </value>
         public virtual bool OutputAppend { 
             get { return false; } 
         }
@@ -77,6 +89,9 @@ namespace SourceForge.NAnt.Tasks {
         /// <summary>
         /// Gets the working directory for the application.
         /// </summary>
+        /// <value>
+        /// The working directory for the application.
+        /// </value>
         public virtual string BaseDirectory { 
             get {
                 if (Project != null) {
@@ -89,35 +104,12 @@ namespace SourceForge.NAnt.Tasks {
         }
 
         /// <summary>
-        /// Defaults to task name but can be overridden by derived classes.
-        /// </summary>
-        public virtual string ExeName {
-            get { return Name; }
-        }
-        
-        /// <summary>
-        /// Gets a value indicating whether the external program should be executed
-        /// using a runtime engine, if configured.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// The default implementation will always execute external programs without
-        /// using a runtime engine.
-        /// </para>
-        /// <para>
-        /// Derived classes should override this property to change this behaviour.
-        /// </para>
-        /// </remarks>
-        protected virtual bool UsesRuntimeEngine {
-            get { return false; }
-        }
-        /// <summary>
         /// The maximum amount of time the application is allowed to execute, 
         /// expressed in milliseconds.  Defaults to no time-out.
         /// </summary>
         public virtual int TimeOut { 
             get { return Int32.MaxValue; } 
-            set{} 
+            set {} 
         }
 
         [BuildElementArray("arg")]
@@ -144,8 +136,43 @@ namespace SourceForge.NAnt.Tasks {
         #region Protected Instance Properties
 
         /// <summary>
-        /// Get the command line arguments for the application.
+        /// Gets the name of executable that should be used to launch the
+        /// external program.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The default implementation will return the name of the task as 
+        /// <see cref="ExeName" />.
+        /// </para>
+        /// <para>
+        /// Derived classes should override this property to change this behaviour.
+        /// </para>
+        /// </remarks>
+        protected virtual string ExeName {
+            get { return Name; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the external program should be executed
+        /// using a runtime engine, if configured.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The default implementation will always execute external programs without
+        /// using a runtime engine.
+        /// </para>
+        /// <para>
+        /// Derived classes should override this property to change this behaviour.
+        /// </para>
+        /// </remarks>
+        protected virtual bool UsesRuntimeEngine {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets the command-line arguments for the application.
+        /// </summary>
+        /// <value>The command-line arguments for the external program.</value>
         protected StringCollection Args {
             get { return _args; }
         }
@@ -205,10 +232,10 @@ namespace SourceForge.NAnt.Tasks {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the command line arguments, separated by spaces.
+        /// Gets the command-line arguments, separated by spaces.
         /// </summary>
         public string GetCommandLine() {
-            // append any nested <arg> arguments to command line
+            // append any nested <arg> arguments to the command line
             StringBuilder arguments = new StringBuilder(ProgramArguments);
             foreach (string arg in Args) {
                 arguments.Append(' ');
@@ -291,7 +318,7 @@ namespace SourceForge.NAnt.Tasks {
                     //do not print LogPrefix, just pad that length...
                     Log.WriteLine(new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
-                    if (OutputFile != null && OutputFile != "") {
+                    if (OutputFile != null && OutputFile.Length != 0) {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
                         writer.Write(strLogContents);
                         writer.Close();
@@ -324,7 +351,10 @@ namespace SourceForge.NAnt.Tasks {
 
         #endregion Private Instance Methods
     }
-    
+
+    /// <summary>
+    /// Represents a command-line argument.
+    /// </summary>
     public class ArgElement : Element {
         #region Private Instance Fields
 
