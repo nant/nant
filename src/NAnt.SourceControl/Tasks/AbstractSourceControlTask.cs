@@ -191,7 +191,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The password for logging in to the repository.
         /// </value>
         [TaskAttribute("password")]
-        public string Password {
+        public virtual string Password {
             get { return _password;}
             set { _password = StringUtils.ConvertEmptyToNull(value); }
         }

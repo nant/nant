@@ -388,7 +388,7 @@ namespace NAnt.SourceControl.Tasks {
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
 				if (IsModuleNeeded) {
-					this.Arguments.Add(new Argument("-d" + this.Root));
+					this.Arguments.Add(new Argument(String.Format("-d{0}", this.Root)));
 				}
 				this.AppendGlobalOptions();
 				this.Arguments.Add(new Argument(this.CommandName));
