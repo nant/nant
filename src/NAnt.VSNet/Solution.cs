@@ -535,14 +535,24 @@ namespace NAnt.VSNet {
                 // determine whether project is on case-sensitive filesystem,
                 bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
 
+                // indicates whether the project should be skipped (excluded)
+                bool skipProject = false;
+
                 // check whether project should be excluded from build
                 foreach (string excludedProjectFile in excludes.FileNames) {
                     if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
                         Log(Level.Verbose, LogPrefix + "Excluding project '{0}'.", 
                             projectPath);
                         // do not load project
-                        return;
+                        skipProject = true;
+                        // we have a match, so quit looking
+                        break;
                     }
+                }
+
+                if (skipProject) {
+                    // project was excluded, move on to next project
+                    continue;
                 }
 
                 Log(Level.Verbose, LogPrefix + "Loading project '{0}'.", projectPath);
