@@ -140,7 +140,7 @@ reefer.maddness",
         public void Test_Includes_List() {
             FileSet.IncludesListElement elem = new FileSet.IncludesListElement();
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml( "<includesList name=\"" + _fileSet.BaseDirectory + "\\include.list\"/>" );
+            doc.LoadXml( "<includesList name=\"" + Path.Combine(_fileSet.BaseDirectory.FullName, "include.list") + "\" />" );
             elem.Project = CreateFilebasedProject("<project/>" );
             elem.Initialize( doc.DocumentElement );
             _fileSet.SetIncludesList = new FileSet.IncludesListElement[] { elem };
