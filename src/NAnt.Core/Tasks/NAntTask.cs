@@ -33,6 +33,25 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Runs NAnt on a supplied build file, or a set of build files.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   By default, all the properties of the current project will be available
+    ///   in the new project. Alternatively, you can set <see cref="InheritAll" />
+    ///   to <see langword="false" /> to not copy any properties to the new 
+    ///   project.
+    ///   </para>
+    ///   <para>
+    ///   You can also set properties in the new project from the old project by 
+    ///   using nested property tags. These properties are always passed to the 
+    ///   new project regardless of the setting of <see cref="InheritAll" />.
+    ///   This allows you to parameterize your subprojects.
+    ///   </para>
+    ///   <para>
+    ///   References to data types can also be passed to the new project, but by
+    ///   default they are not. If you set the <see cref="InheritRefs" /> to 
+    ///   <see langword="true" />, all references will be copied.
+    ///   </para>
+    /// </remarks>
     /// <example>
     ///   <para>
     ///   Build a project located in a different directory if the <c>debug</c> 
@@ -83,6 +102,7 @@ namespace NAnt.Core.Tasks {
         private FileSet _buildFiles = new FileSet();
         private string _target;
         private bool _inheritAll = true;
+        private bool _inheritRefs = false;
         private ArrayList _overrideProperties = new ArrayList();
 
         #endregion Private Instance Fields
@@ -121,12 +141,24 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies whether current property values should be inherited by 
-        /// the executed project. The default is <see langword="false" />.
+        /// the executed project. The default is <see langword="true" />.
         /// </summary>
-        [TaskAttribute("inheritall"), BooleanValidator()]
+        [TaskAttribute("inheritall")]
+        [BooleanValidator()]
         public bool InheritAll {
             get { return _inheritAll; }
             set { _inheritAll = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether all references will be copied to the new project. 
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("inheritrefs")]
+        [BooleanValidator()]
+        public bool InheritRefs {
+            get { return _inheritRefs; }
+            set { _inheritRefs = value; }
         }
 
         /// <summary>
@@ -222,8 +254,10 @@ namespace NAnt.Core.Tasks {
                 property.Execute();
             }
 
-            // pass datatypes thru to the child project
-            project.DataTypeReferences.Inherit(Project.DataTypeReferences);
+            if (InheritRefs) {
+                // pass datatypes thru to the child project
+                project.DataTypeReferences.Inherit(Project.DataTypeReferences);
+            }
             
             // handle multiple targets
             if (DefaultTarget != null) {
