@@ -414,9 +414,14 @@ namespace NAnt.VSNet.Tasks {
 
             foreach (string subkey in mainKey.GetSubKeyNames()) {
                 RegistryKey subKey = mainKey.OpenSubKey(subkey);
-                string val = subKey.GetValue(string.Empty).ToString();
-
-                fsFolders.Includes.Add(val);
+                // the folder is stored in the default value of the registry key
+                object defaultValue = subKey.GetValue(string.Empty);
+                // skip registry keys without default value
+                if (defaultValue == null) {
+                    continue;
+                }
+                // add folder to list of folders to scan for assembly references
+                fsFolders.Includes.Add(defaultValue.ToString());
             }
         }
 
