@@ -259,6 +259,8 @@ namespace NAnt.VSNet {
         protected internal override string ExpandMacro(string macro) {
             // perform case-insensitive expansion of macros 
             switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "noinherit":
+                    return "$(noinherit)";
                 case "intdir":
                     return IntermediateDir;
                 case "vcinstalldir":

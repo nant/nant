@@ -401,11 +401,13 @@ namespace NAnt.VSNet {
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
-            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
+            string preprocessorDefs = MergePreprocessorDefinitions(baseConfig, fileConfig);
             if (!StringUtils.IsNullOrEmpty(preprocessorDefs)) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
-                    clTask.Arguments.Add(new Argument("/D"));
-                    clTask.Arguments.Add(new Argument(def));
+                    if (def.Length != 0) {
+                        clTask.Arguments.Add(new Argument("/D"));
+                        clTask.Arguments.Add(new Argument(def));
+                    }
                 }
             }
 
@@ -620,6 +622,28 @@ namespace NAnt.VSNet {
                 // restore indentation level
                 task.Project.Unindent();
             }
+        }
+
+        /// <summary>
+        /// Merges the preprocessor definitions of <paramref name="baseConfig" /> 
+        /// with <paramref name="fileConfig" />.
+        /// </summary>
+        /// <remarks>
+        /// The merge is uppresses when the flag $(noinherit) is defined in
+        /// <paramref name="fileConfig" />.
+        /// </remarks>
+        private string MergePreprocessorDefinitions(VcConfiguration baseConfig, VcConfiguration fileConfig) {
+            const string compilerTool = "VCCLCompilerTool";
+            const string noinherit = "$(noinherit)";
+            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, 
+                "PreprocessorDefinitions");
+            if (preprocessorDefs.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
+                preprocessorDefs += ";" + baseConfig.GetToolSetting(compilerTool, 
+                    "PreprocessorDefinitions");
+            } else {
+                preprocessorDefs = preprocessorDefs.Remove(preprocessorDefs.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+            }
+            return preprocessorDefs;
         }
 
         #endregion Private Instance Methods
