@@ -52,7 +52,7 @@ namespace NAnt.Core.Filters {
     /// </remarks>
     /// <example>
     ///   <para>
-    ///   Replace all occurrency of the string @DATE@ with the value of property
+    ///   Replace all occurrences of the string @DATE@ with the value of property
     ///   "TODAY".
     ///   </para>
     ///   <code>
@@ -65,7 +65,7 @@ namespace NAnt.Core.Filters {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Replace all occurrency of the string &lt;DATE&gt; with the value of 
+    ///   Replace all occurrences of the string &lt;DATE&gt; with the value of 
     ///   property "TODAY".
     ///   </para>
     ///   <code>
