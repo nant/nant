@@ -34,8 +34,8 @@
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
                 <Config
                     Name = "Debug Main NAnt BuildFile"
@@ -52,8 +52,8 @@
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
+                    TreatWarningsAsErrors = "true"
+                    WarningLevel = "4"
                 />
             </Settings>
             <References>
@@ -136,12 +136,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "WebDavClient.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\SolutionTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "WebDavClient.cs"
+                    RelPath = "Types\WebMap.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\WebMapCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
