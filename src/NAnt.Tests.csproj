@@ -357,6 +357,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "NAnt.ZipTasks.Tests\UnZipTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.ZipTasks.Tests\ZipTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -21,6 +21,11 @@
 		<!-- copy the build up to sourceforge -->
 		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
 		
+		<!-- copy schema -->
+		<scp file="${build.dir}/schema" server="${sf.net.ssh.server}" path="${sf.net.build.path}/..">
+			<arg value="-r"/>
+		</scp>		
+
 		<!-- copy docs -->
 		<scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
 			<arg value="-r"/>
@@ -32,6 +37,8 @@
 			<arg value="chmod -R 755 ${sf.net.build.path}/*"/>
 		</exec>
 		
+		<!-- Try to do the update -->
+		<call target="UpdateRunningNAnt" failonerror="false"/>
     </target>
 
     <!-- Copies files to the nant executing dir. -->
