@@ -44,8 +44,8 @@
                     </tr>
                     <tr>
                         <td>default</td>
-                        <td>The default target to use when no target is supplied.</td>
-                        <td>Yes</td>
+                        <td>The default target to execute when no target is supplied on the command-line.</td>
+                        <td>No</td>
                     </tr>
                     <tr>
                         <td>basedir</td>
@@ -62,6 +62,8 @@
         <p>Each project defines one or more <a href="targets.html">targets</a>.&nbsp; 
             A target is a set of <a href="tasks.html">tasks</a> to be 
             executed.&nbsp; When starting NAnt, you can select which target(s) you want to 
-            have executed.&nbsp; When no target is given, the project's default is used.</p>
+            have executed.&nbsp; When no target is given, the project's default target is used.
+            When no target and no default target are specified, only the global tasks of the 
+            project are executed.</p>
     </body>
 </html>
