@@ -64,7 +64,7 @@
             <arg value="/nowarn:1591" />
         </csc>
         <!-- build NAnt.Core.Tests -->
-        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
             <sources basedir="src/NAnt.Core.Tests" failonempty="true">
                 <includes name="**/*.cs" />
                 
@@ -82,7 +82,7 @@
             <arg value="/nowarn:1591" />
         </csc>
         <!-- build NAnt.Console -->
-        <csc target="exe" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
+        <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <sources basedir="src/NAnt.Console" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
@@ -93,7 +93,7 @@
         </csc>
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/NAnt.Console.exe.config" />
         <!-- compile NAnt.Console.Tests -->
-        <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
+        <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
             <sources basedir="src/NAnt.Console.Tests" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
@@ -134,7 +134,7 @@
 
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
+        <csc target="library" warnaserror="true" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll" debug="${build.debug}">
             <sources basedir="src/NDoc.Documenter.NAnt" failonempty="true">
                 <includes name="**/*.cs" />
             </sources>
