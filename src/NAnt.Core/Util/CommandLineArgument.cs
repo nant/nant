@@ -53,9 +53,21 @@ namespace NAnt.Core.Util {
         #region Public Instance Properties
 
         /// <summary>
+        /// Gets the property that backs the argument.
+        /// </summary>
+        /// <value>
+        /// The property that backs the arguments.
+        /// </value>
+        public PropertyInfo Property {
+            get { return _propertyInfo; }
+        }
+
+        /// <summary>
         /// Gets the underlying <see cref="Type" /> of the argument.
         /// </summary>
-        /// <value>The underlying <see cref="Type" /> of the argument.</value>
+        /// <value>
+        /// The underlying <see cref="Type" /> of the argument.
+        /// </value>
         /// <remarks>
         /// If the <see cref="Type" /> of the argument is a collection type,
         /// this property will returns the underlying type of that collection.
