@@ -74,7 +74,7 @@
         </xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
-            <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <link rel="stylesheet" type="text/css" href="../../style.css" />
             <title><xsl:value-of select="$name" /><xsl:text> </xsl:text><xsl:value-of select="$refType" /></title>
         </head>
@@ -213,7 +213,7 @@
         <xsl:variable name="parentPage">../index.html</xsl:variable>
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
-            <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <link rel="stylesheet" type="text/css" href="../../style.css" />
             <title><xsl:value-of select="$name" /> enum</title>
         </head>
