@@ -31,6 +31,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -71,7 +72,7 @@ namespace NAnt.DotNet.Tasks {
     public class AssemblyInfoTask : Task {
         #region Private Instance Fields
 
-        private string _output;
+        private FileInfo _output;
         private CodeLanguage _language = CodeLanguage.CSharp;
         private AssemblyAttributeCollection _attributes = new AssemblyAttributeCollection();
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
@@ -88,10 +89,9 @@ namespace NAnt.DotNet.Tasks {
         /// The name of the AssemblyInfo file to generate.
         /// </value>
         [TaskAttribute("output", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string Output {
-            get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = StringUtils.ConvertEmptyToNull(value); }
+        public FileInfo Output {
+            get { return _output; }
+            set { _output = value; }
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace NAnt.DotNet.Tasks {
                     }
                 }
 
-                using (StreamWriter writer = new StreamWriter(Output, false, System.Text.Encoding.Default)) {
+                using (StreamWriter writer = new StreamWriter(Output.FullName, false, System.Text.Encoding.Default)) {
                     // create new instance of CodeProviderInfo for specified CodeLanguage
                     CodeProvider codeProvider = new CodeProvider(Language);
 
@@ -209,7 +209,7 @@ namespace NAnt.DotNet.Tasks {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
                     "AssemblyInfo file '{0}' could not be generated.",
-                    Output), Location, ex);
+                    Output.FullName), Location, ex);
             }
         }
 
@@ -462,7 +462,7 @@ namespace NAnt.DotNet.Tasks {
                             if (defaultConstructor != null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture, 
-                                    "Assembly attribute {0} has no default public constructor.",
+                                    "Assembly attribute '{0}' has no default public constructor.",
                                     type.FullName), Location.UnknownLocation);
                             }
                             typedValue = null;
@@ -490,7 +490,7 @@ namespace NAnt.DotNet.Tasks {
                             if (typedValue == null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture, 
-                                    "Value of assembly attribute {0} cannot be set as it has no constructor accepting a primitive type or string.",
+                                    "Value of assembly attribute '{0}' cannot be set as it has no constructor accepting a primitive type or string.",
                                     typename), Location.UnknownLocation);
                             }
                         }
@@ -499,7 +499,7 @@ namespace NAnt.DotNet.Tasks {
                     } else {
                         throw new BuildException(string.Format(
                             CultureInfo.InvariantCulture, 
-                            "Assembly attribute with type {0} could not be loaded.",
+                            "Assembly attribute with type '{0}' could not be loaded.",
                             typename), Location.UnknownLocation);
                     }
                 } finally {
