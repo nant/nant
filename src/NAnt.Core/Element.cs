@@ -178,12 +178,6 @@ namespace NAnt.Core {
             InitializeElement(elementNode);
         }
 
-        /*
-         * TO-DO : Uncomment these methods when bug with parameter arrays and 
-         * inheritance is resolved in Mono
-         */
-
-        /*
         /// <summary>
         /// Logs a message with the given priority.
         /// </summary>
@@ -212,7 +206,6 @@ namespace NAnt.Core {
                 Project.Log(messageLevel, message, args);
             }
         }
-        */
 
         #endregion Public Instance Methods
 
@@ -344,12 +337,13 @@ namespace NAnt.Core {
 
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
+                            string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                                "Attribute {0} for {1} is deprecated : {2}", 
+                                buildAttribute.Name, Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
-                                logger.Error(string.Format(CultureInfo.InvariantCulture,
-                                    "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                                Log(Level.Error, obsoleteMessage);
                             } else {
-                                logger.Warn(string.Format(CultureInfo.InvariantCulture,
-                                    "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                                Log(Level.Warning, obsoleteMessage);
                             }
                         }
                     } else {
@@ -529,12 +523,13 @@ namespace NAnt.Core {
 
                     // emit warning or error if attribute is deprecated
                     if (obsoleteAttribute != null) {
+                        string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                            "Attribute {0} for {1} is deprecated : {2}", 
+                            buildAttribute.Name, Name, obsoleteAttribute.Message);
                         if (obsoleteAttribute.IsError) {
-                            logger.Error(string.Format(CultureInfo.InvariantCulture,
-                                "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                            Log(Level.Error, obsoleteMessage);
                         } else {
-                            logger.Warn(string.Format(CultureInfo.InvariantCulture,
-                                "Attribute {0} for {1} is deprecated : {2}", buildAttribute.Name, Name, obsoleteAttribute.Message));
+                            Log(Level.Warning, obsoleteMessage);
                         }
                     }
                     
@@ -756,6 +751,12 @@ namespace NAnt.Core {
                     if (parentElement is Task) {
                         xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
                         level++;
+                        break;
+                    }
+
+                    // For now do not support framework configurable attributes 
+                    // on nested types.
+                    /*
                     } else if (!(parentElement is Target)) {
                         if (parentElement.XmlNode != null) {
                             // perform lookup using name of the node
@@ -766,6 +767,7 @@ namespace NAnt.Core {
                         }
                         level++;
                     }
+                    */
 
                     parentElement = parentElement.Parent as Element;
                 }
