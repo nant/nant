@@ -286,12 +286,15 @@
         <copy todir="${build.dir}/lib">
             <fileset basedir="lib">
                 <includes name="**/NDoc.Core.dll" />
+                <includes name="**/NDoc.Core.xml" />
                 <includes name="**/NDoc.Documenter.Msdn.dll" />
+                <includes name="**/NDoc.Documenter.Msdn.xml" />
                 <includes name="**/nunit.framework.dll" />
                 <includes name="**/NUnitCore.dll" />
                 <includes name="**/ICSharpCode.SharpZipLib.dll" />
                 <includes name="**/ICSharpCode.SharpCvsLib.dll" />
                 <includes name="**/log4net.dll"/>
+                <includes name="**/log4net.xml"/>
             </fileset>
         </copy>
 
