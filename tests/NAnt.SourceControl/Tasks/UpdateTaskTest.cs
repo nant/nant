@@ -24,9 +24,9 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         private readonly String _checkoutXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-checkout   module='NAnt' 
+                <cvs-checkout   module='nant' 
                                 cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
-                                destination='" + cvsTempPath + @"'
+                                destination='" + cvsTempPath.Replace ("\\", "/") + @"'
                                 password='' />
             </project>";
 
@@ -36,9 +36,9 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         private readonly String _projectXML = @"<?xml version='1.0'?>
             <project>
-                <cvs-update   module='NAnt' 
+                <cvs-update   module='nant' 
                                 cvsroot=':pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant'
-                                destination='" + cvsTempPath + @"'
+                                destination='" + cvsTempPath.Replace ("\\", "/") + @"'
                                 password='' />
             </project>";
 
