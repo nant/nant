@@ -229,73 +229,6 @@ namespace NAnt.VSNet {
             return Build(config);
         }
 
-        /// <summary>
-        /// Prepares the project for building built.
-        /// </summary>
-        /// <param name="config">The configuration in which the project will be built.</param>
-        /// <remarks>
-        /// The default implementation will ensure that none of the output files 
-        /// are marked read-only.
-        /// </remarks>
-        public virtual void Prepare(ConfigurationBase config) {
-            // determine the output files of the project
-            Hashtable outputFiles = GetOutputFiles(config.Name);
-
-            // use the <attrib> task to ensure none of the output files are
-            // marked read-only
-            AttribTask attribTask = new AttribTask();
-
-            // parent is solution task
-            attribTask.Parent = SolutionTask;
-
-            // inherit project from solution task
-            attribTask.Project = SolutionTask.Project;
-
-            // inherit namespace manager from solution task
-            attribTask.NamespaceManager = SolutionTask.NamespaceManager;
-
-            // inherit verbose setting from solution task
-            attribTask.Verbose = SolutionTask.Verbose;
-
-            // only output warning messages or higher, unless 
-            // we're running in verbose mode
-            if (!attribTask.Verbose) {
-                attribTask.Threshold = Level.Warning;
-            }
-
-            // make sure framework specific information is set
-            attribTask.InitializeTaskConfiguration();
-
-            // set parent of child elements
-            attribTask.AttribFileSet.Parent = attribTask;
-
-            // inherit project for child elements from containing task
-            attribTask.AttribFileSet.Project = attribTask.Project;
-
-            // inherit namespace manager from containing task
-            attribTask.AttribFileSet.NamespaceManager = attribTask.NamespaceManager;
-
-            // we want to reset the read-only attribute of all output files
-            attribTask.ReadOnlyAttrib = false;
-
-            // add all output files to the <attrib> fileset
-            foreach (DictionaryEntry de in outputFiles) {
-                attribTask.AttribFileSet.Includes.Add(Path.Combine(
-                    config.OutputDir.FullName, (string) de.Value));
-            }
-
-            // increment indentation level
-            attribTask.Project.Indent();
-
-            try {
-                // execute task
-                attribTask.Execute();
-            } finally {
-                // restore indentation level
-                attribTask.Project.Unindent();
-            }
-        }
-
         public string GetOutputPath(string configuration) {
             ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
             if (config == null) {
@@ -431,6 +364,73 @@ namespace NAnt.VSNet {
         #endregion Protected Internal Instance Methods
 
         #region Protected Instance Methods
+
+        /// <summary>
+        /// Prepares the project for being built.
+        /// </summary>
+        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <remarks>
+        /// The default implementation will ensure that none of the output files 
+        /// are marked read-only.
+        /// </remarks>
+        protected virtual void Prepare(ConfigurationBase config) {
+            // determine the output files of the project
+            Hashtable outputFiles = GetOutputFiles(config.Name);
+
+            // use the <attrib> task to ensure none of the output files are
+            // marked read-only
+            AttribTask attribTask = new AttribTask();
+
+            // parent is solution task
+            attribTask.Parent = SolutionTask;
+
+            // inherit project from solution task
+            attribTask.Project = SolutionTask.Project;
+
+            // inherit namespace manager from solution task
+            attribTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // inherit verbose setting from solution task
+            attribTask.Verbose = SolutionTask.Verbose;
+
+            // only output warning messages or higher, unless 
+            // we're running in verbose mode
+            if (!attribTask.Verbose) {
+                attribTask.Threshold = Level.Warning;
+            }
+
+            // make sure framework specific information is set
+            attribTask.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            attribTask.AttribFileSet.Parent = attribTask;
+
+            // inherit project for child elements from containing task
+            attribTask.AttribFileSet.Project = attribTask.Project;
+
+            // inherit namespace manager from containing task
+            attribTask.AttribFileSet.NamespaceManager = attribTask.NamespaceManager;
+
+            // we want to reset the read-only attribute of all output files
+            attribTask.ReadOnlyAttrib = false;
+
+            // add all output files to the <attrib> fileset
+            foreach (DictionaryEntry de in outputFiles) {
+                attribTask.AttribFileSet.Includes.Add(Path.Combine(
+                    config.OutputDir.FullName, (string) de.Value));
+            }
+
+            // increment indentation level
+            attribTask.Project.Indent();
+
+            try {
+                // execute task
+                attribTask.Execute();
+            } finally {
+                // restore indentation level
+                attribTask.Project.Unindent();
+            }
+        }
 
         protected abstract bool Build(ConfigurationBase config);
 
