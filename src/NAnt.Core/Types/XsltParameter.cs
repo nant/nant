@@ -28,7 +28,7 @@ namespace NAnt.Core.Types {
     /// Represents an XSLT parameter.
     /// </summary>
     [ElementName("xsltparameter")]
-    public class XsltParameter : DataTypeBase {
+    public class XsltParameter : Element {
         #region Private Instance Fields
 
         private string _name = string.Empty;
