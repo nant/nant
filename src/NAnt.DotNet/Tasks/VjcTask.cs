@@ -53,7 +53,6 @@ namespace NAnt.DotNet.Tasks {
         private string _jcpa;
         private string _codepage;
         private string _warningLevel;
-        private string _noWarn;
         private string _baseAddress;
 
         #endregion Private Instance Fields
@@ -221,22 +220,15 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Specifies a comma-separated list of warnings that should be suppressed 
-        /// by the compiler.
+        /// Controls which warnings should be reported as errors.
         /// </summary>
-        /// <value>
-        /// Comma-separated list of warnings that should be suppressed by the 
-        /// compiler.
-        /// </value>
         /// <remarks>
-        /// <para>
-        /// Corresponds with the <c>/nowarn</c> option.
-        /// </para>
+        /// Override to avoid exposing this to build authors, as the Visual J#
+        /// compiler does not allow control over which warnings should be
+        /// reported as errors.
         /// </remarks>
-        [TaskAttribute("nowarn")]
-        public string NoWarn {
-            get { return _noWarn; }
-            set { _noWarn = StringUtils.ConvertEmptyToNull(value); }
+        public override WarningAsError WarningAsError {
+            get { return base.WarningAsError; }
         }
 
         #endregion Public Instance Properties
@@ -253,17 +245,6 @@ namespace NAnt.DotNet.Tasks {
         public override PackageCollection Packages {
             get { return base.Packages; }
             set { base.Packages = value; }
-        }
-
-        /// <summary>
-        /// Writes package references to the specified <see cref="TextWriter" />.
-        /// </summary>
-        /// <param name="writer">The <see cref="TextWriter" /> to which the package references should be written.</param>
-        protected override void WritePackageReferences(TextWriter writer) {
-            if (Packages.Count > 0) {
-                Log(Level.Warning, "The Visual J# compiler does not" 
-                    + " support package references.");
-            }
         }
 
         /// <summary>
@@ -333,10 +314,6 @@ namespace NAnt.DotNet.Tasks {
 
             if (WarningLevel != null) {
                 WriteOption(writer, "warn", WarningLevel);
-            }
-
-            if (NoWarn != null) {
-                WriteOption(writer, "nowarn", NoWarn);
             }
         }
 

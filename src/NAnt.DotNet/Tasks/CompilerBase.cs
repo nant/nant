@@ -48,6 +48,9 @@ namespace NAnt.DotNet.Tasks {
         private string _define;
         private FileInfo _win32icon;
         private bool _warnAsError;
+        private WarningAsError _warningAsError = new WarningAsError();
+        private string _noWarn;
+        private CompilerWarningCollection _suppressWarnings = new CompilerWarningCollection();
         private bool _forceRebuild;
         private string _mainType;
         private AssemblyFileSet _references = new AssemblyFileSet();
@@ -59,6 +62,8 @@ namespace NAnt.DotNet.Tasks {
 
         // framework configuration settings
         private bool _supportsPackageReferences;
+        private bool _supportsWarnAsErrorList;
+        private bool _supportsNoWarnList;
 
         #endregion Private Instance Fields
 
@@ -185,6 +190,42 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Controls which warnings should be reported as errors.
+        /// </summary>
+        [BuildElement("warnaserror")]
+        public virtual WarningAsError WarningAsError {
+            get { return _warningAsError; }
+        }
+
+        /// <summary>
+        /// Specifies a comma-separated list of warnings that should be suppressed
+        /// by the compiler.
+        /// </summary>
+        /// <value>
+        /// Comma-separated list of warnings that should be suppressed by the 
+        /// compiler.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/nowarn</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nowarn")]
+        [Obsolete("Use the <nowarn> element instead.", false)]
+        public virtual string NoWarn {
+            get { return _noWarn; }
+            set { _noWarn = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a list of warnings that you want the compiler to suppress.
+        /// </summary>
+        [BuildElementCollection("nowarn", "warning")]
+        public virtual CompilerWarningCollection SuppressWarnings {
+            get { return _suppressWarnings; }
+        }
+
+        /// <summary>
         /// Instructs NAnt to recompile the output file regardless of the file timestamps.
         /// </summary>
         /// <remarks>
@@ -243,7 +284,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Reference packages 
+        /// Specifies list of packages to reference.
         /// </summary>
         [BuildElement("pkg-references")]
         public virtual PackageCollection Packages {
@@ -307,6 +348,28 @@ namespace NAnt.DotNet.Tasks {
         public virtual bool SupportsPackageReferences {
             get { return _supportsPackageReferences; }
             set { _supportsPackageReferences = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "warnaserror" option that takes a list of warnings. The default 
+        /// is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportswarnaserrorlist")]
+        public virtual bool SupportsWarnAsErrorList {
+            get { return _supportsWarnAsErrorList; }
+            set { _supportsWarnAsErrorList = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// a command line option that allows a list of warnings to be
+        /// suppressed. The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsnowarnlist")]
+        public virtual bool SupportsNoWarnList {
+            get { return _supportsNoWarnList; }
+            set { _supportsNoWarnList = value; }
         }
 
         #endregion Public Instance Properties
@@ -420,14 +483,14 @@ namespace NAnt.DotNet.Tasks {
                         WriteOption(writer, "main", this.MainType);
                     }
 
-                    // writes the option that specifies whether the compiler 
-                    // should consider warnings as errors.
-                    if (this.WarnAsError) {
-                        WriteOption(writer, "warnaserror");
-                    }
-
                     // writes package references to the response file
                     WritePackageReferences(writer);
+
+                    // write warnings to (not) treat as errors to the response file
+                    WriteWarningsAsError(writer);
+
+                    // write list of warnings to suppress
+                    WriteNoWarnList(writer);
 
                     // writes assembly references to the response file
                     foreach (string fileName in References.FileNames) {
@@ -778,6 +841,107 @@ namespace NAnt.DotNet.Tasks {
             } else {
                 Log(Level.Warning, "The compiler for {0} does not support"
                     + " package references.", Project.TargetFramework.Description);
+            }
+        }
+
+        /// <summary>
+        /// Writes list of warnings to (not) treat as errors to the specified 
+        /// <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the list of warnings should be written.</param>
+        protected virtual void WriteWarningsAsError(TextWriter writer) {
+            // check if all warnings should be treated as errors
+            if (WarnAsError) {
+                // ignore setting if a specific list of warnings that should be
+                // treated as errors has been set
+                if (WarningAsError.Includes.Count == 0) {
+                    WriteOption(writer, "warnaserror");
+                }
+            }
+
+            // initialize warnings list
+            StringCollection warnings = new StringCollection();
+
+            //
+            // warnings that should be treated as error
+            //
+
+            foreach (CompilerWarning warning in WarningAsError.Includes) {
+                if (warning.IfDefined && !warning.UnlessDefined) {
+                    warnings.AddRange(warning.Number.Split(','));
+                }
+            }
+
+            if (warnings.Count > 0) {
+                if (SupportsWarnAsErrorList) {
+                    // write list of warnings to the TextWriter
+                    writer.WriteLine("/warnaserror+:" + StringUtils.Join(",", 
+                        warnings));
+                } else {
+                    Log(Level.Warning, "The compiler for {0} does not support"
+                        + " a command line option to specify a list of warnings"
+                        + " to treat as errors.", Project.TargetFramework.Description);
+                }
+            }
+
+            // clear list of warnings
+            warnings.Clear();
+
+            //
+            // warnings that should NOT be treated as error
+            //
+
+            foreach (CompilerWarning warning in WarningAsError.Excludes) {
+                if (warning.IfDefined && !warning.UnlessDefined) {
+                    warnings.AddRange(warning.Number.Split(','));
+                }
+            }
+
+            if (warnings.Count > 0) {
+                if (SupportsWarnAsErrorList) {
+                    // write list of warnings to the TextWriter
+                    writer.WriteLine("/warnaserror-:" + StringUtils.Join(",", 
+                        warnings));
+                } else {
+                    Log(Level.Warning, "The compiler for {0} does not support"
+                        + " a command line option to specify a list of warnings"
+                        + " not to treat as errors.", Project.TargetFramework.Description);
+                }
+            }
+
+            // clear list of warnings
+            warnings.Clear();
+        }
+
+        /// <summary>
+        /// Writes list of warnings to suppress to the specified 
+        /// <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the list of warnings to suppress should be written.</param>
+        protected virtual void WriteNoWarnList(TextWriter writer) {
+            // initialize warnings list
+            StringCollection warnings = new StringCollection();
+
+            foreach (CompilerWarning warning in SuppressWarnings) {
+                if (warning.IfDefined && !warning.UnlessDefined) {
+                    warnings.AddRange(warning.Number.Split(','));
+                }
+            }
+
+            if (NoWarn != null) {
+                warnings.AddRange(NoWarn.Split(','));
+            }
+
+            if (warnings.Count > 0) {
+                if (SupportsNoWarnList) {
+                    // write list of warnings to suppress to the TextWriter
+                    writer.WriteLine("/nowarn:" + StringUtils.Join(",", 
+                        warnings));
+                } else {
+                    Log(Level.Warning, "The compiler for {0} does not support"
+                        + " a command line option to specify a list of warnings"
+                        + " to suppress.", Project.TargetFramework.Description);
+                }
             }
         }
 

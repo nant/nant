@@ -17,7 +17,10 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
+// Gert Driesen (gert.driesen@ardatis.com)
+// Ian MacLean (ian_maclean@another.com)
 
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -25,6 +28,8 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
+using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -35,9 +40,17 @@ namespace NAnt.DotNet.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <csc target="exe" output="helloworld.exe" debug="true">
+    ///     <nowarn>
+    ///         <!-- do not report warnings for missing XML comments -->
+    ///         <warning number="0519" />
+    ///     </nowarn>
     ///     <sources>
     ///         <include name="helloworld.cs" />
     ///     </sources>
+    ///     <references>
+    ///         <include name="System.dll" />
+    ///         <include name="System.Data.dll" />
+    ///     </references>
     /// </csc>
     ///     ]]>
     ///   </code>
@@ -54,7 +67,6 @@ namespace NAnt.DotNet.Tasks {
         private bool _unsafe;
         private bool _optimize;
         private string _warningLevel;
-        private string _noWarn;
         private string _codepage;
         private string _baseAddress;
 
@@ -209,25 +221,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Specifies a comma-separated list of warnings that should be suppressed
-        /// by the compiler.
-        /// </summary>
-        /// <value>
-        /// Comma-separated list of warnings that should be suppressed by the 
-        /// compiler.
-        /// </value>
-        /// <remarks>
-        /// <para>
-        /// Corresponds with the <c>/nowarn</c> flag.
-        /// </para>
-        /// </remarks>
-        [TaskAttribute("nowarn")]
-        public string NoWarn {
-            get { return _noWarn; }
-            set { _noWarn = StringUtils.ConvertEmptyToNull(value); }
-        }
-
-        /// <summary>
         /// Specifies the code page to use for all source code files in the 
         /// compilation.
         /// </summary>
@@ -290,9 +283,8 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "warn", WarningLevel);
             }
 
-            if (NoWarn != null) {
-                WriteOption(writer, "nowarn", NoWarn);
-            }
+            // write list of warnings to suppress
+            WriteNoWarnList(writer);
 
             if (Codepage != null) {
                 WriteOption(writer, "codepage", Codepage);

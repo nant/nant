@@ -83,6 +83,43 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Controls which warnings should be reported as errors.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// compiler does not allow control over which warnings should be
+        /// reported as errors.
+        /// </remarks>
+        public override WarningAsError WarningAsError {
+            get { return base.WarningAsError; }
+        }
+
+        /// <summary>
+        /// Specifies a comma-separated list of warnings that should be suppressed
+        /// by the compiler.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// compiler does not support package references.
+        /// </remarks>
+        [Obsolete("Use the <nowarn> element instead.", false)]
+        public override string NoWarn {
+            get { return base.NoWarn; }
+            set { base.NoWarn = value; }
+        }
+
+        /// <summary>
+        /// Specifies a list of warnings that you want the compiler to suppress.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// compiler does not support suppressing warnings.
+        /// </remarks>
+        public override CompilerWarningCollection SuppressWarnings {
+            get { return base.SuppressWarnings; }
+        }
+
+        /// <summary>
         /// Specifies the code page to use for all source code files in the 
         /// compilation.
         /// </summary>
