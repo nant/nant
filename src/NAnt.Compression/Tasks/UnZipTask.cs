@@ -17,6 +17,8 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
+using System;
+using System.Globalization;
 using System.IO;
 
 using ICSharpCode.SharpZipLib.Zip;
@@ -46,6 +48,7 @@ namespace NAnt.Zip.Tasks {
 
         private FileInfo _zipfile;
         private DirectoryInfo _toDir;
+        private bool _overwrite = true;
 
         #endregion Private Instance Fields
 
@@ -75,6 +78,15 @@ namespace NAnt.Zip.Tasks {
             set { _toDir = value; }
         }
 
+        /// <summary>
+        /// Overwrite files, even if they are newer than the corresponding 
+        /// entries in the archive. The default is <see langword="true" />.
+        /// </summary>
+        public bool Overwrite {
+            get { return _overwrite; }
+            set { _overwrite = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -83,46 +95,125 @@ namespace NAnt.Zip.Tasks {
         /// Extracts the files from the zip file.
         /// </summary>
         protected override void ExecuteTask() {
-            ZipInputStream s = new ZipInputStream(ZipFile.OpenRead());
+            using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
+                Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
+                    ZipFile.FullName, ToDirectory.FullName, s.Length);
 
-            Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
-                ZipFile.FullName, ToDirectory.FullName, s.Length);
+                ZipEntry entry;
 
-            ZipEntry theEntry;
+                // extract the file or directory entry
+                while ((entry = s.GetNextEntry()) != null) {
+                    if (entry.IsDirectory) {
+                        ExtractDirectory(s, entry.Name, entry.DateTime);
+                    } else {
+                        ExtractFile(s, entry.Name, entry.DateTime);
+                    }
+                }
 
-            while ((theEntry = s.GetNextEntry()) != null) {
-                string directoryName = Path.GetDirectoryName(theEntry.Name);
-                string fileName = Path.GetFileName(theEntry.Name);
+                // close the zip stream
+                s.Close();
+            }
+        }
 
-                Log(Level.Verbose, "Extracting '{0}' to '{1}'.", theEntry.Name, 
-                    ToDirectory.FullName);
+        #endregion Override implementation of Task
 
-                // create directory
-                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(
-                    ToDirectory.FullName, directoryName));
+        #region Private Instance Methods
 
-                if (!StringUtils.IsNullOrEmpty(fileName)) {
-                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));
-                    FileStream streamWriter = fi.Create();
+        /// <summary>
+        /// Extracts a file entry from the specified stream.
+        /// </summary>
+        /// <param name="inputStream">The <see cref="Stream" /> containing the compressed entry.</param>
+        /// <param name="entryName">The name of the entry including directory information.</param>
+        /// <param name="entryDate">The date of the entry.</param>
+        /// <exception cref="BuildException">
+        ///   <para>The destination directory for the entry could not be created.</para>
+        ///   <para>-or-</para>
+        ///   <para>The entry could not be extracted.</para>
+        /// </exception>
+        /// <remarks>
+        /// We cannot rely on the fact that the directory entry of a given file
+        /// is created before the file is extracted, so we should create the
+        /// directory if it doesn't yet exist.
+        /// </remarks>
+        protected void ExtractFile(Stream inputStream, string entryName, DateTime entryDate) {
+            // determine destination file
+            FileInfo destFile = new FileInfo(Path.Combine(ToDirectory.FullName,
+                entryName));
+
+            // ensure destination directory exists
+            if (!destFile.Directory.Exists) {
+                try {
+                    destFile.Directory.Create();
+                    destFile.Directory.LastWriteTime = entryDate;
+                    destFile.Directory.Refresh();
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Directory '{0}' could not be created.", destFile.DirectoryName),
+                        Location, ex);
+                }
+            }
+
+            // determine if entry actually needs to be extracted
+            if (!Overwrite && destFile.Exists && destFile.LastWriteTime >= entryDate) {
+                Log(Level.Debug, "Skipping '{0}' as it is up-to-date.", 
+                    destFile.FullName);
+                return;
+            }
+
+            Log(Level.Verbose, "Extracting '{0}' to '{1}'.", entryName, 
+                ToDirectory.FullName);
+
+            try {
+                // extract the entry
+                using (FileStream sw = new FileStream(destFile.FullName, FileMode.Create, FileAccess.Write)) {
                     int size = 2048;
                     byte[] data = new byte[2048];
 
                     while (true) {
-                        size = s.Read(data, 0, data.Length);
+                        size = inputStream.Read(data, 0, data.Length);
                         if (size > 0) {
-                            streamWriter.Write(data, 0, size);
+                            sw.Write(data, 0, size);
                         } else {
                             break;
                         }
                     }
 
-                    streamWriter.Close();
-                    fi.LastWriteTime = theEntry.DateTime;
+                    sw.Close();
                 }
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Unable to expand '{0}' to '{1}'.", entryName, ToDirectory.FullName),
+                    Location, ex);
             }
-            s.Close();
+
+            destFile.LastWriteTime = entryDate;
         }
 
-        #endregion Override implementation of Task
+        /// <summary>
+        /// Extracts a directory entry from the specified stream.
+        /// </summary>
+        /// <param name="inputStream">The <see cref="Stream" /> containing the directory entry.</param>
+        /// <param name="entryName">The name of the directory entry.</param>
+        /// <param name="entryDate">The date of the entry.</param>
+        /// <exception cref="BuildException">
+        ///   <para>The destination directory for the entry could not be created.</para>
+        /// </exception>
+        protected void ExtractDirectory(Stream inputStream, string entryName, DateTime entryDate) {
+            DirectoryInfo destDir = new DirectoryInfo(Path.Combine(
+                ToDirectory.FullName, entryName));
+            if (!destDir.Exists) {
+                try {
+                    destDir.Create();
+                    destDir.LastWriteTime = entryDate;
+                    destDir.Refresh();
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Directory '{0}' could not be created.", destDir.FullName),
+                        Location, ex);
+                }
+            }
+        }
+
+        #endregion Private Instance Methods
     }
 }
