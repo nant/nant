@@ -34,7 +34,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("net-1.0.win32; nightly")]
 [assembly: AssemblyCompany("http://nant.sourceforge.net")]
 [assembly: AssemblyProduct("NAnt")]
-[assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
+[assembly: AssemblyCopyright("Copyright (C) 2001-2004 Gerry Shaw")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
