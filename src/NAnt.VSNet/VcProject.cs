@@ -961,36 +961,73 @@ namespace NAnt.VSNet {
                     outputDirectory);
             }
 
+            // ensure output directory exists
+            if (!Directory.Exists(outputDirectory)) {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
             midlTask.Arguments.Add(new Argument("/out"));
             midlTask.Arguments.Add(new Argument(outputDirectory));
 
             string typeLibraryName = fileConfig.GetToolSetting(compilerTool, 
                 "TypeLibraryName", "$(IntDir)/$(ProjectName).tlb");
-            midlTask.Tlb = new FileInfo(FileUtils.CombinePaths(fileConfig.ProjectDir.FullName, 
-                typeLibraryName));
+            if (typeLibraryName != null) {
+                midlTask.Tlb = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
+                    typeLibraryName));
+
+                // ensure tlb directory exists
+                if (!midlTask.Tlb.Directory.Exists) {
+                    midlTask.Tlb.Directory.Create();
+                    midlTask.Tlb.Directory.Refresh();
+                }
+            }
 
             string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
             if (proxyFileName != null) {
                 midlTask.Proxy = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     proxyFileName));
+
+                // ensure proxy directory exists
+                if (!midlTask.Proxy.Directory.Exists) {
+                    midlTask.Proxy.Directory.Create();
+                    midlTask.Proxy.Directory.Refresh();
+                }
             }
 
             string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
             if (interfaceIdentifierFileName != null) {
                 midlTask.Iid = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     interfaceIdentifierFileName));
+
+                // ensure IID directory exists
+                if (!midlTask.Iid.Directory.Exists) {
+                    midlTask.Iid.Directory.Create();
+                    midlTask.Iid.Directory.Refresh();
+                }
             }
 
             string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
             if (dllDataFileName != null) {
                 midlTask.DllData = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     dllDataFileName));
+
+                // ensure DllData directory exists
+                if (!midlTask.DllData.Directory.Exists) {
+                    midlTask.DllData.Directory.Create();
+                    midlTask.DllData.Directory.Refresh();
+                }
             }
 
             string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
             if (headerFileName != null) {
                 midlTask.Header = new FileInfo(FileUtils.CombinePaths(outputDirectory, 
                     headerFileName));
+
+                // ensure Header directory exists
+                if (!midlTask.Header.Directory.Exists) {
+                    midlTask.Header.Directory.Create();
+                    midlTask.Header.Directory.Refresh();
+                }
             }
 
             string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
@@ -1107,6 +1144,11 @@ namespace NAnt.VSNet {
 
         private void RunLinker(VcProjectConfiguration projectConfig) {
             const string linkerTool = "VCLinkerTool";
+
+            // check if linking needs to be performed
+            if (_objFiles.Count == 0) {
+                return;
+            }
 
             // create instance of Link task
             LinkTask linkTask = new LinkTask();
