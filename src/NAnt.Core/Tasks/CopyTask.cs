@@ -317,10 +317,14 @@ namespace NAnt.Core.Tasks {
                     }
                 }
                 
-                if (IncludeEmptyDirs && ! Flatten ) {
+                if (IncludeEmptyDirs && !Flatten) {
                     // create any specified directories that weren't created during the copy (ie: empty directories)
                     foreach (string pathname in CopyFileSet.DirectoryNames) {
                         DirectoryInfo srcInfo = new DirectoryInfo(pathname);
+                        // skip directory if not relative to base dir of fileset
+                        if (srcInfo.FullName.IndexOf(srcBaseInfo.FullName) == -1) {
+                            continue;
+                        }
                         string dstRelPath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
                         if (dstRelPath.Length > 0 && dstRelPath[0] == Path.DirectorySeparatorChar) {
                             dstRelPath = dstRelPath.Substring(1);
