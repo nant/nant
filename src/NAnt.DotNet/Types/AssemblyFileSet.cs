@@ -27,17 +27,15 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
-    
     /// <summary>
-    /// A specialized file set used for setting the Lib directories.
+    /// A specialized <see cref="FileSet" /> used for setting the lib directories.
     /// </summary>
     /// <remarks>
-    /// The primary reason for this class is to allow the BaseDirectory to always be the same value 
-    /// as the parent AssemblyFileSet
+    /// The primary reason for this class is to allow the <see cref="BaseDirectory" />
+    /// to always be the same value as the parent <see cref="AssemblyFileSet" />
     /// </remarks>
-    [ElementName("assemblyfileset")]
+    [ElementName("libdirectoryset")]
     public class LibDirectorySet : FileSet {
-        AssemblyFileSet _parent;
         #region Public Instance Constructors
         
         /// <summary>
@@ -47,28 +45,35 @@ namespace NAnt.DotNet.Types {
         public LibDirectorySet(AssemblyFileSet parent) {
             _parent = parent;
         }
+
         #endregion Public Instance Constructors
-        
+
         #region Overrides from FileSet
-        
+
         /// <summary>
         /// override this. We will always use the base directory of the parent.
         /// overriding without the TaskAttribute attribute prevents it being set 
         /// in the source xml
         /// </summary>
         public override DirectoryInfo BaseDirectory {
-            get {return _parent.BaseDirectory; }
+            get { return _parent.BaseDirectory; }
            
-        }        
-        #endregion Overrides from FileSet       
+        }
+
+        #endregion Overrides from FileSet
+
+        #region Private Instance Fields
+
+        private AssemblyFileSet _parent;
+
+        #endregion Private Instance Fields
     }
-    
+
     /// <summary>
-    /// Specialized <see cref="FileSet" /> class for managing assembly files. 
+    /// Specialized <see cref="FileSet" /> class for managing assembly files.
     /// </summary>
     [ElementName("assemblyfileset")]
     public class AssemblyFileSet : FileSet, ICloneable {
-        
         #region Public Instance Constructors
 
         /// <summary>
@@ -102,21 +107,22 @@ namespace NAnt.DotNet.Types {
         [BuildElement("lib")]
         public LibDirectorySet Lib {
             get { return _lib; }
-            set {_lib = value; }
+            set { _lib = value; }
         }
         
         #endregion Public Instance Properties
         
         #region Overrides from FileSet
+
         /// <summary>
         /// Do a normal scan and then resolve assemblies.
         /// </summary>
         public override void Scan() {
             base.Scan();
             
-            ResolveReferences();            
+            ResolveReferences();
         }
-              
+
         #endregion Overrides from FileSet
         
         #region private intance methods
@@ -124,7 +130,7 @@ namespace NAnt.DotNet.Types {
         /// <summary>
         /// Resolves references to system assemblies and assemblies that can be 
         /// resolved using directories specified in <see cref="Lib" />.
-        /// </summary>       
+        /// </summary>
         protected void ResolveReferences() {
             foreach (string pattern in Includes) {
                 if (Path.GetFileName(pattern) == pattern) {
@@ -171,12 +177,13 @@ namespace NAnt.DotNet.Types {
                 }
             }
         }
+
         #endregion private intance methods
+
         #region Private Instance Fields
-        
+
         private LibDirectorySet _lib = null;
 
         #endregion Private Instance Fields
-
     }
 }
