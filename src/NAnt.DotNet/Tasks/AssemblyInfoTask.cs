@@ -46,10 +46,11 @@ namespace NAnt.DotNet.Tasks {
     ///         <import name="System" />
     ///         <import name="System.Reflection" />
     ///         <import name="System.EnterpriseServices" />
+    ///         <import name="System.Runtime.InteropServices" />
     ///     </imports>
     ///     <attributes>
-    ///         <attribute type="ComVisible" value="false" />
-    ///         <attribute type="CLSCompliant" value="true" />
+    ///         <attribute type="ComVisibleAttribute" value="false" />
+    ///         <attribute type="CLSCompliantAttribute" value="true" />
     ///         <attribute type="AssemblyVersionAttribute" value="1.0.0.0" />
     ///         <attribute type="AssemblyTitleAttribute" value="My fun assembly" />
     ///         <attribute type="AssemblyDescriptionAttribute" value="More fun than a barrel of monkeys" />
