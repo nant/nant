@@ -38,7 +38,7 @@ namespace SourceForge.NAnt.Tasks
     {
         private const string COMMAND_FILE = "compile-commands.txt";
 
-        public Project( SourceForge.NAnt.Task nanttask )
+        public Project(SourceForge.NAnt.Task nanttask)
         {
             _htConfigurations = new Hashtable();
             _htReferences = new Hashtable();
@@ -252,7 +252,7 @@ namespace SourceForge.NAnt.Tasks
             return true;
         }
 
-        public bool Compile( string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands )
+        public bool Compile(string strConfiguration, ArrayList alCSCArguments, string strLogFile, bool bVerbose, bool bShowCommands )
         {
             TempFileCollection tfc = new TempFileCollection();
             Directory.CreateDirectory( tfc.BasePath );
@@ -265,7 +265,7 @@ namespace SourceForge.NAnt.Tasks
                 return true;
             }
 
-            SourceForge.NAnt.Log.WriteLine( _nanttask.LogPrefix + "Building {0} [{1}]...", Name, strConfiguration );
+            Log(Level.Info, _nanttask.LogPrefix + "Building {0} [{1}]...", Name, strConfiguration);
             Directory.CreateDirectory( cs.OutputPath );
 
             try
@@ -276,7 +276,7 @@ namespace SourceForge.NAnt.Tasks
                 {
                     if ( CheckUpToDate( cs ) )
                     {    
-                        SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + "Project is up-to-date" );
+                        Log(Level.Verbose, _nanttask.LogPrefix + "Project is up-to-date" );
                         return true;
                     }
 
@@ -292,10 +292,10 @@ namespace SourceForge.NAnt.Tasks
                     if ( _ps.Type == ProjectType.VBNet )
                         sw.WriteLine( _strImports );
 
-                    SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + "Copying references:" );
+                    Log(Level.Verbose, _nanttask.LogPrefix + "Copying references:" );
                     foreach ( Reference reference in _htReferences.Values )
                     {
-                        SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + " - " + reference.Name );
+                        Log(Level.Verbose, _nanttask.LogPrefix + " - " + reference.Name );
 
                         if ( reference.CopyLocal )
                         {
@@ -304,7 +304,7 @@ namespace SourceForge.NAnt.Tasks
                                 string strProgram, strCommandLine;
                                 reference.GetCreationCommand( cs, out strProgram, out strCommandLine );
 
-                                SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + strProgram + " " + strCommandLine );
+                                Log(Level.Verbose, _nanttask.LogPrefix + strProgram + " " + strCommandLine);
                                 ProcessStartInfo psiRef = new ProcessStartInfo( strProgram, strCommandLine );
                                 psiRef.UseShellExecute = false;
                                 psiRef.WorkingDirectory = cs.OutputPath;
@@ -330,18 +330,18 @@ namespace SourceForge.NAnt.Tasks
                                 ct.Project = _nanttask.Project;
                                 ct.Verbose = _nanttask.Verbose;
 
-                                SourceForge.NAnt.Log.IndentLevel++;
+                                _nanttask.Project.Indent();
                                 ct.Execute();
-                                SourceForge.NAnt.Log.IndentLevel--;
+                                _nanttask.Project.UnIndent();
                             }
                         }
                         sw.WriteLine( reference.Setting );
                     }
 
-                    SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + "Compiling resources:" );
+                    Log(Level.Verbose, _nanttask.LogPrefix + "Compiling resources:" );
                     foreach ( Resource resource in _htResources.Values )
                     {
-                        SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + " - {0}", resource.InputFile );
+                        Log(Level.Info, _nanttask.LogPrefix + " - {0}", resource.InputFile, Level.Verbose);
                         resource.Compile( cs, bShowCommands );
                         sw.WriteLine( resource.Setting );
                     }
@@ -361,7 +361,7 @@ namespace SourceForge.NAnt.Tasks
                     }
                 }
 
-                SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + "Starting compiler..." );
+                Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
                 ProcessStartInfo psi = null;
                 if ( _ps.Type == ProjectType.CSharp )
                 {
@@ -396,21 +396,21 @@ namespace SourceForge.NAnt.Tasks
                 }
                 else
                 {
-                    SourceForge.NAnt.Log.IndentLevel++;
+                    _nanttask.Project.Indent();
                     while ( true )
                     {                        
                         string strLogContents = p.StandardOutput.ReadLine();
                         if ( strLogContents == null )
                             break;                    
-                        SourceForge.NAnt.Log.WriteLine( "      [compile] " + strLogContents );
+                        Log(Level.Info, "      [compile] " + strLogContents);
                     }
-                    SourceForge.NAnt.Log.IndentLevel--;
+                    _nanttask.Project.UnIndent();
                 }
 
                 p.WaitForExit();
 
                 int nExitCode = p.ExitCode;
-                SourceForge.NAnt.Log.WriteLineIf( bVerbose, _nanttask.LogPrefix + "{0}! (exit code = {1})", ( nExitCode == 0 ) ? "Success" : "Failure", nExitCode );
+                Log(Level.Verbose, _nanttask.LogPrefix + "{0}! (exit code = {1})", ( nExitCode == 0 ) ? "Success" : "Failure", nExitCode );
 
                 if ( nExitCode > 0 )
                     bSuccess = false;
@@ -418,7 +418,7 @@ namespace SourceForge.NAnt.Tasks
                 {
                     if ( _bWebProject )
                     {
-                        SourceForge.NAnt.Log.WriteLine( _nanttask.LogPrefix + "Uploading output files" );
+                        Log(Level.Info, _nanttask.LogPrefix + "Uploading output files");
                         WebDavClient wdc = new WebDavClient( new Uri( _strWebProjectBaseUrl ) );
                         //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
                         wdc.UploadFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
@@ -463,6 +463,35 @@ namespace SourceForge.NAnt.Tasks
         public string GUID
         {
             get { return _ps.GUID; }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to be logged.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message) {
+            if (_nanttask != null) {
+                _nanttask.Log(messageLevel, message);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message with the given priority.
+        /// </summary>
+        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
+        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
+        /// <remarks>
+        /// The actual logging is delegated to the task.
+        /// </remarks>
+        private void Log(Level messageLevel, string message, params object[] args) {
+            if (_nanttask != null) {
+                _nanttask.Log(messageLevel, message, args);
+            }
         }
 
         private Hashtable    _htConfigurations;
