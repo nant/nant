@@ -16,7 +16,10 @@
         <!-- <add key="log4net.Internal.Debug" value="true"/> -->
     </appSettings>
     <!-- nant config settings -->
-    <nantsettings defaultframework="mono-0.23-linux">
+    <nantsettings 
+    	defaultframework="mono-0.23-linux"
+    	taskpath=".\optional">
+        
         <frameworks>
             <frameworkinfo    
                 name = "mono-0.23-linux"

@@ -53,7 +53,7 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+        private static bool ScannedTaskPath = false;
         //xml element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
@@ -61,7 +61,7 @@ namespace NAnt.Core {
         private const string ProjectBaseDirAttribute = "basedir";
         private const string TargetXml = "target";
         private const string TargetDependsAttribute = "depends";
-
+        
         #endregion Private Static Fields
 
         #region Internal Static Fields
@@ -1235,7 +1235,21 @@ namespace NAnt.Core {
             //If a default namespace is specified this will fail.
             XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
             ProcessFrameworkInfo(frameworkInfoNodes);
-
+            
+            string taskPath = GetXmlAttributeValue(node, "taskpath");
+            if (taskPath != null && ScannedTaskPath == false ){
+                string[] paths = taskPath.Split(';');
+                foreach ( string path in paths ){
+                    string fullpath = path;
+                    if (! Directory.Exists( path )) {
+                        // try relative path
+                        fullpath = Path.GetFullPath(Path.Combine( Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path));
+                    }
+                    TypeFactory.ScanDir( fullpath );
+                }
+                ScannedTaskPath = true; // so we only load tasks once
+            }
+          
             string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
             if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey( defaultFramework ) ) {
                 Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
