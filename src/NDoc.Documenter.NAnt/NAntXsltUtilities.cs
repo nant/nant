@@ -83,7 +83,7 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
-            //create a list of element names by id
+            // create a list of element names by id
             XmlNodeList types = Document.SelectNodes("//class");
             foreach (XmlElement typeNode in types) {
                 string typeId = typeNode.Attributes["id"].Value;
@@ -176,11 +176,15 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Searches the document for a 
+        /// Searches the document for the <c>&lt;class&gt;</c> node with the 
+        /// given id.
         /// </summary>
         /// <param name="type">Type.FullName of class to return</param>
-        /// <returns></returns>
-        public XPathNodeIterator GetClassNode(string id){
+        /// <returns>
+        /// The <c>&lt;class&gt;</c> node with the given id, or <see langword="null" />
+        /// if the node does not exist.
+        /// </returns>
+        public XPathNodeIterator GetClassNode(string id) {
             if (!id.StartsWith("T:")) {
                 id = "T:" + id;
             }
@@ -293,7 +297,7 @@ namespace NDoc.Documenter.NAnt {
         /// The NAnt task name for the specified cref.
         /// </returns>
         public string GetTaskName(string cref) {
-            return GetTaskNameForType(GetTypeByID(cref));
+            return GetTaskNameForType(GetTypeNodeByID(cref));
         }
 
         /// <summary>
@@ -304,7 +308,99 @@ namespace NDoc.Documenter.NAnt {
         /// The NAnt element name for the specified cref.
         /// </returns>
         public string GetElementName(string cref) {
-            return GetElementNameForType(GetTypeByID(cref));
+            return GetElementNameForType(GetTypeNodeByID(cref));
+        }
+
+        public XmlNode GetTypeNodeByID(string cref) {
+            if (cref[1] == ':' && !cref.StartsWith("T:")) {
+                return null;
+            }
+
+            if (!cref.StartsWith("T:")) {
+                cref = "T:" + cref;
+            }
+            
+            XmlNode typeNode = Document.SelectSingleNode("//class[@id='" + cref + "']");
+            if (typeNode == null) {
+                typeNode = Document.SelectSingleNode("//enumeration[@id='" + cref + "']");
+            }
+            return typeNode;
+        }
+
+        /// <summary>
+        /// Determines the <see cref="ElementDocType" /> of the given type node.
+        /// </summary>
+        /// <param name="typeNode">The type node for which to determine the <see cref="ElementDocType" />.</param>
+        /// <returns>
+        /// The <see cref="ElementDocType" /> of the given type node.
+        /// </returns>
+        public ElementDocType GetElementDocType(XmlNode typeNode) {
+            if (typeNode == null) {
+                return ElementDocType.None;
+            }
+
+            // check if type is an enum
+            if (typeNode.LocalName == "enumeration") {
+                return ElementDocType.Enum;
+            }
+
+            // check if type is a task
+            if (GetTaskNameForType(typeNode) != null) {
+                return ElementDocType.Task;
+            }
+
+            // check if type is a datatype
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
+                if (typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']") != null) {
+                    return ElementDocType.DataTypeElement;
+                } else {
+                    return ElementDocType.Element;
+                }
+            }
+
+            // check if type is an element
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) { 
+                return ElementDocType.Element;
+            }
+
+            return ElementDocType.None;
+        }
+
+        /// <summary>
+        /// Determines the <see cref="ElementDocType" /> of the type to which
+        /// the given cref points.
+        /// </summary>
+        /// <param name="cref">The cref for which to determine the <see cref="ElementDocType" />.</param>
+        /// <returns>
+        /// The <see cref="ElementDocType" /> of the type to which the given
+        /// cref points.
+        /// </returns>
+        public ElementDocType GetElementDocTypeByID(string cref) {
+            return GetElementDocType(GetTypeNodeByID(cref));
+        }
+
+        /// <summary>
+        /// Determines whether the given cref points to a <c>datatype</c>.
+        /// </summary>
+        /// <param name="cref">The cref to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the given cref points to a <c>datatype</c>;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsDataType(string cref) {
+            return GetElementDocTypeByID(cref) == ElementDocType.DataTypeElement;
+        }
+
+        /// <summary>
+        /// Determines whether the given cref points to a <c>task</c>.
+        /// </summary>
+        /// <param name="cref">The cref to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the given cref points to a <c>task</c>;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public bool IsTask(string cref) {
+            return GetElementDocTypeByID(cref) == ElementDocType.Task;
         }
 
         #endregion Public Instance Methods
@@ -312,7 +408,7 @@ namespace NDoc.Documenter.NAnt {
         #region Private Instance Methods
 
         private string GetElementNameForType(string id) {
-            return GetElementNameForType(GetTypeByID(id));
+            return GetElementNameForType(GetTypeNodeByID(id));
         }
 
         private string GetElementNameForType(XmlNode typeNode) {
@@ -337,7 +433,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         private string GetFileNameForType(string type) {
-            return GetFileNameForType(GetTypeByID(type));
+            return GetFileNameForType(GetTypeNodeByID(type));
         }
 
         private string GetFilenameForSystemMember(string cref) {
@@ -354,41 +450,6 @@ namespace NDoc.Documenter.NAnt {
             string crefType = crefName.Substring(0, index);
             string crefMember = crefName.Substring(index + 1);
             return SdkDocBaseUrl + crefType.Replace(".", "") + "Class" + crefMember + "Topic" + SdkDocExt;
-        }
-
-        private XmlNode GetTypeByID(string id){
-          
-            /*
-            // if it is a property, field, method or such, remove the last element name, and search for the parent type.
-            // ie. P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined becomes T:NAnt.Core.Types.FileSet.ExcludesElement
-            switch (id.Substring(0, 2)) {
-                case "T:":  // Type: class, interface, struct, enum, delegate
-                    break;
-                case "F:":  // Field
-                case "P:":  // Property
-                case "M:":  // Method
-                case "E:": {  // Event
-                    //should convert P:NAnt.Core.Types.FileSet.ExcludesElement.IfDefined to T:NAnt.Core.Types.FileSet.ExcludesElement
-                    id = "T:" + id.Substring(2,id.LastIndexOf(".") - 2);
-                    break;
-                }
-            }
-            */
-
-            if(id[1] == ':' && !id.StartsWith("T:")){
-                return null;
-                //throw new System.ArgumentException("Cannot lookup type: " + id, "id");
-            }
-
-            if(!id.StartsWith("T:")){
-                id = "T:" + id;
-            }
-            
-            XmlNode typeNode = Document.SelectSingleNode("//class[@id='" + id + "']");
-            if (typeNode == null) {
-                typeNode = Document.SelectSingleNode("//enumeration[@id='" + id + "']");
-            }
-            return typeNode;
         }
 
         #endregion Private Instance Methods

@@ -202,9 +202,10 @@ namespace NDoc.Documenter.NAnt {
                 OnDocBuildingStep(buildStepProgress, "Generating Task Documents...");
 
                 // generate a page for each marked task
-                XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "') and attribute/@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
-                foreach (XmlNode taskNode in taskAttrNodes) {
-                    DocumentType(taskNode, ElementDocType.Task);
+                XmlNodeList typeNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]");
+                foreach (XmlNode typeNode in typeNodes) {
+                    ElementDocType elementDocType = indexUtilities.GetElementDocType(typeNode);
+                    DocumentType(typeNode, elementDocType, indexUtilities);
                 }
 
                 OnDocBuildingStep(buildStepProgress, "Generating Function Documents...");
@@ -212,17 +213,9 @@ namespace NDoc.Documenter.NAnt {
                 // generate a page for each function - TODO - change the XPath expression to select more functions
                 XmlNodeList functionNodes = _xmlDocumentation.SelectNodes("//method[attribute/@name = 'NAnt.Core.Attributes.FunctionAttribute' and ancestor::class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "')]]");
                 foreach (XmlElement function in functionNodes) {
-                    DocumentFunction(function);
+                    DocumentFunction(function, indexUtilities);
                 }
 
-                buildStepProgress += 10;
-                OnDocBuildingStep(buildStepProgress, "Generating Type Documents...");
-                // generate a page for each marked type
-                XmlNodeList typeAttrNodes = _xmlDocumentation.SelectNodes("//class[starts-with(substring(@id, 3, string-length(@id) - 2), '" + NamespaceFilter + "') and descendant::base/@id='T:" + typeof(DataTypeBase).FullName + "']");
-                foreach (XmlNode typeNode in typeAttrNodes) {
-                    //OnDocBuildingStep(buildStepProgress++, "Doc'n DataType:" + typeNode.Attributes["id"].Value);
-                    DocumentType(typeNode, ElementDocType.DataTypeElement);
-                }
                 OnDocBuildingStep(100, "Complete");
             } finally {
                 // close writer
@@ -238,9 +231,14 @@ namespace NDoc.Documenter.NAnt {
 
         #region Private Instance Methods
 
-        private void DocumentType(XmlNode typeNode, ElementDocType docType) {
+        private void DocumentType(XmlNode typeNode, ElementDocType docType, NAntXsltUtilities utilities) {
             if (typeNode == null) {
                 throw new ArgumentNullException("typeNode");
+            }
+
+            if (docType == ElementDocType.None) {
+                // we don't need to document this type
+                return;
             }
 
             string classID = typeNode.Attributes["id"].Value;
@@ -281,10 +279,6 @@ namespace NDoc.Documenter.NAnt {
 
             arguments.AddParam("refType", string.Empty, refTypeString);
 
-            // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntDocumenterConfig) Config);
-
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
@@ -314,7 +308,7 @@ namespace NDoc.Documenter.NAnt {
                             // HACK : make sure the collection class is documented too
                             XmlNode collectionNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
                             if (collectionNode != null) {
-                                DocumentType(collectionNode, ElementDocType.Element);
+                                DocumentType(collectionNode, ElementDocType.Element, utilities);
                             }
 
                             // get type of collection elements
@@ -330,18 +324,13 @@ namespace NDoc.Documenter.NAnt {
                         }
                     }
 
-                    XmlNode elementNode = _xmlDocumentation.SelectSingleNode("//class[@id='" + elementType + "']");
-                    if (elementNode == null) {
-                        //Console.WriteLine(elementType + " not found in document");
-                    } else {
-                        DocumentType(elementNode, ElementDocType.Element);
-                    }
-
-                    XmlNode enumNode = _xmlDocumentation.SelectSingleNode("//enumeration[@id='" + elementType + "']");
-                    if (enumNode == null) {
-                        //Console.WriteLine(elementType + " not found in document");
-                    } else {
-                        DocumentType(enumNode, ElementDocType.Enum);
+                    XmlNode elementTypeNode = utilities.GetTypeNodeByID(elementType);
+                    if (elementTypeNode != null) {
+                        ElementDocType elementDocType = utilities.GetElementDocType(elementTypeNode);
+                        if (elementDocType != ElementDocType.None) {
+                            DocumentType(elementTypeNode, elementDocType, 
+                                utilities);
+                        }
                     }
                 }
             }
@@ -350,7 +339,7 @@ namespace NDoc.Documenter.NAnt {
             TransformAndWriteResult(_xsltTypeDoc, arguments, filename);
         }
 
-        private void DocumentFunction(XmlElement functionElement) {
+        private void DocumentFunction(XmlElement functionElement, NAntXsltUtilities utilities) {
             if (functionElement == null) {
                 throw new ArgumentNullException("functionElement");
             }
@@ -363,10 +352,6 @@ namespace NDoc.Documenter.NAnt {
             arguments.AddParam("method-id", string.Empty, methodID);
             arguments.AddParam("refType", string.Empty, "Function");
             arguments.AddParam("functionName", string.Empty, functionElement.GetAttribute("name"));
-
-            // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntDocumenterConfig) Config);
 
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
@@ -401,18 +386,6 @@ namespace NDoc.Documenter.NAnt {
                 fileName));
         }
 
-        private void TransformAndWriteResult(XslTransform transform, string filename) {
-            XsltArgumentList arguments = new XsltArgumentList();
-
-            // add extension object for NAnt utilities
-            NAntXsltUtilities utilities = NAntXsltUtilities.CreateInstance(
-                _xmlDocumentation, (NAntDocumenterConfig) Config);
-
-            arguments.AddExtensionObject("urn:NAntUtil", utilities);
-
-            TransformAndWriteResult(transform, arguments, filename);
-        }
-
         private void TransformAndWriteResult(XslTransform transform, XsltArgumentList arguments, string filename) {
             string path = Path.Combine(OutputDirectory, filename);
             using (StreamWriter writer = new StreamWriter(path, false, Encoding.ASCII)) {
@@ -424,10 +397,10 @@ namespace NDoc.Documenter.NAnt {
     }
 
     public enum ElementDocType {
-        Task,
-        DataTypeElement,
-        Element,
-        Inline,
-        Enum
+        None = 0,
+        Task = 1,
+        DataTypeElement = 2,
+        Element = 3,
+        Enum = 4
     }
 }
