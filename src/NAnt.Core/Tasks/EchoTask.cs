@@ -137,8 +137,8 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Determines whether the echo task should append to the file, or overwrite it.  The default is false.
         /// </summary>
-		[TaskAttribute("append")]
-		public bool Append {
+        [TaskAttribute("append")]
+        public bool Append {
             get { return _append; }
             set { _append = value; }
         }
@@ -170,20 +170,20 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             // File case
-			if (!StringUtils.IsNullOrEmpty(Filename)) {
+            if (!StringUtils.IsNullOrEmpty(Filename)) {
                 using (StreamWriter writer = new StreamWriter(Filename, Append)) {
-					if (!StringUtils.IsNullOrEmpty(Message)) {
-						writer.WriteLine(Message);
-					} else if (!StringUtils.IsNullOrEmpty(Contents)) {
-						writer.WriteLine(Contents);
-					} else {
-						writer.WriteLine();
-					}
-				}
+                    if (!StringUtils.IsNullOrEmpty(Message)) {
+                        writer.WriteLine(Message);
+                    } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                        writer.WriteLine(Contents);
+                    } else {
+                        writer.WriteLine();
+                    }
+                }
                 return;
             }
 
-			// Log case
+            // Log case
             if (!StringUtils.IsNullOrEmpty(Message)) {
                 Log(MessageLevel, LogPrefix + Message);
             } else if (!StringUtils.IsNullOrEmpty(Contents)) {
