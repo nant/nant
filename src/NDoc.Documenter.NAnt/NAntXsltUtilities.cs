@@ -27,10 +27,9 @@ using NAnt.Core.Attributes;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
-    /// Provides an extension object for the Xslt transformations.
+    /// Provides an extension object for the XSLT transformations.
     /// </summary>
     public class NAntXsltUtilities {
-
         #region Private Instance Fields
 
         private SdkDocVersion _linkToSdkDocVersion;
@@ -143,11 +142,11 @@ namespace NDoc.Documenter.NAnt {
         /// <param name="type">Type.FullName of class to return</param>
         /// <returns></returns>
         public XPathNodeIterator GetClassNode(string id){
-            if(!id.StartsWith("T:")){
+            if (!id.StartsWith("T:")) {
                 id = "T:" + id;
             }
             XmlNode typeNode = _doc.SelectSingleNode("//class[@id='" + id + "']");
-            if(typeNode == null) {
+            if (typeNode == null) {
                 return null;
             }
             return typeNode.CreateNavigator().Select(".");
@@ -161,7 +160,6 @@ namespace NDoc.Documenter.NAnt {
         /// The href for the specified cref.
         /// </returns>
         public string GetHRef(string cref) {
-            //System.Console.WriteLine("looking up:" + cref);
             if ((cref.Length < 2) || (cref[1] != ':')) {
                 return string.Empty;
             }
@@ -229,7 +227,6 @@ namespace NDoc.Documenter.NAnt {
                     }
                 }
 
-                
                 int index;
                 if ((index = cref.IndexOf(".#c")) >= 0) {
                     cref = cref.Substring(2, index - 2);
@@ -244,7 +241,6 @@ namespace NDoc.Documenter.NAnt {
             //System.Console.WriteLine("GetName: {0} = {1}", cref, returnName);
             return returnName;
         }
-
 
         /// <summary>
         /// Returns the NAnt task name for a given cref.
@@ -271,19 +267,21 @@ namespace NDoc.Documenter.NAnt {
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+
         private string GetElementNameForType(string id) {
             return GetElementNameForType(GetTypeByID(id));
         }
 
         private string GetElementNameForType(XmlNode typeNode) {
-            if(typeNode == null) return string.Empty;
+            if (typeNode == null) {
+                return string.Empty;
+            }
 
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
                 return "<" + taskName + ">";
             }
-
         
             // make sure the type has a ElementNameAttribute assigned to it
             XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
@@ -352,6 +350,7 @@ namespace NDoc.Documenter.NAnt {
             }
             return classNode;
         }
+
         #endregion Private Instance Methods
 
         #region Internal Static Methods
@@ -365,7 +364,9 @@ namespace NDoc.Documenter.NAnt {
         /// The class is also checked to make sure it is derived from <see cref="Task"/>
         /// </remarks>
         internal static string GetTaskNameForType(XmlNode typeNode) {
-            if(typeNode == null) return string.Empty;
+            if (typeNode == null) {
+                return string.Empty;
+            }
 
             // make sure the type actually derives from NAnt.Core.Task
             if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Task).FullName + "']") != null) {
@@ -424,7 +425,6 @@ namespace NDoc.Documenter.NAnt {
             return null;
         }
 
-        
         /// <summary>
         /// Returns the filename to use for the given class XmlNode
         /// </summary>
@@ -449,17 +449,14 @@ namespace NDoc.Documenter.NAnt {
                 }
             }
 
-
             return "elements/" + typeNode.Attributes["id"].Value.Substring(2) + ".html";
         }
-                
-
-        
+       
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, SdkDocVersion linkToSdkDocVersion){
             //just in case... but we should never see this happen.
             lock(typeof(NAntXsltUtilities)) {
-                foreach(NAntXsltUtilities util in Instances){
-                    if(util._doc == doc && util._linkToSdkDocVersion.Equals(linkToSdkDocVersion)) {
+                foreach (NAntXsltUtilities util in Instances){
+                    if (util._doc == doc && util._linkToSdkDocVersion.Equals(linkToSdkDocVersion)) {
                         return util;
                     }
                 }
@@ -468,6 +465,7 @@ namespace NDoc.Documenter.NAnt {
                 return inst;
             }
         }
-        #endregion
+
+        #endregion Internal Static Methods
     }
 }

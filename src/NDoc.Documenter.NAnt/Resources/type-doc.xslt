@@ -38,8 +38,6 @@
         standalone="yes"
         />
 
-        
-
     <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
     <xsl:param name="class-id">T:NAnt.Core.Types.FileSet</xsl:param>
 
@@ -94,12 +92,10 @@
             <h1><xsl:value-of select="$name" /> <xsl:value-of select="$refType"/></h1>
             <xsl:apply-templates select="."/>            
         </body>
-
     </xsl:template>
 
     <!-- match class tag for info about a type -->
     <xsl:template match="class">
-    
         <!-- output whether type is deprecated -->
         <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']"/>
         <xsl:if test="count($ObsoleteAttribute) > 0">
@@ -168,7 +164,6 @@
             <h3>Examples</h3>
             <xsl:apply-templates select="documentation/example" mode="slashdoc"/>
         </xsl:if>
-        
     </xsl:template>
 
     <!-- returns the summary doc string for a given class property (called from the property templates )-->
