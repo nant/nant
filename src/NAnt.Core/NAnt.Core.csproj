@@ -205,6 +205,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "PlatformHelper.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Project.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
