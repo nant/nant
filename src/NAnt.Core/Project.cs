@@ -147,7 +147,7 @@ namespace NAnt.Core {
         [NonSerialized()]
         private XmlDocument _doc = null; // set in ctorHelper
         [NonSerialized()]
-        private XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
+        private XmlNamespaceManager _nsMgr = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         [NonSerialized()]
         private DataTypeBaseDictionary _dataTypeReferences = new DataTypeBaseDictionary();
 
@@ -368,8 +368,18 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="XmlNamespaceManager" />.
+        /// </summary>
+        /// <value>
+        /// The <see cref="XmlNamespaceManager" />.
+        /// </value>
+        /// <remarks>
+        /// The <see cref="NamespaceManager" /> defines the current namespace 
+        /// scope and provides methods for looking up namespace information.
+        /// </remarks>
         public XmlNamespaceManager NamespaceManager {
-            get { return _nm; }
+            get { return _nsMgr; }
         }
 
         /// <summary>
@@ -957,6 +967,7 @@ namespace NAnt.Core {
                     CallTask callTask = new CallTask();
                     callTask.Parent = this;
                     callTask.Project = this;
+                    callTask.NamespaceManager = this.NamespaceManager;
                     callTask.Verbose = this.Verbose;
                     callTask.FailOnError = false;
                     callTask.TargetName = endTarget;
@@ -976,6 +987,7 @@ namespace NAnt.Core {
 
             type.Project = this;
             type.Parent = this;
+            type.NamespaceManager = this.NamespaceManager;
             type.Initialize(elementNode);
             return type;
         }
@@ -1001,6 +1013,7 @@ namespace NAnt.Core {
 
             task.Project = this;
             task.Parent = target;
+            task.NamespaceManager = this.NamespaceManager;
             task.Initialize(taskNode);
             return task;
         }
@@ -1207,7 +1220,7 @@ namespace NAnt.Core {
                 doc.DocumentElement.Attributes.Append(attr);
             }
 
-            _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
+            NamespaceManager.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
             // check to make sure that the root element in named correctly
             if (!doc.DocumentElement.LocalName.Equals(RootXml)) {
@@ -1294,11 +1307,12 @@ namespace NAnt.Core {
             // initialize targets first
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.                
-                if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+                if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     Target target = new Target();
 
                     target.Project = this;
                     target.Parent = this;
+                    target.NamespaceManager = this.NamespaceManager;
                     target.Initialize(childNode);
                     Targets.Add(target);
                 }
@@ -1308,7 +1322,7 @@ namespace NAnt.Core {
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 //skip targets that were handled above.
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)|| childNode.LocalName.Equals(TargetXml)) {
+                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant")) || childNode.LocalName.Equals(TargetXml)) {
                     continue;
                 }
 

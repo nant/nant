@@ -47,10 +47,12 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private Location _location = Location.UnknownLocation;
-        private Project _project = null;
+        private Project _project;
         [NonSerialized()]
-        private XmlNode _xmlNode = null;
-        private object _parent = null;
+        private XmlNode _xmlNode;
+        private object _parent;
+        [NonSerialized()]
+        private XmlNamespaceManager _nsMgr;
 
         #endregion Private Instance Fields
 
@@ -79,6 +81,7 @@ namespace NAnt.Core {
             _location = e._location;
             _project = e._project;
             _xmlNode = e._xmlNode;
+            _nsMgr = e._nsMgr;
         }
 
         #endregion Protected Instance Constructors
@@ -129,6 +132,21 @@ namespace NAnt.Core {
         /// </value>
         public virtual PropertyDictionary Properties {
             get { return Project.Properties; }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="XmlNamespaceManager" />.
+        /// </summary>
+        /// <value>
+        /// The <see cref="XmlNamespaceManager" />.
+        /// </value>
+        /// <remarks>
+        /// The <see cref="NamespaceManager" /> defines the current namespace 
+        /// scope and provides methods for looking up namespace information.
+        /// </remarks>
+        public XmlNamespaceManager NamespaceManager {
+            get { return _nsMgr; }
+            set { _nsMgr = value; }
         }
 
         #endregion Public Instance Properties
@@ -332,13 +350,12 @@ namespace NAnt.Core {
                     // locate framework node for current framework
                     XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("frameworks/platform[@name=\"" 
                         + Project.PlatformName + "\"]/framework[@name=\"" 
-                        + framework.Name + "\"]", 
-                        Project.NamespaceManager);
+                        + framework.Name + "\"]", NamespaceManager);
 
                     if (frameworkNode != null) {
                         // locate framework-specific configuration node
                         attributeNode = frameworkNode.SelectSingleNode(xpath, 
-                            Project.NamespaceManager);
+                            NamespaceManager);
                     }
                 }
 
@@ -348,13 +365,13 @@ namespace NAnt.Core {
 
                 if (attributeNode == null) {
                     // locate framework-neutral node
-                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode("frameworks/tasks", 
-                        Project.NamespaceManager);
+                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode(
+                        "frameworks/tasks", NamespaceManager);
 
                     if (frameworkNeutralNode != null) {
                         // locate framework-neutral configuration node
                         attributeNode = frameworkNeutralNode.SelectSingleNode(xpath, 
-                            Project.NamespaceManager);
+                            NamespaceManager);
                     }
                 }
 
@@ -434,6 +451,20 @@ namespace NAnt.Core {
 
             public XmlNode XmlNode {
                 get { return Element.XmlNode; }
+            }
+
+            /// <summary>
+            /// Gets the <see cref="XmlNamespaceManager" />.
+            /// </summary>
+            /// <value>
+            /// The <see cref="XmlNamespaceManager" />.
+            /// </value>
+            /// <remarks>
+            /// The <see cref="NamespaceManager" /> defines the current namespace 
+            /// scope and provides methods for looking up namespace information.
+            /// </remarks>
+            public XmlNamespaceManager NamespaceManager {
+                get { return Element.NamespaceManager; }
             }
 
             #endregion Public Instance Properties
@@ -718,7 +749,7 @@ namespace NAnt.Core {
                         if (buildElementCollectionAttribute != null) {
                             collectionNodes = elementNode.SelectNodes("nant:" 
                                 + buildElementCollectionAttribute.Name, 
-                                Project.NamespaceManager);
+                                NamespaceManager);
                         
                             if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
@@ -741,7 +772,7 @@ namespace NAnt.Core {
 
                                 // get actual collection of element nodes
                                 collectionNodes = collectionNodes[0].SelectNodes("nant:" 
-                                    + elementName, Project.NamespaceManager);
+                                    + elementName, NamespaceManager);
 
                                 // check if its required
                                 if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
@@ -760,7 +791,7 @@ namespace NAnt.Core {
                         } else {
                             collectionNodes = elementNode.SelectNodes("nant:" 
                                 + buildElementArrayAttribute.Name, 
-                                Project.NamespaceManager);
+                                NamespaceManager);
 
                             if (collectionNodes.Count > 0) {
                                 // remove element from list of remaining items
@@ -779,26 +810,26 @@ namespace NAnt.Core {
                         int arrayIndex = 0;
                         foreach (XmlNode childNode in collectionNodes) {
                             //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                            if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                            if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                                 continue;
                             }
 
                             // Create a child element
                             Element childElement = (Element) Activator.CreateInstance(elementType); 
 
+                            // initialize the object with context
                             childElement.Project = Project;
                             childElement.Parent = Element;
+                            childElement.NamespaceManager = NamespaceManager;
                         
                             // if subtype of DataTypeBase
                             DataTypeBase dataType = childElement as DataTypeBase;
                         
-                            if (dataType != null  && childNode.Attributes["refid"] != null ) {
+                            if (dataType != null && childNode.Attributes["refid"] != null ) {
                                 dataType.RefID = childNode.Attributes["refid"].Value;
                                 // we have a datatype reference 
-                                childElement.Project = Project;
-                                childElement.Parent = Element;
                                 childElement = InitDataTypeBase(dataType);
-                                if( childElement.GetType() != (elementType)) {
+                                if (childElement.GetType() != elementType) {
                                     ElementNameAttribute childElemAttr = (ElementNameAttribute) 
                                         Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
                                     ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
@@ -810,12 +841,17 @@ namespace NAnt.Core {
                                         elementTypeAttr.Name, childElemAttr.Name), 
                                         Location);
                                 }
+
+                                // initialize the object with context
+                                childElement.Project = Project;
+                                childElement.Parent = Element;
+                                childElement.NamespaceManager = NamespaceManager;
                                 childElement.Location = Project.LocationMap.GetLocation(elementNode);
                             } else {
                                 childElement.Initialize(childNode);
                             }
                             list.SetValue(childElement, arrayIndex);
-                            arrayIndex ++;
+                            arrayIndex++;
                         }
 
                         // check if property is deprecated
@@ -925,7 +961,7 @@ namespace NAnt.Core {
                             // output warning to build log when multiple nested elements 
                             // were specified in the build file, as NAnt will only process
                             // the first element it encounters
-                            if (elementNode.SelectNodes("nant:" + buildElementAttribute.Name, Project.NamespaceManager).Count > 1) {
+                            if (elementNode.SelectNodes("nant:" + buildElementAttribute.Name, NamespaceManager).Count > 1) {
                                 Element.Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
                                     "<{0} ... /> does not support multiple '{1}' child elements." +
                                     " Only the first element will be processed.", Name,
@@ -1007,10 +1043,12 @@ namespace NAnt.Core {
                 // initialize the object with context
                 childElement.Project = Project;
                 childElement.Parent = Element;
+                childElement.NamespaceManager = NamespaceManager;
+
                 DataTypeBase dataType = childElement as DataTypeBase;
-                if (dataType != null  && xml.Attributes["refid"] != null ) {
-                    if (setter == null){
-                        string msg = string.Format(CultureInfo.InvariantCulture, "DataType child element {0} in class {1} must define a set method", propInf.Name, this.GetType().FullName);
+                if (dataType != null && xml.Attributes["refid"] != null) {
+                    if (setter == null) {
+                        string msg = string.Format(CultureInfo.InvariantCulture, "DataType child element '{0}' in class '{1}' must define a set method.", propInf.Name, this.GetType().FullName);
                         logger.Error(msg);
                         throw new BuildException(msg, Location);
                     }
@@ -1019,7 +1057,7 @@ namespace NAnt.Core {
                     childElement = InitDataTypeBase(dataType);
                     Type elemType = setter.GetParameters()[0].ParameterType;
                 
-                    if( childElement.GetType() != (elemType ) ) {
+                    if (childElement.GetType() != elemType) {
                         ElementNameAttribute childElemAttr = (ElementNameAttribute) 
                             Attribute.GetCustomAttribute(childElement.GetType(), typeof(ElementNameAttribute));
                         ElementNameAttribute elementTypeAttr = (ElementNameAttribute) 
@@ -1032,12 +1070,14 @@ namespace NAnt.Core {
                     }
                     // re-set the getter
                     getter = null;
+
+                    // re-initialize the object with context
                     childElement.Project = Project;
                     childElement.Parent = Element;
+                    childElement.NamespaceManager = NamespaceManager;
                 } else {
                     childElement.Initialize(xml, properties, framework);
                 }
-           
 
                 // call the set method if we created the object
                 if (setter != null && getter == null) {
