@@ -541,12 +541,22 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Add the given argument to the command line options.
+        /// Add the given argument to the command line options.  Note that are not explicitly
+        /// quoted are split into seperate arguments.  This is to resolve a recent issue
+        /// with quoting command line arguments.
         /// </summary>
         /// <param name="arg"></param>
         protected void AddArg (String arg) {
-            Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"{0}",
-                arg)));
+            if (arg.IndexOf(" ") > -1 && arg.IndexOf("\"") == -1) {
+                string[] args = arg.Split(' ');
+                foreach (string targ in args) {
+                    Arguments.Add(
+                        new Argument(String.Format(CultureInfo.InvariantCulture,"{0}", targ)));
+                }
+            } else {
+                Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"{0}",
+                    arg)));
+            }
         }
 
         #endregion Private Instance Methods
