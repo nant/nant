@@ -57,7 +57,12 @@ namespace NAnt.Core {
             CommandLineParser commandLineParser = null;
             Project project = null;
             Level projectThreshold = Level.Info;
-
+            
+            // create assembly resolver
+            AssemblyResolver assemblyResolver = new AssemblyResolver();
+            
+            // attach assembly resolver to the current domain
+            assemblyResolver.Attach();
             try {
                 CommandLineOptions cmdlineOptions = new CommandLineOptions();
                 commandLineParser = new CommandLineParser(typeof(CommandLineOptions));
@@ -293,6 +298,8 @@ namespace NAnt.Core {
                 if (project != null) {
                     project.DetachBuildListeners();
                 }
+                // detach assembly resolver from the current domain
+                assemblyResolver.Detach();
             }
         }
 

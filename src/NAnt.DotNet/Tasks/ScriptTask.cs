@@ -303,6 +303,12 @@ namespace NAnt.Core.Tasks {
             TypeFactory.AddTasks(compiled);
             TypeFactory.AddFilters(compiled);
             
+            // load the referenced assemblies explicitly.
+            foreach (string assemblyName in References.FileNames) {
+                Console.WriteLine("loading assembly {0}", assemblyName );
+                Assembly.LoadFrom(assemblyName);
+            }
+                                                
             string mainClass = _rootClassName;
             if (!StringUtils.IsNullOrEmpty(MainClass)) {
                 mainClass += "+" + MainClass;
@@ -336,24 +342,14 @@ namespace NAnt.Core.Tasks {
             if (entryParams[0].ParameterType.FullName != "NAnt.Core.Project") {
                 throw new BuildException("Invalid entry point declaration (invalid parameter type, Project expected).", Location);
             }
-
-            AssemblyResolver assemblyResolver = new AssemblyResolver();
-
-            try {
-                // attach to domain
-                assemblyResolver.Attach();
-
-                // invoke Main method
-                entry.Invoke(null, new object[] {Project});
+              
+            // invoke Main method
+            entry.Invoke(null, new object[] {Project});
 //            } catch (Exception ex) {
                 // this exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
                 // thrown by the executed script code.
 //                throw new BuildException("Failure executing script.", Location, ex.InnerException);
-            } finally {
-                // detach from domain
-                assemblyResolver.Detach();
-            }
         }
 
         #endregion Override implementation of Task
