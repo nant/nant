@@ -316,11 +316,11 @@ namespace NAnt.VSNet.Tasks {
                 Log(Level.Verbose, _nanttask.LogPrefix + "Starting compiler...");
                 ProcessStartInfo psi = null;
                 if ( _ps.Type == ProjectType.CSharp ) {
-                    psi = new ProcessStartInfo( "csc.exe", "@" + strTempFile );
+                    psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe" ), "@" + strTempFile );
                 }
 
                 if ( _ps.Type == ProjectType.VBNet ) {
-                    psi = new ProcessStartInfo( "vbc.exe", "@" + strTempFile );
+                    psi = new ProcessStartInfo( Path.Combine( _nanttask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe" ), "@" + strTempFile );
                 }
 
                 psi.UseShellExecute = false;
