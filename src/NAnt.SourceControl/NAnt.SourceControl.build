@@ -20,6 +20,9 @@
                 <include name="${lib.dir}/ICSharpCode.SharpZipLib.dll" />
                 <include name="${lib.dir}/ICSharpCode.SharpCvsLib.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
     </target>
 </project>

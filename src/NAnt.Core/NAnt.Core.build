@@ -22,6 +22,9 @@
                 <!-- task currently does not work on Mono and is temporarely included in the NAnt.Win32 assembly -->
                 <exclude name="Tasks/ScriptTask.cs"/>
             </sources>
+            <resources basedir=".">
+                <include name="*.resx" />
+            </resources>
             <resources basedir="Resources">
                 <include name="**/*" />
             </resources>

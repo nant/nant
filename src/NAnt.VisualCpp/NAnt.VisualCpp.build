@@ -17,6 +17,9 @@
             <references basedir="${build.dir}/bin">
                 <include name="NAnt.Core.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
     </target>
 </project>

@@ -28,6 +28,9 @@
                 <include name="NAnt.VisualCppTasks.dll"/>
                 <include name="NAnt.Win32Tasks.dll"/>
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
     </target>
 </project>

@@ -26,6 +26,9 @@
                 <include name="Microsoft.JScript.dll" />
                 <include name="System.ServiceProcess.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
     </target>
 </project>

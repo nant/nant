@@ -29,6 +29,7 @@ using X = System.Xml;
 
 using NUnit.Framework;
 
+
 using NAnt.Core;
 using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
@@ -121,7 +122,7 @@ namespace Tests.NAnt.Console {
 
             // try to find build file in sub directory
             // expect an exception - multiple *.build files found
-            try {               
+            try {
                 ConsoleDriver.GetBuildFileName(subDirectory, null, true);
                 Assert.Fail("ApplicationException not thrown (#1).");
             } catch (ApplicationException) {
@@ -129,8 +130,8 @@ namespace Tests.NAnt.Console {
 
             // try to find a build file that doesn't exist
             // expect an exception - build file not found
-            // 
-            // however, we might find a "default.build" file if there's one in 
+            //
+            // however, we might find a "default.build" file if there's one in
             // one of the parent directories (eg. the root)
             try {
                 string buildFile = ConsoleDriver.GetBuildFileName(subDirectory, "foobarmustnotexist.xml", true);
@@ -163,8 +164,8 @@ namespace Tests.NAnt.Console {
             }
 
             // using a regular expression look for a plausible version number and valid copyright date
-            string expression = @"^NAnt (?<infoMajor>[0-9]+).(?<infoMinor>[0-9]+) " 
-                + @"\(Build (?<buildMajor>[0-9]+).(?<buildMinor>[0-9]+).(?<buildBuild>[0-9]+).(?<buildRevision>[0-9]+); " 
+            string expression = @"^NAnt (?<infoMajor>[0-9]+).(?<infoMinor>[0-9]+) "
+                + @"\(Build (?<buildMajor>[0-9]+).(?<buildMinor>[0-9]+).(?<buildBuild>[0-9]+).(?<buildRevision>[0-9]+); "
                 + @"(?<configuration>.*); (?<releasedate>.*)\)"
                 + ".*\n" + @"Copyright \(C\) 2001-(?<year>200[0-9]) Gerry Shaw";
 

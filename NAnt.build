@@ -250,6 +250,9 @@
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
                 <include name="**/*.xslt" />
             </resources>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">

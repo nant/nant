@@ -23,6 +23,9 @@
                 <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
                 <include name="${lib.framework.dir}/NDoc.Core.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
     </target>
 </project>

@@ -39,6 +39,9 @@
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
                 <include name="${lib.dir}/NUnitCore.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <nowarn>

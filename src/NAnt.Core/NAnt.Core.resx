@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+NAnt.NUnit1.resx
+
+Giuseppe Greco <giuseppe.greco@agamura.com>
+Copyright (C) 2005 Agamura, Inc.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Giuseppe Greco (giuseppe.greco@agamura.com)
+-->
+<root>  
+    <resheader name="ResMimeType">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="Version">
+      <value>1.0</value>
+    </resheader>
+    <resheader name="Reader">
+        <value>System.Resources.ResXResourceReader</value>
+    </resheader>
+    <resheader name="Writer">
+        <value>System.Resources.ResXResourceWriter</value>
+    </resheader>
+<data name="NA1001" >
+    <value>Could not find a '{0}' file in '{1}'</value>
+    <comment>Could not find a '{0}' file in '{1}'</comment>
+</data>
+<data name="NA1002" >
+    <value>More than one '{0}' file found in '{1}' and no default.build exists.</value>
+    <comment>More than one '{0}' file found in '{1}' and no default.build exists.</comment>
+</data>
+<data name="NA1003" >
+    <value>Error creating listener of type '{0}'.</value>
+    <comment>Error creating listener of type '{0}'.</comment>
+</data>
+<data name="NA1004" >
+    <value>Error creating logger of type '{0}'.</value>
+    <comment>Error creating logger of type '{0}'.</comment>
+</data>
+
+<data name="NA1005" >
+    <value>Error creating output log file '{0}'.</value>
+    <comment>Error creating output log file '{0}'.</comment>
+</data>
+<data name="NA1006" >
+    <value>Could not load type {0}.</value>
+    <comment>Could not load type {0}.</comment>
+</data>
+<data name="NA1007" >
+    <value>Could not find a '{0}' file in directory tree.</value>
+    <comment>Could not find a '{0}' file in directory tree.</comment>
+</data>
+<data name="NA1008" >
+    <value>'id' is an invalid attribute for a &lt;{0}&gt; tag. Datatypes</value>
+    <comment>'id' is an invalid attribute for a &lt;{0}&gt; tag. Datatypes</comment>
+</data>
+<data name="NA1009" >
+    <value>'refid' attribute is invalid for a &lt;{0}&gt; datatype declaration.</value>
+    <comment>'refid' attribute is invalid for a &lt;{0}&gt; datatype declaration.</comment>
+</data>
+<data name="NA1010" >
+    <value>'id' is a required attribute for a &lt;{0}&gt; datatype declaration.</value>
+    <comment>'id' is a required attribute for a &lt;{0}&gt; datatype declaration.</comment>
+</data>
+<data name="NA1011" >
+    <value>Skipping {0} &lt;attribute&gt; for {1}</value>
+    <comment>Skipping {0} &lt;attribute&gt; for {1}</comment>
+</data>
+<data name="NA1012" >
+    <value>Child element type {0} is not assignable to the type</value>
+    <comment>Child element type {0} is not assignable to the type</comment>
+</data>
+<data name="NA1013" >
+    <value>'{0}' is a required element of &lt;{1} ... /&gt;.</value>
+    <comment>'{0}' is a required element of &lt;{1} ... /&gt;.</comment>
+</data>
+<data name="NA1014" >
+    <value>Attribute '{0}' for &lt;{1} ... /&gt; is deprecated.  {2}</value>
+    <comment>Attribute '{0}' for &lt;{1} ... /&gt; is deprecated.  {2}</comment>
+</data>
+<data name="NA1015" >
+    <value>'{0}' is a required framework configuration setting for &lt;{1} ... /&gt;.</value>
+    <comment>'{0}' is a required framework configuration setting for &lt;{1} ... /&gt;.</comment>
+</data>
+<data name="NA10116" >
+    <value>BuildElementArrayAttribute cannot be applied to read-only</value>
+    <comment>BuildElementArrayAttribute cannot be applied to read-only</comment>
+</data>
+
+<data name="NA1017" >
+    <value>BuildElementArrayAttribute cannot be applied to read-only property with</value>
+    <comment>BuildElementArrayAttribute cannot be applied to read-only property with</comment>
+</data>
+<data name="NA1018" >
+    <value>BuildElementArrayAttribute cannot be applied to write-only</value>
+    <comment>BuildElementArrayAttribute cannot be applied to write-only</comment>
+</data>
+<data name="NA1019" >
+    <value>Child element type {0} cannot be added to collection</value>
+    <comment>Child element type {0} cannot be added to collection</comment>
+</data>
+<data name="NA1020" >     
+    <value>There must be a least one '{0}' element for &lt;{1} .../&gt;.</value>
+    <comment>There must be a least one '{0}' element for &lt;{1} .../&gt;.</comment>
+</data>
+<data name="NA1021" >
+    <value>'{0}' is not a valid value for attribute '{1}' of &lt;{2} ... /&gt;.</value>
+    <comment>'{0}' is not a valid value for attribute '{1}' of &lt;{2} ... /&gt;.</comment>
+</data>
+<!--
+duplicate ( with different spelling ) of NA1020
+<data name="NA1001" >
+    <value>There must be a least one '{0}' element for &lt;{1} ... /&gt;.</value>
+    <comment>There must be a least one '{0}' element for &lt;{1} ... /&gt;.</comment>
+</data>
+-->
+
+<data name="NA1022" >
+    <value>No name was assigned to the base element '{0}' for collection element {1} for &lt;{2} .../&gt;.</value>
+    <comment>No name was assigned to the base element '{0}' for collection element {1} for &lt;{2} .../&gt;.</comment>
+</data>
+<data name="NA1023" >
+    <value>Unexpected attribute \"{0}\" on element &lt;{1}&gt;.</value>
+    <comment>Unexpected attribute \"{0}\" on element &lt;{1}&gt;.</comment>
+</data>
+
+<data name="NA1034" >
+    <value>BuildElementCollectionAttribute cannot be applied to read-only property with
+        uninitialized collection-based value '{0}' element for &lt;{1} ... /&gt;.", </value>
+    <comment>BuildElementCollectionAttribute cannot be applied to read-only property with</comment>
+</data>
+<data name="NA1035" >
+    <value>Use BuildElementArrayAttributes to have array like elements!</value>
+    <comment>Use BuildElementArrayAttributes to have array like elements!</comment>
+</data>
+<data name="NA1034" >
+    <value>BuildElementArrayAttribute and BuildElementCollection attributes
+        must be applied to array or collection-based types '{0}' element for &lt;{1} .../&gt;.</value>
+    <comment>BuildElementArrayAttribute and BuildElementCollection attributes</comment>
+</data>
+<data name="NA1035" >
+    <value>The &lt;{0}&gt; type does not support the nested build  element \"{1}\".</value>
+    <comment>The &lt;{0}&gt; type does not support the nested build element \"{1}\".</comment>
+</data>
+<data name="NA1036" >
+    <value>'{0}' is a required attribute of &lt;{1} ... /&gt;.</value>
+    <comment>'{0}' is a required attribute of &lt;{1} ... /&gt;.</comment>
+</data>
+<data name="NA1037" >
+    <value>Element &lt;{0}... /&gt; for &lt;{1}... /&gt; is deprecated. {2}</value>
+    <comment>Element &lt;{0}... /&gt; for &lt;{1}... /&gt; is deprecated. {2}</comment>
+</data>
+<data name="NA1038" >
+    <value>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</value>
+    <comment>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</comment>
+</data>
+<data name="NA1038" >
+    <value>Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '*' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1040" >
+    <value>Operator '&gt;' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '&gt;' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1041" >
+    <value>Operator '==' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '==' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1042" >
+    <value>Operator '/' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '/' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1043" >
+    <value>Unary minus not supported for arguments of type '{0}'.</value>
+    <comment>Unary minus not supported for arguments of type '{0}'.</comment>
+</data>
+<data name="NA1044" >
+    <value>Operator '+' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '+' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1045" >
+    <value>Operator '!=' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '!=' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1046" >
+    <value>Attempt to divide by zero.</value>
+    <comment>Attempt to divide by zero.</comment>
+</data>
+<data name="NA1047" >
+    <value>Too few actual parameters for '{0}'.</value>
+    <comment>Too few actual parameters for '{0}'.</comment>
+</data>
+<data name="NA1048" >
+    <value>Cannot convert {0} to '{1}' (value was null).</value>
+    <comment>Cannot convert {0} to '{1}' (value was null).</comment>
+</data>
+<data name="NA1049" >
+    <value>Too many actual parameters for '{0}'.</value>
+    <comment>Too many actual parameters for '{0}'.</comment>
+</data>
+<data name="NA1050" >
+    <value>Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1051" >
+    <value>Operator '-' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '-' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1052" >
+    <value>Operator '&lt;=' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '&lt;=' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1053" >
+    <value>Operator '&gt;=' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '&gt;=' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1054" >
+    <value>Operator '&lt;' cannot be applied to arguments of type '{0}' and '{1}'.</value>
+    <comment>Operator '&lt;' cannot be applied to arguments of type '{0}' and '{1}'.</comment>
+</data>
+<data name="NA1055" >
+    <value>Unknown function '{0}'.</value>
+    <comment>Unknown function '{0}'.</comment>
+</data>
+<data name="NA1056" >
+    <value>Property '{0}' has not been set.</value>
+    <comment>Property '{0}' has not been set.</comment>
+</data>
+<data name="NA1057" >
+    <value> does not exist in framework assembly directory</value>
+    <comment> does not exist in framework assembly directory</comment>
+</data>
+<data name="NA1058" >
+    <value>There is no version of Visual Studio .NET that corresponds with {0}.</value>
+    <comment>There is no version of Visual Studio .NET that corresponds with {0}.</comment>
+</data>
+<data name="NA1059" >
+    <value>BuildElementArrayAttribute and BuildElementCollectionAttribute
+         should have an element type assigned that derives from Element for &lt;{{0} .../&gt;.</value>
+    <comment>BuildElementArrayAttribute and BuildElementCollectionAttribute</comment>
+</data>
+
+<data name="NA1060" >
+    <value>Root element in '{0}' must be named '{1}'.</value>
+    <comment>Root element in '{0}' must be named '{1}'.</comment>
+</data>
+<data name="NA1061" >
+    <value>NAnt currently does not support this platform ({0}, ID = {0}).</value>
+    <comment>NAnt currently does not support this platform ({0}, ID = {0}).</comment>
+</data>
+<data name="NA1062" >
+    <value>Invalid path '{0}'. The '{1}' scheme is not supported for paths.</value>
+    <comment>Invalid path '{0}'. The '{1}' scheme is not supported for paths.</comment>
+</data>
+<data name="NA1063" >
+    <value>The NAnt configuration file does not contain a framework</value>
+    <comment>The NAnt configuration file does not contain a framework</comment>
+</data>
+<data name="NA1064" >
+    <value>The current runtime framework '{0}' is not correctly
+         configured in the NAnt configuration file.</value>
+    <comment>The current runtime framework '{0}' is not correctly
+         configured in the NAnt configuration file."</comment>
+</data>
+<data name="NA1065" >
+    <value>Property name '{0}' is invalid.</value>
+    <comment>Property name '{0}' is invalid.</comment>
+</data>
+<data name="NA1066" >
+    <value>Property '{0}' already exists.</value>
+    <comment>Property '{0}' already exists.</comment>
+</data>
+<data name="NA1067" >
+    <value>Property value must be a string, was '{0}'.</value>
+    <comment>Property value must be a string, was '{0}'.</comment>
+</data>
+<data name="NA1068" >
+    <value>Property '{0}' does not exist.", name), "name</value>
+    <comment>Property '{0}' does not exist.", name), "name</comment>
+</data>
+<data name="NA1069" >
+    <value>Read-only property \"{0}\" cannot be overwritten.</value>
+    <comment>Read-only property \"{0}\" cannot be overwritten.</comment>
+</data>
+<data name="NA1070" >
+    <value>Cannot resolve expanded value '{0}' of 'unless'</value>
+    <comment>Cannot resolve expanded value '{0}' of 'unless'</comment>
+</data>
+<data name="NA1071" >
+    <value>Cannot resolve expanded value '{0}' of 'if' attribute</value>
+    <comment>Cannot resolve expanded value '{0}' of 'if' attribute</comment>
+</data>
+<data name="NA1072" >
+    <value>Invalid element &lt;{0}&gt;. Unknown task or datatype.</value>
+    <comment>Invalid element &lt;{0}&gt;. Unknown task or datatype.</comment>
+</data>
+
+<data name="NA1001" >
+    <value>Duplicate target named '{0}'!</value>
+    <comment>Duplicate target named '{0}'!</comment>
+</data>
+<data name="NA1001" >
+    <value>Configuration value {0} for task {1} was not considered valid by {2}.</value>
+    <comment>Configuration value {0} for task {1} was not considered valid by {2}.</comment>
+</data>
+<data name="NA1001" >
+    <value>'{0}' is a required framework configuration setting for the</value>
+    <comment>'{0}' is a required framework configuration setting for the</comment>
+</data>
+<data name="NA1001" >
+    <value>Task.Execute() for '{0}'</value>
+    <comment>Task.Execute() for '{0}'</comment>
+</data>
+<data name="NA1001" >
+    <value>{0} Generated Exception</value>
+    <comment>{0} Generated Exception</comment>
+</data>
+<data name="NA1001" >
+    <value>'{0}' is a required framework configuration setting for the '{1}'</value>
+    <comment>'{0}' is a required framework configuration setting for the '{1}'</comment>
+</data>
+<data name="NA1001" >
+    <value>Filter &lt;{0}&gt; is deprecated.  {1}</value>
+    <comment>Filter &lt;{0}&gt; is deprecated.  {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>Adding '{0}' from {1}:{2}</value>
+    <comment>Adding '{0}' from {1}:{2}</comment>
+</data>
+<data name="NA1001" >
+    <value>Unknown element &lt;{0}&gt;.</value>
+    <comment>Unknown element &lt;{0}&gt;.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unknown filter &lt;{0}&gt;.</value>
+    <comment>Unknown filter &lt;{0}&gt;.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unknown task &lt;{0}&gt;.</value>
+    <comment>Unknown task &lt;{0}&gt;.</comment>
+</data>
+<data name="NA1001" >
+    <value>Creating DataTypeBaseBuilder for {0}</value>
+    <comment>Creating DataTypeBaseBuilder for {0}</comment>
+</data>
+<data name="NA1001" >
+    <value>Type &lt;{0}&gt; is deprecated.  {1}</value>
+    <comment>Type &lt;{0}&gt; is deprecated.  {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>Task &lt;{0}&gt; is deprecated.  {1}</value>
+    <comment>Task &lt;{0}&gt; is deprecated.  {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>Function {0} is deprecated.  {1}</value>
+    <comment>Function {0} is deprecated.  {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot resolve '{0}' to boolean value.</value>
+    <comment>Cannot resolve '{0}' to boolean value.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot resolve '{0}' to DateTime value.</value>
+    <comment>Cannot resolve '{0}' to DateTime value.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot resolve '{0}' to integer between '{1}' and '{2}'.</value>
+    <comment>Cannot resolve '{0}' to integer between '{1}' and '{2}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot resolve '{0}' to integer value.</value>
+    <comment>Cannot resolve '{0}' to integer value.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot resolve '{0}' to a string value.</value>
+    <comment>Cannot resolve '{0}' to a string value.</comment>
+</data>
+<data name="NA1001" >
+    <value>BuildElementArrayAttribute cannot be applied to read-only property with</value>
+    <comment>BuildElementArrayAttribute cannot be applied to read-only property with</comment>
+</data>
+<data name="NA1001" >
+    <value>Child element type {0} cannot be added to collection</value>
+    <comment>Child element type {0} cannot be added to collection</comment>
+</data>
+<data name="NA1001" >
+    <value>Environment variable \"{0}\" does not exist.</value>
+    <comment>Environment variable \"{0}\" does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>\"{0}\" is not a valid framework identifier.</value>
+    <comment>\"{0}\" is not a valid framework identifier.</comment>
+</data>
+<data name="NA1001" >
+    <value>Target \"{0}\" does not exist.</value>
+    <comment>Target \"{0}\" does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Property '{0}' has not been set.</value>
+    <comment>Property '{0}' has not been set.</comment>
+</data>
+<data name="NA1001" >
+    <value>Task '{0}' is not available.</value>
+    <comment>Task '{0}' is not available.</comment>
+</data>
+<data name="NA1001" >
+    <value>Package \"{0}\" does not exist.</value>
+    <comment>Package \"{0}\" does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot set attributes for directory '{0}'.</value>
+    <comment>Cannot set attributes for directory '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot set attributes for file '{0}'.</value>
+    <comment>Cannot set attributes for file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unable to determine whether directory '{0}' is available.</value>
+    <comment>Unable to determine whether directory '{0}' is available.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unable to determine whether file '{0}' is available.</value>
+    <comment>Unable to determine whether file '{0}' is available.</comment>
+</data>
+<data name="NA1001" >
+    <value>The 'tofile' and 'todir' attribute cannot both be set.</value>
+    <comment>The 'tofile' and 'todir' attribute cannot both be set.</comment>
+</data>
+<data name="NA1001" >
+    <value>'flatten' attribute requires that 'todir' has been set.</value>
+    <comment>'flatten' attribute requires that 'todir' has been set.</comment>
+</data>
+<data name="NA1001" >
+    <value>The 'file' attribute and the &lt;fileset&gt; element</value>
+    <comment>The 'file' attribute and the &lt;fileset&gt; element</comment>
+</data>
+<data name="NA1001" >
+    <value>Either the 'tofile' or 'todir' attribute should be set.</value>
+    <comment>Either the 'tofile' or 'todir' attribute should be set.</comment>
+</data>
+<data name="NA1001" >
+    <value>The 'todir' should be set when using the &lt;fileset&gt; element</value>
+    <comment>The 'todir' should be set when using the &lt;fileset&gt; element</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to create directory '{0}'.</value>
+    <comment>Failed to create directory '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot copy '{0}' to '{1}'.</value>
+    <comment>Cannot copy '{0}' to '{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Could not find file '{0}' to copy.</value>
+    <comment>Could not find file '{0}' to copy.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot delete directory '{0}'.</value>
+    <comment>Cannot delete directory '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot delete file '{0}'.</value>
+    <comment>Cannot delete file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot delete directory '{0}'. The directory does not exist.</value>
+    <comment>Cannot delete directory '{0}'. The directory does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to write message to file '{0}'.</value>
+    <comment>Failed to write message to file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>'{0}' is not a valid value for attribute 'program' of &lt;{1} ... /&gt;.</value>
+    <comment>'{0}' is not a valid value for attribute 'program' of &lt;{1} ... /&gt;.</comment>
+</data>
+<data name="NA1001" >
+    <value>External Program {0} did not finish within {1} milliseconds.</value>
+    <comment>External Program {0} did not finish within {1} milliseconds.</comment>
+</data>
+<data name="NA1001" >
+    <value>External Program Failed: {0} (return code was {1})</value>
+    <comment>External Program Failed: {0} (return code was {1})</comment>
+</data>
+<data name="NA1001" >
+    <value>The '{0}' task cannot be executed, as it relies on an</value>
+    <comment>The '{0}' task cannot be executed, as it relies on an</comment>
+</data>
+<data name="NA1001" >
+    <value>'{0}' failed to start.</value>
+    <comment>'{0}' failed to start.</comment>
+</data>
+<data name="NA1001" >
+    <value>The SDK for the '{0}' framework is not available or not configured.</value>
+    <comment>The SDK for the '{0}' framework is not available or not configured.</comment>
+</data>
+<data name="NA1001" >
+    <value>Starting '{1} ({2})' in '{0}'</value>
+    <comment>Starting '{1} ({2})' in '{0}'</comment>
+</data>
+<data name="NA1001" >
+    <value>The framework directory for the '{0}' framework is not available or not configured.</value>
+    <comment>The framework directory for the '{0}' framework is not available or not configured.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unable to download '{0}' to '{1}'.</value>
+    <comment>Unable to download '{0}' to '{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>PropertyTrue test failed for '{0}'.</value>
+    <comment>PropertyTrue test failed for '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Build file '{0}' does not exist.</value>
+    <comment>Build file '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Could not include build file '{0}'.</value>
+    <comment>Could not include build file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>The content of file '{0}' could not be loaded.</value>
+    <comment>The content of file '{0}' could not be loaded.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failure scanning \"{0}\" for extensions.</value>
+    <comment>Failure scanning \"{0}\" for extensions.</comment>
+</data>
+<data name="NA1001" >
+    <value>Path \"{0}\" does not exist. Can't scan for extensions.</value>
+    <comment>Path \"{0}\" does not exist. Can't scan for extensions.</comment>
+</data>
+<data name="NA1001" >
+    <value>Assembly \"{0}\" does not exist. Can't scan for extensions.</value>
+    <comment>Assembly \"{0}\" does not exist. Can't scan for extensions.</comment>
+</data>
+<data name="NA1001" >
+    <value>Source file '{0}' does not exist.</value>
+    <comment>Source file '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Source directory '{0}' does not exist.</value>
+    <comment>Source directory '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>File '{0}' NOT added to message body. {1}</value>
+    <comment>File '{0}' NOT added to message body. {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>File '{0}' NOT attached to message. {1}</value>
+    <comment>File '{0}' NOT attached to message. {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>Directory '{0}' could not be created.</value>
+    <comment>Directory '{0}' could not be created.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to move {0} to {1}.</value>
+    <comment>Failed to move {0} to {1}.</comment>
+</data>
+<data name="NA1001" >
+    <value>NAnt schema generated at {0}</value>
+    <comment>NAnt schema generated at {0}</comment>
+</data>
+
+<data name="NA1001" >
+    <value>The 'buildfile' attribute and the &lt;buildfiles&gt; element</value>
+    <comment>The 'buildfile' attribute and the &lt;buildfiles&gt; element</comment>
+</data>
+<data name="NA1001" >
+    <value>Valid values are: {0}.", string.Join(", </value>
+    <comment>Valid values are: {0}.", string.Join(", </comment>
+</data>
+<data name="NA1001" >
+    <value>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</value>
+    <comment>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>No match found for expression '{0}' in '{1}'.</value>
+    <comment>No match found for expression '{0}' in '{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Invalid value \"{0}\" for \"pattern\" attribute.</value>
+    <comment>Invalid value \"{0}\" for \"pattern\" attribute.</comment>
+</data>
+<data name="NA1001" >
+    <value>Error setting environment variable \"{0}\" to \"{1}\".</value>
+    <comment>Error setting environment variable \"{0}\" to \"{1}\".</comment>
+</data>
+<data name="NA1001" >
+    <value>No source files indicated; use \"in\" or \"infiles\".</value>
+    <comment>No source files indicated; use \"in\" or \"infiles\".</comment>
+</data>
+<data name="NA1001" >
+    <value>The \"out\" attribute is not allowed when \"infiles\" is used.</value>
+    <comment>The \"out\" attribute is not allowed when \"infiles\" is used.</comment>
+</data>
+<data name="NA1001" >
+    <value>Stylesheet file '{0}' does not exist.</value>
+    <comment>Stylesheet file '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Unable to find source XML file '{0}'.</value>
+    <comment>Unable to find source XML file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Could not perform XSLT transformation of '{0}' using</value>
+    <comment>Could not perform XSLT transformation of '{0}' using</comment>
+</data>
+<data name="NA1001" >
+    <value>Cannot touch file '{0}'.</value>
+    <comment>Cannot touch file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Could not peek at XML file '{0}'.</value>
+    <comment>Could not peek at XML file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>XML file '{0}' does not exist.</value>
+    <comment>XML file '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to select node with XPath expression '{0}'.</value>
+    <comment>Failed to select node with XPath expression '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>No matching nodes found for XPath expression '{0}'.</value>
+    <comment>No matching nodes found for XPath expression '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Nodeindex '{0}' is out of range.</value>
+    <comment>Nodeindex '{0}' is out of range.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to load the XML document '{0}'.</value>
+    <comment>Failed to load the XML document '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Could not poke at XML file '{0}'.</value>
+    <comment>Could not poke at XML file '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>XML file '{0}' does not exist.</value>
+    <comment>XML file '{0}' does not exist.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to select nodes with XPath expression '{0}'.</value>
+    <comment>Failed to select nodes with XPath expression '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to save the XML document to '{0}'.</value>
+    <comment>Failed to save the XML document to '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to load the XML document '{0}'.</value>
+    <comment>Failed to load the XML document '{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>The fileset specified is empty after scanning '{0}' for: {1}</value>
+    <comment>The fileset specified is empty after scanning '{0}' for: {1}</comment>
+</data>
+<data name="NA1001" >
+    <value>'{0}' list could not be opened.</value>
+    <comment>'{0}' list could not be opened.</comment>
+</data>
+<data name="NA1001" >
+    <value>Assembly \"{0}\" does not exist. Can't create extension object.</value>
+    <comment>Assembly \"{0}\" does not exist. Can't create extension object.</comment>
+</data>
+<data name="NA1001" >
+    <value>Can't create extension object \"{0}\" from \"{1}\".</value>
+    <comment>Can't create extension object \"{0}\" from \"{1}\".</comment>
+</data>
+<data name="NA1001" >
+    <value>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </value>
+    <comment>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </comment>
+</data>
+<data name="NA1001" >
+    <value>Collection-based command-line argument '-{0}' has no strongly-typed Add method.</value>
+    <comment>Collection-based command-line argument '-{0}' has no strongly-typed Add method.</comment>
+</data>
+<data name="NA1001" >
+    <value>Invalid value '{0}' for command-line argument '-{1}'.</value>
+    <comment>Invalid value '{0}' for command-line argument '-{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Command-line argument '-{0}' is collection-based,</value>
+    <comment>Command-line argument '-{0}' is collection-based,</comment>
+</data>
+<data name="NA1001" >
+    <value>Duplicate value '{0}' for command-line argument '-{1}'.</value>
+    <comment>Duplicate value '{0}' for command-line argument '-{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>The signature of the Add method for the collection-based</value>
+    <comment>The signature of the Add method for the collection-based</comment>
+</data>
+<data name="NA1001" >
+    <value>Duplicate property named '{0}' for command-line argument '{1}'.</value>
+    <comment>Duplicate property named '{0}' for command-line argument '{1}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>Duplicate command-line argument '-{0}'.</value>
+    <comment>Duplicate command-line argument '-{0}'.</comment>
+</data>
+<data name="NA1001" >
+    <value>{0} {1} (Build {2}; {3}; {4})</value>
+    <comment>{0} {1} (Build {2}; {3}; {4})</comment>
+</data>
+<data name="NA1001" >
+    <value>Commandline argument '-{0}' is obsolete. {1}</value>
+    <comment>Commandline argument '-{0}' is obsolete. {1}</comment>
+</data>
+
+<!-- General Strings --> 
+<data name="String_FoundAttribute" >
+    <value>Found {0} &lt;attribute&gt; for {1}</value>
+    <comment>Found {0} &lt;attribute&gt; for {1}</comment>
+</data>
+<data name="NA1022" >
+    <value>Setting value: {2}.{0} = {1}</value>
+    <comment>Setting value: {2}.{0} = {1}</comment>
+</data>
+
+<data name="NA1001" >
+    <value>Validating &lt;{1} {2}='...'&gt; with {0}</value>
+    <comment>Validating &lt;{1} {2}='...'&gt; with {0}</comment>
+</data>
+<data name="NA1001" >
+    <value>Total time: {0} seconds.</value>
+    <comment>Total time: {0} seconds.</comment>
+</data>
+<data name="NA1001" >
+    <value>BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)</value>
+    <comment>BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)</comment>
+</data>
+<data name="NA1001" >
+    <value>BUILD FAILED - {0} non-fatal error(s), {1} warning(s)</value>
+    <comment>BUILD FAILED - {0} non-fatal error(s), {1} warning(s)</comment>
+</data>
+<data name="NA1073" >
+    <value>Adding Target '{0}'</value>
+    <comment>Adding Target '{0}'</comment>
+</data>
+
+</root>

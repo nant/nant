@@ -30,6 +30,9 @@
                 <include name="${build.dir}/bin/log4net.dll" />
                 <include name="System.Xml.dll" />
             </references>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
         </csc>
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="App.config" />
     </target>
