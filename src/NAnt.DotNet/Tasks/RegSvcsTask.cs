@@ -25,6 +25,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -156,9 +157,10 @@ namespace NAnt.DotNet.Tasks {
         /// The assembly must be signed with a strong name.
         /// </remarks>
         [TaskAttribute("assembly", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string AssemblyName {
             get { return (_assemblyName != null) ? Project.GetFullPath(_assemblyName) : null; }
-            set { _assemblyName = SetStringValue(value); }
+            set { _assemblyName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -167,7 +169,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("tlb")]
         public string TypeLibrary {
             get { return (_tlb != null) ? Project.GetFullPath(_tlb) : null; }
-            set { _tlb = SetStringValue(value); }
+            set { _tlb = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -218,7 +220,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("application")]
         public string ApplicationName {
             get { return _applicationName; }
-            set { _applicationName = SetStringValue(value); }
+            set { _applicationName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -228,7 +230,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("partition")]
         public string PartitionName {
             get { return _partitionName; }
-            set { _partitionName = SetStringValue(value); }
+            set { _partitionName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

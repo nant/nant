@@ -23,6 +23,7 @@ using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.DotNet.Tasks;
 
 namespace NAnt.DotNet.Tasks {
@@ -77,7 +78,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("keyfile")]
         public string KeyFile {
             get { return (_keyFilename != null) ? Project.GetFullPath(_keyFilename) : null; }
-            set { _keyFilename = SetStringValue(value); }
+            set { _keyFilename = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("keycontainer")]
         public string KeyContainer {
             get { return _keyContainer; }
-            set { _keyContainer = SetStringValue(value); }
+            set { _keyContainer = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -115,7 +116,7 @@ namespace NAnt.DotNet.Tasks {
         [FrameworkConfigurable("exename")]
         public override string ExeName {
             get { return _exeName; }
-            set { _exeName = SetStringValue(value); }
+            set { _exeName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>

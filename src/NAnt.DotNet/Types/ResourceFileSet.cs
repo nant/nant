@@ -23,6 +23,7 @@ using System.Text;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
     /// <summary>
@@ -49,7 +50,7 @@ namespace NAnt.DotNet.Types {
         [TaskAttribute("prefix")]
         public string Prefix {
             get { return _prefix; }
-            set { _prefix = value; } 
+            set { _prefix = StringUtils.ConvertEmptyToNull(value); } 
         }
             
         /// <summary>
@@ -131,7 +132,7 @@ namespace NAnt.DotNet.Types {
                 }
                 prefix.Append(relativePrefix);
             }
-            if(prefix.Length > 0 && !prefix.ToString().EndsWith(".")) {
+            if (prefix.Length > 0 && !prefix.ToString().EndsWith(".")) {
                 prefix.Append(".");
             }
             string actualFileName = Path.GetFileNameWithoutExtension(fileName);
@@ -143,8 +144,8 @@ namespace NAnt.DotNet.Types {
 
         #region Private Instance Fields
 
-        string _prefix = ""; //Default to empty prefix
-        bool _dynamicprefix = false;
+        private string _prefix = null;
+        private bool _dynamicprefix = false;
 
         #endregion Private Instance Fields
     }

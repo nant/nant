@@ -24,6 +24,7 @@ using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -89,7 +90,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("baseaddress")]
         public string BaseAddress {
             get { return _baseAddress; }
-            set { _baseAddress = SetStringValue(value); }
+            set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("imports")]
         public string Imports {
             get { return _imports; }
-            set { _imports = SetStringValue(value); }
+            set { _imports = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("optioncompare")]
         public string OptionCompare {
             get { return _optionCompare; }
-            set { _optionCompare = SetStringValue(value); }
+            set { _optionCompare = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -204,7 +205,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("rootnamespace")]
         public string RootNamespace {
             get { return _rootNamespace; }
-            set { _rootNamespace = SetStringValue(value); }
+            set { _rootNamespace = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
@@ -219,9 +220,9 @@ namespace NAnt.DotNet.Tasks {
         protected override string GetFormNamespace(string resxPath) {
             string baseNamespace = base.GetFormNamespace(resxPath);
 
-            if (RootNamespace  != null) {
-                if (baseNamespace != null && baseNamespace.Length > 0) {
-                    return RootNamespace +  "." + baseNamespace;
+            if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
+                if (!StringUtils.IsNullOrEmpty(baseNamespace)) {
+                    return RootNamespace + "." + baseNamespace;
                 } else {
                     return RootNamespace;
                 }

@@ -27,6 +27,7 @@ using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -88,7 +89,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("input", Required=false)]
         public string Input {
             get { return (_input != null) ? Project.GetFullPath(_input) : null; }
-            set { _input = SetStringValue(value); }
+            set { _input = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("output", Required=false)]
         public string Output {
             get { return _output; }
-            set { _output = SetStringValue(value); }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -106,7 +107,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("target", Required=false)]
         public string TargetExt {
             get { return _targetExt; }
-            set { _targetExt = SetStringValue(value); }
+            set { _targetExt = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("todir", Required=false)]
         public string ToDirectory {
             get { return (_toDir != null) ? Project.GetFullPath(_toDir) : null; }
-            set { _toDir = SetStringValue(value); }
+            set { _toDir = StringUtils.ConvertEmptyToNull(value); }
         }
        
         /// <summary>
@@ -154,10 +155,11 @@ namespace NAnt.DotNet.Tasks {
                     string outputFile = GetOutputFile(filename);
 
                     if (NeedsCompiling(filename, outputFile)) {
-                        if (_arguments.Length == 0) {
+                        if (StringUtils.IsNullOrEmpty(_arguments)) {
                             AppendArgument ("/compile");
                         }
-                        AppendArgument(string.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
+                        AppendArgument(string.Format(CultureInfo.InvariantCulture, 
+                            " \"{0},{1}\"", filename, outputFile));
                     }
                 }
             } else {
@@ -174,7 +176,7 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            if (_arguments.Length > 0) {
+            if (!StringUtils.IsNullOrEmpty(_arguments)) {
                 // call base class to do the work
                 base.ExecuteTask();
             }

@@ -21,6 +21,7 @@ using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -108,7 +109,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("x")]
         public string X {
             get { return _x; }
-            set { _x = SetStringValue(value); }
+            set { _x = StringUtils.ConvertEmptyToNull(value); }
         }
        
         /// <summary>
@@ -123,7 +124,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("libpath")]
         public string LibPath {
             get { return _libPath; }
-            set { _libPath = SetStringValue(value); }
+            set { _libPath = StringUtils.ConvertEmptyToNull(value); }
         }
        
         /// <summary>
@@ -142,7 +143,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("jcpa")]
         public string Jcpa {
             get { return _jcpa; }
-            set { _jcpa = SetStringValue(value); }
+            set { _jcpa = StringUtils.ConvertEmptyToNull(value); }
         }
        
         /// <summary>
@@ -160,7 +161,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = SetStringValue(value); }
+            set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -179,7 +180,7 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { _warningLevel = SetStringValue(value); }
+            set { _warningLevel = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -198,7 +199,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nowarn")]
         public string NoWarn {
             get { return _noWarn; }
-            set { _noWarn = SetStringValue(value); }
+            set { _noWarn = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

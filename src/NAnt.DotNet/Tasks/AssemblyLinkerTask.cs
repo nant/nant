@@ -26,6 +26,7 @@ using System.Text;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -80,15 +81,10 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("output", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _output = value;
-                } else {
-                    _output = null;
-                }
-            }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
         
         /// <summary>
@@ -100,9 +96,10 @@ namespace NAnt.DotNet.Tasks {
         /// </para>
         /// </remarks>
         [TaskAttribute("target", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string OutputTarget {
             get { return _target; }
-            set { _target = SetStringValue(value); }
+            set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -117,7 +114,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("culture", Required=false)]
         public string Culture {
             get { return _culture; }
-            set { _culture = SetStringValue(value); }
+            set { _culture = StringUtils.ConvertEmptyToNull(value); }
         }
          
         /// <summary>
@@ -135,7 +132,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("template", Required=false)]
         public string Template {
             get { return (_template != null) ? Project.GetFullPath(_template) : null; }
-            set { _template = SetStringValue(value); }
+            set { _template = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -151,7 +148,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("keyfile", Required=false)]
         public string KeyFile {
             get { return (_keyfile != null) ? Project.GetFullPath(_keyfile) : null; }
-            set { _keyfile = SetStringValue(value); }
+            set { _keyfile = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>

@@ -28,6 +28,7 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -60,9 +61,10 @@ namespace NAnt.DotNet.Tasks {
         /// The name of the output file created by the compiler. 
         /// </summary>
         [TaskAttribute("output", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = SetStringValue(value); }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -70,9 +72,10 @@ namespace NAnt.DotNet.Tasks {
         /// <c>library</c> or <c>module</c>.
         /// </summary>
         [TaskAttribute("target", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string OutputTarget  {
             get { return _target; }
-            set { _target = SetStringValue(value); }
+            set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -96,7 +99,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("define")]
         public string Define {
             get { return _define; }
-            set { _define = SetStringValue(value); }
+            set { _define = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -110,7 +113,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("win32icon")]
         public string Win32Icon {
             get { return (_win32icon != null) ? Project.GetFullPath(_win32icon) : null; }
-            set { _win32icon = SetStringValue(value); }
+            set { _win32icon = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -151,7 +154,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("main")]
         public string MainType {
             get { return _mainType; }
-            set { _mainType = SetStringValue(value); }
+            set { _mainType = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -513,7 +516,7 @@ namespace NAnt.DotNet.Tasks {
                 // if no matching file, dump out
                 return null;
             } finally {
-                if(sr != null) {
+                if (sr != null) {
                     sr.Close();
                 }
             }

@@ -22,6 +22,7 @@ using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -67,7 +68,7 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { _warningLevel = SetStringValue(value); }
+            set { _warningLevel = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = SetStringValue(value); }
+            set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties

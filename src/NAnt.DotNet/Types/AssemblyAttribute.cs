@@ -23,6 +23,7 @@ using System.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
     /// <summary>
@@ -57,9 +58,10 @@ namespace NAnt.DotNet.Types {
         /// Typename of the assembly-level attribute.
         /// </summary>
         [TaskAttribute("type", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string TypeName {
             get { return _typeName; }
-            set { _typeName = value; }
+            set { _typeName = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -68,13 +70,7 @@ namespace NAnt.DotNet.Types {
         [TaskAttribute("value")]
         public string Value {
             get { return _value; }
-            set { 
-                if (value != null && value.Trim().Length != 0) {
-                    _value = value;
-                } else {
-                    _value = null;
-                }
-            }
+            set { _value = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>

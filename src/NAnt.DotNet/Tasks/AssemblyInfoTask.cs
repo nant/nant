@@ -30,6 +30,7 @@ using System.Reflection;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.DotNet.Types;
 
 namespace NAnt.DotNet.Tasks {
@@ -83,9 +84,10 @@ namespace NAnt.DotNet.Tasks {
         /// The name of the AssemblyInfo file to generate.
         /// </value>
         [TaskAttribute("output", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Output {
             get { return (_output != null) ? Project.GetFullPath(_output) : null; }
-            set { _output = SetStringValue(value); }
+            set { _output = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -98,6 +100,7 @@ namespace NAnt.DotNet.Tasks {
         /// generated.
         /// </value>
         [TaskAttribute("language", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public CodeLanguage Language {
             get { return _language; }
             set { 
