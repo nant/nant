@@ -45,24 +45,42 @@ namespace NAnt.DotNet.Tasks {
     public class VjcTask : CompilerBase {
         #region Private Instance Fields
 
-        private bool _secureScoping = false;
-        private string _x = null;
-        private string _libPath = null;
-        private string _jcpa = null;
-        private string _codepage = null;
-        private string _warningLevel = null;
-        private string _noWarn = null;
+        private bool _secureScoping;
+        private string _x;
+        private string _libPath;
+        private string _jcpa;
+        private string _codepage;
+        private string _warningLevel;
+        private string _noWarn;
+        private string _baseAddress;
 
         #endregion Private Instance Fields
 
         #region Private Static Fields
 
-        static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
-        static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|package\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
+        private static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
+        private static Regex _namespaceRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|package\s+(?<namespace>(\w+(\.\w+)*)+)|(?<keyword>\w+))*");
      
         #endregion Private Static Fields
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// The preferred base address at which to load a DLL. The default base 
+        /// address for a DLL is set by the .NET Framework common language 
+        /// runtime.
+        /// </summary>
+        /// <value>
+        /// The preferred base address at which to load a DLL.
+        /// </value>
+        /// <remarks>
+        /// This address can be specified as a decimal, hexadecimal, or octal 
+        /// number. 
+        /// </remarks>
+        public string BaseAddress {
+            get { return _baseAddress; }
+            set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
+        }
 
         /// <summary>
         /// Specifies whether package-scoped members are accessible outside of 
@@ -228,6 +246,11 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
+            // the base address for the DLL
+            if (BaseAddress != null) {
+                WriteOption(writer, "baseaddress", BaseAddress);
+            }
+
             // handle secure scoping.
             if (SecureScoping) {
                 WriteOption(writer, "securescoping"); 

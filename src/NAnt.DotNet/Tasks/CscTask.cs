@@ -48,14 +48,15 @@ namespace NAnt.DotNet.Tasks {
         #region Private Instance Fields
        
         private FileInfo _docFile;
-        private bool _nostdlib = false;
-        private bool _noconfig = false;
-        private bool _checked = false;
-        private bool _unsafe = false;
-        private bool _optimize = false;
-        private string _warningLevel = null;
-        private string _noWarn = null;
-        private string _codepage = null;
+        private bool _nostdlib;
+        private bool _noconfig;
+        private bool _checked;
+        private bool _unsafe;
+        private bool _optimize;
+        private string _warningLevel;
+        private string _noWarn;
+        private string _codepage;
+        private string _baseAddress;
 
         #endregion Private Instance Fields
 
@@ -67,7 +68,24 @@ namespace NAnt.DotNet.Tasks {
         #endregion Private Static Fields
 
         #region Public Instance Properties
-        
+
+        /// <summary>
+        /// The preferred base address at which to load a DLL. The default base 
+        /// address for a DLL is set by the .NET Framework common language 
+        /// runtime.
+        /// </summary>
+        /// <value>
+        /// The preferred base address at which to load a DLL.
+        /// </value>
+        /// <remarks>
+        /// This address can be specified as a decimal, hexadecimal, or octal 
+        /// number. 
+        /// </remarks>
+        public string BaseAddress {
+            get { return _baseAddress; }
+            set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
+        }
+
         /// <summary>
         /// The name of the XML documentation file to generate.
         /// </summary>
@@ -236,6 +254,11 @@ namespace NAnt.DotNet.Tasks {
             // causes the compiler to specify the full path of the file in which 
             // an error was found
             WriteOption(writer, "fullpaths");
+
+            // the base address for the DLL
+            if (BaseAddress != null) {
+                WriteOption(writer, "baseaddress", BaseAddress);
+            }
 
             if (DocFile != null) {
                 WriteOption(writer, "doc", DocFile.FullName);

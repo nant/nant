@@ -87,15 +87,16 @@ namespace NAnt.DotNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Specifies whether the <c>/baseaddress</c> option gets passed to the 
-        /// compiler.
+        /// The preferred base address at which to load a DLL. The default base 
+        /// address for a DLL is set by the .NET Framework common language 
+        /// runtime.
         /// </summary>
         /// <value>
-        /// The value of this property is a string that makes up a 32bit hexadecimal 
-        /// number.
+        /// The preferred base address at which to load a DLL.
         /// </value>
         /// <remarks>
-        /// <a href="ms-help://MS.NETFrameworkSDK/vblr7net/html/valrfbaseaddressspecifybaseaddressofdll.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
+        /// This address must be specified as a hexadecimal number.
+        /// </remarks>
         [TaskAttribute("baseaddress")]
         public string BaseAddress {
             get { return _baseAddress; }
@@ -258,6 +259,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>
         protected override void WriteOptions(TextWriter writer) {
+            // the base address for the DLL
             if (BaseAddress != null) {
                 WriteOption(writer, "baseaddress", BaseAddress);
             }
