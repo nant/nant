@@ -43,7 +43,9 @@ namespace SourceForge.NAnt {
         public virtual void AddReadOnly(string name, string value) {
             if (!_readOnlyProperties.Contains(name)) {
                 _readOnlyProperties.Add(name);
-                Dictionary.Add(name, value);
+                if(!Dictionary.Contains(name))  {
+                    Dictionary.Add(name, value);
+                }                 
             }
         }
 
@@ -54,7 +56,13 @@ namespace SourceForge.NAnt {
         /// <param name="value">Value of property</param>
         public virtual void Add(string name, string value) {
             if (!_readOnlyProperties.Contains(name)) {
-                Dictionary.Add(name, value);
+                
+                if(!Dictionary.Contains(name))  {
+                    Dictionary.Add(name, value);
+                }                
+                else { 
+                    Dictionary[name] = value;
+                }
             }
         }
 
@@ -63,6 +71,7 @@ namespace SourceForge.NAnt {
             set {
                 if (!_readOnlyProperties.Contains(name)) {
                     Dictionary[name] = value;
+                    
                 }
             }
         }
@@ -126,8 +135,6 @@ namespace SourceForge.NAnt {
                 }
             }
             return output;
-        }
-
-    
+        }    
     }
 }
