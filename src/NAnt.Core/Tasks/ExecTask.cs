@@ -49,6 +49,7 @@ namespace NAnt.Core.Tasks {
         private bool _outputAppend;
         private OptionCollection _environment = new OptionCollection();
         private bool _useRuntimeEngine;
+        private string _resultProperty;
 
         #endregion Private Instance Fields
 
@@ -107,6 +108,22 @@ namespace NAnt.Core.Tasks {
                 return _workingDirectory;
             }
             set { _workingDirectory = value; }
+        }
+
+        /// <summary>
+        /// The name of a property in which the exit code of the program should 
+        /// be stored. Only of interest if <see cref="Task.FailOnError" /> is 
+        /// <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// If the exit code of the program is <c>-1</c> then the program could 
+        /// not be started, or did not finish in time.
+        /// </remarks>
+        [TaskAttribute("resultproperty")]
+        [StringValidator(AllowEmpty=false)]
+        public string ResultProperty {
+            get { return _resultProperty; }
+            set { _resultProperty = value; }
         }
 
         #endregion Public Instance Properties
@@ -224,6 +241,10 @@ namespace NAnt.Core.Tasks {
         protected override void ExecuteTask() {
             Log(Level.Info, LogPrefix + "{0} {1}", ProgramFileName, CommandLine);
             base.ExecuteTask();
+            if (ResultProperty != null) {
+                Properties[ResultProperty] = base.ExitCode.ToString(
+                    CultureInfo.InvariantCulture);
+            }
         }
 
         protected override void PrepareProcess(System.Diagnostics.Process process) {
