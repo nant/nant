@@ -110,8 +110,8 @@ namespace NAnt.Zip.Tasks {
         }
         
         /// <summary>
-        /// Include empty directories in the generated zip file. Defaults to 
-        /// <c>false</c>.
+        /// Include empty directories in the generated zip file. The default is
+        /// <see langword="false" />.
         /// </summary>
         [TaskAttribute("includeemptydirs", Required=false)]
         [BooleanValidator()]
@@ -178,7 +178,7 @@ namespace NAnt.Zip.Tasks {
                         // determine name of the zip entry
                         string entryName = file.Substring(basePath.Length + 1);
 
-                        // create zip entry                       
+                        // create zip entry
                         ZipEntry entry = new ZipEntry(entryName);
                         
                         // set time/date stamp on zip entry
