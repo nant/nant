@@ -52,6 +52,7 @@ namespace SourceForge.NAnt.Tasks {
         bool _optimize = false;
         string _warningLevel = null;
         string _noWarn = null;
+        string _codepage = null;
 
         #endregion Private Instance Fields
 
@@ -138,7 +139,7 @@ namespace SourceForge.NAnt.Tasks {
         /// <value>The warning level for the compiler to display.</value>
         /// <remarks>
         /// <para>
-        /// Corresponds with the <c>/warn</c> option.
+        /// Corresponds with the <c>/warn</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("warninglevel")]
@@ -152,11 +153,25 @@ namespace SourceForge.NAnt.Tasks {
         /// <value>Comma-separated list of warnings that should be suppressed by the compiler.</value>
         /// <remarks>
         /// <para>
-        /// Corresponds with the <c>/nowarn</c> option.
+        /// Corresponds with the <c>/nowarn</c> flag.
         /// </para>
         /// </remarks>
         [TaskAttribute("nowarn")]
         public string NoWarn  { get { return _noWarn; } set {_noWarn = value;}}
+
+        /// <summary>
+        /// Specifies the code page to use for all source code files in the compilation.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/codepage</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("codepage")]
+        public string Codepage {
+            get { return _codepage; }
+            set { _codepage = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -223,6 +238,10 @@ namespace SourceForge.NAnt.Tasks {
 
             if (NoWarn != null) {
                 WriteOption(writer, "nowarn", NoWarn);
+            }
+
+            if (Codepage != null) {
+                WriteOption(writer, "codepage", Codepage);
             }
 
             if (NoConfig && !Args.Contains("/noconfig")) {
