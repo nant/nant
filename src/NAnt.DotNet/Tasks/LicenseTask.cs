@@ -16,9 +16,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Matthew Mastracci (mmastrac@canada.com)
+// Sascha Andres (sa@programmers-world.com)
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Globalization;
@@ -34,7 +36,7 @@ namespace NAnt.DotNet.Tasks {
     /// Generates a <c>.licence</c> file from a <c>.licx</c> file.
     /// </summary>
     /// <remarks>
-    /// If no output file is specified, the default filename is the name of the 
+    /// If no output file is specified, the default filename is the name of the
     /// target file with the extension <c>.licenses</c> appended.
     /// </remarks>
     /// <example>
@@ -46,7 +48,7 @@ namespace NAnt.DotNet.Tasks {
     /// <license input="component.licx" licensetarget="component.exe" />
     ///     ]]>
     ///   </code>
-    /// </example> 
+    /// </example>
     [TaskName("license")]
     public class LicenseTask : Task {
         #region Private Instance Fields
@@ -142,21 +144,13 @@ namespace NAnt.DotNet.Tasks {
 
             Log(Level.Verbose, LogPrefix + "Compiling license file {0} to {1} using target {2}.", Path.GetFileName(_input), Path.GetFileName(strResourceFilename), _strTarget);
 
-            ArrayList alAssemblies = new ArrayList();
-            ArrayList alAssemblyFilesLoaded = new ArrayList();
+            StringCollection alAssemblies = new StringCollection();
+            AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup());
 
-            foreach (Assembly asmLoaded in AppDomain.CurrentDomain.GetAssemblies()) {
-                alAssemblies.Add(asmLoaded);
-                try {
-                    alAssemblyFilesLoaded.Add(Path.GetFullPath(asmLoaded.Location).ToLower(CultureInfo.InvariantCulture));
-                } catch (NotSupportedException) {
-                    // Sometimes thrown by dynamic assemblies
-                }
-            }
             Log(Level.Verbose, LogPrefix + "Loading assemblies:");
+
             // First, load all the assemblies so that we can search for the licensed component
             foreach (string strAssembly in _assemblies.FileNames) {
-                Assembly asm = null;
 
                 try {
                     string strRealAssemblyName = Project.GetFullPath(strAssembly);
@@ -164,108 +158,156 @@ namespace NAnt.DotNet.Tasks {
                     // See if we've got an absolute path to the assembly
                     if (File.Exists(strRealAssemblyName)) {
                         // Don't load an assembly that has already been loaded (including assemblies loaded before this task)
-                        if (!alAssemblyFilesLoaded.Contains(Path.GetFullPath(strRealAssemblyName).ToLower(CultureInfo.InvariantCulture))) {
-                            Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (loaded with real filename)");
-                            asm = Assembly.LoadFrom(strRealAssemblyName);
+                        if (!alAssemblies.Contains(Path.GetFullPath(strRealAssemblyName).ToLower(CultureInfo.InvariantCulture))) {
+                            Log(Level.Verbose, LogPrefix + strAssembly + " (added to loade)");
+                            alAssemblies.Add(strRealAssemblyName);
                         } else {
-                            Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (not loaded)");
+                            Log(Level.Verbose, LogPrefix + strAssembly + " (not added to load)");
                         }
                     } else {
-                        // No absolute path, ask .NET to load it for us (use the original assembly name)
-                        FileInfo fiAssembly = new FileInfo(strAssembly);
-                        asm = Assembly.LoadWithPartialName(Path.GetFileNameWithoutExtension(fiAssembly.Name));
-                        Log(Level.Verbose, LogPrefix + " - " + strAssembly + " (loaded with partial name)");
+                        if (!alAssemblies.Contains(Path.GetFullPath(strRealAssemblyName).ToLower(CultureInfo.InvariantCulture))) {
+                            // No absolute path, ask .NET to load it for us (use the original assembly name)
+                            FileInfo fiAssembly = new FileInfo(strAssembly);
+                            alAssemblies.Add(Path.GetFileNameWithoutExtension(fiAssembly.Name));
+                            Log(Level.Verbose, LogPrefix + strAssembly + " (added to load)");
+                        } else {
+                            Log(Level.Verbose, LogPrefix + strAssembly + " (not added to load)");
+                        }
                     }
-
-                    // This may sometimes be true if the assembly could not load
-                    if (asm != null) {
-                        alAssemblies.Add(asm);
-                    }
-                    Log(Level.Verbose, "");
                 } catch (Exception e) {
                     throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Unable to load specified assembly: {0}", strAssembly), e);
                 }
             }
 
-            // Create the license manager
-            DesigntimeLicenseContext dlc = new DesigntimeLicenseContext();
-            LicenseManager.CurrentContext = dlc;
-            
-            // Read in the input file
-            using (StreamReader sr = new StreamReader(strLicxFilename)) {
-                Hashtable htLicenses = new Hashtable();
+            LicenseGatherer licenseGatherer = (LicenseGatherer)
+                newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
+                typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
+                null, new object[0], CultureInfo.InvariantCulture, new object[0],
+                AppDomain.CurrentDomain.Evidence);
+            licenseGatherer.CreateLicenseFile(alAssemblies, strLicxFilename, strResourceFilename, _strTarget, Verbose, LogPrefix, Location);
+            AppDomain.Unload(newDomain);
 
-                while (true) {
-                    string strLine = sr.ReadLine();
-                    if (strLine == null) {
-                        break;
-                    }
-                    strLine = strLine.Trim();
-                    // Skip comments and empty lines
-                    if (strLine.StartsWith("#") || strLine.Length == 0 || htLicenses.Contains(strLine)) {
-                        continue;
-                    }
-                   
-                    Log(Level.Verbose, LogPrefix + strLine + ": ");
-
-                    // Strip off the assembly name, if it exists
-                    string strTypeName;
-
-                    if (strLine.IndexOf(',') == -1) {
-                        strTypeName = strLine.Trim();
-                    } else {
-                        strTypeName = strLine.Split(',')[0];
-                    }
-
-                    Type tp = null;
-
-                    // Try to locate the type in each assembly
-                    foreach (Assembly asm in alAssemblies) {
-                        tp = asm.GetType(strTypeName, false, true);
-                        if (tp == null) {
-                            continue;
-                        }
-                        htLicenses[ strLine ] = tp;
-                        break;
-                    }
-
-                    if (tp == null) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to locate type: {0}", strTypeName), Location);
-                    }
-
-                    if (Verbose && tp != null) {
-                        Log(Level.Info, ((Type) htLicenses[strLine]).Assembly.CodeBase);
-                    }
-
-                    // Ensure that we've got a licensed component
-                    if (tp.GetCustomAttributes(typeof(LicenseProviderAttribute), true).Length == 0) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Type is not a licensed component: {0}", tp), Location);
-                    }
-
-                    // Now try to create the licensed component - this gives us a license
-                    try {
-                        LicenseManager.CreateWithContext(tp, dlc);
-                    }
-                    catch (Exception e) {
-                        throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to create license for type {0}", tp), Location, e);
-                    }
-                }
-            }
-
-            // Overwrite the existing file, if it exists - is there a better way? 
-            if (File.Exists(strResourceFilename)) {
-                File.SetAttributes(strResourceFilename, FileAttributes.Normal);
-                File.Delete(strResourceFilename);
-            }
-
-            // Now write out the license file, keyed to the appropriate output target filename
-            // This .license file will only be valid for this exe/dll
-            using (FileStream fs = new FileStream(strResourceFilename, FileMode.Create)) {
-                // Note the ToUpper() - this is the behaviour of VisualStudio
-                DesigntimeLicenseContextSerializer.Serialize(fs, _strTarget.ToUpper(CultureInfo.InvariantCulture), dlc);
-            }
+            return;
         }
 
         #endregion Override implementation of Task
+
+        #region private class used for writing the license in a seperate AppDomain
+        /// <summary>Responsible to read the license and write them to a license file</summary>
+        private class LicenseGatherer : MarshalByRefObject {
+            /// <summary>Creates the whole license file</summary>
+            /// <param name="assemblies">the assemblies to load</param>
+            /// <param name="licx">The input file</param>
+            /// <param name="licenseFile">The license file</param>
+            /// <param name="targetFile">The assembly to license for</param>
+            /// <param name="isVerbose">Are we in verbose state?</param>
+            /// <param name="logPrefix">The LogPrefix</param>
+            /// <param name="location">Where we're in the build script?</param>
+            public void CreateLicenseFile(StringCollection assemblies, string licx, string licenseFile, string targetFile, bool isVerbose, string logPrefix, NAnt.Core.Location location) {
+                ArrayList alAssemblies = new ArrayList();
+
+                // load each assembly and add it to hashtable
+                foreach (string assemblyFileName in assemblies) {
+                    if (isVerbose) {
+                        Console.WriteLine(logPrefix + assemblyFileName);
+                    }
+                    Assembly assembly = Assembly.LoadFrom(assemblyFileName, AppDomain.CurrentDomain.Evidence);
+                    if (assembly == null) {
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to load assembly: {0}", assemblyFileName), location);
+                    }
+                    alAssemblies.Add(assembly);
+                }
+
+                DesigntimeLicenseContext dlc = new DesigntimeLicenseContext();
+                LicenseManager.CurrentContext = dlc;
+                // Read in the input file
+                using (StreamReader sr = new StreamReader(licx)) {
+                    Hashtable htLicenses = new Hashtable();
+
+                    while(true) {
+                        string strLine = sr.ReadLine();
+
+                        if (strLine == null) {
+                            break;
+                        }
+
+                        strLine = strLine.Trim();
+                        // Skip comments and empty lines and already processed assemblies
+                        if (strLine.StartsWith("#") || strLine.Length == 0 || htLicenses.Contains(strLine)) {
+                            continue;
+                        }
+
+                        if (isVerbose) {
+                            Console.WriteLine(logPrefix + strLine + ": ");
+                        }
+
+                        // Strip off the assembly name, if it exists
+                        string strTypeName;
+
+                        if (strLine.IndexOf(',') == -1) {
+                            strTypeName = strLine.Trim();
+                        } else {
+                            strTypeName = strLine.Split(',')[0];
+                        }
+
+                        Type tp = null;
+
+                        // Try to locate the type in each assembly
+                        foreach (Assembly asm in alAssemblies) {
+                            tp = asm.GetType(strTypeName, false, true);
+                            if (tp == null) {
+                                continue;
+                            } // if
+                            htLicenses[ strLine ] = tp;
+                            break;
+                        }
+
+                        if (tp == null) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to locate type: {0}", strTypeName), location);
+                        }
+
+                        if (isVerbose && tp != null) {
+                            if (isVerbose) {
+                                Console.WriteLine(logPrefix + logPrefix + ((Type) htLicenses[strLine]).Assembly.CodeBase);
+                            }
+                        }
+
+                        // Ensure that we've got a licensed component
+                        if (tp.GetCustomAttributes(typeof(LicenseProviderAttribute), true).Length == 0) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Type is not a licensed component: {0}", tp), location);
+                        }
+
+                        try {
+                            LicenseManager.CreateWithContext(tp, dlc);
+                        } catch (Exception e) {
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture,  "Failed to create license for type {0}", tp), location, e);
+                        }
+                    }
+                }
+
+                // Overwrite the existing file, if it exists - is there a better way?
+                if (File.Exists(licenseFile)) {
+                    File.SetAttributes(licenseFile, FileAttributes.Normal);
+                    File.Delete(licenseFile);
+                    if (isVerbose) {
+                        Console.WriteLine(logPrefix + "Deleted old " + licenseFile);
+                    }
+                }
+
+                // Now write out the license file, keyed to the appropriate output target filename
+                // This .license file will only be valid for this exe/dll
+                using (FileStream fs = new FileStream(licenseFile, FileMode.Create)) {
+                    // Note the ToUpper() - this is the behaviour of VisualStudio
+                    DesigntimeLicenseContextSerializer.Serialize(fs, targetFile.ToUpper(CultureInfo.InvariantCulture), dlc);
+                    if (isVerbose) {
+                        Console.WriteLine(logPrefix + "Created new " + licenseFile);
+                    }
+                }
+
+                dlc = null;
+                return;
+            }
+        }
+        #endregion
     }
 }
