@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.VSNetTasks"
+                RootNamespace = "NAnt.VSNet"
                 StartupObject = ""
             >
                 <Config
@@ -132,7 +132,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "SolutionTask.cs"
+                    RelPath = "Tasks\SolutionTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

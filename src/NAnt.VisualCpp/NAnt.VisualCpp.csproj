@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.VisualCppTasks"
+                RootNamespace = "NAnt.VisualCpp"
                 StartupObject = ""
             >
                 <Config
@@ -81,7 +81,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ClTask.cs"
+                    RelPath = "Tasks\ClTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -92,12 +92,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LibTask.cs"
+                    RelPath = "Tasks\LibTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LinkTask.cs"
+                    RelPath = "Tasks\LinkTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
