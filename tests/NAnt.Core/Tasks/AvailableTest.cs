@@ -153,7 +153,7 @@ namespace Tests.NAnt.Core.Tasks {
             if (! PlatformHelper.IsUnix ) {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, 
                     xml, AvailableTask.ResourceType.Directory.ToString(CultureInfo.InvariantCulture), 
-                    "###-?", "${dir.exists}"));
+                    "|", "${dir.exists}"));
             }   else {
                 throw new TestBuildException();    
             }

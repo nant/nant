@@ -149,9 +149,9 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_InvalidDestinationDirectory() {
-            if (! PlatformHelper.IsUnix ) {
+            if (!PlatformHelper.IsUnix) {
                 try {
-                    RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "abc#?-{", tempDir1, string.Empty));
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "|", tempDir1, string.Empty));
                     // have the test fail
                     Assert.Fail("Build should have failed.");
                 } catch (TestBuildException ex) {
@@ -330,7 +330,7 @@ namespace Tests.NAnt.Core.Tasks {
             if (! PlatformHelper.IsUnix ) {
                 try {
                     RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
-                        "abc#?-{", tempFile2));
+                        "|", tempFile2));
                     // have the test fail
                     Assert.Fail("Build should have failed.");
                 } catch (TestBuildException ex) {
@@ -349,7 +349,7 @@ namespace Tests.NAnt.Core.Tasks {
             if (! PlatformHelper.IsUnix ) {
                 try {
                     RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
-                        tempFile1, "abc#?-{"));
+                        tempFile1, "|"));
                     // have the test fail
                     Assert.Fail("Build should have failed.");
                 } catch (TestBuildException ex) {

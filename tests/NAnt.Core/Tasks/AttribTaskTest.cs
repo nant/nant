@@ -78,10 +78,10 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_InvalidFilePath() {
             // this test not valid on unix's where every character bar the / is valid for filenames.
-            if (! PlatformHelper.IsUnix ) {
+            if (!PlatformHelper.IsUnix) {
                 try {
                     // execute build with invalid file path
-                    RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "abc#?-}", "", ""));
+                    RunBuild(string.Format(CultureInfo.InvariantCulture, _format, "ab|c", "", ""));
                     // have the test fail         
                     Assert.Fail("Build should have failed.");                
                 } catch (TestBuildException ex) {
