@@ -71,9 +71,8 @@
                 "value" attributes will automatically be quoted.
             </li>
             <li>
-                Overwriting of read-only properties will now result in a build failure. 
-                Previous versions of NAnt would silently ignore an update of a read-only 
-                property.
+                Overwriting of read-only properties in tasks other than the <a href="help/tasks/property.html">&lt;property&gt;</a> task will now result in a build failure. 
+                Previous versions of NAnt would silently ignore an update of a read-only property.
             </li>
             <li>
                 The <code><a href="help/tasks/nunit2.html">&lt;nunit2&gt;</a></code> task been 
@@ -185,6 +184,12 @@
                 Loads a text file into a property.
             </li>
         </ul>
+        <h5><a class="heading" href="help/tasks/tar.html">&lt;tar&gt;</a></h5>
+        <ul>
+            <li>
+                Creates a tar file from the specified filesets.
+            </li>
+        </ul>
         <h4>Task changes</h4>
         <h5><a class="heading" href="help/tasks/asminfo.html">&lt;asminfo&gt;</a></h5>
         <ul>
@@ -253,7 +258,8 @@
                 Documentation updates.
             </li>
             <li>
-                Added "passfile" attribute</li>
+                Added "passfile" attribute.
+            </li>
         </ul>
         <h5><a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
         <ul>
@@ -263,6 +269,10 @@
             <li>
                 Added "resultproperty", which can be set to a name of a property in which the 
                 exit code of the program can be stored.
+            </li>
+            <li>
+                The <a href="help/elements/NAnt.Core.Types.Argument.html">&lt;arg&gt;</a> element now supports
+                line and PATH-like command-line arguments.
             </li>
         </ul>
         <h5><a class="heading" href="help/tasks/get.html">&lt;get&gt;</a></h5>
@@ -528,7 +538,13 @@
                 &lt;unzip&gt;</a></h5>
         <ul>
             <li>
-                Upgraded #ziplib to v0.81.
+                Added support for multiple filesets.
+            </li>
+            <li>
+                A top level directory prefix can be set on individual filesets.
+            </li>
+            <li>
+                Upgraded <a href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</a> to v0.81.
             </li>
         </ul>
         <h4>New types</h4>
