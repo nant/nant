@@ -65,6 +65,7 @@ namespace NAnt.Core.Tasks {
         private string _name = null;
         private string _value = string.Empty;
         private bool _readOnly = false;
+        private bool _dynamic = false;
         private bool _overwrite = true;
 
         #endregion Private Instance Fields
@@ -84,7 +85,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The value to assign to the NAnt property.
         /// </summary>
-        [TaskAttribute("value", Required=true)]
+        [TaskAttribute("value", Required=true, ExpandProperties=false)]
         [StringValidator(AllowEmpty=true)]
         public string Value {
             get { return _value; }
@@ -100,6 +101,20 @@ namespace NAnt.Core.Tasks {
         public bool ReadOnly {
             get { return _readOnly; }
             set { _readOnly = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether references to other properties should not be 
+        /// expanded when the value of the property is set, but expanded when
+        /// the property is actually used.  The default is <see langword="false" />, 
+        /// meaning references to other properties will be expanded when the 
+        /// property value is set.
+        /// </summary>
+        [TaskAttribute("dynamic", Required=false)]
+        [BooleanValidator()]
+        public bool Dynamic {
+            get { return _dynamic; }
+            set { _dynamic = value; }
         }
 
         /// <summary>
@@ -119,11 +134,19 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
+            string propertyValue;
+
+            if (!Dynamic) {
+                propertyValue = Project.ExpandProperties(Value, Location);
+            } else {
+                propertyValue = Value;
+            }
+
             // Special check for framework setting.
-            // TODO design framework for handling special properties
             if (PropertyName == "nant.settings.currentframework") {
-                if (Project.FrameworkInfoDictionary.Contains(Value)) {
-                    Project.CurrentFramework = Project.FrameworkInfoDictionary[Value];
+                if (Project.FrameworkInfoDictionary.Contains(propertyValue)) {
+                    Project.CurrentFramework = Project.FrameworkInfoDictionary[propertyValue];
+                    return;
                 } else {
                     ArrayList validvalues = new ArrayList();
                     foreach (FrameworkInfo framework in Project.FrameworkInfoDictionary) {
@@ -136,22 +159,30 @@ namespace NAnt.Core.Tasks {
                     }
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Error setting current Framework. '{0}' is not a valid framework identifier. {1}", 
-                        Value, validvaluesare), Location);
+                        propertyValue, validvaluesare), Location);
                 }
             }
 
             if (!Project.Properties.Contains(PropertyName)) {
-                if(ReadOnly) {
-                    Properties.AddReadOnly(PropertyName, Value);
+                if (ReadOnly) {
+                    Properties.AddReadOnly(PropertyName, propertyValue);
                 } else {
-                    Properties[PropertyName] = Value;
+                    Properties[PropertyName] = propertyValue;
+                }
+
+                if (Dynamic) {
+                    Properties.MarkDynamic(PropertyName);
                 }
             } else {
                 if (Overwrite) {
                     if (Project.Properties.IsReadOnlyProperty(PropertyName)) {
                         Log(Level.Verbose, LogPrefix + "Read-only property '{0}' cannot be overwritten.", PropertyName);
                     } else {
-                        Properties[PropertyName] = Value;
+                        Properties[PropertyName] = propertyValue;
+
+                        if (Dynamic) {
+                            Properties.MarkDynamic(PropertyName);
+                        }
                     }
                 } else {
                     Log(Level.Verbose, LogPrefix + "Property '{0}' already exists, and overwrite is set to false.", PropertyName);

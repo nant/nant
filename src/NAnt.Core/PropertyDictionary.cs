@@ -17,10 +17,12 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Tomas Restrepo (tomasr@mvps.org)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NAnt.Core {
@@ -31,7 +33,15 @@ namespace NAnt.Core {
         /// Indexer property. 
         /// </summary>
         public virtual string this[string name] {
-            get { return (string) Dictionary[(object) name]; }
+            get {
+                string value = (string) Dictionary[(object) name];
+
+                if (IsDynamicProperty(name)) {
+                    return ExpandProperties(value, Location.UnknownLocation);
+                } else {
+                    return value;
+                }
+            }
             set {
                 if (!_readOnlyProperties.Contains(name)) {
                     Dictionary[name] = value;
@@ -61,6 +71,17 @@ namespace NAnt.Core {
             if (!_readOnlyProperties.Contains(name)) {
                 _readOnlyProperties.Add(name);
                 Dictionary.Add(name, value);
+            }
+        }
+
+        /// <summary>
+        /// Marks a property as a property of which the value is expanded at 
+        /// execution time.
+        /// </summary>
+        /// <param name="name">The name of the property to mark as dynamic.</param>
+        public virtual void MarkDynamic(string name) {
+            if (!_dynamicProperties.Contains(name)) {
+                _dynamicProperties.Add(name);
             }
         }
 
@@ -102,6 +123,18 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Determines whether the specified property is listed as dynamic.
+        /// </summary>
+        /// <param name="name">The name of the property to check.</param>
+        /// <returns>
+        /// <see langword="true" /> if the property is listed as dynamic; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        public virtual bool IsDynamicProperty(string name) {
+            return _dynamicProperties.Contains(name);
+        }
+
+        /// <summary>
         /// Inherits properties from an existing property dictionary Instance.
         /// </summary>
         /// <param name="source">Property list to inherit.</param>
@@ -113,8 +146,12 @@ namespace NAnt.Core {
                 }
 
                 Dictionary[entry.Key] = entry.Value;
-                if (source.IsReadOnlyProperty((string)entry.Key)) {
-                    _readOnlyProperties.Add((string)entry.Key);
+                if (source.IsReadOnlyProperty((string) entry.Key)) {
+                    _readOnlyProperties.Add((string) entry.Key);
+                }
+
+                if (source.IsDynamicProperty((string) entry.Key)) {
+                    _dynamicProperties.Add((string) entry.Key);
                 }
             }
         }
@@ -126,25 +163,9 @@ namespace NAnt.Core {
         /// <param name="location">The <see cref="Location" /> to pass through for any exceptions.</param>
         /// <returns>The expanded and replaced string.</returns>
         public string ExpandProperties(string input, Location location) {
-            string output = input;
-            if (input != null) {
-                const string pattern = @"\$\{([^\}]*)\}";
-                foreach (Match m in Regex.Matches(input, pattern)) {
-                    if (m.Length > 0) {
-                        string token = m.ToString();
-                        string propertyName = m.Groups[1].Captures[0].Value;
-                        string propertyValue = this[propertyName];
-
-                        if (propertyValue != null) {
-                            output = output.Replace(token, propertyValue);
-                        } else {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Property '{0}' has not been set.", propertyName), location);
-                        }
-                    }
-                }
-            }
-            return output;
+            Hashtable state = new Hashtable();
+            Stack visiting = new Stack();
+            return ExpandProperties(input, location, state, visiting);
         }
 
         /// <summary>
@@ -169,6 +190,89 @@ namespace NAnt.Core {
 
         #endregion Override implementation of DictionaryBase
 
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Expands a <see cref="string" /> from known properties.
+        /// </summary>
+        /// <param name="input">The replacement tokens.</param>
+        /// <param name="location">The <see cref="Location" /> to pass through for any exceptions.</param>
+        /// <param name="state">A mapping from properties to states. The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
+        /// <param name="visiting">A stack of properties which are currently being visited. Must not be <see langword="null" />.</param>
+        /// <returns>The expanded and replaced string.</returns>
+        private string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {
+            string output = input;
+            if (input != null) {
+                const string pattern = @"\$\{([^\}]*)\}";
+                foreach (Match m in Regex.Matches(input, pattern)) {
+                    if (m.Length > 0) {
+                        string token = m.ToString();
+                        string propertyName = m.Groups[1].Captures[0].Value;
+
+                        string currentState = (string) state[propertyName];
+
+                        // check for circular references
+                        if (currentState == PropertyDictionary.Visiting) {
+                            // Currently visiting this node, so have a cycle
+                            throw CreateCircularException(propertyName, visiting);
+                        }
+
+                        visiting.Push(propertyName);
+
+                        state[propertyName] = PropertyDictionary.Visiting;
+
+                        string propertyValue = (string) Dictionary[(object) propertyName];
+
+                        if (propertyValue != null) {
+                            if (IsDynamicProperty(propertyName)) {
+                                propertyValue = ExpandProperties(propertyValue, location, state, visiting);
+                            }
+
+                            output = output.Replace(token, propertyValue);
+                        } else {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                "Property '{0}' has not been set.", propertyName), location);
+                        }
+
+                        visiting.Pop();
+                        state[propertyName] = PropertyDictionary.Visited;
+                    }
+                }
+            }
+            return output;
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Builds an appropriate exception detailing a specified circular
+        /// reference.
+        /// </summary>
+        /// <param name="end">The property reference to stop at. Must not be <see langword="null" />.</param>
+        /// <param name="stack">A stack of property references. Must not be <see langword="null" />.</param>
+        /// <returns>
+        /// A <see cref="BuildException" /> detailing the specified circular 
+        /// dependency.
+        /// </returns>
+        private static BuildException CreateCircularException(string end, Stack stack) {
+            StringBuilder sb = new StringBuilder("Circular property reference: ");
+            sb.Append(end);
+
+            string c;
+
+            do {
+                c = (string) stack.Pop();
+                sb.Append(" <- ");
+                sb.Append(c);
+            } while (!c.Equals(end));
+
+            return new BuildException(sb.ToString());
+        }
+
+        #endregion Private Static Methods
+
         #region Private Instance Fields
 
         /// <summary>
@@ -176,6 +280,28 @@ namespace NAnt.Core {
         /// </summary>
         private StringCollection _readOnlyProperties = new StringCollection();
 
+        /// <summary>
+        /// Maintains a list of the property names of which the value is expanded
+        /// on usage, not at initalization.
+        /// </summary>
+        private StringCollection _dynamicProperties = new StringCollection();
+
         #endregion Private Instance Fields
+
+        #region Private Static Fields
+
+        /// <summary>
+        /// Constant for the "visiting" state, used when traversing a DFS of 
+        /// property references.
+        /// </summary>
+        private const string Visiting = "VISITING";
+
+        /// <summary>
+        /// Constant for the "visited" state, used when travesing a DFS of 
+        /// property references.
+        /// </summary>
+        private const string Visited = "VISITED";
+
+        #endregion Private Static Fields
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
@@ -54,18 +54,6 @@ namespace Tests.NAnt.Core.Tasks {
  
         [Test]
         public void Test_ROSet() {
-            /*
-                        XmlDocument doc = new XmlDocument();
-                        XmlElement project = doc.CreateElement("project");
-                        XmlElement echo = doc.CreateElement("echo");
-                        XmlAttribute message = doc.CreateAttribute("message");
-                        message.Value=""
-                        project.AppendChild(
-
-                        doc.AppendChild(project);
-                        return doc;
-            */
-
             string _xml = @"
                     <project name='PropTests'>
                         <property name='nant.filename' value='you'/>
@@ -109,6 +97,69 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             Assertion.Assert("Read-only property should not have been overwritten.\n" + result, result.IndexOf("I Love me") == -1);
+        }
+
+        [Test]
+        public void Test_DynamicProperty() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='me' />
+                        <property name='foo2' value='I Love ${foo}' dynamic='true' />
+                        <property name='foo' value='you' />
+                        <echo message='${foo2}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Value of dynamic property should have reflected change in referenced property.\n" + result, result.IndexOf("I Love you") != -1);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_DynamicPropertyNotExisting() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo2' value='I love ${foo}' dynamic='true' />
+                        <echo message='I Love ${foo}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_DynamicPropertyCircularReference() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='${foo2}' dynamic='true' />
+                        <property name='foo2' value='${foo}' dynamic='true' />
+                        <echo message='${foo}' />
+                    </project>";
+            string result = RunBuild(_xml);
+        }
+
+        [Test]
+        public void Test_ChangeStaticPropertyToDynamic() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='me' />
+                        <property name='foo2' value='test' />
+                        <property name='foo2' value='I Love ${foo}' dynamic='true' />
+                        <property name='foo' value='you' />
+                        <echo message='${foo2}' />
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Static property should be upgraded to dynamic property.\n" + result, result.IndexOf("I Love you") != -1);
+        }
+
+        [Test]
+        public void Test_ReadOnlyDynamicProperty() {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='foo' value='me' />
+                        <property name='foo2' value='I Love ${foo}' dynamic='true' readonly='true' />
+                        <property name='foo' value='you' />
+                        <echo message='${foo2}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assertion.Assert("Value of read-only dynamic property should have reflected change in referenced property.\n" + result, result.IndexOf("I Love you") != -1);
         }
     }
 }
