@@ -85,18 +85,18 @@ namespace NAnt.VSNet {
         /// Gets the output path of the reference, without taking the "copy local"
         /// setting into consideration.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The output path of the reference.
         /// </returns>
-        public override string GetPrimaryOutputFile(ConfigurationBase config) {
-            return Project.GetOutputPath(config.Name);
+        public override string GetPrimaryOutputFile(string solutionConfiguration) {
+            return Project.GetOutputPath(solutionConfiguration);
         }
 
         /// <summary>
         /// Gets the complete set of output files for the referenced project.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of output files for the referenced project.
         /// </returns>
@@ -105,15 +105,15 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override Hashtable GetOutputFiles(ConfigurationBase config) {
-            return Project.GetOutputFiles(config.Name);
+        public override Hashtable GetOutputFiles(string solutionConfiguration) {
+            return Project.GetOutputFiles(solutionConfiguration);
         }
 
         /// <summary>
         /// Gets the complete set of assemblies that need to be referenced when
         /// a project references this project.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this project.
@@ -140,18 +140,18 @@ namespace NAnt.VSNet {
         /// project.
         /// </para>
         /// </remarks>
-        public override StringCollection GetAssemblyReferences(ConfigurationBase config) {
+        public override StringCollection GetAssemblyReferences(string solutionConfiguration) {
             StringCollection assemblyReferences = null;
 
             // check if parent is a VB.NET project
             if (typeof(VBProject).IsAssignableFrom(Parent.GetType())) {
-                assemblyReferences = Project.GetAssemblyReferences(config.Name);
+                assemblyReferences = Project.GetAssemblyReferences(solutionConfiguration);
             } else {
                 assemblyReferences = new StringCollection();
             }
 
             string projectOutputFile = Project.GetConfiguration(
-                config.Name).BuildPath;
+                solutionConfiguration).BuildPath;
 
             // check if project has output file
             if (projectOutputFile != null) {
@@ -168,14 +168,14 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Gets the timestamp of the reference.
         /// </summary>
-        /// <param name="config">The build configuration of the reference.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public override DateTime GetTimestamp(ConfigurationBase config) {
-            string projectOutputFile = Project.GetOutputPath(config.Name);
+        public override DateTime GetTimestamp(string solutionConfiguration) {
+            string projectOutputFile = Project.GetOutputPath(solutionConfiguration);
             if (projectOutputFile != null) {
-                return GetTimestamp(projectOutputFile);
+                return GetFileTimestamp(projectOutputFile);
             } else {
                 // if project has no output file, then we assume that it creates
                 // a file through another way (eg. by launching an application 

@@ -215,16 +215,16 @@ namespace NAnt.VSNet {
         /// Gets a value indicating whether building the project for the specified
         /// build configuration results in managed output.
         /// </summary>
-        /// <param name="configuration">The build configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// <see langword="true" /> if the project output for the specified build
         /// configuration is either a Dynamic Library (dll) or an Application
         /// (exe), and Managed Extensions are enabled; otherwise, 
         /// <see langword="false" />.
         /// </returns>
-        public override bool IsManaged(string configuration) {
+        public override bool IsManaged(string solutionConfiguration) {
             VcProjectConfiguration projectConfig = (VcProjectConfiguration)
-                GetConfiguration(configuration);
+                BuildConfigurations[solutionConfiguration];
             return (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary ||
                 projectConfig.Type == VcProjectConfiguration.ConfigurationType.Application) &&
                 projectConfig.ManagedExtensions;
@@ -266,10 +266,11 @@ namespace NAnt.VSNet {
             return GetProductVersion(docElement);
         }
 
-        protected override bool Build(ConfigurationBase config) {
+        protected override bool Build(string solutionConfiguration) {
             _objFiles.Clear();
             
-            VcProjectConfiguration projectConfig = (VcProjectConfiguration) config;
+            // obtain project configuration (corresponding with solution configuration)
+            VcProjectConfiguration projectConfig = (VcProjectConfiguration) BuildConfigurations[solutionConfiguration];
 
             // initialize hashtable for holding the C++ sources for each build
             // configuration
@@ -372,14 +373,14 @@ namespace NAnt.VSNet {
             // source files.
             foreach (VcConfigurationBase vcConfig in buildConfigs.Keys) {
                 if (vcConfig.UsePrecompiledHeader == UsePrecompiledHeader.Create) {
-                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], projectConfig, vcConfig);
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], solutionConfiguration, vcConfig);
                     stdafxConfig = vcConfig;
                 }
             }
 
             foreach (VcConfigurationBase vcConfig in buildConfigs.Keys) {
                 if (vcConfig != stdafxConfig) {
-                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], projectConfig,
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], solutionConfiguration,
                         vcConfig);
                 }
             }
@@ -411,14 +412,14 @@ namespace NAnt.VSNet {
                 if (reference.CopyLocal) {
                     Log(Level.Verbose, " - " + reference.Name);
 
-                    Hashtable outputFiles = reference.GetOutputFiles(config);
+                    Hashtable outputFiles = reference.GetOutputFiles(solutionConfiguration);
 
                     foreach (DictionaryEntry de in outputFiles) {
                         // determine file to copy
                         FileInfo srcFile = new FileInfo((string) de.Key);
                         // determine destination file
                         FileInfo destFile = new FileInfo(FileUtils.CombinePaths(
-                            config.OutputDir.FullName, (string) de.Value));
+                            projectConfig.OutputDir.FullName, (string) de.Value));
                         // perform actual copy
                         CopyFile(srcFile, destFile, SolutionTask);
                     }
@@ -525,8 +526,11 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void BuildCPPFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
+        private void BuildCPPFiles(ArrayList fileNames, string solutionConfiguration, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCCLCompilerTool";
+
+            // obtain project configuration (corresponding with solution configuration)
+            VcProjectConfiguration projectConfig = (VcProjectConfiguration) BuildConfigurations[solutionConfiguration];
 
             string intermediateDir = FileUtils.CombinePaths(ProjectDirectory.FullName, 
                 projectConfig.IntermediateDir);
@@ -656,14 +660,12 @@ namespace NAnt.VSNet {
 
             // add project and assembly references
             foreach (ReferenceBase reference in References) {
-                // TODO: we should actually use the name of the build configuration
-                // that is specified on the <solution> task
-                if (!reference.IsManaged(projectConfig.Name)) {
+                if (!reference.IsManaged(solutionConfiguration)) {
                     continue;
                 }
                 
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    fileConfig);
+                    solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
                     clTask.ForcedUsingFiles.Includes.Add(assemblyFile);
                 }

@@ -239,23 +239,26 @@ namespace NAnt.VSNet {
         /// Gets a value indicating whether building the project for the specified
         /// build configuration results in managed output.
         /// </summary>
-        /// <param name="configuration">The build configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// <see langword="true" />.
         /// </returns>
-        public override bool IsManaged(string configuration) {
+        public override bool IsManaged(string solutionConfiguration) {
             return true;
         }
 
         /// <summary>
         /// Prepares the project for being built.
         /// </summary>
-        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <remarks>
         /// Ensures the configuration-level object directory exists and ensures 
         /// that none of the output files are marked read-only.
         /// </remarks>
-        protected override void Prepare(ConfigurationBase config) {
+        protected override void Prepare(string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration]; 
+
             // ensure configuration-level object directory exists
             if (!config.ObjectDir.Exists) {
                 config.ObjectDir.Create();
@@ -264,10 +267,10 @@ namespace NAnt.VSNet {
 
             // ensure that none of the output files in the configuration-level 
             // object directory are marked read-only
-            base.Prepare(config);
+            base.Prepare(solutionConfiguration);
         }
 
-        protected override bool Build(ConfigurationBase config) {
+        protected override bool Build(string solutionConfiguration) {
             bool bSuccess = true;
             bool outputUpdated;
             string tempFile = null;
@@ -275,7 +278,8 @@ namespace NAnt.VSNet {
             GacCache.RecreateDomain();
  
             try {
-                ConfigurationSettings cs = (ConfigurationSettings) config;
+                // obtain project configuration (corresponding with solution configuration)
+                ConfigurationSettings cs = (ConfigurationSettings) BuildConfigurations[solutionConfiguration];
 
                 // perform prebuild actions (for VS.NET 2003 and higher)
                 if (!PreBuild(cs)) {
@@ -290,7 +294,7 @@ namespace NAnt.VSNet {
                 }
 
                 // check if project output needs to be rebuilt
-                if (CheckUpToDate(cs)) {
+                if (CheckUpToDate(solutionConfiguration)) {
                     Log(Level.Verbose, "Project is up-to-date.");
 
                     // project output is up-to-date
@@ -313,7 +317,7 @@ namespace NAnt.VSNet {
 
                     using (StreamWriter sw = File.CreateText(tempResponseFile)) {
                         // write compiler options
-                        WriteCompilerOptions(sw, cs);
+                        WriteCompilerOptions(sw, solutionConfiguration);
                     }
 
                     Log(Level.Verbose, "Starting compiler...");
@@ -405,7 +409,7 @@ namespace NAnt.VSNet {
                     al.TemplateFile = new FileInfo(cs.BuildPath);
                     foreach (Resource resource in resFiles) {
                         // compile resource
-                        FileInfo compiledResourceFile = resource.Compile(cs);
+                        FileInfo compiledResourceFile = resource.Compile(solutionConfiguration);
                         // add resources to embed 
                         Argument arg = new Argument();
                         arg.Value = string.Format(CultureInfo.InvariantCulture, 
@@ -434,7 +438,7 @@ namespace NAnt.VSNet {
                 #region Deploy project and configuration level output files
 
                 // copy primary project output (and related files)
-                Hashtable outputFiles = GetOutputFiles(config.Name);
+                Hashtable outputFiles = GetOutputFiles(solutionConfiguration);
                 foreach (DictionaryEntry de in outputFiles) {
                     string srcPath = (string) de.Key;
                     string relativePath = (string) de.Value;
@@ -517,7 +521,10 @@ namespace NAnt.VSNet {
                 isPrivate);
         }
 
-        protected virtual void WriteCompilerOptions(StreamWriter sw, ConfigurationSettings config) {
+        protected virtual void WriteCompilerOptions(StreamWriter sw, string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings config = (ConfigurationSettings) BuildConfigurations[solutionConfiguration];
+
             // write project level options (eg. /target)
             foreach (string setting in ProjectSettings.Settings) {
                 sw.WriteLine(setting);
@@ -529,7 +536,7 @@ namespace NAnt.VSNet {
             }
 
             // write assembly references to response file
-            foreach (string assemblyReference in GetAssemblyReferences(config)) {
+            foreach (string assemblyReference in GetAssemblyReferences(solutionConfiguration)) {
                 sw.WriteLine("/r:\"{0}\"", assemblyReference);
             }
 
@@ -549,7 +556,7 @@ namespace NAnt.VSNet {
                     Log(Level.Verbose, " - {0}", resource.InputFile);
 
                     // compile resource
-                    FileInfo compileResourceFile = resource.Compile(config);
+                    FileInfo compileResourceFile = resource.Compile(solutionConfiguration);
 
                     sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
                         "/res:\"{0}\",\"{1}\"", compileResourceFile.FullName, 
@@ -645,8 +652,11 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        private bool CheckUpToDate(ConfigurationSettings cs) {
+        private bool CheckUpToDate(string solutionConfiguration) {
             DateTime dtOutputTimeStamp;
+
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings cs = (ConfigurationSettings) BuildConfigurations[solutionConfiguration];
 
             // check if project build output exists
             if (File.Exists(cs.BuildPath)) {
@@ -676,7 +686,7 @@ namespace NAnt.VSNet {
                 }
 
                 // check if compiled resource file exists
-                FileInfo compiledResourceFile = resource.GetCompiledResourceFile(cs);
+                FileInfo compiledResourceFile = resource.GetCompiledResourceFile(solutionConfiguration);
                 if (!compiledResourceFile.Exists) {
                     return false;
                 }
@@ -689,7 +699,7 @@ namespace NAnt.VSNet {
 
             // check all of the input references
             foreach (ReferenceBase reference in _references) {
-                if (dtOutputTimeStamp < reference.GetTimestamp(cs)) {
+                if (dtOutputTimeStamp < reference.GetTimestamp(solutionConfiguration)) {
                     return false;
                 }
             }

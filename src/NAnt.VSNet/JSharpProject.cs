@@ -89,16 +89,19 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Prepares the project for being built.
         /// </summary>
-        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <remarks>
         /// Ensures the configuration-level object directory exists and ensures
         /// that none of the output files are marked read-only.
         /// </remarks>
-        protected override void Prepare(ConfigurationBase config) {
+        protected override void Prepare(string solutionConfiguration) {
             // Visual J#.NET uses the <project dir>\obj\<configuration>
             // as working directory, so we should do the same to make
             // sure relative paths are resolved correctly
             // (eg. AssemblyKeyFile attribute)
+
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
 
             // ensure configuration-level object directory exists
             if (!config.ObjectDir.Exists) {

@@ -99,17 +99,17 @@ namespace NAnt.VSNet {
         /// Gets the output path of the reference, without taking the "copy local"
         /// setting into consideration.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The full output path of the reference.
         /// </returns>
-        public abstract string GetPrimaryOutputFile(ConfigurationBase config);
+        public abstract string GetPrimaryOutputFile(string solutionConfiguration);
 
         /// <summary>
         /// Gets the complete set of output files of the reference for the 
         /// specified configuration.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of output files of the reference for the specified
         /// configuration.
@@ -119,38 +119,38 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public abstract Hashtable GetOutputFiles(ConfigurationBase config);
+        public abstract Hashtable GetOutputFiles(string solutionConfiguration);
 
         /// <summary>
         /// Gets the complete set of assemblies that need to be referenced when
         /// a project references this component.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this component.
         /// </returns>
-        public abstract StringCollection GetAssemblyReferences(ConfigurationBase config);
+        public abstract StringCollection GetAssemblyReferences(string solutionConfiguration);
 
         /// <summary>
         /// Gets the timestamp of the reference.
         /// </summary>
-        /// <param name="config">The build configuration of the reference.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public abstract DateTime GetTimestamp(ConfigurationBase config);
+        public abstract DateTime GetTimestamp(string solutionConfiguration);
 
         /// <summary>
         /// Gets a value indicating whether the reference is managed for the
         /// specified configuration.
         /// </summary>
-        /// <param name="config">The build configuration of the reference.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// <see langword="true" /> if the reference is managed for the
         /// specified configuration; otherwise, <see langword="false" />.
         /// </returns>
-        public abstract bool IsManaged(string config);
+        public abstract bool IsManaged(string solutionConfiguration);
 
         #endregion Public Instance Methods
 
@@ -166,7 +166,7 @@ namespace NAnt.VSNet {
         /// <see cref="DateTime.MaxValue" /> if the specified file does not
         /// exist.
         /// </returns>
-        protected DateTime GetTimestamp(string fileName) {
+        protected DateTime GetFileTimestamp(string fileName) {
             if (!File.Exists(fileName)) {
                 return DateTime.MaxValue;
             }

@@ -96,18 +96,18 @@ namespace NAnt.VSNet {
         /// Gets the path of the reference, without taking the "copy local"
         /// setting into consideration.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The output path of the reference.
         /// </returns>
-        public override string GetPrimaryOutputFile(ConfigurationBase config) {
+        public override string GetPrimaryOutputFile(string solutionConfiguration) {
             return ResolveAssemblyReference();
         }
 
         /// <summary>
         /// Gets the complete set of output files for the referenced project.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of output files for the referenced project.
         /// </returns>
@@ -116,7 +116,7 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override Hashtable GetOutputFiles(ConfigurationBase config) {
+        public override Hashtable GetOutputFiles(string solutionConfiguration) {
             return base.GetAssemblyOutputFiles(ResolveAssemblyReference());
         }
 
@@ -124,12 +124,12 @@ namespace NAnt.VSNet {
         /// Gets the complete set of assemblies that need to be referenced when
         /// a project references this component.
         /// </summary>
-        /// <param name="config">The project configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this component.
         /// </returns>
-        public override StringCollection GetAssemblyReferences(ConfigurationBase config) {
+        public override StringCollection GetAssemblyReferences(string solutionConfiguration) {
             // if we're dealing with an assembly reference, then we only 
             // need to reference that assembly itself as VS.NET forces users
             // to add all dependent assemblies to the project itself
@@ -153,12 +153,12 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Gets the timestamp of the reference.
         /// </summary>
-        /// <param name="config">The build configuration of the reference.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public override DateTime GetTimestamp(ConfigurationBase config) {
-            return GetTimestamp(ResolveAssemblyReference());
+        public override DateTime GetTimestamp(string solutionConfiguration) {
+            return GetFileTimestamp(ResolveAssemblyReference());
         }
 
         #endregion Override implementation of ReferenceBase

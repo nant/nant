@@ -185,8 +185,8 @@ namespace NAnt.VSNet {
             return (ProjectBase) _htProjects[projectGuid];
         }
 
-        public bool Compile(string configuration) {
-            GetDependenciesFromProjects(configuration);
+        public bool Compile(string solutionConfiguration) {
+            GetDependenciesFromProjects(solutionConfiguration);
 
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -207,12 +207,12 @@ namespace NAnt.VSNet {
                         //
                         // this might affect the build order as it can add 
                         // project dependencies
-                        FixProjectReferences(project, configuration, htProjectsDone);
+                        FixProjectReferences(project, solutionConfiguration, htProjectsDone);
                     }
 
                     if (GetProjectDependencies(project.Guid).Length == 0) {
                         try {
-                            if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(configuration))) {
+                            if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(solutionConfiguration))) {
                                 if (!failed) {
                                     Log(Level.Error, "Project '{0}' failed!", project.Name);
                                     Log(Level.Error, "Continuing build with non-dependent projects.");
@@ -406,7 +406,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected void GetDependenciesFromProjects(string buildConfig) {
+        protected void GetDependenciesFromProjects(string solutionConfiguration) {
             Log(Level.Verbose, "Gathering additional dependencies...");
 
             // first get all of the output files
@@ -415,9 +415,12 @@ namespace NAnt.VSNet {
                 ProjectBase p = (ProjectBase) de.Value;
 
                 foreach (string configuration in p.Configurations) {
-                    string projectOutputFile = p.GetOutputPath(configuration);
-                    if (projectOutputFile != null) {
-                        _htOutputFiles[projectOutputFile] = projectGuid;
+                    ConfigurationBase projectConfig = (ConfigurationBase) p.ProjectConfigurations[configuration];
+                    if (projectConfig != null) {
+                        string projectOutputFile = projectConfig.OutputPath;
+                        if (projectOutputFile != null) {
+                            _htOutputFiles[projectOutputFile] = projectGuid;
+                        }
                     }
                 }
             }
@@ -445,7 +448,7 @@ namespace NAnt.VSNet {
 
                 // check if project actually supports the build configuration
                 ConfigurationBase projectConfig = (ConfigurationBase) 
-                    project.ProjectConfigurations[buildConfig];
+                    project.BuildConfigurations[solutionConfiguration];
                 if (projectConfig == null) {
                     continue;
                 }
@@ -455,7 +458,7 @@ namespace NAnt.VSNet {
                         AddProjectDependency(projectGuid, ((ProjectReferenceBase) reference).Project.Guid);
                     } else {
                         string outputFile = reference.GetPrimaryOutputFile(
-                            projectConfig);
+                            solutionConfiguration);
                         // if we reference an assembly in an AssemblyFolder
                         // that is an output directory of another project, 
                         // then add dependency on that project
@@ -555,9 +558,9 @@ namespace NAnt.VSNet {
         /// a build dependency.
         /// </summary>
         /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
-        /// <param name="config">The build configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <param name="builtProjects"><see cref="Hashtable" /> containing list of projects that have been built.</param>
-        protected void FixProjectReferences(ProjectBase project, string config, Hashtable builtProjects) {
+        protected void FixProjectReferences(ProjectBase project, string solutionConfiguration, Hashtable builtProjects) {
             // check if the project still has dependencies that have not been 
             // built
             if (GetProjectDependencies(project.Guid).Length > 0) {
@@ -565,7 +568,7 @@ namespace NAnt.VSNet {
             }
 
             ConfigurationBase projectConfig = (ConfigurationBase) 
-                project.ProjectConfigurations[config];
+                project.BuildConfigurations[solutionConfiguration];
 
             // check if the project actually supports the build configuration
             if (projectConfig == null) {
@@ -589,7 +592,7 @@ namespace NAnt.VSNet {
                 ProjectBase projectRef = null;
 
                 string outputFile = assemblyReference.GetPrimaryOutputFile(
-                    projectConfig);
+                    solutionConfiguration);
 
                 if (_htOutputFiles.Contains(outputFile)) {
                     // if the reference is an output file of
@@ -700,15 +703,8 @@ namespace NAnt.VSNet {
                 return new string[0];
             }
 
-            return (string[]) new ArrayList(((Hashtable) _htProjectDependencies[projectGuid]).Keys).ToArray(typeof(string));
-        }
-
-        private void AddProjectBuildConfiguration(string projectGuid, string configuration) {
-            if (!_htProjectBuildConfigurations.Contains(projectGuid)) {
-                _htProjectBuildConfigurations[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            }
-
-            ((Hashtable) _htProjectBuildConfigurations[projectGuid])[configuration] = null;
+            ICollection projectDependencies = ((Hashtable) _htProjectDependencies[projectGuid]).Keys;
+            return (string[]) new ArrayList(projectDependencies).ToArray(typeof(string));
         }
 
         private void SetProjectBuildConfiguration(ProjectBase project) {
@@ -725,9 +721,11 @@ namespace NAnt.VSNet {
                 // configurations that were listed in project configuration
                 // section
                 Hashtable projectBuildConfigurations = (Hashtable) _htProjectBuildConfigurations[project.Guid];
-                foreach (string configuration in projectBuildConfigurations.Keys) {
-                    if (project.ProjectConfigurations.ContainsKey(configuration)) {
-                        project.BuildConfigurations[configuration] = project.ProjectConfigurations[configuration];
+                foreach (DictionaryEntry de in projectBuildConfigurations) {
+                    string solutionConfiguration = (string) de.Key;
+                    string projectConfiguration = (string) de.Value;
+                    if (project.ProjectConfigurations.ContainsKey(projectConfiguration)) {
+                        project.BuildConfigurations[solutionConfiguration] = project.ProjectConfigurations[projectConfiguration];
                     }
                 }
             }

@@ -83,11 +83,11 @@ namespace NAnt.VSNet {
         /// Gets a value indicating whether the reference is managed for the
         /// specified configuration.
         /// </summary>
-        /// <param name="config">The build configuration of the reference.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// <see langword="true" />.
         /// </returns>
-        public override bool IsManaged(string config) {
+        public override bool IsManaged(string solutionConfiguration) {
             return true;
         }
 

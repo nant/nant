@@ -101,27 +101,30 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Compiles the resource file.
         /// </summary>
-        /// <param name="config">A build configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// A <see cref="FileInfo" /> representing the compiled resource file.
         /// </returns>
-        public FileInfo Compile(ConfigurationSettings config) {
+        public FileInfo Compile(string solutionConfiguration) {
             FileInfo compiledResourceFile = null;
 
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
-                    compiledResourceFile = CompileResx(config);
+                    compiledResourceFile = CompileResx(solutionConfiguration);
                     break;
                 case ".licx":
-                    compiledResourceFile = CompileLicx(config);
+                    compiledResourceFile = CompileLicx(solutionConfiguration);
                     break;
                 default:
-                    compiledResourceFile = CompileResource(config);
+                    compiledResourceFile = CompileResource(solutionConfiguration);
                     break;
             }
 
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings projectConfig = (ConfigurationSettings) Project.BuildConfigurations[solutionConfiguration];
+
             // determine manifest resource name
-            _manifestResourceName = GetManifestResourceName(config);
+            _manifestResourceName = GetManifestResourceName(projectConfig);
 
             return compiledResourceFile;
         }
@@ -130,15 +133,18 @@ namespace NAnt.VSNet {
         /// Returns a <see cref="FileInfo" /> representing the compiled resource
         /// file.
         /// </summary>
-        /// <param name="config">A build configuration.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <returns>
         /// A <see cref="FileInfo" /> representing the compiled resource file.
         /// </returns>
         /// <remarks>
         /// Calling this method does not force compilation of the resource file.
         /// </remarks>
-        public FileInfo GetCompiledResourceFile(ConfigurationSettings config) {
+        public FileInfo GetCompiledResourceFile(string solutionConfiguration) {
             string compiledResourceFile = null;
+
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings config = (ConfigurationSettings) Project.BuildConfigurations[solutionConfiguration];
 
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
@@ -246,11 +252,11 @@ namespace NAnt.VSNet {
                 LogicalFile.FullName, dependentFile);
         }
 
-        private FileInfo CompileResource(ConfigurationSettings config) {
-            return GetCompiledResourceFile(config);
+        private FileInfo CompileResource(string solutionConfiguration) {
+            return GetCompiledResourceFile(solutionConfiguration);
         }
 
-        private FileInfo CompileLicx(ConfigurationSettings config) {
+        private FileInfo CompileLicx(string solutionConfiguration) {
             // create instance of License task
             LicenseTask lt = new LicenseTask();
 
@@ -283,7 +289,7 @@ namespace NAnt.VSNet {
 
             // set task properties
             lt.InputFile = InputFile;
-            lt.OutputFile = GetCompiledResourceFile(config);
+            lt.OutputFile = GetCompiledResourceFile(solutionConfiguration);
             // convert target to uppercase to match VS.NET
             lt.Target = Path.GetFileName(Project.ProjectSettings.OutputFileName).
                 ToUpper(CultureInfo.InvariantCulture);
@@ -291,7 +297,7 @@ namespace NAnt.VSNet {
             // inherit non-GAC assembly references from project
             foreach (ReferenceBase reference in Project.References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    config);
+                    solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
                     if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
                         lt.Assemblies.Includes.Add(assemblyFile);
@@ -312,7 +318,7 @@ namespace NAnt.VSNet {
             return lt.OutputFile;
         }
 
-        private FileInfo CompileResx(ConfigurationSettings config) {
+        private FileInfo CompileResx(string solutionConfiguration) {
             // create instance of ResGen task
             ResGenTask rt = new ResGenTask();
 
@@ -345,12 +351,12 @@ namespace NAnt.VSNet {
 
             // set task properties
             rt.InputFile = InputFile;
-            rt.OutputFile = GetCompiledResourceFile(config);
+            rt.OutputFile = GetCompiledResourceFile(solutionConfiguration);
 
             // inherit assembly references from project
             foreach (ReferenceBase reference in Project.References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    config);
+                    solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
                     rt.Assemblies.Includes.Add(assemblyFile);
                 }

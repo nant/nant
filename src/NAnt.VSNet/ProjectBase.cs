@@ -276,25 +276,28 @@ namespace NAnt.VSNet {
         public abstract ProjectReferenceBase CreateProjectReference(
             ProjectBase project, bool isPrivateSpecified, bool isPrivate);
 
-        public bool Compile(string configuration) {
-            ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
+        public bool Compile(string solutionConfiguration) {
+            ConfigurationBase projectConfig = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
+            if (projectConfig == null) {
+                Log(Level.Info, "Skipping '{0}' [{1}] ...", Name, solutionConfiguration);
+                return true;
+            }
+
+            /*
+            ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[projectConfiguration];
             if (config == null) {
                 Log(Level.Info, "Skipping '{0}': configuration '{1}' does not exist.", 
                     Name, configuration);
                 return true;
             }
+            */
 
-            if (!BuildConfigurations.ContainsKey(configuration)) {
-                Log(Level.Info, "Skipping '{0}' [{1}] ...", Name, configuration);
-                return true;
-            }
-
-            Log(Level.Info, "Building '{0}' [{1}] ...", Name, configuration);
+            Log(Level.Info, "Building '{0}' [{1}] ...", Name, projectConfig.Name);
 
             // ensure output directory exists
-            if (!config.OutputDir.Exists) {
-                config.OutputDir.Create();
-                config.OutputDir.Refresh();
+            if (!projectConfig.OutputDir.Exists) {
+                projectConfig.OutputDir.Create();
+                projectConfig.OutputDir.Refresh();
             }
 
             // ensure project-level object directory exists
@@ -304,14 +307,15 @@ namespace NAnt.VSNet {
             }
 
             // prepare the project for build
-            Prepare(config);
+            Prepare(solutionConfiguration);
 
             // build the project            
-            return Build(config);
+            return Build(solutionConfiguration);
         }
 
-        public string GetOutputPath(string configuration) {
-            ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
+        public string GetOutputPath(string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
             if (config == null) {
                 return null;
             }
@@ -319,25 +323,16 @@ namespace NAnt.VSNet {
             return config.OutputPath;
         }
 
-        public ConfigurationBase GetConfiguration(string configuration) {
-            return (ConfigurationBase) ProjectConfigurations[configuration];
+        public ConfigurationBase GetConfiguration(string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            return (ConfigurationBase) BuildConfigurations[solutionConfiguration];
         }
 
-        public StringCollection GetAssemblyReferences(string configuration) {
-            ConfigurationBase config = GetConfiguration(configuration);
-            if (config == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Configuration '{0}' does not exist for project '{1}'.",
-                    configuration, Name), Location.UnknownLocation);
-            }
-            return GetAssemblyReferences(config);
-        }
-
-        public StringCollection GetAssemblyReferences(ConfigurationBase config) {
+        public StringCollection GetAssemblyReferences(string solutionConfiguration) {
             Hashtable uniqueReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
 
             foreach (ReferenceBase reference in References) {
-                StringCollection references = reference.GetAssemblyReferences(config);
+                StringCollection references = reference.GetAssemblyReferences(solutionConfiguration);
                 foreach (string assemblyReference in references) {
                     if (!uniqueReferences.ContainsKey(assemblyReference)) {
                         uniqueReferences.Add(assemblyReference, null);
@@ -364,12 +359,13 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public Hashtable GetOutputFiles(string configuration) {
-            ConfigurationBase config = GetConfiguration(configuration);
+        public Hashtable GetOutputFiles(string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
             if (config == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Configuration '{0}' does not exist for project '{1}'.",
-                    configuration, Name), Location.UnknownLocation);
+                    "Solution configuration '{0}' does not exist for project '{1}'.",
+                    solutionConfiguration, Name), Location.UnknownLocation);
             }
 
             Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -379,7 +375,7 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
-                Hashtable referenceOutputFiles = reference.GetOutputFiles(config);
+                Hashtable referenceOutputFiles = reference.GetOutputFiles(solutionConfiguration);
                 foreach (DictionaryEntry de in referenceOutputFiles) {
                     outputFiles[de.Key] = de.Value;
                 }
@@ -494,14 +490,14 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Prepares the project for being built.
         /// </summary>
-        /// <param name="config">The configuration in which the project will be built.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <remarks>
         /// The default implementation will ensure that none of the output files 
         /// are marked read-only.
         /// </remarks>
-        protected virtual void Prepare(ConfigurationBase config) {
+        protected virtual void Prepare(string solutionConfiguration) {
             // determine the output files of the project
-            Hashtable outputFiles = GetOutputFiles(config.Name);
+            Hashtable outputFiles = GetOutputFiles(solutionConfiguration);
 
             // use the <attrib> task to ensure none of the output files are
             // marked read-only
@@ -540,6 +536,9 @@ namespace NAnt.VSNet {
             // we want to reset the read-only attribute of all output files
             attribTask.ReadOnlyAttrib = false;
 
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
+
             // add all output files to the <attrib> fileset
             foreach (DictionaryEntry de in outputFiles) {
                 attribTask.AttribFileSet.Includes.Add(FileUtils.CombinePaths(
@@ -558,7 +557,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected abstract bool Build(ConfigurationBase config);
+        protected abstract bool Build(string solutionConfiguration);
 
         /// <summary>
         /// Copies the specified file if the destination file does not exist, or
@@ -702,10 +701,6 @@ namespace NAnt.VSNet {
         }
 
         #endregion Protected Static Methods
-
-        #region Private Static Methods
-
-        #endregion Private Static Methods
 
         #region Private Instance Fields
 

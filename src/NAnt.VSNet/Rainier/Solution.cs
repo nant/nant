@@ -65,8 +65,8 @@ namespace NAnt.VSNet.Rainier {
                     AddProjectDependency(guid, dependency);
                 }
 
-                // set-up project configuration
-                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<configuration>[0-9a-zA-Z\s_]+)\.Build\.0\s+\S+", RegexOptions.Multiline);
+                // set-up project configuration 
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<solutionConfiguration>[0-9a-zA-Z\s_]+)\.Build\.0\s*=\s*(?<projectConfiguration>[0-9a-zA-Z\s_]+)\|\s*\S*", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
                 // initialize hashtable that will hold the project build configurations
@@ -74,8 +74,9 @@ namespace NAnt.VSNet.Rainier {
 
                 if (projectBuildMatches.Count > 0) {
                     foreach (Match projectBuildMatch in projectBuildMatches) {
-                        string configuration = projectBuildMatch.Groups["configuration"].Value;
-                        projectBuildConfiguration[configuration] = null;
+                        string solutionConfiguration = projectBuildMatch.Groups["solutionConfiguration"].Value;
+                        string projectConfiguration = projectBuildMatch.Groups["projectConfiguration"].Value;
+                        projectBuildConfiguration[solutionConfiguration] = projectConfiguration;
                     }
                 }
 
