@@ -35,5 +35,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("0.8.3.*")]
-[assembly: AssemblyInformationalVersion("0.8.3")]
+// fixed version number, with revision number in format YMMDD
+[assembly: AssemblyVersion("0.8.4.30703")]
+[assembly: AssemblyInformationalVersion("0.8.4")]
