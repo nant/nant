@@ -36,7 +36,7 @@ using NAnt.Core.Util;
 
 using NAnt.DotNet.Types;
 
-namespace NAnt.Core.Tasks {
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Executes the code contained within the task. This code can include custom extension function definitions. 
     /// Once the script task has executed those custom functions will be available for use in the buildfile.
@@ -118,13 +118,12 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     [TaskName("script")]
-    public class ScriptTask : NAnt.Core.Task {
+    public class ScriptTask : Task {
         #region Private Instance Fields
 
         private string _language = null;
         private AssemblyFileSet _references = new AssemblyFileSet();
         private string _mainClass = "";
-        private static Hashtable _compilerMap;
         private string _rootClassName;
         private string _prefix = "script";
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
@@ -149,7 +148,9 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The language of the script block (VB, C# or JS).
+        /// The language of the script block. Possible values are "VB", "C#",
+        /// "JS", "VJS" or a fully-qualified name for a class implementing 
+        /// <see cref="System.CodeDom.Compiler.CodeDomProvider" />.
         /// </summary>
         [TaskAttribute("language", Required=true)]
         public string Language {
@@ -167,7 +168,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The name of the main class containing the static <c>ScriptMain</c> entry point. 
+        /// The name of the main class containing the static <c>ScriptMain</c> 
+        /// entry point. 
         /// </summary>
         [TaskAttribute("mainclass", Required=false)]
         public string MainClass {
@@ -176,7 +178,8 @@ namespace NAnt.Core.Tasks {
         }
         
         /// <summary>
-        /// The namespace prefix for any custom functions defined in the script. If ommitted the prefix will default to 'script'
+        /// The namespace prefix for any custom functions defined in the script. 
+        /// If ommitted the prefix will default to 'script'
         /// </summary>
         [TaskAttribute("prefix", Required=false)]
         public string Prefix {
@@ -203,29 +206,6 @@ namespace NAnt.Core.Tasks {
 
         #endregion Public Instance Properties
 
-        #region Static Constructor
-
-        static ScriptTask() {
-            _compilerMap = new Hashtable(
-                CaseInsensitiveHashCodeProvider.Default,
-                CaseInsensitiveComparer.Default);
-
-            CompilerInfo csCompiler = new CompilerInfo(LanguageId.CSharp);
-            CompilerInfo vbCompiler = new CompilerInfo(LanguageId.VisualBasic);
-            CompilerInfo jsCompiler = new CompilerInfo(LanguageId.JScript);
-
-            _compilerMap["CSHARP"] = csCompiler;
-            _compilerMap["C#"] = csCompiler;
-
-            _compilerMap["VISUALBASIC"] = vbCompiler;
-            _compilerMap["VB"] = vbCompiler;
-
-            _compilerMap["JSCRIPT"] = jsCompiler;
-            _compilerMap["JS"] = jsCompiler;
-        }
-
-        #endregion Static Constructor
-
         #region Override implementation of Task
 
         /// <summary>
@@ -240,29 +220,13 @@ namespace NAnt.Core.Tasks {
         /// Executes the script block.
         /// </summary>
         protected override void ExecuteTask() {
-            CompilerInfo compilerInfo = null;
-            compilerInfo = _compilerMap[Language] as CompilerInfo;
-            
-            // if its not in the map then it must be a fully qualified provider class name
-            if (compilerInfo == null ) {
-                Type providerType = Type.GetType(Language);
-                if (providerType == null ) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "{0} is a ",Language ),
-                        Location );
-                }
-                compilerInfo = new CompilerInfo(providerType); // language must be in the form of a fully qualified type name in this case
+            // create compiler info for user-specified language
+            CompilerInfo compilerInfo = CreateCompilerInfo(Language);
                
-            }
             // ensure base directory is set, even if fileset was not initialized
             // from XML
             if (References.BaseDirectory == null) {
                 References.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
-            }
-
-            if (compilerInfo == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Unknown language '{0}'.", Language), Location);
             }
 
             ICodeCompiler compiler = compilerInfo.Compiler;
@@ -382,11 +346,97 @@ namespace NAnt.Core.Tasks {
 
         #endregion Override implementation of Task
 
+        #region Private Instance Methods
+
+        private CompilerInfo CreateCompilerInfo(string language) {
+            CodeDomProvider provider = null;
+            LanguageId languageId;
+
+            try {
+                switch (language) {
+                    case "VB":
+                    case "VISUALBASIC":
+                        languageId = LanguageId.VisualBasic;
+                        provider = CreateCodeDomProvider(
+                            "Microsoft.VisualBasic.VBCodeProvider",
+                            "System, Culture=neutral");
+                        break;
+                    case "C#":
+                    case "CSHARP":
+                        languageId = LanguageId.CSharp;
+                        provider = CreateCodeDomProvider(
+                            "Microsoft.CSharp.CSharpCodeProvider",
+                            "System, Culture=neutral");
+                        break;
+                    case "JS":
+                    case "JSCRIPT":
+                        languageId = LanguageId.JScript;
+                        provider = CreateCodeDomProvider(
+                            "Microsoft.JScript.JScriptCodeProvider",
+                            "Microsoft.JScript, Culture=neutral");
+                        break;
+                    case "VJS":
+                    case "JSHARP":
+                        languageId = LanguageId.JSharp;
+                        provider = CreateCodeDomProvider(
+                            "Microsoft.VJSharp.VJSharpCodeProvider",
+                            "VJSharpCodeProvider, Culture=neutral");
+                        break;
+                    default:
+                        // if its not one of the above then it must be a fully 
+                        // qualified provider class name
+                        languageId = LanguageId.Other;
+                        provider = CreateCodeDomProvider(language);
+                        break;
+                }
+
+                return new CompilerInfo(languageId, provider);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "CodeDomProvider for '{0}' could not be created.", language),
+                    Location, ex);
+            }
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Static Methods
+
+        private static CodeDomProvider CreateCodeDomProvider(string typeName, string assemblyName) {
+            Assembly providerAssembly = Assembly.LoadWithPartialName(assemblyName);
+            if (providerAssembly == null) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "Assembly '{0}' could not be loaded with partial name.",
+                    assemblyName));
+            }
+
+            Type providerType = providerAssembly.GetType(typeName, true, true);
+            return CreateCodeDomProvider(providerType);
+        }
+
+        private static CodeDomProvider CreateCodeDomProvider(string assemblyQualifiedTypeName) {
+            Type providerType = Type.GetType(assemblyQualifiedTypeName, true, true);
+            return CreateCodeDomProvider(providerType);
+        }
+
+        private static CodeDomProvider CreateCodeDomProvider(Type providerType) {
+            object provider = Activator.CreateInstance(providerType);
+            if (!(provider is CodeDomProvider)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "Type '{0}' is not a valid CodeDomProvider.", 
+                    providerType.FullName));
+            }
+            return (CodeDomProvider) provider;
+        }
+
+        #endregion Private Static Methods
+
         internal enum LanguageId : int {
             CSharp      = 1,
             VisualBasic = 2,
             JScript     = 3,
-            Other       = 4
+            JSharp      = 4,
+            Other       = 5
         }
 
         internal class CompilerInfo {
@@ -395,59 +445,14 @@ namespace NAnt.Core.Tasks {
             private readonly ICodeGenerator CodeGen;
             private readonly string CodePrologue;
 
-            public CompilerInfo( Type providerType ) {
-                 _lang = LanguageId.Other;
-                Compiler = null;
-                CodeDomProvider provider = null;
-                
-                provider = (CodeDomProvider)Activator.CreateInstance( providerType );
-                
-                if (provider != null) {
-                    Compiler = provider.CreateCompiler();
-                    CodeGen = provider.CreateGenerator();
-                    // Generate default imports section.
-                    CodePrologue = "";
-                    CodePrologue += GenerateImportCode(ScriptTask._defaultNamespaces);
-                }
-            }
-            
-            public CompilerInfo(LanguageId languageId) {
+            public CompilerInfo(LanguageId languageId, CodeDomProvider provider) {
                 _lang = languageId;
-                Compiler = null;
 
-                CodeDomProvider provider = null;
-                
-                string providerTypeName= "";
-                string providerAssembly = "";
-                switch (languageId) {
-                    case LanguageId.CSharp:
-                        providerTypeName = "Microsoft.CSharp.CSharpCodeProvider";
-                        providerAssembly = "System, Culture=neutral";
-                        break;
-                    case LanguageId.VisualBasic:
-                        providerTypeName = "Microsoft.VisualBasic.VBCodeProvider";
-                        providerAssembly = "System, Culture=neutral";
-                        break;
-                    case LanguageId.JScript:
-                        providerTypeName = "Microsoft.JScript.JScriptCodeProvider";
-                        providerAssembly = "Microsoft.JScript, Culture=neutral";
-                        break;
-                      
-                }
-                
-                Assembly assem = Assembly.LoadWithPartialName(providerAssembly);
-                if (assem != null) {
-                    Type providerType = assem.GetType(providerTypeName);
-                    provider = (CodeDomProvider)assem.CreateInstance(providerTypeName);
-                }
-                
-                if (provider != null) {
-                    Compiler = provider.CreateCompiler();
-                    CodeGen = provider.CreateGenerator();
-                    // Generate default imports section.
-                    CodePrologue = "";
-                    CodePrologue += GenerateImportCode(ScriptTask._defaultNamespaces);
-                }
+                Compiler = provider.CreateCompiler();
+                CodeGen = provider.CreateGenerator();
+                // Generate default imports section.
+                CodePrologue = "";
+                CodePrologue += GenerateImportCode(ScriptTask._defaultNamespaces);
             }
 
             private string GenerateImportCode(IList namespaces) {
