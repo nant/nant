@@ -212,7 +212,7 @@ namespace Tests.NAnt.Console {
         }
 
         [Test]
-        public void Test_BadArgument() {
+        public void Test_UnknownArgument() {
             string[] args = { "-asdf", "-help", "-verbose" };
 
             string result = null;
@@ -221,11 +221,96 @@ namespace Tests.NAnt.Console {
                 result = c.Close();
             }
 
-            // using a regular expression look for a plausible version number and valid copyright date
+            // using a regular expression to check for correct error message
             string expression = @"Unknown argument '-asdf'";
 
             Match match = Regex.Match(result, expression);
-            Assertion.Assert("Argument did not cause an error.", match.Success);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+        }
+
+        [Test]
+        public void Test_DuplicateArgument() {
+            string[] args = {"-buildfile:test", "-buildfile:test"};
+
+            string result = null;
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                ConsoleDriver.Main(args);
+                result = c.Close();
+            }
+
+            // using a regular expression to check for correct error message
+            string expression = @"Duplicate command-line argument '-buildfile'.";
+
+            Match match = Regex.Match(result, expression);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+        }
+
+        [Test]
+        public void Test_InvalidBoolValue() {
+            string[] args = {"-debug:test"};
+
+            string result = null;
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                ConsoleDriver.Main(args);
+                result = c.Close();
+            }
+
+            // using a regular expression to check for correct error message
+            string expression = @"Invalid value 'test' for command-line argument '-debug'.";
+
+            Match match = Regex.Match(result, expression);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+        }
+
+        [Test]
+        public void Test_DuplicateCollectionValue() {
+            string[] args = {"-listener:test", "-listener:test"};
+
+            string result = null;
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                ConsoleDriver.Main(args);
+                result = c.Close();
+            }
+
+            // using a regular expression to check for correct error message
+            string expression = @"Duplicate value 'test' for command-line argument '-listener'.";
+
+            Match match = Regex.Match(result, expression);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+        }
+
+        [Test]
+        public void Test_MissingValueForNameValuePair() {
+            string[] args = {"-D:test", "-D:test"};
+
+            string result = null;
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                ConsoleDriver.Main(args);
+                result = c.Close();
+            }
+
+            // using a regular expression to check for correct error message
+            string expression = @"Expected name\/value pair \(<name>=<value>\).";
+
+            Match match = Regex.Match(result, expression);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
+        }
+
+        [Test]
+        public void Test_MissingNameForNameValuePair() {
+            string[] args = {"-D:test=", "-D:test="};
+
+            string result = null;
+            using (ConsoleCapture c = new ConsoleCapture()) {
+                ConsoleDriver.Main(args);
+                result = c.Close();
+            }
+
+            // using a regular expression to check for correct error message
+            string expression = @"Duplicate property named 'test' for command-line argument 'D'.";
+
+            Match match = Regex.Match(result, expression);
+            Assertion.Assert("Argument did not cause an error: " + result, match.Success);
         }
 
         [Test]
@@ -320,7 +405,7 @@ namespace Tests.NAnt.Console {
                  init
             */
 
-            // using a regular expression look for a plausible version number and valid copyright date
+            // using a regular expression to look for valid output
             // expression created by RegEx http://www.organicbit.com/regex/
             string expression = @"Default Target:[\s]*(?<default>build)\s*compiles the source code[\s]*Main Targets:[\s]*(?<main1>build)\s*compiles the source code[\s]*(?<main2>clean)\s*cleans build directory[\s]*(?<main3>test)\s*run the program[\s]*Sub Targets:[\s]*(?<subtarget1>init)";
 
