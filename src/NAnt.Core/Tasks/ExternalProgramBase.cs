@@ -48,7 +48,7 @@ namespace NAnt.Core.Tasks {
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
         private TextWriter _errorWriter;
-        private int _exitCode = -100;
+        private int _exitCode = UnknownExitCode;
 
         #endregion Private Instance Fields
 
@@ -261,66 +261,78 @@ namespace NAnt.Core.Tasks {
         ///   <para>The exit code of the external process indicates a failure.</para>
         /// </exception>
         protected override void ExecuteTask() {
-            try {
-                // Start the external process
-                Process process = StartProcess();
-                Thread outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));                
-                Thread errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
+			Thread outputThread = null;
+			Thread errorThread = null;
+
+			try {
+				// Start the external process
+				Process process = StartProcess();
+				outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));
+				errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
                 
-                _stdOut = process.StandardOutput;
-                _stdError = process.StandardError;
+				_stdOut = process.StandardOutput;
+				_stdError = process.StandardError;
 
-                outputThread.Start();
-                errorThread.Start();
+				outputThread.Start();
+				errorThread.Start();
 
-                // Wait for the process to terminate
-                process.WaitForExit(TimeOut);
+				// Wait for the process to terminate
+				process.WaitForExit(TimeOut);
 
-                // Wait for the threads to terminate
-                outputThread.Join(2000);
-                errorThread.Join(2000); 
+				// Wait for the threads to terminate
+				outputThread.Join(2000);
+				errorThread.Join(2000); 
 
-                if (!process.HasExited) {
-                    try {
-                        process.Kill();
-                    } catch {
-                        // ignore possible exceptions that are thrown when the
-                        // process is terminated
-                    }
+				if (!process.HasExited) {
+					try {
+						process.Kill();
+					} catch {
+						// ignore possible exceptions that are thrown when the
+						// process is terminated
+					}
 
-                    throw new BuildException(
-                        String.Format(CultureInfo.InvariantCulture, 
-                        "External Program {0} did not finish within {1} milliseconds.", 
-                        ProgramFileName, 
-                        TimeOut), 
-                        Location);
-                }
+					throw new BuildException(
+						String.Format(CultureInfo.InvariantCulture, 
+						"External Program {0} did not finish within {1} milliseconds.", 
+						ProgramFileName, 
+						TimeOut), 
+						Location);
+				}
 
-                _exitCode = process.ExitCode;
+				_exitCode = process.ExitCode;
 
-                if (process.ExitCode != 0) {
-                    throw new BuildException(
-                        String.Format(CultureInfo.InvariantCulture, 
-                        "External Program Failed: {0} (return code was {1})", 
-                        ProgramFileName, 
-                        process.ExitCode), 
-                        Location);
-                }
-            } catch (BuildException e) {
-                if (FailOnError) {
-                    throw;
-                } else {
-                    logger.Error("Execution Error", e);
-                    Log(Level.Error, e.Message);
-                }
-            } catch (Exception e) {
-                logger.Error("Execution Error", e);
+				if (process.ExitCode != 0) {
+					throw new BuildException(
+						String.Format(CultureInfo.InvariantCulture, 
+						"External Program Failed: {0} (return code was {1})", 
+						ProgramFileName, 
+						process.ExitCode), 
+						Location);
+				}
+			} catch (BuildException e) {
+				if (FailOnError) {
+					throw;
+				} else {
+					logger.Error("Execution Error", e);
+					Log(Level.Error, e.Message);
+				}
+			} catch (Exception e) {
+				logger.Error("Execution Error", e);
                 
-                throw new BuildException(
-                    String.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors. Please see log4net log.", GetType().ToString(), ProgramFileName), 
-                    Location, 
-                    e);
-            }
+				throw new BuildException(
+					string.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors. Please see log4net log.", GetType().ToString(), ProgramFileName), 
+					Location, 
+					e);
+			} finally {
+				// ensure outputThread is always aborted
+				if (outputThread != null && outputThread.IsAlive) {
+					outputThread.Abort();
+				}
+				// ensure errorThread is always aborted
+				if (errorThread != null && errorThread.IsAlive) {
+					errorThread.Abort();
+				}
+			}
         }
 
         #endregion Override implementation of Task
