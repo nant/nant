@@ -326,7 +326,6 @@ namespace NAnt.VSNet.Tasks {
             base.InitializeTask (taskNode);
         }
 
-
         #endregion Override implementation of Task
 
         #region Private Instance Methods
@@ -375,7 +374,6 @@ namespace NAnt.VSNet.Tasks {
         private FileSet _assemblyFolders;
         private WebMapCollection _webMaps;
         private bool _includeVSFolders;
-
 
         #endregion Private Instance Fields
 
