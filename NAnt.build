@@ -12,20 +12,18 @@
 
     <!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
     <property name="project.version" value="x.x.x"/>
-    <script language="C#" mainclass="VersionReader">
+    <script language="C#">
         <code><![CDATA[
-		using System.IO;
+		public static void ScriptMain(Project project) {
+			string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
+			string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
+			StreamReader reader = File.OpenText(assemblyInfoFileName);
 
-		class VersionReader {
-			public static void ScriptMain(Project project) {
-			    string sourcePath = Path.Combine(project.BaseDirectory, Path.Combine(project.Properties["src.dir"], project.Properties["project.FormalName"]));
-				string assemblyInfoFileName = Path.Combine(sourcePath, "AssemblyInfo.cs");
-				StreamReader reader = File.OpenText(assemblyInfoFileName);
+			Regex commentRE = new Regex("^(\\s)*//");
+			Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+\\.\\d+");
 
-				Regex commentRE = new Regex("^(\\s)*//");
-				Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d+\\.\\d+\\.\\d+");
-
-				string line = reader.ReadLine();
+			string line = reader.ReadLine();
+			try {
 				while (line != null) {
 					// make sure the line has not been commented out
 					if (!commentRE.Match(line).Success) {
@@ -38,11 +36,12 @@
 					}
 					line = reader.ReadLine();
 				}
+			} finally {
 				// must remember to close the file or the compile may not work
 				reader.Close();
 			}
 		}
-		]]></code>
+	]]></code>
     </script>
 	
     <property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
