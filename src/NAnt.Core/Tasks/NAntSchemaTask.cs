@@ -110,18 +110,18 @@ namespace NAnt.Core.Tasks {
                 foreach (TaskBuilder tb in TypeFactory.TaskBuilders) {
                     taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
                 }
-				/*
-				foreach (DataTypeBaseBuilder tb in TypeFactory.DataTypeBuilders) {
-					taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
-				}
-				*/
+                /*
+                foreach (DataTypeBaseBuilder tb in TypeFactory.DataTypeBuilders) {
+                    taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
+                }
+                */
 
             } else {
                 taskTypes = new ArrayList(1);
                 taskTypes.Add(Type.GetType(ForType, true, true));
             }
-			
-			FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName); 			FilePermission.Assert();
+            
+            FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName);             FilePermission.Assert();
             using (FileStream file = File.Open(OutputFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
                 WriteSchema(file, (Type[])taskTypes.ToArray(typeof(Type)), TargetNamespace);
 
@@ -205,8 +205,7 @@ namespace NAnt.Core.Tasks {
             return newSeq;
         }    
 
-        protected static XmlNode[] TextToNodeArray(string text) 
-        {
+        protected static XmlNode[] TextToNodeArray(string text) {
             XmlDocument doc = new XmlDocument();
 
             return new XmlNode[1] {doc.CreateTextNode(text)};
@@ -299,35 +298,34 @@ namespace NAnt.Core.Tasks {
 
                 //create temp list of task Complex Types
                 ArrayList taskComplexTypes = new ArrayList(tasks.Length);
-				ArrayList taskContainerComplexTypes = new ArrayList(15);
+                ArrayList taskContainerComplexTypes = new ArrayList(15);
 
                 XmlSchemaComplexType taskCT = FindOrCreateComplexType(typeof(TaskContainer));
                 taskComplexTypes.Add(taskCT);
                 taskContainerComplexTypes.Add(taskCT);
 
-                foreach (Type t in tasks) 
-                {
+                foreach (Type t in tasks) {
                     taskCT = FindOrCreateComplexType(t);
-					taskComplexTypes.Add(taskCT);
+                    taskComplexTypes.Add(taskCT);
 
-					//allow any tasks...
+                    //allow any tasks...
                     if(t.IsSubclassOf(typeof(TaskContainer)))
                         taskContainerComplexTypes.Add(taskCT);
                 }
 
                 Compile();
-				//update the taskcontainerCTs to allow any other task and the list of tasks generated.
-				foreach(XmlSchemaComplexType ct in taskContainerComplexTypes) {
-					XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
+                //update the taskcontainerCTs to allow any other task and the list of tasks generated.
+                foreach(XmlSchemaComplexType ct in taskContainerComplexTypes) {
+                    XmlSchemaSequence seq = ct.Particle as XmlSchemaSequence;
 
-					if (seq != null) {
-						seq.Items.Add(CreateTaskListComplexType(tasks).Particle);
-					}
-					else {
-						logger.Error("Unable to fixup complextype with children. Particle is not XmlSchemaSequence");
-					}
-				}
-				Compile();
+                    if (seq != null) {
+                        seq.Items.Add(CreateTaskListComplexType(tasks).Particle);
+                    }
+                    else {
+                        logger.Error("Unable to fixup complextype with children. Particle is not XmlSchemaSequence");
+                    }
+                }
+                Compile();
 
                 //create target ComplexType
                 _targetCT = CreateTaskListComplexType(tasks);
@@ -371,13 +369,11 @@ namespace NAnt.Core.Tasks {
                 Compile();
             }
 
-            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks)
-            {
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks) {
                 return CreateTaskListComplexType(tasks, false);
             }
 
-            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks, bool includeProjectLevelItems)
-            {
+            protected XmlSchemaComplexType CreateTaskListComplexType(Type[] tasks, bool includeProjectLevelItems) {
                 XmlSchemaComplexType tasklistCT = new XmlSchemaComplexType();
                 XmlSchemaChoice choice = new XmlSchemaChoice();
                 choice.MinOccurs = 0;
@@ -385,8 +381,7 @@ namespace NAnt.Core.Tasks {
 
                 tasklistCT.Particle = choice;
 
-                foreach (Type t in tasks) 
-                {
+                foreach (Type t in tasks) {
                     XmlSchemaElement taskElement = new XmlSchemaElement();
                     string typeId = GenerateIDFromType(t);
                     XmlSchemaComplexType taskCT = FindComplexTypeByID(typeId);
@@ -397,8 +392,7 @@ namespace NAnt.Core.Tasks {
                     choice.Items.Add(taskElement);
                 }
 
-                if (includeProjectLevelItems)
-                {
+                if (includeProjectLevelItems) {
                     XmlSchemaElement targetElement = new XmlSchemaElement();
 
                     targetElement.Name = "target";
@@ -410,11 +404,9 @@ namespace NAnt.Core.Tasks {
                 return tasklistCT;
             }
 
-            private string GetTaskName(Type t)
-            {
+            private string GetTaskName(Type t) {
                 TaskNameAttribute[] attrs = (TaskNameAttribute[])t.GetCustomAttributes(typeof(TaskNameAttribute), false);
-                if (attrs.Length == 1)
-                {
+                if (attrs.Length == 1) {
                     return attrs[0].Name;
                 }
                 else
@@ -476,8 +468,7 @@ namespace NAnt.Core.Tasks {
                 return null;
             }
 
-            protected XmlSchemaComplexType FindOrCreateComplexType(Type t) 
-            {
+            protected XmlSchemaComplexType FindOrCreateComplexType(Type t)  {
                 XmlSchemaComplexType ct;
                 string typeId = GenerateIDFromType(t);
 
@@ -503,8 +494,7 @@ namespace NAnt.Core.Tasks {
                 XmlSchemaGroupBase group1 = CreateXsdSequence(0, Decimal.MaxValue);
                 XmlSchemaObjectCollection attributesCollection = ct.Attributes;
 
-                if (false && t.IsSubclassOf(typeof(TaskContainer)))
-                {
+                if (false && t.IsSubclassOf(typeof(TaskContainer))) {
                     //
                     // a failed attempt to map the class hierarchy to XSD
                     // I don't know how to do it because of "target" task which
@@ -517,8 +507,7 @@ namespace NAnt.Core.Tasks {
                     ct.ContentModel.Content = ext;
                     attributesCollection = ext.Attributes;
                 }
-                else
-                {
+                else {
                     ct.Particle = group1;
                     attributesCollection = ct.Attributes;
                 }
@@ -542,8 +531,7 @@ namespace NAnt.Core.Tasks {
                         // Create individial choice for any individual child Element
                         Decimal min = 0;
 
-                        if (buildElemAttr.Required) 
-                        {
+                        if (buildElemAttr.Required) {
                             min = 1;
                         }
 
@@ -565,23 +553,17 @@ namespace NAnt.Core.Tasks {
                         }
 
                         // determine type of child elements
-                        if (buildElementArrayAttribute != null) 
-                        {
-                            if (buildElementArrayAttribute.ElementType == null) 
-                            {
-                                if (childType.IsArray) 
-                                {
+                        if (buildElementArrayAttribute != null)  {
+                            if (buildElementArrayAttribute.ElementType == null) {
+                                if (childType.IsArray) {
                                     childType = childType.GetElementType();
                                 } 
-                                else 
-                                {
+                                else {
                                     Type elementType = null;
 
                                     // locate Add method with 1 parameter, type of that parameter is parameter type
-                                    foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) 
-                                    {
-                                        if (method.Name == "Add" && method.GetParameters().Length == 1) 
-                                        {
+                                    foreach (MethodInfo method in childType.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                                        if (method.Name == "Add" && method.GetParameters().Length == 1) {
                                             ParameterInfo parameter = method.GetParameters()[0];
                                             elementType = parameter.ParameterType;
                                             break;
@@ -591,13 +573,11 @@ namespace NAnt.Core.Tasks {
                                     childType = elementType;
                                 }
                             } 
-                            else 
-                            {
+                            else {
                                 childType = buildElementArrayAttribute.ElementType;
                             }
 
-                            if (childType == null || !typeof(Element).IsAssignableFrom(childType)) 
-                            {
+                            if (childType == null || !typeof(Element).IsAssignableFrom(childType)) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                     "BuildElementArrayAttribute and BuildElementCollectionAttribute" +
                                     " should have an element type assigned that derives from Element" +
