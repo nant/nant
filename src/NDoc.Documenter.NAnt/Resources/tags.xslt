@@ -98,6 +98,12 @@
         for an example of a note.</summary>
     </doc:template>
 
+    <xsl:template match="h3" mode="slashdoc" doc:group="block">
+        <h3>
+            <xsl:apply-templates select="./node()" mode="slashdoc" />
+        </h3>
+    </xsl:template>
+
     <xsl:template match="note" mode="slashdoc" doc:group="block">
         <p class="i2">
             <xsl:choose>
@@ -319,5 +325,4 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-
 </xsl:stylesheet>
