@@ -17,6 +17,7 @@
 //
 // Sergey Chaban (serge@wildwestsoftware.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Ian MacLean ( ian at maclean.ms )
 
 using System;
 using System.Collections;
@@ -35,7 +36,8 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Executes the code contained within the task.
+    /// Executes the code contained within the task. This code can include custom extension function definitions. 
+    /// Once the script task has executed those custom functions will be available for use in the buildfile.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -43,7 +45,7 @@ namespace NAnt.Core.Tasks {
     ///     element, which in turn contains the script code.
     ///     </para>
     ///     <para>
-    ///     A static entry point named <c>ScriptMain</c> is required. It must 
+    ///     A static entry point named <c>ScriptMain</c> is required if no custom functions have been defined. It must 
     ///     have a single <see cref="Project"/> parameter.
     ///     </para>
     ///     <para>
@@ -86,6 +88,22 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
+    ///   <para>Define a custom function and call it using C#.</para>
+    ///   <code>
+    ///         &lt;script language=&quot;C#&quot; prefix=&quot;test&quot; &gt;
+    ///             &lt;code&gt;&lt;![CDATA[                 
+    ///
+    ///                 [Function("test-func")]
+    ///                 public static string Testfunc(  ) {
+    ///                         return "some result !!!!!!!!";
+    ///                 }
+    ///         ]]&gt;&lt;/code&gt;
+    ///         &lt;/script&gt;
+    ///         &lt;echo message='${test::test-func()}'/&gt;
+    ///
+    ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Run Visual Basic.NET code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;VB&quot;&gt;
@@ -107,6 +125,7 @@ namespace NAnt.Core.Tasks {
         private static Hashtable _compilerMap;
         private string _rootClassName;
         private string _code;
+        private string _prefix = "script";
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
 
         #endregion Private Instance Fields
@@ -146,12 +165,21 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The name of the main class containing the static <c>ScriptMain</c> entry point.
+        /// The name of the main class containing the static <c>ScriptMain</c> entry point. 
         /// </summary>
         [TaskAttribute("mainclass", Required=false)]
         public string MainClass {
             get { return _mainClass; }
             set { _mainClass = StringUtils.ConvertEmptyToNull(value); }
+        }
+        
+        /// <summary>
+        /// The namespace prefix for any custom functions defined in the script. If ommitted the prefix will default to 'script'
+        /// </summary>
+        [TaskAttribute("prefix", Required=false)]
+        public string Prefix {
+            get { return _prefix; }
+            set { _prefix = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -254,8 +282,8 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports);
-
+            string code = compilerInfo.GenerateCode(_rootClassName, _code, imports, Prefix );
+            Log( Level.Debug, "generated code for the script looks like : \n {0}", code );
             CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
 
             Assembly compiled = null;
@@ -270,7 +298,7 @@ namespace NAnt.Core.Tasks {
             }
             // scan the new assembly for tasks, types and functions
             // Its unlikely that tasks will be defined in buildfiles though.
-            TypeFactory.AddFunctionSets( compiled );
+            int functionSetCount = TypeFactory.AddFunctionSets( compiled );
             TypeFactory.AddDataTypes( compiled );
             TypeFactory.AddTasks( compiled );
             
@@ -280,15 +308,20 @@ namespace NAnt.Core.Tasks {
             }
 
             Type mainType = compiled.GetType(mainClass);
-            if (mainType == null) {
+            if (mainType == null ) {
                 throw new BuildException("Invalid mainclass.", Location);
             }
 
             MethodInfo entry = mainType.GetMethod("ScriptMain");
-            if (entry == null) {
-                throw new BuildException("Missing entry point.", Location);
+            // check for task or function definitions.
+            if (entry == null ) {
+                if (functionSetCount <= 0) {
+                    throw new BuildException("Missing entry point.", Location);
+                } else {
+                    return; // no entry point so nothing to do here beyond loading task and function defs
+                }
             }
-
+            
             if (!entry.IsStatic) {
                 throw new BuildException("Invalid entry point declaration (should be static).", Location);
             }
@@ -302,7 +335,7 @@ namespace NAnt.Core.Tasks {
             if (entryParams[0].ParameterType.FullName != "NAnt.Core.Project") {
                 throw new BuildException("Invalid entry point declaration (invalid parameter type, Project expected).", Location);
             }
-
+        
             try {
                 entry.Invoke(null, new object[] {Project});
             } catch (Exception e) {
@@ -366,26 +399,48 @@ namespace NAnt.Core.Tasks {
                 return sw.ToString();
             }
 
-            public string GenerateCode(string typeName, string codeBody, StringCollection imports) {
+            public string GenerateCode(string typeName, string codeBody, StringCollection imports, string prefix) {
                 CodeTypeDeclaration typeDecl = new CodeTypeDeclaration(typeName);
                 typeDecl.IsClass = true;
                 typeDecl.TypeAttributes = TypeAttributes.Public;
+                
+                // create constructor
+                CodeConstructor constructMember = new CodeConstructor();
+                constructMember.Attributes = MemberAttributes.Public;
+                constructMember.Parameters.Add( new CodeParameterDeclarationExpression( "Project", "project" ));
+                constructMember.Parameters.Add( new CodeParameterDeclarationExpression( "PropertyDictionary", "propDict" ));
+                
+                constructMember.BaseConstructorArgs.Add( new CodeVariableReferenceExpression( "project" ));
+                constructMember.BaseConstructorArgs.Add( new CodeVariableReferenceExpression ( "propDict" ));
+                typeDecl.Members.Add( constructMember );
+                
+                typeDecl.BaseTypes.Add( typeof( NAnt.Core.FunctionSetBase ) );
+                
+                // add FunctionSet attribute
+                CodeAttributeDeclaration attrDecl = new CodeAttributeDeclaration( "FunctionSet" );                
+                attrDecl.Arguments.Add( new CodeAttributeArgument(new CodeVariableReferenceExpression( "\"" + prefix + "\"" ) ));
+                attrDecl.Arguments.Add( new CodeAttributeArgument(new CodeVariableReferenceExpression("\"" + prefix + "\"") ));
+             
+                typeDecl.CustomAttributes.Add( attrDecl );
+                
+                // perform some manipulation at the string level.
                 StringWriter sw = new StringWriter(CultureInfo.InvariantCulture);
                 CodeGen.GenerateCodeFromType(typeDecl, sw, null);
                 string decl = sw.ToString();
-
                 string extraImports = "";
-                if (imports != null && imports.Count > 0) {
+                if ( imports != null && imports.Count > 0) {
                     extraImports = GenerateImportCode(imports);
                 }
-
+                string result = "";
                 string declEnd = "}";
+             
                 if (_lang == LanguageId.VisualBasic) {
                     declEnd = "End";
                 }
                 int i = decl.LastIndexOf(declEnd);
-                return CodePrologue + extraImports + decl.Substring(0, i-1) 
-                    + codeBody + Environment.NewLine + decl.Substring(i);
+                result =  CodePrologue + extraImports + decl.Substring(0, i-1) + codeBody + Environment.NewLine + decl.Substring(i);
+                
+                return result;
             }
         }
     }

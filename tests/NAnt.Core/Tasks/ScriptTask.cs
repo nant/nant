@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using NAnt.Core;
 
 using NUnit.Framework;
 
@@ -68,6 +69,29 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(_xml);
             Assertion.Assert("CSharp script should written something." + Environment.NewLine + result, result.IndexOf("Hello") != -1);
             Assertion.Assert("CSharp script should have updated prop." + Environment.NewLine + result, result.IndexOf("script.me") != -1);
+        }
+        
+        [Test]
+        public void Test_Functions() {
+            string _xml = @"
+            <project>
+                <script language='C#'>
+                    <code>
+                    <![CDATA[
+                            [Function(""test-func"")]
+                            public static string Testfunc() {
+                                return ""some result!!!!!!!!"";
+                            }
+                        ]]>
+                    </code>
+                </script>
+                <echo message='${script::test-func()}'/>
+            </project>";
+            //_xml = string.Format(_xml, "test-func", "some result !!!!!!!!" );
+            string result = RunBuild(_xml);
+            Assertion.Assert("Function script should have defined a new custom function." + Environment.NewLine + result, TypeFactory.LookupFunction("script::test-func") != null );
+            Assertion.Assert("Function script should written something." + Environment.NewLine + result, result.IndexOf("some result") != -1);
+            
         }
         [Test]
         public void Test_2ScriptsInOneProject() {
