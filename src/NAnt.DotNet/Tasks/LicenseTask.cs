@@ -134,12 +134,11 @@ namespace NAnt.DotNet.Tasks {
             }
         }
 
-
         /// <summary>
         /// Generates the license file.
         /// </summary>
         protected override void ExecuteTask(){
-            string resourceFilename = null;
+            FileInfo licensesFile = null;
 
             // ensure base directory is set, even if fileset was not initialized
             // from XML
@@ -163,24 +162,32 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
-            try {
-                // get the output .licenses file
-                if (OutputFile == null) {
-                    resourceFilename = Project.GetFullPath(Target + ".licenses");
-                } else {
-                    resourceFilename = OutputFile.FullName;
+            // get the output .licenses file
+            if (OutputFile == null) {
+                try {
+                    licensesFile = new FileInfo(Project.GetFullPath(Target + ".licenses"));
+                } catch (Exception ex) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Could not determine output file from target '{0}'.", 
+                        Target), Location, ex);
                 }
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Could not determine path from output file '{0}' and target '{1}'.", 
-                    OutputFile.FullName, Target), Location, ex);
+            } else {
+                licensesFile = OutputFile;
             }
 
             // make sure the directory for the .licenses file exists
-            Directory.CreateDirectory(Path.GetDirectoryName(resourceFilename));
+            if (!licensesFile.Directory.Exists) {
+                licensesFile.Directory.Create();
+            }
+
+            // determine whether .licenses file need to be recompiled
+            if (!NeedsCompiling(licensesFile)) {
+                return;
+            }
 
             Log(Level.Verbose, LogPrefix + "Compiling license file '{0}' to '{1}'" 
-                + " using target '{2}'.", InputFile.FullName, resourceFilename, Target);
+                + " using target '{2}'.", InputFile.FullName, licensesFile.FullName, 
+                Target);
 
             // create new domain
             AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
@@ -191,13 +198,53 @@ namespace NAnt.DotNet.Tasks {
                 typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
                 null, new object[0], CultureInfo.InvariantCulture, new object[0],
                 AppDomain.CurrentDomain.Evidence);
-            licenseGatherer.CreateLicenseFile(this, resourceFilename);
+            licenseGatherer.CreateLicenseFile(this, licensesFile.FullName);
 
             // unload newly created domain
             AppDomain.Unload(newDomain);
         }
 
         #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        /// <summary>
+        /// Determines whether the <c>.licenses</c> file needs to be recompiled
+        /// or is uptodate.
+        /// </summary>
+        /// <param name="licensesFile">The <c>.licenses</c> file.</param>
+        /// <returns>
+        /// <see langword="true" /> if the <c>.licenses</c> file needs compiling; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        private bool NeedsCompiling(FileInfo licensesFile) {
+            if (!licensesFile.Exists) {
+                Log(Level.Verbose, LogPrefix + "Output file '{0}' does not exist, recompiling.", 
+                    licensesFile.FullName);
+                return true;
+            }
+
+            // check if assembly references were updated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, licensesFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                return true;
+            }
+
+            // check if input file was updated
+            if (InputFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(InputFile.FullName, licensesFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, LogPrefix + "'{0}' has been updated, recompiling.", fileName);
+                    return true;
+                }
+            }
+
+            // if we made it here then we don't have to recompile
+            return false;
+        }
+
+        #endregion Private Instance Methods
 
         /// <summary>
         /// Responsible for reading the license and writing them to a license 
@@ -208,8 +255,8 @@ namespace NAnt.DotNet.Tasks {
             /// Creates the whole license file.
             /// </summary>
             /// <param name="licenseTask">The <see cref="LicenseTask" /> instance for which the license file should be created.</param>
-            /// <param name="licenseFile">The license file to create.</param>
-            public void CreateLicenseFile(LicenseTask licenseTask, string licenseFile) {
+            /// <param name="licensesFile">The .licenses file to create.</param>
+            public void CreateLicenseFile(LicenseTask licenseTask, string licensesFile) {
                 ArrayList assemblies = new ArrayList();
 
                 // create assembly resolver
@@ -403,18 +450,19 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     // overwrite the existing file, if it exists - is there a better way?
-                    if (File.Exists(licenseFile)) {
-                        File.SetAttributes(licenseFile, FileAttributes.Normal);
-                        File.Delete(licenseFile);
+                    if (File.Exists(licensesFile)) {
+                        File.SetAttributes(licensesFile, FileAttributes.Normal);
+                        File.Delete(licensesFile);
                     }
 
                     // write out the license file, keyed to the appropriate output 
                     // target filename
                     // this .license file will only be valid for this exe/dll
-                    using (FileStream fs = new FileStream(licenseFile, FileMode.Create)) {
+                    using (FileStream fs = new FileStream(licensesFile, FileMode.Create)) {
                         // note the ToUpper() - this is the behaviour of VisualStudio
                         DesigntimeLicenseContextSerializer.Serialize(fs, Path.GetFileName(licenseTask.Target.ToUpper(CultureInfo.InvariantCulture)), dlc);
-                        licenseTask.Log(Level.Verbose, licenseTask.LogPrefix + "Created new license file {0}.", licenseFile);
+                        licenseTask.Log(Level.Verbose, licenseTask.LogPrefix 
+                            + "Created new license file {0}.", licensesFile);
                     }
 
                     dlc = null;
