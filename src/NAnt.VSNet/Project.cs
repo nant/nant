@@ -923,10 +923,18 @@ namespace NAnt.VSNet {
             }
 
             // check all of the input files
-            foreach (string file in _sourceFiles.Keys)
+            foreach (string file in _sourceFiles.Keys) {
                 if (dtOutputTimeStamp < File.GetLastWriteTime(file)) {
                     return false;
                 }
+            }
+
+            // check all resources
+            foreach (Resource resource in _htResources.Values) {
+                if (dtOutputTimeStamp < resource.InputFile.LastWriteTime) {
+                    return false;
+                }
+            }
 
             // check all of the input references
             foreach (Reference reference in _htReferences.Values) {
