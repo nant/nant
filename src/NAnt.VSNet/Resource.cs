@@ -194,7 +194,9 @@ namespace NAnt.VSNet {
             lt.InputFile = InputFile;
             lt.OutputFile = new FileInfo(Path.Combine(configurationSettings.ObjectDir.FullName, 
                 outputFileName + ".licenses"));
-            lt.Target = Path.GetFileName(outputFileName);
+            // convert target to uppercase to match VS.NET
+            lt.Target = Path.GetFileName(outputFileName).ToUpper(
+                CultureInfo.InvariantCulture);
 
             // inherit non-GAC assembly references from project
             foreach (Reference reference in Project.References) {
