@@ -2,7 +2,7 @@
 <project name="nant" default="nightly">
     <!-- set release type -->
     <property name="project.release.type" value="nightly" />
-    <property name="sf.net.ssh.server" value="shell1.sf.net" />
+    <property name="sf.net.ssh.server" value="shell1.sourceforge.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- retrieve system information and environment variables -->
     <sysinfo />
