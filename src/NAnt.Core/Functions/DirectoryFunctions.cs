@@ -121,7 +121,7 @@ namespace NAnt.Core.Functions {
         public string GetParentDirectory(string path) {
             DirectoryInfo parentDirectory = Directory.GetParent(
                 Project.GetFullPath(path));
-            return parentDirectory != null ?  parentDirectory.FullName 
+            return parentDirectory != null ? parentDirectory.FullName 
                 : string.Empty;
         }
 
