@@ -54,9 +54,9 @@ namespace NAnt.Core.Tasks {
         private string _src = null;
         private string _dest = null;
         private string _proxy = null;
+        private int _timeout = 100000;
         private bool _ignoreErrors = false;
         private bool _useTimeStamp = false;
-        private FileSet _fileset = new FileSet();
 
         #endregion Private Instance Fields
 
@@ -115,20 +115,24 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// FileSets are used to select files to get.
+        /// The length of time, in milliseconds, until the request times out.
+        /// The default is <c>100000</c> milliseconds.
         /// </summary>
-        [FileSet("fileset")]
-        public FileSet FileSet {
-            get { return _fileset; }
-            set {_fileset = value; }
+        [TaskAttribute("timeout")]
+        [Int32Validator()]
+        public int Timeout {
+            get { return _timeout; }
+            set { _timeout = value; }
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
-        ///<summary>Initializes task and ensures the supplied attributes are valid.</summary>
-        ///<param name="taskNode">Xml node used to define this task instance.</param>
+        /// <summary>
+        /// Initializes task and ensures the supplied attributes are valid.
+        /// </summary>
+        /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             if (Source == null) {
                 throw new BuildException("src attribute is required.", Location);
@@ -281,7 +285,9 @@ namespace NAnt.Core.Tasks {
 
         #region Protected Instance Methods
 
-        /// <summary>Set the timestamp of a named file to a specified time.</summary>
+        /// <summary>
+        /// Set the timestamp of a named file to a specified time.
+        /// </summary>
         protected void TouchFile(string fileName, DateTime touchDateTime) {
             try {
                 if (File.Exists(fileName)) {
@@ -307,6 +313,10 @@ namespace NAnt.Core.Tasks {
             // if HTTP, cast to an HttpWebRequest so that IfModifiedSince can be set
             if (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) {
                 HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(uri);
+
+                // set the number of milliseconds that the request will wait 
+                // for a response
+                httpRequest.Timeout = Timeout;
 
                 if (Proxy != null) {
                     httpRequest.Proxy = new WebProxy(Proxy);
@@ -335,6 +345,9 @@ namespace NAnt.Core.Tasks {
             } else {
                 try {
                     WebRequest webRequest = WebRequest.Create(uri);
+
+                    // set the number of milliseconds until the request times out
+                    webRequest.Timeout = Timeout;
 
                     if (Proxy != null) {
                         webRequest.Proxy = new WebProxy(Proxy);
