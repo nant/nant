@@ -847,7 +847,6 @@ namespace SourceForge.NAnt {
             
             object testobj = ConfigurationSettings.GetConfig("nantsettings");
             XmlNode node = testobj as XmlNode;
-            logger.Debug("Current Config:\n" + node.OuterXml);
             logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
             if (node == null) { 
@@ -855,7 +854,9 @@ namespace SourceForge.NAnt {
                 Log.WriteLine("Framework settings not found. Defaulting to no known framework.");
                 logger.Info("Framework settings not found. Defaulting to no known framework.");
                 return;
-            }     
+            }
+
+            logger.Debug("Current Config:\n" + node.OuterXml);
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
             //If a default namespace is specified this will fail.
             XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
