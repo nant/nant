@@ -8,7 +8,7 @@
     <target name="build">
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" nowarn="1591" debug="${build.debug}"
-            output="${build.dir}/bin/${nant.project.name}.dll"
+            output="${build.dir}/bin/${nant.project.name}Tasks.dll"
             doc="${build.dir}/bin/${nant.project.name}.xml">
             <sources>
                 <includes name="**/*.cs" />

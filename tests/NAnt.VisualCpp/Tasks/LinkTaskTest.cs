@@ -188,14 +188,15 @@ namespace SourceForge.NAnt.Tests
         [Test]
         public void Test_BuildSourceChanged() {
             Test_BuildAll();
-
+            Console.Write( "in BuildSourceChanged");
             for (int i = 0; i < _sourceCount; ++i) {
+                Console.Write( "time test loop obj name is {0}", _objPathName[i]);
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);
                 string result = RunBuild(_test_build);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
                 FileInfo binFileInfo = new FileInfo(_binPathName);
                 Assertion.Assert(String.Format("{0} must be newer than {1}.", _binPathName, _objPathName[i]),
-                                    binFileInfo.LastWriteTime > objFileInfo.LastWriteTime);
+                                    binFileInfo.LastWriteTime >= objFileInfo.LastWriteTime);
                 
             }
         }

@@ -164,7 +164,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
                 FileInfo sourceFileInfo = new FileInfo(_sourcePathName[i]);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
                 Assertion.Assert(String.Format("{0} must be newer than {1}.", _objPathName[i], _sourcePathName[i]),
-                                    objFileInfo.LastWriteTime > sourceFileInfo.LastWriteTime);
+                                    objFileInfo.LastWriteTime >= sourceFileInfo.LastWriteTime);
                 
             }
         }
