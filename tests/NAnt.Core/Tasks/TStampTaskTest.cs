@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -38,27 +39,27 @@ namespace SourceForge.NAnt.Tests {
 
 		[Test]
         public void Test_Normal() {
-            string result = RunBuild(String.Format(_format, "", ""));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "", ""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
         }
 
 		[Test]
         public void Test_Custom() {
-            string result = RunBuild(String.Format(_format, " verbose='true' property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, " verbose='true' property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
             Assertion.Assert("build.date property should have been set.\n" + result, result.IndexOf("build.date") != -1);
         }
 
 		[Test]
         public void Test_NoVerbose() {
-            string result = RunBuild(String.Format(_format, "property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "property='build.date' pattern='yyyy-MM-DDTHH:mm:ss zzz'", ""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
             Assertion.Assert("build.date property should not have been printed to log.\n" + result, result.IndexOf("build.date") == -1);
         }
 
 		[Test]
         public void Test_Formatter() {
-            string result = RunBuild(String.Format(_format, "verbose='true'", "<formatter property='TODAY' pattern='dd MMM yyyy'/><formatter property='DSTAMP' pattern='yyyyMMdd'/><formatter property='TSTAMP' pattern='HHmm'/>"));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'", "<formatter property='TODAY' pattern='dd MMM yyyy'/><formatter property='DSTAMP' pattern='yyyyMMdd'/><formatter property='TSTAMP' pattern='HHmm'/>"));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[tstamp]") != -1);
         }
     }

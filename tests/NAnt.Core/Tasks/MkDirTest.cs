@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -42,7 +43,7 @@ namespace SourceForge.NAnt.Tests {
             </project>";
             
             string tempDir = Path.Combine(TempDirName, "goo");
-            string result = RunBuild(String.Format(_xml, tempDir));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, tempDir));
             
             Assertion.Assert("Dir should have been created:" + result, Directory.Exists(tempDir));
             

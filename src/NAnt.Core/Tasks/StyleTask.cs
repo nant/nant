@@ -27,6 +27,7 @@ using System.Xml.XPath;
 using System.Collections;
 using System.Text.RegularExpressions;
 using SourceForge.NAnt.Attributes;
+using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -161,11 +162,11 @@ namespace SourceForge.NAnt.Tasks {
             FileInfo xsltInfo = new FileInfo(xsltPath);
 
             if (!srcInfo.Exists) {
-                string msg = String.Format("Unable to find source XML file {0}", srcPath);
+                string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find source XML file {0}", srcPath);
                 throw new BuildException(msg, Location);
             }
             if (!xsltInfo.Exists) {
-                string msg = String.Format("Unable to find stylesheet file {0}", xsltPath);
+                string msg = String.Format(CultureInfo.InvariantCulture, "Unable to find stylesheet file {0}", xsltPath);
                 throw new BuildException(msg, Location);
             }
 

@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -95,7 +96,7 @@ namespace SourceForge.NAnt.Tests {
 
 
         private string FormatBuildFile(string format) {
-            return String.Format(format, TempDirName);
+            return String.Format(CultureInfo.InvariantCulture, format, TempDirName);
         }
     }
 }

@@ -23,6 +23,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -103,13 +104,13 @@ namespace SourceForge.NAnt.Tests {
             string result = null;
             
             //check inheritance.
-            result = RunBuild(String.Format(_xml, _externalBuildFileName, "inheritall='true'","${test}"));
+            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _externalBuildFileName, "inheritall='true'","${test}"));
             Assertion.Assert("Property should be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") != -1);
             Assertion.Assert("Property should be inherited, and updatable.\n" + result, result.IndexOf("testprop=2nd") != -1);
             Assertion.Assert("Property should not be changed by inherited nant project.\n" + result, result.IndexOf("after=1st") != -1);
 
             //check to make sure inheritance isn't working.
-            result = RunBuild(String.Format(_xml, _externalBuildFileName, "inheritall='false'","${test}"));
+            result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _externalBuildFileName, "inheritall='false'","${test}"));
             Assertion.Assert("Property should not be inherited into nant project.\n" + result, result.IndexOf("testprop=1st") == -1);
             Assertion.Assert("Property is definable.\n" + result, result.IndexOf("testprop=2nd") != -1);
             Assertion.Assert("Property defined in called project should not affect the caller.\n" + result, result.IndexOf("after=1st") != -1);
@@ -118,7 +119,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         private string FormatBuildFile(string attributes) {
-            return String.Format(_format, _externalBuildFileName, attributes);
+            return String.Format(CultureInfo.InvariantCulture, _format, _externalBuildFileName, attributes);
         }
     }
 }

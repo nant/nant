@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
@@ -176,7 +177,7 @@ namespace SourceForge.NAnt {
             if (!uri.IsFile) throw new InvalidVolumeException(uri);
 
             // Make sure Uri is trailed properly
-            string dirsep =  string.Format("{0}",Path.DirectorySeparatorChar);
+            string dirsep =  String.Format(CultureInfo.InvariantCulture, "{0}",Path.DirectorySeparatorChar);
             if (!uri.LocalPath.EndsWith(dirsep) ) throw new InvalidVolumeException(uri);
         }
         

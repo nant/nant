@@ -31,6 +31,7 @@ using SourceForge.NAnt.Attributes;
 using SourceForge.NAnt.Tasks.NUnit.Formatters;
 using NUnit.Framework;
 using NUnit.Core;
+using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks.NUnit2 {
     /// <summary>Runs tests using the NUnit V2.0 framework.</summary>
@@ -159,7 +160,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             else {
                 FileInfo xsltInfo = new FileInfo(test.TransformFile);
                 if(!xsltInfo.Exists) {
-                    throw new BuildException(String.Format("Transform file: {0} does not exist", xsltInfo.FullName));
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Transform file: {0} does not exist", xsltInfo.FullName));
                 }
 
                 transformReader = new XmlTextReader(xsltInfo.FullName);

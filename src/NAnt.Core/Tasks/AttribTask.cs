@@ -37,6 +37,7 @@ attributes.
 using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -135,7 +136,7 @@ namespace SourceForge.NAnt.Tasks {
                     string path = Project.GetFullPath(FileName);
                     AttribFileSet.Includes.Add(path);
                 } catch (Exception e) {
-                    string msg = String.Format("Could not find file '{0}'", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not find file '{0}'", FileName);
                     throw new BuildException(msg, Location, e);
                 }
             }
@@ -162,7 +163,7 @@ namespace SourceForge.NAnt.Tasks {
                     throw new FileNotFoundException();
                 }
             } catch (Exception e) {
-                string msg = String.Format("Cannot set file attributes for '{0}'", path);
+                string msg = String.Format(CultureInfo.InvariantCulture, "Cannot set file attributes for '{0}'", path);
                 throw new BuildException(msg, Location, e);
             }
         }

@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -67,7 +68,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert("Dir should have been created:" + tempDir, Directory.Exists(tempDir));
             Assertion.Assert("Dir should have been created:" + tempFileInTempDirDir, Directory.Exists(tempFileInTempDirDir));
 
-            string result = RunBuild(String.Format(_xmlProjectTemplate, tempFile, tempDir, tempFileInTempDirDir));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, tempFile, tempDir, tempFileInTempDirDir));
             
             Assertion.Assert("File should have been deleted:" + result, !File.Exists(tempFile));
             Assertion.Assert("Dir should have been deleted:" + result, !Directory.Exists(tempDir));

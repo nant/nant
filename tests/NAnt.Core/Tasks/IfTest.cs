@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -41,7 +42,7 @@ namespace SourceForge.NAnt.Tests {
                             <echo message='{1} is newer than {0}'/>
                         </if>
                     </project>";
-            string result = RunBuild(string.Format(_xml, olderFP, newerFP));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, olderFP, newerFP));
             Log.WriteLine(result);
             Assertion.Assert(result.IndexOf("is newer than") != -1);
         }
@@ -61,7 +62,7 @@ namespace SourceForge.NAnt.Tests {
                             <echo message='{1} is newer than {0}'/>
                         </if>
                     </project>";
-            string result = RunBuild(string.Format(_xml, olderFP, newerFP));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, olderFP, newerFP));
             Log.WriteLine(result);
             Assertion.Assert(result.IndexOf("is newer than") != -1);
         }

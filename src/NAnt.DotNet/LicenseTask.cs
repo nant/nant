@@ -23,6 +23,8 @@ using System.Reflection;
 using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Globalization;
+
 using SourceForge.NAnt.Attributes;
 
 namespace SourceForge.NAnt.Tasks
@@ -57,7 +59,7 @@ namespace SourceForge.NAnt.Tasks
 			try {
 				strLicxFilename = Project.GetFullPath( _input );
 			} catch ( Exception e ) {
-				string msg = String.Format( "Could not determine path from {0}", _input );
+				string msg = String.Format(CultureInfo.InvariantCulture,  "Could not determine path from {0}", _input );
 				throw new BuildException( msg, Location, e );
 			}			
 
@@ -69,7 +71,7 @@ namespace SourceForge.NAnt.Tasks
 				else
 					strResourceFilename = Project.GetFullPath( _output );
 			} catch ( Exception e ) {
-				string msg = String.Format( "Could not determine path from output file {0} and target {1}", _output, _strTarget );
+				string msg = String.Format(CultureInfo.InvariantCulture,  "Could not determine path from output file {0} and target {1}", _output, _strTarget );
 				throw new BuildException( msg, Location, e );
 			}
 
@@ -102,7 +104,7 @@ namespace SourceForge.NAnt.Tasks
 				}
 				catch ( Exception e )
 				{
-					throw new BuildException( String.Format( "Unable to load specified assembly: {0}", strAssembly ), e );
+					throw new BuildException( String.Format(CultureInfo.InvariantCulture,  "Unable to load specified assembly: {0}", strAssembly ), e );
 				}
 			}
 
@@ -150,14 +152,14 @@ namespace SourceForge.NAnt.Tasks
 					}
 
 					if ( tp == null )
-						throw new BuildException( String.Format( "Failed to locate type: {0}", strTypeName ), Location );
+						throw new BuildException( String.Format(CultureInfo.InvariantCulture,  "Failed to locate type: {0}", strTypeName ), Location );
 
 					if ( Verbose && tp != null )
 						Log.WriteLine( ( ( Type )htLicenses[ strLine ] ).Assembly.CodeBase );
 
 					// Ensure that we've got a licensed component
 					if ( tp.GetCustomAttributes( typeof( LicenseProviderAttribute ), true ).Length == 0 )
-						throw new BuildException( String.Format( "Type is not a licensed component: {0}", tp ), Location );
+						throw new BuildException( String.Format(CultureInfo.InvariantCulture,  "Type is not a licensed component: {0}", tp ), Location );
 
 					// Now try to create the licensed component - this gives us a license
 					try
@@ -166,7 +168,7 @@ namespace SourceForge.NAnt.Tasks
 					}
 					catch ( Exception e )
 					{
-						throw new BuildException( String.Format( "Failed to create license for type {0}", tp ), Location, e );
+						throw new BuildException( String.Format(CultureInfo.InvariantCulture,  "Failed to create license for type {0}", tp ), Location, e );
 					}
 				}
 			}
@@ -183,7 +185,7 @@ namespace SourceForge.NAnt.Tasks
 			using ( FileStream fs = new FileStream( _output, FileMode.Create ) )
 			{
 				// Note the ToUpper() - this is the behaviour of VisualStudio
-				DesigntimeLicenseContextSerializer.Serialize( fs, _strTarget.ToUpper(), dlc );
+				DesigntimeLicenseContextSerializer.Serialize( fs, _strTarget.ToUpper(CultureInfo.InvariantCulture), dlc );
 			}
 		}
 

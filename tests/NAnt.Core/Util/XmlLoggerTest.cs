@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
@@ -50,7 +51,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
             string timestamp = "Thursday, August 01, 2002 12:52:54 AM";
-            formattedMessage = String.Format("\t\t\t[tstamp] {0}", timestamp);
+            formattedMessage = String.Format(CultureInfo.InvariantCulture, "\t\t\t[tstamp] {0}", timestamp);
             Assertion.AssertEquals(timestamp, _log.StripFormatting(formattedMessage));
         }
 
@@ -65,28 +66,28 @@ namespace SourceForge.NAnt.Tests {
 		[Test]
         public void Test_IsJustWhiteSpace() {
             string message = "";
-            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = " ";
-            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "        ";
-            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "\t\t\t\t";
-            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "hello";
-            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "hello    ";
-            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "        hello";
-            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "\t\t\thello";
-            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format(CultureInfo.InvariantCulture, "check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
         }
 
 		[Test]
@@ -96,7 +97,7 @@ namespace SourceForge.NAnt.Tests {
 
             _log.WriteLine(formattedMessage);
 
-            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
         }
@@ -107,25 +108,25 @@ namespace SourceForge.NAnt.Tests {
             string formattedMessage = "[foo] " + baseMessage;
 
             _log.Write(formattedMessage);
-            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             string unformattedMessage = "message:";
             _log = CreateXmlLogger();
             _log.Write(unformattedMessage);
-            expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "message with no tag in front.";
             _log = CreateXmlLogger();
             _log.Write(unformattedMessage);
-            expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "BUILD SUCCESSFUL";
             _log = CreateXmlLogger();
             _log.Write(unformattedMessage);
-            expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
+            expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", unformattedMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
@@ -136,7 +137,7 @@ namespace SourceForge.NAnt.Tests {
 
             _log.Write(formattedMessage);
 
-            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 		
@@ -147,7 +148,7 @@ namespace SourceForge.NAnt.Tests {
 
             _log.Write(formattedMessage);
 
-            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
         }
 
@@ -181,7 +182,7 @@ namespace SourceForge.NAnt.Tests {
 		[Test]        
         public void Test_WriteEmbeddedXml() {
             string baseMessage = "<a><b><![CDATA[message]]></b></a>";
-            string expected = String.Format("<message>{0}</message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message>{0}</message>", baseMessage);
 
             _log.Write(baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
@@ -190,7 +191,7 @@ namespace SourceForge.NAnt.Tests {
 		[Test]
         public void Test_WriteEmbeddedMalformedXml() {
             string baseMessage = "<a>malformed<b>";
-            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<message><![CDATA[{0}]]></message>", baseMessage);
 
             _log.Write(baseMessage);
             Assertion.AssertEquals(expected, _log.ToString());
@@ -200,7 +201,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_BuildStartedAndBuildFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format("<buildresults project=\"{0}\" />", name);
+            string expected = String.Format(CultureInfo.InvariantCulture, "<buildresults project=\"{0}\" />", name);
 
             _log.BuildStarted(this, args);
             _log.BuildFinished(this, args);
@@ -211,7 +212,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_TargetStartedAndTargetFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format(@"<target name=""{0}"" />", name);
+            string expected = String.Format(CultureInfo.InvariantCulture, @"<target name=""{0}"" />", name);
 
             _log.TargetStarted(this, args);
             _log.TargetFinished(this, args);
@@ -222,7 +223,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_TaskStartedAndTaskFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
-            string expected = String.Format(@"<task name=""{0}"" />", name);
+            string expected = String.Format(CultureInfo.InvariantCulture, @"<task name=""{0}"" />", name);
 
             _log.TaskStarted(this, args);
             _log.TaskFinished(this, args);

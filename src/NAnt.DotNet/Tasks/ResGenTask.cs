@@ -28,6 +28,7 @@ using System.Text;
 using SourceForge.NAnt;
 using SourceForge.NAnt.Tasks;
 using SourceForge.NAnt.Attributes;
+using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -112,7 +113,7 @@ namespace SourceForge.NAnt.Tasks {
                         if (_arguments.Length == 0) {
                             AppendArgument ("/compile");
                         }
-                        AppendArgument (String.Format(" \"{0},{1}\"", filename, outputFile));
+                        AppendArgument (String.Format(CultureInfo.InvariantCulture, " \"{0},{1}\"", filename, outputFile));
                     }
                 }
                             

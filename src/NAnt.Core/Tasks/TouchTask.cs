@@ -21,6 +21,7 @@
 using System;
 using System.IO;
 using SourceForge.NAnt.Attributes;
+using System.Globalization;
 
 namespace SourceForge.NAnt.Tasks {
 
@@ -92,7 +93,7 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(FileName);
                 } catch (Exception e) {
-                    string msg = String.Format("Could not determine path from {0}", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", FileName);
                     throw new BuildException(msg, Location, e);
                 }
                 // touch file(s)

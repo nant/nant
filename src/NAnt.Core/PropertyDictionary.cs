@@ -18,12 +18,13 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Tomas Restrepo (tomasr@mvps.org)
 
-namespace SourceForge.NAnt {
+using System;
+using System.Collections;
+using System.Collections.Specialized;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
-    using System;
-    using System.Collections;
-    using System.Collections.Specialized;
-    using System.Text.RegularExpressions;
+namespace SourceForge.NAnt {
 
     public class PropertyDictionary : DictionaryBase {
 
@@ -76,7 +77,7 @@ namespace SourceForge.NAnt {
                 } 
 /* // tomasr: Should this throw an error? I think so
                 else {
-                  throw new BuildException(String.Format("Property '{0}' is read-only!", name));
+                  throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Property '{0}' is read-only!", name));
                 }
 */
             }
@@ -135,7 +136,7 @@ namespace SourceForge.NAnt {
                             output = output.Replace(token, propertyValue);
                         }
                         else {
-                            throw new BuildException(String.Format("Property '{0}' has not been set!", propertyName));
+                            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Property '{0}' has not been set!", propertyName));
                         }
                     }
                 }

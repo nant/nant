@@ -23,6 +23,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -126,7 +127,7 @@ namespace SourceForge.NAnt.Tests {
         }
 */
         private string FormatBuildFile(string attributes) {
-            return String.Format(_format, Assembly.GetExecutingAssembly().Location, attributes);
+            return String.Format(CultureInfo.InvariantCulture, _format, Assembly.GetExecutingAssembly().Location, attributes);
         }
     }
 }

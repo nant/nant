@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -72,7 +73,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         private string FormatBuildFile(string attributes) {
-            return String.Format(_format, Path.GetFileName(_sourceFileName), Path.GetDirectoryName(_sourceFileName), attributes);
+            return String.Format(CultureInfo.InvariantCulture, _format, Path.GetFileName(_sourceFileName), Path.GetDirectoryName(_sourceFileName), attributes);
         }
     }
 }

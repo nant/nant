@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -138,7 +139,7 @@ namespace SourceForge.NAnt.Tasks {
                         p.StartInfo.Arguments);
                 p.Start();
             } catch (Exception e) {
-                throw new BuildException(string.Format("<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);
+                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "<{0} task>{1} failed to start.", Name ,p.StartInfo.FileName), Location, e);
             }
             return p;
         }
@@ -174,7 +175,7 @@ namespace SourceForge.NAnt.Tasks {
                             Log.WriteLine(output);
                         } else {
                             throw new BuildException(
-                                string.Format(
+                                String.Format(CultureInfo.InvariantCulture, 
                                     "External Program Failed: {0} return {1}\nOutput:\n{2}", 
                                     ProgramFileName, 
                                     process.ExitCode, 
@@ -196,7 +197,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } catch (Exception e) {
                 throw new BuildException(
-                    string.Format("{0}: {1} had errors.\n", GetType().ToString(), ProgramFileName), 
+                    String.Format(CultureInfo.InvariantCulture, "{0}: {1} had errors.\n", GetType().ToString(), ProgramFileName), 
                     Location, 
                     e);
             }

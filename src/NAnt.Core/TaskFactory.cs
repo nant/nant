@@ -23,6 +23,8 @@ using System.IO;
 using System.Xml;
 using System.Reflection;
 using System.Collections;
+using System.Globalization;
+
 namespace SourceForge.NAnt {
     /// <summary>
     /// The TaskFactory comprises all of the loaded, and available, tasks. Use these static methods to register, initialize and create a task.
@@ -132,7 +134,7 @@ namespace SourceForge.NAnt {
             TaskBuilder builder = _builders.FindBuilderForTask(taskName);
             if (builder == null && proj != null) {
                 Location location = proj.LocationMap.GetLocation(taskNode);
-                throw new BuildException(String.Format("Unknown task <{0}>", taskName), location);
+                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Unknown task <{0}>", taskName), location);
             }
 
             Task task = builder.CreateTask();

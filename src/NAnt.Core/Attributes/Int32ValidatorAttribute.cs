@@ -17,10 +17,11 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-namespace SourceForge.NAnt.Attributes {
+using System;
+using System.Reflection;
+using System.Globalization;
 
-    using System;
-    using System.Reflection;
+namespace SourceForge.NAnt.Attributes {
 
     /// <summary>Indicates that field should be able to be converted into a Int32 within the given range.</summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited=true)]
@@ -51,10 +52,10 @@ namespace SourceForge.NAnt.Attributes {
             try {
                 Int32 intValue = Convert.ToInt32(value);
                 if (intValue < MinValue || intValue > MaxValue) {
-                    throw new ValidationException(String.Format("Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
+                    throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer between '{1}' and '{2}'.", value.ToString(), MinValue, MaxValue));
                 }
             } catch (Exception) {
-                throw new ValidationException(String.Format("Cannot resolve '{0}' to integer value.", value.ToString()));
+                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve '{0}' to integer value.", value.ToString()));
             }
             return true;
         }

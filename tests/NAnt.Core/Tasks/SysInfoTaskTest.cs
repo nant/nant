@@ -23,6 +23,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -40,13 +41,13 @@ namespace SourceForge.NAnt.Tests {
 
 		[Test]
         public void Test_Normal() {
-            string result = RunBuild(String.Format(_format, ""));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, ""));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
 
 		[Test]
         public void Test_Verbose() {
-            string result = RunBuild(String.Format(_format, "verbose='true'"));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _format, "verbose='true'"));
             Assertion.Assert("Task should have executed.\n" + result, result.IndexOf("[sysinfo]") != -1);
         }
 

@@ -21,6 +21,7 @@
 
 using System;
 using System.IO;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
@@ -124,7 +125,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         private string FormatBuildFile(string globalTasks, string targetTasks) {
-            return String.Format(_format, TempDirName, globalTasks, targetTasks);
+            return String.Format(CultureInfo.InvariantCulture, _format, TempDirName, globalTasks, targetTasks);
         }
 
         class MockBuildEventConsumer : IBuildEventConsumer {

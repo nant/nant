@@ -21,6 +21,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
@@ -98,7 +99,7 @@ namespace SourceForge.NAnt {
             if (_fileName != null) {
                 sb.Append(_fileName);
                 if (_lineNumber != 0) {
-                    sb.Append(String.Format("({0},{1})", _lineNumber, _columnNumber));
+                    sb.Append(String.Format(CultureInfo.InvariantCulture, "({0},{1})", _lineNumber, _columnNumber));
                 }
                 sb.Append(":");
             }

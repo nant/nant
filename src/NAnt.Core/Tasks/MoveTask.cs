@@ -18,11 +18,12 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
 
-namespace SourceForge.NAnt.Tasks {
+using System;
+using System.IO;
+using SourceForge.NAnt.Attributes;
+using System.Globalization;
 
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
+namespace SourceForge.NAnt.Tasks {
 
     /// <summary>Moves a file or fileset to a new file or directory.</summary>
     /// <remarks>
@@ -80,7 +81,7 @@ namespace SourceForge.NAnt.Tasks {
                         }
 
                     } catch (IOException ioe) {
-                        string msg = String.Format("Failed to move {0} to {1}\n{2}", sourcePath, destinationPath, ioe.Message);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Failed to move {0} to {1}\n{2}", sourcePath, destinationPath, ioe.Message);
                         throw new BuildException(msg, Location);
                     }
                 }

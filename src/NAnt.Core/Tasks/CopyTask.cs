@@ -24,6 +24,7 @@ using System.Xml;
 using System.Text;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -127,7 +128,7 @@ namespace SourceForge.NAnt.Tasks {
 
                         File.Copy(sourcePath, dstPath, true);
                     } catch (Exception e) {
-                        string msg = String.Format("Cannot copy {0} to {1}", sourcePath, dstPath);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Cannot copy {0} to {1}", sourcePath, dstPath);
                         throw new BuildException(msg, Location, e);
                     }
                 }

@@ -27,6 +27,7 @@ using System.Text;
 using System.Xml.Xsl;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
    
@@ -96,7 +97,7 @@ namespace SourceForge.NAnt {
             //I kept this logic about arg.Length > 0, but isn't it redundant?  
             //"".StartsWith("-") == false
             else if (arg.Length > 0 && arg.StartsWith("-")) {
-                throw new ApplicationException(String.Format("Unknown argument '{0}'", arg));
+                throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", arg));
             } else {
                 // must be a target if not an option
                 return CommandLineOption.OPTION_TARGET;
@@ -186,7 +187,7 @@ namespace SourceForge.NAnt {
                             logger = CreateLogger(loggerType);
                         }
                     } catch(Exception e) {
-                        Console.WriteLine(String.Format("Error creating logger of type: {0}", loggerType));
+                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Error creating logger of type: {0}", loggerType));
                         throw new ApplicationException(e.Message);
                     }
                     Log.Listeners.Clear();
@@ -333,10 +334,10 @@ namespace SourceForge.NAnt {
                     if (findInParent && parentDirectoryInfo != null) {
                         buildFileName = GetBuildFileName(parentDirectoryInfo.FullName, searchPattern, findInParent);
                     } else {
-                        throw new ApplicationException((String.Format("Could not find a '{0}' file in '{1}'", searchPattern, directory)));
+                        throw new ApplicationException((String.Format(CultureInfo.InvariantCulture, "Could not find a '{0}' file in '{1}'", searchPattern, directory)));
                     }
                 } else { // files.Length > 1
-                    throw new ApplicationException(String.Format("More than one '{0}' file found in '{1}'.  Use -buildfile:<file> to specify.", searchPattern, directory));
+                    throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "More than one '{0}' file found in '{1}'.  Use -buildfile:<file> to specify.", searchPattern, directory));
                 }
             }
             return buildFileName;

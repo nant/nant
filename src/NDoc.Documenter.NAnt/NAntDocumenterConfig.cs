@@ -24,6 +24,7 @@ using System.Xml;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
+using System.Globalization;
 
 using NDoc.Core;
 
@@ -37,7 +38,7 @@ namespace Sourceforge.NAnt.Documenter {
 		public NAntTaskDocumenterConfig() : base("NAntTask") {
             // set reasonable ndoc defaults so we don't have to do this in the build file
 
-            CopyrightText = String.Format("Copyright (C) 2001-{0} Gerry Shaw", DateTime.Now.Year);
+            CopyrightText = String.Format(CultureInfo.InvariantCulture, "Copyright (C) 2001-{0} Gerry Shaw", DateTime.Now.Year);
             CopyrightHref = "http://nant.sourceforge.net/";
 
             // These are used in the next versions of ndoc

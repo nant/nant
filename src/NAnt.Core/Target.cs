@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Xml;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -127,7 +128,7 @@ namespace SourceForge.NAnt {
                 foreach (string targetName in Dependencies) {
                     Target target = Project.Targets.Find(targetName);
                     if (target == null) {
-                        throw new BuildException(String.Format("Unknown dependent target '{0}' of target '{1}'", targetName, Name), Location);
+                        throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Unknown dependent target '{0}' of target '{1}'", targetName, Name), Location);
                     }
                     target.Execute();
                 }

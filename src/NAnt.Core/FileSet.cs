@@ -22,6 +22,7 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Xml;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -275,7 +276,7 @@ namespace SourceForge.NAnt {
 
                 System.IO.Stream fil=File.OpenRead(Pattern);
                 if(fil==null) {
-                    throw new BuildException(String.Format("'{0}' list could not be opened",Pattern));
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "'{0}' list could not be opened",Pattern));
                 }
                 System.IO.StreamReader rd=new System.IO.StreamReader(fil);
                 while(rd.Peek()>-1) {

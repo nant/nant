@@ -23,6 +23,7 @@ using System.Text;
 using System.Xml;
 using System.Resources;
 using System.Collections;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -132,7 +133,7 @@ namespace SourceForge.NAnt.Tests {
         }
         
         private string FormatBuildFile(string attributes) {
-            return String.Format(_format, Path.GetFileName(_sourceFileName), Path.GetDirectoryName(_sourceFileName), Path.GetFileName(Path.ChangeExtension( _sourceFileName, "resources" )), attributes);
+            return String.Format(CultureInfo.InvariantCulture, _format, Path.GetFileName(_sourceFileName), Path.GetDirectoryName(_sourceFileName), Path.GetFileName(Path.ChangeExtension( _sourceFileName, "resources" )), attributes);
         }
    }
 }

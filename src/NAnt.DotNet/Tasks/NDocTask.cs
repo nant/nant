@@ -17,18 +17,19 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
+using System;
+using System.Collections;
+using System.IO;
+using System.Xml;
+using System.Text;
+using System.Globalization;
+
+using SourceForge.NAnt.Attributes;
+
+using NDoc.Core;
 
 namespace SourceForge.NAnt.Tasks {
 
-    using System;
-    using System.Collections;
-    using System.IO;
-    using System.Xml;
-    using System.Text;
-
-    using SourceForge.NAnt.Attributes;
-
-    using NDoc.Core;
 
     /// <summary>Runs NDoc to create documentation.</summary>
     /// <remarks>
@@ -165,7 +166,7 @@ namespace SourceForge.NAnt.Tasks {
                     sb.Append(sr.ReadToEnd());
                     sr.Close();
                 } catch (IOException e) {
-                    string msg = String.Format("Failed to read ndoc namespace summary file {0}\n{1}", summaryPath, e.Message);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Failed to read ndoc namespace summary file {0}\n{1}", summaryPath, e.Message);
                     throw new BuildException(msg, Location);
                 }
             }

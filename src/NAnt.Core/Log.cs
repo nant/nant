@@ -33,6 +33,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
@@ -207,7 +208,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>Writes the given message to the log.</summary>
         public static void Write(string format, params object[] arg) {
-            Write(String.Format(format, arg));
+            Write(String.Format(CultureInfo.InvariantCulture, format, arg));
         }
 
         /// <summary>Writes the given message to the log if condition is true.</summary>
@@ -220,7 +221,7 @@ namespace SourceForge.NAnt {
         /// <summary>Writes the given message to the log if condition is true.</summary>
         public static void WriteIf(bool condition, string format, params object[] arg) {
             if (condition) {
-                Write(String.Format(format, arg));
+                Write(String.Format(CultureInfo.InvariantCulture, format, arg));
             }
         }
 
@@ -237,7 +238,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>Writes the given message to the log.</summary>
         public static void WriteLine(string format, params object[] arg) {
-            WriteLine(String.Format(format, arg));
+            WriteLine(String.Format(CultureInfo.InvariantCulture, format, arg));
         }
 
         public static void WriteMessage(string message, string messageType) {
@@ -261,7 +262,7 @@ namespace SourceForge.NAnt {
         /// <summary>Writes the given message to the log if condition is true.</summary>
         public static void WriteLineIf(bool condition, string format, params object[] arg) {
             if (condition) {
-                WriteLine(String.Format(format, arg));
+                WriteLine(String.Format(CultureInfo.InvariantCulture, format, arg));
             }
         }
     }

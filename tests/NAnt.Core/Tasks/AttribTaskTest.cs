@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -114,7 +115,7 @@ namespace SourceForge.NAnt.Tests {
         }
 
         private string FormatBuildFile(string attributes, string nestedElements) {
-            return String.Format(_format, _tempFileName, attributes, nestedElements);
+            return String.Format(CultureInfo.InvariantCulture, _format, _tempFileName, attributes, nestedElements);
         }
     }
 }

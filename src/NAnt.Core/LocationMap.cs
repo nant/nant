@@ -24,6 +24,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 using System.Collections;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
@@ -62,7 +63,7 @@ namespace SourceForge.NAnt {
                 return;
 
             if (_fileMap.ContainsKey(fileName)) {
-                throw new ArgumentException(String.Format("XmlDocument '{0}' already mapped.", fileName), "doc");
+                throw new ArgumentException(String.Format(CultureInfo.InvariantCulture, "XmlDocument '{0}' already mapped.", fileName), "doc");
             }
 
             Hashtable map = new Hashtable();

@@ -22,6 +22,7 @@ using System.IO;
 using System.Resources;
 using System.Collections;
 using SourceForge.NAnt.Attributes;
+using System.Globalization;
 
 
 namespace SourceForge.NAnt.Tasks
@@ -64,12 +65,12 @@ namespace SourceForge.NAnt.Tasks
                 strInput = Project.GetFullPath( _strInput );
             } 
             catch ( Exception e ) {
-                string msg = String.Format( "Could not determine path from {0}", _strInput );
+                string msg = String.Format(CultureInfo.InvariantCulture,  "Could not determine path from {0}", _strInput );
                 throw new BuildException( msg, Location, e );
             }
 
             if ( !File.Exists( strInput ) )
-                throw new BuildException( String.Format( "Unable to find file: {0}", strInput ), Location );
+                throw new BuildException( String.Format(CultureInfo.InvariantCulture,  "Unable to find file: {0}", strInput ), Location );
 
             // Now determine the output filename, using the input filename if necessary
             string strOutput = _strOutput;
@@ -80,7 +81,7 @@ namespace SourceForge.NAnt.Tasks
                     strOutput = Project.GetFullPath( strOutput );
                 } 
                 catch ( Exception e ) {
-                    string msg = String.Format( "Could not determine path from {0}", _strInput );
+                    string msg = String.Format(CultureInfo.InvariantCulture,  "Could not determine path from {0}", _strInput );
                     throw new BuildException( msg, Location, e );
                 }
             }

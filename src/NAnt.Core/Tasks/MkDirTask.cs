@@ -18,11 +18,13 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
 
+using System;
+using System.IO;
+using SourceForge.NAnt.Attributes;
+using System.Globalization;
+
 namespace SourceForge.NAnt.Tasks {
 
-    using System;
-    using System.IO;
-    using SourceForge.NAnt.Attributes;
 
     /// <summary>Creates a directory and any non-existent parent directories if necessary.</summary>
     /// <example>
@@ -47,7 +49,7 @@ namespace SourceForge.NAnt.Tasks {
                     Log.WriteLine(LogPrefix + "Creating directory {0}", directory);
                     DirectoryInfo result = Directory.CreateDirectory(directory);
                     if (result == null) {
-                        string msg = String.Format("Unknown error creating directory '{0}'", directory);
+                        string msg = String.Format(CultureInfo.InvariantCulture, "Unknown error creating directory '{0}'", directory);
                         throw new BuildException(msg, Location);
                     }
                 }

@@ -18,12 +18,17 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 
+using System;
+using SourceForge.NAnt.Attributes;
+using Microsoft.Win32;
+using System.Globalization;
+using System.Security.Permissions;
+
+[assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
+
 namespace SourceForge.NAnt.Tasks {
 
-    using System;
-    using SourceForge.NAnt.Attributes;
-    using Microsoft.Win32;
-    
+
     /// <summary>
     /// A task that reads a value or set of values from the Windows Registry into one or more NAnt properties.
     /// </summary>
@@ -92,7 +97,7 @@ namespace SourceForge.NAnt.Tasks {
                     string val = regKeyValue.ToString();
                     Properties[_propName] = val;
                 } else {
-                    throw new BuildException(string.Format( "Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString ));
+                    throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Value Not Found! - key='{0}';hive='{1}';", _regKey + "\\" + _regKeyValueName, _regHiveString ));
                 }
             }
             else if (_propName == null && _propPrefix != null ) {
@@ -114,7 +119,7 @@ namespace SourceForge.NAnt.Tasks {
                     return returnkey;
                 }
             }
-            throw new BuildException(string.Format("Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
+            throw new BuildException(String.Format(CultureInfo.InvariantCulture, "Registry Path Not Found! - key='{0}';hive='{1}';", key, registries.ToString()));
         }
         protected static RegistryKey GetHiveKey(RegistryHive hive) {
             

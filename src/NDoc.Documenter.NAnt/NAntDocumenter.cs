@@ -25,6 +25,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 using System.Xml.Xsl;
+using System.Globalization;
 
 using NDoc.Core;
 
@@ -60,7 +61,7 @@ namespace Sourceforge.NAnt.Documenter {
             try {
                 transform.Load(_resourceDirectory + "xslt/" + fileName);
             } catch (Exception e) {
-                String msg = String.Format("Error compiling the '{0}' stylesheet:\n{1}", fileName, e.Message);
+                String msg = String.Format(CultureInfo.InvariantCulture, "Error compiling the '{0}' stylesheet:\n{1}", fileName, e.Message);
                 throw new DocumenterException(msg, e);
             }
         }
@@ -123,7 +124,7 @@ namespace Sourceforge.NAnt.Documenter {
 
                 // generate filename for page
                 XmlNode propNode = node.SelectSingleNode("property[@name='Name']");
-                string filename = propNode.Attributes["value"].Value.ToLower() + "Task.html";;    
+                string filename = propNode.Attributes["value"].Value.ToLower(CultureInfo.InvariantCulture) + "Task.html";;    
 
                 // create the page
                 TransformAndWriteResult(_xsltTaskDoc, arguments, filename);

@@ -25,6 +25,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
@@ -207,7 +208,7 @@ namespace SourceForge.NAnt.Tests {
         public override string Message {
             get {
                 // NOTE: should be localized...
-                string s = String.Format("Value: {0}", _value);
+                string s = String.Format(CultureInfo.InvariantCulture, "Value: {0}", _value);
                 return base.Message + Environment.NewLine + s;
             }
         }

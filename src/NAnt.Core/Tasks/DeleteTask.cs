@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Globalization;
 
 using SourceForge.NAnt.Attributes;
 
@@ -86,7 +87,7 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(FileName);
                 } catch (Exception e) {
-                    string msg = String.Format("Could not determine path from {0}", FileName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", FileName);
                     throw new BuildException(msg, Location, e);
                 }
                 DeleteFile(path, true);
@@ -97,7 +98,7 @@ namespace SourceForge.NAnt.Tasks {
                 try {
                     path = Project.GetFullPath(DirectoryName);
                 } catch (Exception e) {
-                    string msg = String.Format("Could not determine path from {0}", DirectoryName);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Could not determine path from {0}", DirectoryName);
                     throw new BuildException(msg, Location, e);
                 }
                 DeleteDirectory(path);
@@ -121,7 +122,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } catch (Exception e) {
                 if (FailOnError) {
-                    string msg = String.Format("Cannot delete directory {0}", path);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}", path);
                     throw new BuildException(msg, Location, e);
                 }
             }
@@ -137,7 +138,7 @@ namespace SourceForge.NAnt.Tasks {
                 }
             } catch (Exception e) {
                 if (FailOnError) {
-                    string msg = String.Format("Cannot delete file {0}", path);
+                    string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete file {0}", path);
                     throw new BuildException(msg, Location, e);
                 }
             }

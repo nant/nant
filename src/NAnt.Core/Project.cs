@@ -28,6 +28,7 @@ using System.Xml;
 using System.Xml.XPath;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Globalization;
 
 namespace SourceForge.NAnt {
 
@@ -421,7 +422,7 @@ namespace SourceForge.NAnt {
         public void Execute(string targetName) {
             Target target = Targets.Find(targetName);
             if (target == null) {
-                throw new BuildException(String.Format("unknown target '{0}'", targetName));
+                throw new BuildException(String.Format(CultureInfo.InvariantCulture, "unknown target '{0}'", targetName));
             }
             target.Execute();
         }

@@ -17,10 +17,11 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-namespace SourceForge.NAnt.Attributes {
+using System;
+using System.Reflection;
+using System.Globalization;
 
-    using System;
-    using System.Reflection;
+namespace SourceForge.NAnt.Attributes {
 
     /// <summary>Indicates that field should be able to be converted into a Boolean.</summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property	, Inherited=true)]
@@ -33,7 +34,7 @@ namespace SourceForge.NAnt.Attributes {
             try {
                 Convert.ToBoolean(value);
             } catch (Exception) {
-                throw new ValidationException(String.Format("Cannot resolve to '{0}' to Boolean value.", value.ToString()));
+                throw new ValidationException(String.Format(CultureInfo.InvariantCulture, "Cannot resolve to '{0}' to Boolean value.", value.ToString()));
             }
             return true;
         }

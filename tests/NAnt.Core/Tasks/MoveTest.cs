@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt.Tasks;
@@ -53,7 +54,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert("File should have been created:" + tempDirDest, File.Exists(tempFileSrc));
             Assertion.Assert("Dir should have been created:" + tempDirDest, Directory.Exists(tempDirDest));
 
-            string result = RunBuild(String.Format(_xmlProjectTemplate, Path.Combine(tempDirDest,"foo.xml"), tempFileSrc));
+            string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, Path.Combine(tempDirDest,"foo.xml"), tempFileSrc));
             
             Assertion.Assert("File should have been removed (during move):" + result, !File.Exists(tempFileSrc));
             Assertion.Assert("File should have been added (during move):" + result, File.Exists(Path.Combine(tempDirDest, "foo.xml")));

@@ -25,16 +25,17 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Globalization;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
 
 namespace SourceForge.NAnt.Tests {
 
-	[TestFixture]
+    [TestFixture]
     public class NAntTest : BuildTestBase {
 
-		[Test]
+        [Test]
         public void Test_BuildFileOption() {
             string filename = "file1.ha";
             string baseDirectory = TempDir.Create(Path.Combine(TempDirName, "foo"));
@@ -63,27 +64,26 @@ namespace SourceForge.NAnt.Tests {
                     string results = c.Close();
                     if(errors)
                         System.Console.Write(results);
+                    Environment.CurrentDirectory = oldCurrDir;
                 }
             }
             Environment.CurrentDirectory = oldCurrDir;
         }
- /*
- 		[Test]
-        public void Test_BuildFileDoubleOption() {
-            string filename1 = "file1.ha";
-            string filename2 = "file2.ha";
-            string build1FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename1));
-            string build2FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename2));
+        [Test]
+        public void Test_ConsoleDriverReturnCode() {
+            string filename = "test.build";
+            string baseDirectory = TempDir.Create(Path.Combine(TempDirName, "consoleDriver"));
+            string build1FileName = TempFile.CreateWithContents("<project><property name='fail' value='false'/><if propertytrue='fail'><fail/></if></project>", Path.Combine(baseDirectory, filename));
 
             using (ConsoleCapture c = new ConsoleCapture()) {
                 bool errors = false;
                 try {
-
-                    //check that error message is not generated always.
-                    Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName}));
-
-                    //check absolute
-                    Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName +" -buildfile:" + build2FileName}));
+                    Assertion.Assert(
+                        "ResultCode not good.",
+                        0 == ConsoleDriver.Main(new string[] {@"-buildfile:" + build1FileName}));
+                    Assertion.Assert(
+                        "ResultCode bad.",
+                        0 != ConsoleDriver.Main(new string[] {@"-D:fail=True -buildfile:" + build1FileName}));
                 }
                 catch (Exception e) {
                     e.ToString();
@@ -93,12 +93,42 @@ namespace SourceForge.NAnt.Tests {
                 finally {
                     string results = c.Close();
                     if(errors)
-                        Console.Write(results);
+                        System.Console.Write(results);
                 }
             }
         }
- */
- 		[Test]
+        /*
+             [Test]
+               public void Test_BuildFileDoubleOption() {
+                   string filename1 = "file1.ha";
+                   string filename2 = "file2.ha";
+                   string build1FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename1));
+                   string build2FileName = TempFile.CreateWithContents("<project/>", Path.Combine(TempDirName, filename2));
+
+                   using (ConsoleCapture c = new ConsoleCapture()) {
+                       bool errors = false;
+                       try {
+
+                           //check that error message is not generated always.
+                           Assertion.Assert("Using filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName}));
+
+                           //check absolute
+                           Assertion.Assert("Using absolute filepath failed", 0 == ConsoleDriver.Main(new string[] {"-buildfile:" + build1FileName +" -buildfile:" + build2FileName}));
+                       }
+                       catch (Exception e) {
+                           e.ToString();
+                           errors = true;
+                           throw;
+                       }
+                       finally {
+                           string results = c.Close();
+                           if(errors)
+                               Console.Write(results);
+                       }
+                   }
+               }
+        */
+        [Test]
         public void Test_GetBuildFileName() {
             try {
                 ConsoleDriver.GetBuildFileName(null, null, false);
@@ -131,7 +161,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_FindInParentOption() {
             string baseDirectory = TempDir.Create(Path.Combine(TempDirName,"Find"));
             string buildFileName = Path.Combine(baseDirectory, "file.build");
@@ -200,24 +230,26 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(DateTime.Now.Year, year);
         }
 
-		[Test]
+        [Test]
         public void Test_BadArgument() {
             string[] args = { "-asdf", "-help", "-verbose" };
 
             string result = null;
+            int resultCode = 0;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.ConsoleDriver.Main(args);
+                resultCode = SourceForge.NAnt.ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
-            // using a regular expression look for a plausible version number and valid copyright date
+            // using a regular expression for the unknown argument
             string expression = @"Unknown argument '-asdf'";
 
             Match match = Regex.Match(result, expression);
             Assertion.Assert("Argument did not cause an error.", match.Success);
+            Assertion.Assert("ExitCode cannot be 0!", resultCode != 0); 
         }
 
-		[Test]
+        [Test]
         public void Test_DefineProperty() {
             string buildFileContents = @"<?xml version='1.0' ?>
                 <project name='Test' default='test' basedir='.'>
@@ -232,8 +264,8 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
 
             string[] args = {
-                "-D:project.name=MyCompany.MyProject",
-                String.Format("-buildfile:{0}", buildFileName),
+                                "-D:project.name=MyCompany.MyProject",
+                                String.Format(CultureInfo.InvariantCulture, "-buildfile:{0}", buildFileName),
             };
 
             string result = null;
@@ -252,7 +284,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
         }
 
-		[Test]
+        [Test]
         public void Test_ShowProjectHelp() {
             string buildFileContents = @"<?xml version='1.0' ?>
                 <project name='Hello World' default='build' basedir='.'>
@@ -282,8 +314,8 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " does not exists.", File.Exists(buildFileName));
 
             string[] args = {
-                "-projecthelp",
-                String.Format("-buildfile:{0}", buildFileName),
+                                "-projecthelp",
+                                String.Format(CultureInfo.InvariantCulture, "-buildfile:{0}", buildFileName),
             };
 
             string result = null;
@@ -329,7 +361,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(buildFileName + " exists.", !File.Exists(buildFileName));
         }
 
-		[Test]
+        [Test]
         public void Test_CreateLogger() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
             string consoleLogger = "SourceForge.NAnt.ConsoleLogger";
@@ -359,7 +391,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_CreateLoggerWithFile() {
             string xmlLogger = "SourceForge.NAnt.XmlLogger";
             string consoleLogger = "SourceForge.NAnt.ConsoleLogger";
