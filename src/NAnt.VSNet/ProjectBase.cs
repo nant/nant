@@ -279,8 +279,8 @@ namespace NAnt.VSNet {
         public bool Compile(string configuration) {
             ConfigurationBase config = (ConfigurationBase) ProjectConfigurations[configuration];
             if (config == null) {
-                Log(Level.Info, "Configuration '{0}' does not exist. Skipping.", 
-                    configuration);
+                Log(Level.Info, "Skipping '{0}': configuration '{1}' does not exist.", 
+                    Name, configuration);
                 return true;
             }
 
