@@ -307,7 +307,9 @@ namespace NAnt.VSNet {
                                 Process pRef = Process.Start(psiRef);
                                 pRef.WaitForExit();
                             } catch (Win32Exception ex) {
-                                throw new BuildException(string.Format("Unable to start process '{0}' with commandline '{1}'.", program, commandLine), ex);
+                                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                                    "Unable to start process '{0}' with commandline '{1}'.", 
+                                    program, commandLine), ex, Location.UnknownLocation);
                             }
                         } else {
                             StringCollection fromFilenames = reference.GetReferenceFiles(cs);
