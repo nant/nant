@@ -24,6 +24,7 @@ using System.Text.RegularExpressions;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -71,7 +72,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("doc")]
         public string Doc {
             get { return (_doc != null) ? Project.GetFullPath(_doc) : null; }
-            set { _doc = SetStringValue(value); }
+            set { _doc = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -175,7 +176,7 @@ namespace NAnt.DotNet.Tasks {
         [Int32Validator(0, 4)]
         public string WarningLevel {
             get { return _warningLevel; }
-            set { _warningLevel = SetStringValue(value); }
+            set { _warningLevel = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -194,7 +195,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("nowarn")]
         public string NoWarn {
             get { return _noWarn; }
-            set { _noWarn = SetStringValue(value); }
+            set { _noWarn = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -209,7 +210,7 @@ namespace NAnt.DotNet.Tasks {
         [TaskAttribute("codepage")]
         public string Codepage {
             get { return _codepage; }
-            set { _codepage = SetStringValue(value); }
+            set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
