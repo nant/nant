@@ -76,7 +76,7 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\bin\lib\net\1.0\log4net.dll"
+                    HintPath = "..\..\bin\log4net.dll"
                 />
             </References>
         </Build>
@@ -698,6 +698,11 @@
                 />
                 <File
                     RelPath = "Types\Proxy.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\RawXml.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
