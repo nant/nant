@@ -51,6 +51,29 @@ a:hover {
     background-color: inherit;
 }
 
+a.heading:link {
+    color: black;
+    background-color: inherit;
+    text-decoration: none;
+}
+
+a.heading:visited {
+    color: black;
+    background-color: inherit;
+    text-decoration: none;
+}
+
+a.heading:active {
+    color: black;
+    background-color: inherit;
+    text-decoration: none;
+}
+
+a.heading:hover {
+    color: #0000cc;
+    background-color: inherit;
+}
+
 .NavBar {
     color: black;
     background-color: #dfff80;

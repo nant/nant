@@ -66,6 +66,10 @@
                 Overwriting of read-only properties will now result in a build failure.
             </li>
             <li>
+                The default logger will now also output the number non-fatal errors and 
+                warnings.
+            </li>
+            <li>
                 Output of XmlLogger is now buffered until build has finished, and XmlLogger can 
                 now also be used as a listener.
             </li>
@@ -85,7 +89,7 @@
         <h4>Commandline changes</h4>
         <ul>
             <li>
-                Added "-emacs" option, which can be used to produce logging information without 
+                Added "-e[macs]" option, which can be used to produce logging information without 
                 adornments.
             </li>
             <li>
@@ -94,40 +98,36 @@
                 bin directory or the GAC in order to be used by NAnt.
             </li>
             <li>
-                The default logger will now also output the number non-fatal errors and 
-                warnings.
-            </li>
-            <li>
-                Deprecated -[defaultframewor]k option in favor of -[t]argetframework.
+                Deprecated -[defaultframewor]k option in favor of -t[argetframework].
             </li>
         </ul>
         <h4>New Tasks</h4>
-        <h5>&lt;cvs-changelog&gt;</h5>
+        <h5><a class="heading" href="help/tasks/cvs-changelog.html">&lt;cvs-changelog&gt;</a></h5>
         <ul>
             <li>
                 Produces an XML report that represents the cvs changes from the given start 
                 day, to a given end date.
             </li>
         </ul>
-        <h5>&lt;cvs-export&gt;</h5>
+        <h5><a class="heading" href="help/tasks/cvs-export.html">&lt;cvs-export&gt;</a></h5>
         <ul>
             <li>
                 Exports a cvs module in preperation for a release.
             </li>
         </ul>
-        <h5>&lt;cvs-tag&gt;</h5>
+        <h5><a class="heading" href="help/tasks/cvs-tag.html">&lt;cvs-tag&gt;</a></h5>
         <ul>
             <li>
                 Tags all local sources with the specified tag.
             </li>
         </ul>
-        <h5>&lt;ilasm&gt;</h5>
+        <h5><a class="heading" href="help/tasks/ilasm.html">&lt;ilasm&gt;</a></h5>
         <ul>
             <li>
                 Compiles ILASM programs.
             </li>
         </ul>
-        <h5>&lt;ildasm&gt;</h5>
+        <h5><a class="heading" href="help/tasks/ildasm.html">&lt;ildasm&gt;</a></h5>
         <ul>
             <li>
                 Disassembles any portable executable (PE) file that contains intermediate 
@@ -135,31 +135,31 @@
             </li>
         </ul>
         <h4>Task changes</h4>
-        <h5>&lt;asminfo&gt;</h5>
+        <h5><a class="heading" href="help/tasks/asminfo.html">&lt;asminfo&gt;</a></h5>
         <ul>
             <li>
                 Use hash implementation to check whether AssemblyInfo needs to be rebuilt.
             </li>
         </ul>
-        <h5>&lt;attrib&gt;</h5>
+        <h5><a class="heading" href="help/tasks/attrib.html">&lt;attrib&gt;</a></h5>
         <ul>
             <li>
                 Support setting attributes on directories.
             </li>
         </ul>
-        <h5>&lt;available&gt;</h5>
+        <h5><a class="heading" href="help/tasks/available.html">&lt;available&gt;</a></h5>
         <ul>
             <li>
                 Deprecated in favor of expression support.
             </li>
         </ul>
-        <h5>&lt;cl&gt;</h5>
+        <h5><a class="heading" href="help/tasks/cl.html">&lt;cl&gt;</a></h5>
         <ul>
             <li>
                 Added support for passing character set to compiler.
             </li>
         </ul>
-        <h5>&lt;csc&gt;</h5>
+        <h5><a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a></h5>
         <ul>
             <li>
                 Added "rebuild" attribute, which instructs NAnt to recompile the output file 
@@ -185,7 +185,7 @@
                 Added support for /baseaddress compiler option.
             </li>
         </ul>
-        <h5>&lt;copy&gt;</h5>
+        <h5><a class="heading" href="help/tasks/copy.html">&lt;copy&gt;</a></h5>
         <ul>
             <li>
                 Added support for <a href="help/types/filterchain.html">filterchains</a>.
@@ -202,7 +202,7 @@
             <li>
                 Added "passfile" attribute</li>
         </ul>
-        <h5>&lt;exec&gt;</h5>
+        <h5><a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
         <ul>
             <li>
                 Fixed internal error when "program" attribute was assigned invalid file name.
@@ -212,14 +212,14 @@
                 exit code of the program can be stored.
             </li>
         </ul>
-        <h5>&lt;get&gt;</h5>
+        <h5><a class="heading" href="help/tasks/get.html">&lt;get&gt;</a></h5>
         <ul>
             <li>
                 Added support for client certificates (for HTTP requests) by means of the <code><a href="help/tasks/get.html#certificates">&lt;certificates&gt;</a></code>
                 elements.
             </li>
         </ul>
-        <h5>&lt;jsc&gt;</h5>
+        <h5><a class="heading" href="help/tasks/jsc.html">&lt;jsc&gt;</a></h5>
         <ul>
             <li>
                 Added support for package references. [Mono]
@@ -229,40 +229,40 @@
                 regardless of the file timestamps.
             </li>
         </ul>
-        <h5>&lt;license&gt;</h5>
+        <h5><a class="heading" href="help/tasks/license.html">&lt;license&gt;</a></h5>
         <ul>
             <li>
                 Uses the <code>lc.exe</code> commandline tool to compile license files whenever 
                 available.
             </li>
         </ul>
-        <h5>&lt;link&gt;</h5>
+        <h5><a class="heading" href="help/tasks/link.html">&lt;link&gt;</a></h5>
         <ul>
             <li>
                 Allow <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> reference to be set for the <code><a href="help/tasks/link.html#sources">&lt;sources&gt;</a></code>
                 element.
             </li>
         </ul>
-        <h5>&lt;move&gt;</h5>
+        <h5><a class="heading" href="help/tasks/move.html">&lt;move&gt;</a></h5>
         <ul>
             <li>
                 Added support for <a href="help/types/filterchain.html">filterchains</a>.
             </li>
         </ul>
-        <h5>&lt;nant&gt;</h5>
+        <h5><a class="heading" href="help/tasks/nant.html">&lt;nant&gt;</a></h5>
         <ul>
             <li>
                 Added <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> support for specifiying build files to 
                 execute.
             </li>
         </ul>
-        <h5>&lt;ndoc&gt;</h5>
+        <h5><a class="heading" href="help/tasks/ndoc.html">&lt;ndoc&gt;</a></h5>
         <ul>
             <li>
                 Upgraded to NDoc 1.3 post-beta1.
             </li>
         </ul>
-        <h5>&lt;nunit2&gt;</h5>
+        <h5><a class="heading" href="help/tasks/nunit2.html">&lt;nunit2&gt;</a></h5>
         <ul>
             <li>
                 If no explicit application configuration file is specified, a configuration 
@@ -273,21 +273,21 @@
                 Minor bug fixes.
             </li>
         </ul>
-        <h5>&lt;regex&gt;</h5>
+        <h5><a class="heading" href="help/tasks/regex.html">&lt;regex&gt;</a></h5>
         <ul>
             <li>
                 Added "options" attribute that takes a comma-separated list of options to pass 
                 to the regex engine.
             </li>
         </ul>
-        <h5>&lt;resgen&gt;</h5>
+        <h5><a class="heading" href="help/tasks/resgen.html">&lt;resgen&gt;</a></h5>
         <ul>
             <li>
                 Added support for assembly references, in order to be abel to compile .resx 
                 file that reference assemblies that are not located in the GAC.
             </li>
         </ul>
-        <h5>&lt;script&gt;</h5>
+        <h5><a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
         <ul>
             <li>
                 Simplified definition of custom functions with the <code><a href="help/tasks/script.html">&lt;script&gt;</a></code> task.
@@ -297,7 +297,7 @@
                 scanned for functions and filters.
             </li>
         </ul>
-        <h5>&lt;solution&gt;</h5>
+        <h5><a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
         <ul>
             <li>
                 WebMaps are now case-insensitive (and added attribute to enable 
@@ -376,7 +376,7 @@
                 Added support for deploying App.config to output directory.
             </li>
         </ul>
-        <h5>&lt;vbc&gt;</h5>
+        <h5><a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a></h5>
         <ul>
             <li>
                 Added support for suppressing specific warnings using the <code><a href="help/tasks/vbc.html#nowarn">&lt;nowarn&gt;</a></code>
@@ -407,7 +407,7 @@
                 element.
             </li>
         </ul>
-        <h5>&lt;vjc&gt;</h5>
+        <h5><a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
         <ul>
             <li>
                 Added support for suppressing specific warnings using the <code><a href="help/tasks/vjc.html#nowarn">&lt;nowarn&gt;</a></code>
@@ -426,33 +426,33 @@
                 Added support for /baseaddress compiler option.
             </li>
         </ul>
-        <h5>&lt;xmlpeek&gt; / &lt;xmlpoke&gt;</h5>
+        <h5><a class="heading" href="help/tasks/xmlpeek.html">&lt;xmlpeek&gt;</a> / <a class="heading" href="help/tasks/xmlpoke.html">&lt;xmlpoke&gt;</a></h5>
         <ul>
             <li>
                 Added support for XPath expressions with namespace prefixes.
             </li>
         </ul>
-        <h5>&lt;zip&gt; / &lt;unzip&gt;</h5>
+        <h5><a class="heading" href="help/tasks/zip.html">&lt;zip&gt;</a> / <a class="heading" href="help/tasks/unzip.html">&lt;unzip&gt;</a></h5>
         <ul>
             <li>
                 Upgraded #ziplib to v0.80.
             </li>
         </ul>
         <h4>New types</h4>
-        <h5>&lt;assemblyfileset&gt;</h5>
+        <h5><a class="heading" href="help/types/assemblyfileset.html">&lt;assemblyfileset&gt;</a></h5>
         <ul>
             <li>
                 Specialized <code><a href="help/types/fileset.html">&lt;fileset&gt;</a></code> for managing assembly files.
             </li>
         </ul>
-        <h5>&lt;warnaserror&gt;</h5>
+        <h5><a class="heading" href="help/types/warnaserror.html">&lt;warnaserror&gt;</a></h5>
         <ul>
             <li>
                 Controls the behaviour of a compiler with regards to the reporting of warnings.
             </li>
         </ul>
         <h4>Type changes</h4>
-        <h5>&lt;fileset&gt;</h5>
+        <h5><a class="heading" href="help/types/fileset.html">&lt;fileset&gt;</a></h5>
         <ul>
             <li>
                 Deprecated <code><a href="help/types/fileset.html#includes">&lt;includes&gt;</a></code> and <code><a href="help/types/fileset.html#excludes">&lt;excludes&gt;</a></code> elements 
@@ -470,7 +470,7 @@
             <li>
                 The <code>Task.LogPrefix</code> property has been deprecated. Messages that are 
                 written to build log by a given task, will now automatically get prefixed with 
-                the task name. This behaviour can be disabled by the new <code>-emacs</code> commandline 
+                the task name. This behaviour can be disabled by the new <code>-e[macs]</code> commandline 
                 option.
             </li>
         </ul>
