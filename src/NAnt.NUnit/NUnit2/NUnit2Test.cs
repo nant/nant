@@ -54,7 +54,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2
 
         /// <summary>XSLT transform file to use when using the Xml formatter</summary>
         [TaskAttribute("transformfile")]
-        public string TransformFile { get { return Project.GetFullPath(_transformFile); } set { _transformFile = value; } }
+        public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
 
         [TaskAttribute("appconfig")]
         public string AppConfigFile {
