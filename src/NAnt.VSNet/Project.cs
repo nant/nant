@@ -220,8 +220,8 @@ namespace NAnt.VSNet {
                         _sourceFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
                         FileInfo resourceFile = new FileInfo(sourceFile);
-                        if (resourceFile.Exists && resourceFile.Length == 0) {
-                            Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resource '{0}'.", 
+                        if (resourceFile.Exists && resourceFile.Extension == ".resx" && resourceFile.Length == 0) {
+                            Log(Level.Verbose, LogPrefix + "Skipping zero-byte embedded resx '{0}'.", 
                                 resourceFile.FullName);
                         } else {
                             string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
