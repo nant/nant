@@ -207,7 +207,7 @@ namespace NAnt.DotNet.Tasks {
             string privateBinPath = AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
             if (privateBinPath != null) {
                 // have NDoc also probe for documenters in the privatebinpath
-                foreach (string relativePath in privateBinPath.Split(';')) {
+                foreach (string relativePath in privateBinPath.Split(Path.PathSeparator)) {
                     project.AppendProbePath(Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory, relativePath));
                 }
