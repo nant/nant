@@ -45,7 +45,7 @@ namespace SourceForge.NAnt.Tasks {
         FileSet _modules = new FileSet();
         FileSet _sources = new FileSet();
         ResGenTask _resgenTask = null;
-        ResourceFileSet[] _resourcesList = null;
+        ResourceFileSetCollection _resourcesList = new ResourceFileSetCollection();
 
         #endregion Private Instance Fields
 
@@ -107,12 +107,33 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("references")]
         public FileSet References   { get { return _references; } set { _references = value; }}
 
-        /// <summary>Set resources to embed.</summary>
-        ///<remarks>This can be a combination of resx files and file resources. .resx files will be compiled by resgen and then embedded into the 
-        ///resulting executable. The Prefix attribute is used to make up the resourcename added to the assembly manifest for non resx files. For resx files the namespace from the matching source file is used as the prefix. 
-        ///This matches the behaviour of Visual Studio. Multiple resources tags with different namespace prefixes may be specified </remarks>    
+        /// <summary>Resources to embed.</summary>
+        /// <remarks>
+        /// <para>
+        /// This can be a combination of resx files and file resources.
+        /// </para>
+        /// <para>
+        /// .resx files will be compiled by resgen and then embedded into the 
+        /// resulting executable.
+        /// </para>
+        /// <para>
+        /// The <see cref="ResourceFileSet.Prefix" /> property is used to make 
+        /// up the resource name added to the assembly manifest for non resx 
+        /// files.
+        /// </para>
+        /// <para>
+        /// For resx files the namespace from the matching source file is used 
+        /// as prefix. This matches the behaviour of Visual Studio. 
+        /// </para>
+        /// <para>
+        /// Multiple resources tags with different namespace prefixes may be 
+        /// specified.
+        /// </para>
+        /// </remarks>    
         [BuildElementArray("resources")]
-        public ResourceFileSet[]  ResourcesList { get { return _resourcesList; } set { _resourcesList = value; }}
+        public ResourceFileSetCollection ResourcesList {
+            get { return _resourcesList; }
+        }
 
         /// <summary>Link the specified modules into this assembly.</summary>
         [FileSet("modules")]
