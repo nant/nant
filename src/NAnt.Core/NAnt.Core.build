@@ -19,9 +19,9 @@
             <resources basedir="Resources">
                 <includes name="**/*" />
             </resources>
-            <references basedir="${build.dir}/bin">
+            <references basedir="${lib.framework.dir}">
                 <includes name="log4net.dll"/>
-                <includes name="${nant.settings.currentframework.frameworkassemblydirectory}/System.Web.dll"/>
+                <includes name="System.Web.dll"/>
             </references>
         </csc>
     </target>
