@@ -20,23 +20,26 @@
 		
 		<!-- copy the build up to sourceforge -->
 		<scp file="${project.zip-path}" server="${sf.net.ssh.server}" path="${sf.net.build.path}"/>
+		<echo message="Copied nightly build over to SF.Net"/>		
 		
 		<!-- copy schema -->
 		<scp file="${build.dir}/schema" server="${sf.net.ssh.server}" path="${sf.net.build.path}/../..">
 			<arg value="-r"/>
 		</scp>		
+		<echo message="Copied schema over to SF.Net"/>
 
 		<!-- copy docs -->
 		<scp file="${build.dir}/doc" server="${sf.net.ssh.server}" path="${sf.net.build.path}">
 			<arg value="-r"/>
-		</scp>		
+		</scp>
+		<echo message="Copied docs over to SF.Net"/>
 		
 		<!-- make sure files are readable -->
-		<exec program="ssh">
+		<exec program="ssh" failonerror="false">
 			<arg value="${sf.net.ssh.server}"/>
 			<arg value="chmod -R 755 ${sf.net.build.path}/*"/>
 		</exec>
-		<exec program="ssh">
+		<exec program="ssh" failonerror="false">
 			<arg value="${sf.net.ssh.server}"/>
 			<arg value="chmod -R 755 ${sf.net.build.path}/../schema/*"/>
 		</exec>
