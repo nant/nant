@@ -239,6 +239,15 @@ namespace NAnt.SourceControl.Tasks
             }
         }
 
+        /// <summary>
+        /// Specify if the module is needed for this cvs command.  It is
+        /// only needed if there is no module information on the local file
+        /// system.
+        /// </summary>
+        protected override bool IsModuleNeeded {
+            get { return false; }
+        }
+
         #endregion Protected Instance Methods
 
     }
