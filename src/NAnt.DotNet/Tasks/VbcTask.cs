@@ -303,7 +303,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// For the VB.NET compiler, the file extension is always <c>vb</c>.
         /// </value>
-        protected override string Extension {
+        public override string Extension {
             get { return "vb"; }
         }
 

@@ -286,7 +286,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// For the C# compiler, the file extension is always <c>cs</c>.
         /// </value>
-        protected override string Extension {
+        public override string Extension {
             get { return "cs"; }
         }
 

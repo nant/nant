@@ -124,7 +124,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// For the JScript.NET compiler, the file extension is always <c>js</c>.
         /// </value>
-        protected override string Extension { 
+        public override string Extension { 
             get { return "js"; }
         }
 

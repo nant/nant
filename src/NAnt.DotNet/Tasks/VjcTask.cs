@@ -275,7 +275,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// For the J# compiler, the file extension is always <c>jsl</c>.
         /// </value>
-        protected override string Extension {
+        public override string Extension {
             get { return "jsl"; }
         }
 

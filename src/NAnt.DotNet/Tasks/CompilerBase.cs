@@ -270,7 +270,7 @@ namespace NAnt.DotNet.Tasks {
         /// <value>
         /// The file extension required by the current compiler.
         /// </value>
-        protected abstract string Extension {
+        public abstract string Extension {
             get;
         }
         /// <summary>
@@ -614,19 +614,26 @@ namespace NAnt.DotNet.Tasks {
                     // open matching source file if it exists
                     string dependentFile = resourceFile.Replace("resx", Extension);
 
-                    // remove culture name from dependent file for localized
-                    // resources
+                    // remove last occurrence of culture name from dependent file 
+                    // for localized resources
                     if (resourceCulture != null) {
-                        dependentFile = dependentFile.Replace(string.Format(CultureInfo.InvariantCulture,
-                            ".{0}", resourceCulture.Name), "");
+                        int index = dependentFile.LastIndexOf("." + resourceCulture.Name);
+                        if (index >= 0) {
+                            if ((index + resourceCulture.Name.Length + 1) < dependentFile.Length) {
+                                dependentFile = dependentFile.Substring(0, index) 
+                                    + dependentFile.Substring(index + resourceCulture.Name.Length + 1);
+                            } else {
+                                dependentFile = dependentFile.Substring(0, index);
+                            }
+                        }
                     }
 
                     // determine the manifest resource name using the given
                     // dependent file
                     return GetManifestResourceName(resources, resourceFile, dependentFile);
                 default:
-                    // for non-resx a dependentFile has no influence on the
-                    // manifest resource name
+                    // for non-resx resources, a dependent file has no influence 
+                    // on the manifest resource name
                     return GetManifestResourceName(resources, resourceFile, null);
             }
         }
@@ -870,6 +877,11 @@ namespace NAnt.DotNet.Tasks {
         protected virtual ResourceLinkage GetResourceLinkage(string dependentFile, CultureInfo resourceCulture) {
             StreamReader sr = null;
             ResourceLinkage resourceLinkage  = null;
+
+            // resource linkage cannot be determined if there's no dependent file
+            if (dependentFile == null) {
+                return null;
+            }
   
             try {
                 // open matching source file
