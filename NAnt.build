@@ -507,6 +507,7 @@
             <fileset basedir="${build.dir}" prefix="${project.zip.prefix}">
                 <include name="Makefile" />
                 <include name="NAnt.build" />
+                <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
                 
