@@ -273,7 +273,7 @@ namespace NAnt.Core {
         }
 
         public FrameworkInfo Current {
-            get { return (FrameworkInfo) _innerEnumerator.Current; }
+            get { return (FrameworkInfo)((DictionaryEntry)_innerEnumerator.Current).Value; }
         }
 
         #endregion Implementation of IEnumerator
