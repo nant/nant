@@ -155,6 +155,8 @@ namespace SourceForge.NAnt {
                     Console.WriteLine("  {0} search parent directories for buildfile", findOption.PadRight(optionPadding));
                     Console.WriteLine("  {0} use value for given property", (setOption + "<property>=<value>").PadRight(optionPadding));
                     Console.WriteLine("  {0} displays more information during build process", verboseOption.PadRight(optionPadding));
+                    Console.WriteLine("  {0} use given class name as logger", loggerOption.PadRight(optionPadding));
+                    Console.WriteLine("  {0} use value as name of log output file", logFileOption.PadRight(optionPadding));
                     Console.WriteLine();
                     Console.WriteLine("A file ending in .build will be used if no buildfile is specified.");
 

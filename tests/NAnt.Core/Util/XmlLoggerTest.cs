@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Xml;
 
 using NUnit.Framework;
 using SourceForge.NAnt;
@@ -26,199 +27,196 @@ using SourceForge.NAnt;
 namespace SourceForge.NAnt.Tests {
 
     public class XmlLoggerTest : TestCase {
-
-        public XmlLoggerTest(String name) : base(name) {
+        XmlLogger _log; 
+    	
+        public XmlLoggerTest(string name) : base(name) { }
+		
+        protected override void SetUp() {
+		
+            _log = CreateXmlLogger();
         }
-
-        public static NUnit.Framework.ITest Suite
-        {
-            get
-            {
-                return new NUnit.Framework.TestSuite(typeof(XmlLoggerTest));
-            }
-        }
-
+	
         public void Test_StripFormatting() {
-
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            XmlLogger log = new XmlLogger();
-            AssertEquals(baseMessage, log.StripFormatting(formattedMessage));
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t[foo] " + baseMessage;
-            AssertEquals(baseMessage, log.StripFormatting(formattedMessage));
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
             formattedMessage = "\t\t[foo] " + baseMessage;
-            AssertEquals(baseMessage, log.StripFormatting(formattedMessage));
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
 
             string timestamp = "Thursday, August 01, 2002 12:52:54 AM";
             formattedMessage = String.Format("\t\t\t[tstamp] {0}", timestamp);
-            AssertEquals(timestamp, log.StripFormatting(formattedMessage));
+            Assertion.AssertEquals(timestamp, _log.StripFormatting(formattedMessage));
         }
 
         public void Test_StripFormattingMultiline() {
             string baseMessage = "this is a typical message.\nMultiline message that is.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            XmlLogger log = new XmlLogger();
-            AssertEquals(baseMessage, log.StripFormatting(formattedMessage));
+            Assertion.AssertEquals(baseMessage, _log.StripFormatting(formattedMessage));
         }
-
+		
         public void Test_IsJustWhiteSpace() {
-            string message;
-            XmlLogger log = new XmlLogger();
-
-            message = "";
-            Assert(String.Format("check failed for: {0}", message), log.IsJustWhiteSpace(message));
+            string message = "";
+            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = " ";
-            Assert(String.Format("check failed for: {0}", message), log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "        ";
-            Assert(String.Format("check failed for: {0}", message), log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "\t\t\t\t";
-            Assert(String.Format("check failed for: {0}", message), log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check failed for: {0}", message), _log.IsJustWhiteSpace(message));
 
             message = "hello";
-            Assert(String.Format("check should not have failed for: {0}", message), !log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "hello    ";
-            Assert(String.Format("check should not have failed for: {0}", message), !log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "        hello";
-            Assert(String.Format("check should not have failed for: {0}", message), !log.IsJustWhiteSpace(message));
+            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
 
             message = "\t\t\thello";
-            Assert(String.Format("check should not have failed for: {0}", message), !log.IsJustWhiteSpace(message));
-
+            Assertion.Assert(String.Format("check should not have failed for: {0}", message), !_log.IsJustWhiteSpace(message));
         }
-
+		
         public void Test_WriteLine() {
-
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            StringWriter writer = new StringWriter();
-
-            XmlLogger log = new XmlLogger(writer);
-
-            log.WriteLine(formattedMessage);
+            _log.WriteLine(formattedMessage);
 
             string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
 
         }
-
+		
         public void Test_Write() {
-
-            StringWriter writer;;
-            XmlLogger log;
-            string expected;
-
             string baseMessage = "this is a typical message.";
             string formattedMessage = "[foo] " + baseMessage;
-            writer = new StringWriter();
-            log = new XmlLogger(writer);
-            log.Write(formattedMessage);
-            expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
-            AssertEquals(expected, writer.ToString());
+
+            _log.Write(formattedMessage);
+            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+            Assertion.AssertEquals(expected, _log.ToString());
 
             string unformattedMessage = "message:";
-            writer = new StringWriter();
-            log = new XmlLogger(writer);
-            log.Write(unformattedMessage);
+            _log = CreateXmlLogger();
+            _log.Write(unformattedMessage);
             expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "message with no tag in front.";
-            writer = new StringWriter();
-            log = new XmlLogger(writer);
-            log.Write(unformattedMessage);
+            _log = CreateXmlLogger();
+            _log.Write(unformattedMessage);
             expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
 
             unformattedMessage = "BUILD SUCCESSFUL";
-            writer = new StringWriter();
-            log = new XmlLogger(writer);
-            log.Write(unformattedMessage);
+            _log = CreateXmlLogger();
+            _log.Write(unformattedMessage);
             expected = String.Format("<message><![CDATA[{0}]]></message>", unformattedMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
         }
-
+		
         public void Test_WriteStrangeCharacters() {
             string baseMessage = "this message has !@!)$)(&^%^%$$##@@}{[]\"';:<<>/+=-_. in it.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            StringWriter writer = new StringWriter();
-
-            XmlLogger log = new XmlLogger(writer);
-
-            log.Write(formattedMessage);
+            _log.Write(formattedMessage);
 
             string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
         }
-
+		
         public void Test_WriteEmbeddedMathFormulas() {
             string baseMessage = "this message has: x < 20 = y in it.";
             string formattedMessage = "[foo] " + baseMessage;
 
-            StringWriter writer = new StringWriter();
-
-            XmlLogger log = new XmlLogger(writer);
-
-            log.Write(formattedMessage);
+            _log.Write(formattedMessage);
 
             string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
-            AssertEquals(expected, writer.ToString());
+            Assertion.AssertEquals(expected, _log.ToString());
         }
 
-        public void Test_BuildStartedAndBuildFinished() {
+        public void Test_WriteTextWithEmbeddedCDATATag() {
+            string message = @"some stuff with <xml> <![CDATA[more stuff]]> and more <![CDATA[cdata]]>";
+            string expected = @"<message><![CDATA[some stuff with <xml> more stuff and more cdata]]></message>";
 
+            _log.Write(message);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+
+        public void Test_WriteXmlWithDeclaration() {
+            string message = @"<?xml version=""1.0"" encoding=""utf-16""?><test><a></a></test>";
+            string expected = @"<message><test><a></a></test></message>";
+
+            _log.Write(message);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+
+        public void Test_WriteXmlWithLeadingWhitespace() {
+            string message = @"            <?xml version=""1.0"" encoding=""utf-16""?><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/>";
+            string expected = @"<message><testsuite name=""tw.ccnet.acceptance Tests"" tests=""14"" time=""19.367"" errors=""0"" failures=""0""/></message>";
+
+            _log.Write(message);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+        
+        public void Test_WriteEmbeddedXml() {
+            string baseMessage = "<a><b><![CDATA[message]]></b></a>";
+            string expected = String.Format("<message>{0}</message>", baseMessage);
+
+            _log.Write(baseMessage);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+
+        public void Test_WriteEmbeddedMalformedXml() {
+            string baseMessage = "<a>malformed<b>";
+            string expected = String.Format("<message><![CDATA[{0}]]></message>", baseMessage);
+
+            _log.Write(baseMessage);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+		
+        public void Test_BuildStartedAndBuildFinished() {
             string name = "foo";
             BuildEventArgs args = new BuildEventArgs(name);
-
-            StringWriter writer = new StringWriter();
-            XmlLogger log = new XmlLogger(writer);
             string expected = String.Format("<buildresults project=\"{0}\" />", name);
 
-            log.BuildStarted(this, args);
-            log.BuildFinished(this, args);
-            AssertEquals(expected, writer.ToString());
+            _log.BuildStarted(this, args);
+            _log.BuildFinished(this, args);
+            Assertion.AssertEquals(expected, _log.ToString());
         }
-
+		
         public void Test_TargetStartedAndTargetFinished() {
-
             string name = "foo";
-
             BuildEventArgs args = new BuildEventArgs(name);
+            string expected = String.Format(@"<target name=""{0}"" />", name);
 
-            string expected = String.Format("<{0} />", name);
+            _log.TargetStarted(this, args);
+            _log.TargetFinished(this, args);
+            Assertion.AssertEquals(expected, _log.ToString());
+        }
+		
+        public void Test_TaskStartedAndTaskFinished() {
+            string name = "foo";
+            BuildEventArgs args = new BuildEventArgs(name);
+            string expected = String.Format(@"<task name=""{0}"" />", name);
 
-            StringWriter writer = new StringWriter();
-            XmlLogger log = new XmlLogger(writer);
-
-            log.TargetStarted(this, args);
-            log.TargetFinished(this, args);
-            AssertEquals(expected, writer.ToString());
+            _log.TaskStarted(this, args);
+            _log.TaskFinished(this, args);
+            Assertion.AssertEquals(expected, _log.ToString());
         }
 
-        public void Test_TaskStartedAndTaskFinished() {
-
-            string name = "foo";
-
-            BuildEventArgs args = new BuildEventArgs(name);
-
-            string expected = String.Format("<{0} />", name);
-
-            StringWriter writer = new StringWriter();
-            XmlLogger log = new XmlLogger(writer);
-
-            log.TaskStarted(this, args);
-            log.TaskFinished(this, args);
-            AssertEquals(expected, writer.ToString());
+        private XmlLogger CreateXmlLogger() {
+            StringWriter _log = new StringWriter();
+            return new XmlLogger(_log);
         }
     }
 }

@@ -144,21 +144,9 @@ namespace SourceForge.NAnt.Tasks {
                 // display standard output
                 StreamReader stdOut = process.StandardOutput;
                 string output = stdOut.ReadToEnd();
-                if (output.Length > 0) {
-                    if (OutputFile == null) {
-                        int indentLevel = Log.IndentLevel;
-                        Log.IndentLevel = 0;
-                        Log.WriteLine(output);
-                        Log.IndentLevel = indentLevel;
-                    } else if (OutputFile != "") {
-                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
-                        writer.Write(output);
-                        writer.Close();
-                    }
-                }
 
                 /*
-                // display standard error
+                // display standard error -- needs to implemented in separate stream
                 StreamReader stdErr = process.StandardError;
                 string errors = stdErr.ReadToEnd();
                 if (errors.Length > 0) {
@@ -169,8 +157,30 @@ namespace SourceForge.NAnt.Tasks {
                 }
 
                 */
+
                 // wait for program to exit
                 process.WaitForExit(TimeOut);
+
+                if (output.Length > 0) {
+                    if (OutputFile == null) {
+                        int indentLevel = Log.IndentLevel;
+                        Log.IndentLevel = 0;
+                        
+                        if (process.ExitCode == 0)
+                        {
+                        	Log.WriteLine(output);
+                        }
+                        else
+                        {
+                        	Log.WriteMessage(output, "compilerError");
+                        }
+                        Log.IndentLevel = indentLevel;
+                    } else if (OutputFile != "") {
+                        StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
+                        writer.Write(output);
+                        writer.Close();
+                    }
+                }
             } catch (Exception e) {
                 throw new BuildException(this.GetType().ToString() + ": Error during external program execution (" + ProgramFileName + "), see build log for details.", Location, e);
             }

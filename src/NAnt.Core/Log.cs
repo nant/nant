@@ -36,8 +36,7 @@ using System.Text;
 
 namespace SourceForge.NAnt {
 
-    public class BuildEventArgs : EventArgs
-    {
+    public class BuildEventArgs : EventArgs {
         protected string _name = "";
 
         public BuildEventArgs(string name) {
@@ -58,8 +57,7 @@ namespace SourceForge.NAnt {
     /// <summary>Delegate to handle Build events</summary>
     public delegate void BuildEventHandler(object sender, BuildEventArgs e);
 
-    public interface IBuildEventConsumer
-    {
+    public interface IBuildEventConsumer {
         /// <summary>Signals that a build has started. This event is fired before any targets have started.</summary>
         void BuildStarted(object sender, BuildEventArgs e);
 
@@ -80,14 +78,16 @@ namespace SourceForge.NAnt {
     }
 
     public abstract class LogListener {
-
         public abstract void Write(string message);
         public abstract void WriteLine(string message);
+        public virtual void WriteLine(string message, string messageType) {
+            WriteLine(message);
+        }
 
         public virtual void Flush() {
         }
     }
-
+    
     /// <summary>The standard logger that will suffice for any command line based nant runner.</summary>
     public class ConsoleLogger : LogListener {
         public override void Write(string message) {
@@ -240,6 +240,17 @@ namespace SourceForge.NAnt {
             WriteLine(String.Format(format, arg));
         }
 
+        public static void WriteMessage(string message, string messageType) {
+            message = FormatMessage(message);
+            foreach (LogListener l in _listeners) {
+                l.WriteLine(message, messageType);
+            }
+
+            if (AutoFlush) {
+                Flush();
+            }
+        }
+	
         /// <summary>Writes the given message to the log if condition is true.</summary>
         public static void WriteLineIf(bool condition, string message) {
             if (condition) {
@@ -252,6 +263,13 @@ namespace SourceForge.NAnt {
             if (condition) {
                 WriteLine(String.Format(format, arg));
             }
+        }
+    }
+
+    public class LogWriter : StringWriter {
+        public override void Close() {
+            Log.Write(GetStringBuilder().ToString());
+            base.Close();
         }
     }
 }
