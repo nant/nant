@@ -212,8 +212,10 @@ namespace NAnt.NUnit2.Tasks {
                                     outputFile = result.Name + "-results" + formatter.Extension;
                                     
                                     if (formatter.OutputDirectory != null) {
-                                        // make sure output directory exists
-                                        formatter.OutputDirectory.Create();
+                                        // ensure output directory exists
+                                        if (!formatter.OutputDirectory.Exists) {
+                                            formatter.OutputDirectory.Create();
+                                        }
 
                                         // combine output directory and result filename
                                         outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
@@ -234,15 +236,17 @@ namespace NAnt.NUnit2.Tasks {
                                         Log(Level.Info, LogPrefix + builder.ToString());
                                     }
                                 }
-                            }  else if (formatter.Type == FormatterType.Plain) {
+                            } else if (formatter.Type == FormatterType.Plain) {
                                 TextWriter writer;
                                 if (formatter.UseFile) {
                                     // determine file name for output file
                                     outputFile = result.Name + "-results" + formatter.Extension;
 
                                     if (formatter.OutputDirectory != null) {
-                                        // make sure output directory exists
-                                        formatter.OutputDirectory.Create();
+                                        // ensure output directory exists
+                                        if (!formatter.OutputDirectory.Exists) {
+                                            formatter.OutputDirectory.Create();
+                                        }
 
                                         // combine output directory and result filename
                                         outputFile = Path.Combine(formatter.OutputDirectory.FullName, 
@@ -257,13 +261,16 @@ namespace NAnt.NUnit2.Tasks {
                                 writer.Close();
                             }
                         }
+                    } catch (Exception ex) {
+                        throw new BuildException("Test results could not be" 
+                            + " formatted.", Location, ex);
                     } finally {
                         // make sure temp file with test results is removed
                         File.Delete(xmlResultFile);
                     }
 
                     if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
-                        throw new BuildException("Tests Failed");
+                        throw new BuildException("Tests Failed", Location);
                     }
                 }
             }
