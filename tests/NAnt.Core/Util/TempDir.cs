@@ -51,36 +51,42 @@ namespace Tests.NAnt.Core.Util {
             bool bError = false;
             try {
                 if (Directory.Exists(path)) {
+                    // ensure directorty is writable
+                    File.SetAttributes(path, FileAttributes.Normal);
+                    // ensure all files and subdirectories are writable
                     SetAllFileAttributesToNormal(path);
                     string[] directoryNames = Directory.GetDirectories(path);
-                    foreach(string directoryName in directoryNames) 
+                    foreach (string directoryName in directoryNames) {
                         Delete(directoryName);
+                    }
                     string[] fileNames = Directory.GetFiles(path);
-                    foreach(string fileName in fileNames) 
+                    foreach (string fileName in fileNames) {
                         File.Delete(fileName);
+                    }
                     Directory.Delete(path, true);
                 }
-            }
-            catch(Exception e) {
+            } catch(Exception ex) {
                 bError = true;
-                throw new AssertionException("Unable to cleanup '" + path + "'.  " + e.Message, e);
-            }
-            finally {
+                throw new AssertionException("Unable to cleanup '" + path + "'.  " + ex.Message, ex);
+            } finally {
                 if (!bError && Directory.Exists(path)) {
                     throw new AssertionException("TempDir: "+ path + " still exists.");
                 }
             }
         }
 
-        /// <summary>Recurse over all files in the directory setting each file's attributes to Normal.</summary>
+        /// <summary>
+        /// Recurse over all files in the directory setting each file's attributes 
+        /// to <see cref="FileAttributes.Normal" />.
+        /// </summary>
         private static void SetAllFileAttributesToNormal(string path) {
             string[] fileNames = Directory.GetFiles(path);
-            foreach(string fileName in fileNames) {
+            foreach (string fileName in fileNames) {
                 File.SetAttributes(fileName, FileAttributes.Normal);
             }
 
             string[] directoryNames = Directory.GetDirectories(path);
-            foreach(string directoryName in directoryNames) {
+            foreach (string directoryName in directoryNames) {
                 File.SetAttributes(directoryName, FileAttributes.Normal);
                 SetAllFileAttributesToNormal(directoryName);
             }
