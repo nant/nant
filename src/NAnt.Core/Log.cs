@@ -428,7 +428,7 @@ namespace NAnt.Core {
                         // output nested exceptions
                         Exception nestedException = error.InnerException;
                         while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                            OutputMessage(Level.Error, " " + error.InnerException.Message, indentationLevel);
+                            OutputMessage(Level.Error, " " + nestedException.Message, indentationLevel);
                             nestedException = nestedException.InnerException;
                         }
                     }
