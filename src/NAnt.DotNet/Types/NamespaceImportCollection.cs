@@ -20,10 +20,14 @@
 using System;
 using System.Collections;
 
+using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
-namespace NAnt.Core.Types {
+namespace NAnt.DotNet.Types {
+    /// <summary>
+    /// Base class for collections that needs to be globally referencable.
+    /// </summary>
     public abstract class DataTypeCollectionBase : DataTypeBase, ICollection {
         #region Protected Instance Constructors
 
@@ -140,6 +144,14 @@ namespace NAnt.Core.Types {
 
         #region Protected Instance Properties
 
+        /// <summary>
+        /// Gets the list of elements contained in the 
+        /// <see cref="DataTypeCollectionBase" /> instance.
+        /// </summary>
+        /// <value>
+        /// An <see cref="ArrayList" /> containing the elements of the 
+        /// collection.
+        /// </value>
         protected ArrayList List {
             get { return _list; }
         }
@@ -158,6 +170,11 @@ namespace NAnt.Core.Types {
 
         #region Private Instance Methods
 
+        /// <summary>
+        /// Used by methods that take <see cref="object" /> instances as argument
+        /// to verify whether the instance is valid for the collection class.
+        /// </summary>
+        /// <param name="value">The instance to verify.</param>
         protected void ValidateType(object value) {
             if (value == null) {
                 throw new Exception();
@@ -170,6 +187,11 @@ namespace NAnt.Core.Types {
             }
         }
 
+        /// <summary>
+        /// Checks whether the specified index is within the range of this
+        /// collection.
+        /// </summary>
+        /// <param name="index">The index to check.</param>
         protected void RangeCheck(int index) {
             if (index < 0 || Count <= index) {
                 throw new Exception();

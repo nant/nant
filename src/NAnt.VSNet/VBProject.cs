@@ -25,8 +25,9 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
+
+using NAnt.DotNet.Types;
 
 using NAnt.VSNet.Tasks;
 

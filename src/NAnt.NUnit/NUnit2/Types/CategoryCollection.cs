@@ -24,6 +24,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.DotNet.Types;
+
 namespace NAnt.NUnit2.Types {
     /// <summary>
     /// Contains a collection of <see cref="Category" /> items.
