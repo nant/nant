@@ -6,7 +6,6 @@
             * build.debug           - (true|false) debug build?
             * current.build.defines - framework-specific build defines
             * nant.console.name     - assembly name for NAnt Console
-            * sourceconfig          - name of the application configuration file to use for launching NAnt
     -->
     <target name="build">
         <!-- build NAnt.Console -->
@@ -20,6 +19,6 @@
                 <includes name="log4net.dll"/>
             </references>
         </csc>
-        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="${sourceconfig}" />
+        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="NAnt.Console.exe.config" />
     </target>
 </project>
