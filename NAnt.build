@@ -109,6 +109,7 @@
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\css\NAntDoc.css,Documenter.css.NAntDoc.css" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\index.html,Documenter.html.index.html" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\html\NAntTaskRef.html,Documenter.html.NAntTaskRef.html" />
+            <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\tags.xslt,Documenter.xslt.tags.xslt" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\task-doc.xslt,Documenter.xslt.task-doc.xslt" />
             <arg value="/resource:${src.dir}\${project.FormalName}.Documenter\xslt\task-index.xslt,Documenter.xslt.task-index.xslt" />
         </csc>

@@ -19,22 +19,18 @@
 
 	<h3>0.8</h3>
 	<ul>
-		<li>user manual and tutorial</li>
-		<li>auto-generate user help for tasks - Ian</li>
-		<li>add if and unless attributes to targets - Gerry</li>
+		<li>[buildinfo] task that outputs tool and OS version info to help reproduce configuration problems in the future - useful for nightly builds</li>
+		<li>finish documenting all tasks (copy Ant docs when possible)</li>
+		<li>add, verbose, if and unless attributes to all tasks - Gerry</li>
 		<li>change default properties to match ant - see Properties topic in help file - Gerry</li>
 		<li>add named filesets</li>
-		<li>nunit tests for core classes</li>
-		<li>code xml docs for all non private members</li>
-		<li>developer docs (code conventions, high level design)</li>
 		<li>ftp task</li>
 		<li>cvs task</li>
-		<li>scp (secure copy protocol) task - maybe just show how it can be done using the exec task</li>
-		<li>standard input support for tasks that require input (ie, passwords when copying files via scp to SourceForge)</li>
 		<li>get MailTest added to test suite</li>
 		<li>create two test suites - one that gets run during each build and one that runs the internet based tasks which should only run during intergration</li>
+		<li>come up with a plan that will scale to seperate tasks into different assemblies (keep them in the Extra's folder?)</li>
+		<li>think about having seperate file sets and directory sets</li>
 		<li>think about how SlingShot can work with nant</li>
-		<li>autoload *.Tasks.dll assemblies that are in the same folder as the Nant.Core.dll</li>
 		<li>think about droping the SourceForge from the namespace identifier.<br />Reason: most projects seem to be going that way and SourceForge really isn't the compnay that wrote it.</li>
 		<li>think about renaming FileSet xml elements: includes => include, excludes => exclude, name => pattern.<br />Reason: name is vague in its purpose, includes and excludes are misleading as they should be singular</li>
 		<li>think about using camelCase for all Xml elements in the build file, eg, basedir would become baseDir.<br />Reason: All .NET xml files are camelCase.</li>
@@ -42,6 +38,9 @@
 
 	<h3>1.0</h3>
 	<ul>
+		<li>ensure nunit tests for all core classes</li>
+		<li>ensure code xml docs for all non private members</li>
+		<li>developer docs (code conventions, high level design)</li>
 		<li>official release</li>
 		<li>post announcment</li>
 	</ul>
@@ -49,7 +48,9 @@
 	<h3>1.1</h3>
 	<ul>
 		<li>additional optional but useful tasks (sql, grep)</li>
-		<li>continous intergration web site project - a web server that watches the source code repository for changes and does a rebuild on a commit, logs the results into database, provides interface to query build logs, sends email, etc...</li>
+		<li>scp (secure copy protocol) task - maybe just show how it can be done using the exec task</li>
+		<li>standard input support for tasks that require input (ie, passwords when copying files via scp to SourceForge)</li>
+		<li>nant build server - continous intergration web site project - a web server that watches the source code repository for changes and does a rebuild on a commit, logs the results into database, provides interface to query build logs, sends email, etc...</li>
 	</ul>
 </body>
 
