@@ -87,6 +87,11 @@
                 <includes name="ICSharpCode.SharpCvsLib.dll" />
             </fileset>
         </copy>
+        <copy todir="${build.dir}/bin">
+            <fileset basedir="bin">
+                <includes name="cvs.exe" />
+            </fileset>
+        </copy>
         <!-- copy framework-specific libraries -->
         <copy todir="${build.dir}/bin">
             <fileset basedir="${lib.dir}">
