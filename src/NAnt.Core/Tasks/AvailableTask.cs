@@ -83,7 +83,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("resource", Required=true)]
         public string Resource {
             get { return _resource; }
-            set {_resource = value; }
+            set { _resource = value; }
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("property", Required=true)]
         public string PropertyName {
             get { return _propertyName; }
-            set {_propertyName = value; }
+            set { _propertyName = value; }
         }
 
         #endregion Public Instance Properties
@@ -180,8 +180,15 @@ namespace NAnt.Core.Tasks {
         /// <c>true</c> when the file exists; otherwise, <c>false</c>.
         /// </returns>
         private bool CheckFile() {
-            FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
-            return fileInfo.Exists;
+            try {
+                FileInfo fileInfo = new FileInfo(Project.GetFullPath(Resource));
+                return fileInfo.Exists;
+            } catch (ArgumentException ex) {
+                throw new BuildException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Unable to determine whether file '{0}' is available.",
+                    Resource), Location, ex);
+            }
         }
 
         /// <summary>
@@ -192,8 +199,15 @@ namespace NAnt.Core.Tasks {
         /// <c>true</c> when the directory exists; otherwise, <c>false</c>.
         /// </returns>
         private bool CheckDirectory() {
-            DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
-            return dirInfo.Exists;
+            try {
+                DirectoryInfo dirInfo = new DirectoryInfo(Project.GetFullPath(Resource));
+                return dirInfo.Exists;
+            } catch (ArgumentException ex) {
+                throw new BuildException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Unable to determine whether directory '{0}' is available.",
+                    Resource), Location, ex);
+            }
         }
 
         /// <summary>
