@@ -230,7 +230,16 @@
         <xsl:call-template name="get-a-href">
             <xsl:with-param name="cref" select="@cref" />
         </xsl:call-template>
-        <
+        <xsl:choose>
+            <!-- if this is a task add suffix task-->
+            <xsl:when test="boolean(NAntUtil:IsTask(@cref))">
+                <xsl:text> task</xsl:text>
+            </xsl:when>
+            <!-- if this is a functionset add suffix functions -->
+            <xsl:when test="boolean(NAntUtil:IsFunctionSet(@cref))">
+                <xsl:text> functions</xsl:text>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 
     <!-- get-a-href -->
@@ -244,13 +253,7 @@
                     <xsl:when test="boolean(NAntUtil:IsTask($cref))">
                         <code>
                             <xsl:value-of select="string(NAntUtil:GetTaskName($cref))" />
-                        </code><xsl:text> task</xsl:text>
-                    </xsl:when>
-                    <!-- if this is a functionset add suffix functions -->
-                    <xsl:when test="boolean(NAntUtil:IsFunctionSet($cref))">
-                        <code>
-                            <xsl:value-of select="string(NAntUtil:GetName($cref))" />
-                        </code><xsl:text> functions</xsl:text>
+                        </code>
                     </xsl:when>
                     <xsl:otherwise>
                         <code>
@@ -273,14 +276,6 @@
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:element>
-                <!-- if this is a task add suffix task-->
-                <xsl:if test="boolean(NAntUtil:IsTask($cref))">
-                    <xsl:text> task</xsl:text>
-                </xsl:if>
-                <!-- if this is a funcionset add suffix functions -->
-                <xsl:if test="boolean(NAntUtil:IsFunctionSet($cref))">
-                    <xsl:text> functions</xsl:text>
-                </xsl:if>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

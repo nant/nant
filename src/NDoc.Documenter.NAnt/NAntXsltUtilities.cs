@@ -465,6 +465,127 @@ namespace NDoc.Documenter.NAnt {
 
         #endregion Public Instance Methods
 
+        #region Internal Instance Methods
+
+        /// <summary>
+        /// Gets the BuildElementAttribute name for the "class/property" XmlNode
+        /// </summary>
+        /// <param name="propertyNode">The XmlNode to look for a name.</param>
+        /// <returns>The BuildElementAttrbute.Name if the attribute exists for the node.</returns>
+        internal string GetElementNameForProperty(XmlNode propertyNode) {
+            // check whether property is a task attribute
+            XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (taskAttributeNode != null) {
+                return taskAttributeNode.Value;
+            }
+
+            // check whether property is a element array
+            XmlAttribute elementArrayNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementArrayNode != null) {
+                return elementArrayNode.Value;
+            }
+
+            // check whether property is a element collection
+            XmlAttribute elementCollectionNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (elementCollectionNode != null) {
+                return elementCollectionNode.Value;
+            }
+
+            // check whether property is a FileSet
+            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (fileSetNode != null) {
+                return fileSetNode.Value;
+            }
+
+            // check whether property is an xml element
+            XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (buildElementNode != null) {
+                return buildElementNode.Value;
+            }
+
+            // check whether property is a Framework configurable attribute
+            XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+            if (frameworkConfigAttributeNode != null) {
+                return frameworkConfigAttributeNode.Value;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the filename to use for the given function XmlElement
+        /// </summary>
+        /// <param name="typeNode">The "method" element to find the filename for.</param>
+        internal string GetFileNameForFunction(XmlNode functionNode) {
+            string name = "";
+            XmlNode n = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
+            if (n != null && n.InnerText != "") {
+                name += n.InnerText + ".";
+            }
+            n = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
+            if (n != null && n.InnerText != "") {
+                name += n.InnerText;
+            } else {
+                name += functionNode.Attributes["name"].Value;
+            }
+            return "functions/" + UrlEncode(name) + ".html";
+        }
+
+        /// <summary>
+        /// Returns the filename to use for the given class XmlNode
+        /// </summary>
+        /// <param name="typeNode">The "Class" element to find the filename for.</param>
+        /// <returns>
+        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
+        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
+        /// </returns>
+        internal string GetFileNameForType(XmlNode typeNode) {
+            if (typeNode == null) {
+                return null;
+            }
+
+            string partialURL = null;
+
+            // if type is task use name set using TaskNameAttribute
+            string taskName = GetTaskNameForType(typeNode);
+            if (taskName != null) {
+                return "tasks/" + UrlEncode(taskName) + ".html";
+            }
+
+            // check if type is an enum
+            if (typeNode.LocalName == "enumeration") {
+                return "enums/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+            }
+
+            // check if type derives from NAnt.Core.DataTypeBase
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
+                // make sure the type has a ElementName assigned to it
+                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (elementNameAttribute != null) {
+                    return "types/" + UrlEncode(elementNameAttribute.Value) + ".html";
+                }
+            }
+
+            // check if type derives from NAnt.Core.Filters.Filter
+            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Filter).FullName + "']") != null) {
+                // make sure the type has a ElementName assigned to it
+                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
+                if (elementNameAttribute != null) {
+                    return "filters/" + UrlEncode(elementNameAttribute.Value) + ".html";
+                }
+            }
+
+            // check if type is a functionset
+            partialURL = GetFileNameForFunctionSet(typeNode);
+            if (partialURL != null) {
+                return partialURL;
+            }
+
+            return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+        }
+
+        #endregion Internal Instance Methods
+
         #region Private Instance Methods
 
         private string GetElementNameForType(string id) {
@@ -534,10 +655,6 @@ namespace NDoc.Documenter.NAnt {
             return SdkDocBaseUrl + crefType.Replace(".", "") + "Class" + crefMember + "Topic" + SdkDocExt;
         }
 
-        #endregion Private Instance Methods
-
-        #region Internal Static Methods
-
         /// <summary>
         /// Gets the TaskNameAttrbute name for the "class" XmlNode
         /// </summary>
@@ -546,7 +663,7 @@ namespace NDoc.Documenter.NAnt {
         /// <remarks>
         /// The class is also checked to make sure it is derived from <see cref="Task" />
         /// </remarks>
-        internal static string GetTaskNameForType(XmlNode typeNode) {
+        private string GetTaskNameForType(XmlNode typeNode) {
             if (typeNode == null) {
                 return null;
             }
@@ -564,51 +681,6 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the BuildElementAttribute name for the "class/property" XmlNode
-        /// </summary>
-        /// <param name="propertyNode">The XmlNode to look for a name.</param>
-        /// <returns>The BuildElementAttrbute.Name if the attribute exists for the node.</returns>
-        internal static string GetElementNameForProperty(XmlNode propertyNode) {
-            // check whether property is a task attribute
-            XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (taskAttributeNode != null) {
-                return taskAttributeNode.Value;
-            }
-
-            // check whether property is a element array
-            XmlAttribute elementArrayNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementArrayAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementArrayNode != null) {
-                return elementArrayNode.Value;
-            }
-
-            // check whether property is a element collection
-            XmlAttribute elementCollectionNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementCollectionAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (elementCollectionNode != null) {
-                return elementCollectionNode.Value;
-            }
-
-            // check whether property is a FileSet
-            XmlAttribute fileSetNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FileSetAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (fileSetNode != null) {
-                return fileSetNode.Value;
-            }
-
-            // check whether property is an xml element
-            XmlAttribute buildElementNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(BuildElementAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (buildElementNode != null) {
-                return buildElementNode.Value;
-            }
-
-            // check whether property is a Framework configurable attribute
-            XmlAttribute frameworkConfigAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(FrameworkConfigurableAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-            if (frameworkConfigAttributeNode != null) {
-                return frameworkConfigAttributeNode.Value;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Gets the function name for methods that represent a NAtn function.
         /// </summary>
         /// <param name="methodNode">The XmlNode to look for a name.</param>
@@ -616,7 +688,7 @@ namespace NDoc.Documenter.NAnt {
         /// The function name if <paramref name="methodNode" /> represent a
         /// NAnt function.
         /// </returns>
-        internal static string GetElementNameForMethod(XmlNode methodNode) {
+        private string GetElementNameForMethod(XmlNode methodNode) {
             XmlNode functionNameAttribute = methodNode.SelectSingleNode("attribute[@name='" + typeof(FunctionAttribute).FullName + "']/property[@name='Name']/@value");
             if (functionNameAttribute == null) {
                 return methodNode.Attributes["name"].Value;
@@ -631,90 +703,22 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Returns the filename to use for the given class XmlNode
-        /// </summary>
-        /// <param name="typeNode">The "Class" element to find the filename for.</param>
-        /// <returns>
-        ///     <para>The relative path+filename where this type is stored in the documentation.</para>
-        ///     <para>Note: Types default to the 'elements' dir if they don't go into 'tasks' or 'types' directories</para>
-        /// </returns>
-        internal static string GetFileNameForType(XmlNode typeNode) {
-            if (typeNode == null) {
-                return null;
-            }
-
-            string partialURL = null;
-
-            // if type is task use name set using TaskNameAttribute
-            string taskName = GetTaskNameForType(typeNode);
-            if (taskName != null) {
-                return "tasks/" + UrlEncode(taskName) + ".html";
-            }
-
-            // check if type is an enum
-            if (typeNode.LocalName == "enumeration") {
-                return "enums/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
-            }
-
-            // check if type derives from NAnt.Core.DataTypeBase
-            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(DataTypeBase).FullName + "']") != null) {
-                // make sure the type has a ElementName assigned to it
-                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-                if (elementNameAttribute != null) {
-                    return "types/" + UrlEncode(elementNameAttribute.Value) + ".html";
-                }
-            }
-
-            // check if type derives from NAnt.Core.Filters.Filter
-            if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Filter).FullName + "']") != null) {
-                // make sure the type has a ElementName assigned to it
-                XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
-                if (elementNameAttribute != null) {
-                    return "filters/" + UrlEncode(elementNameAttribute.Value) + ".html";
-                }
-            }
-
-            // check if type is a functionset
-            partialURL = GetFileNameForFunctionSet(typeNode);
-            if (partialURL != null) {
-                return partialURL;
-            }
-
-            return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
-        }
-
-        /// <summary>
         /// Returns a partial URL to link to the functionset in the function index.
         /// </summary>
         /// <param name="typeNode">The "Class" element to find the filename for.</param>
-        internal static string GetFileNameForFunctionSet(XmlNode functionNode) {
-            XmlAttribute categoryValueAttribute = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value") as XmlAttribute;
+        private string GetFileNameForFunctionSet(XmlNode functionNode) {
+            XmlAttribute categoryValueAttribute = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value") as XmlAttribute;
             if (categoryValueAttribute != null && categoryValueAttribute.Value != "") {
                 return "functions/index.html#" + UrlEncode(categoryValueAttribute.Value);
             }
 
-            return null;           
+            return null;
         }
 
-        /// <summary>
-        /// Returns the filename to use for the given function XmlElement
-        /// </summary>
-        /// <param name="typeNode">The "method" element to find the filename for.</param>
-        internal static string GetFileNameForFunction(XmlNode functionNode) {
-            string name = "";
-            XmlNode n = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
-            if (n != null && n.InnerText != "") {
-                name += n.InnerText + ".";
-            }
-            n = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
-            if (n != null && n.InnerText != "") {
-                name += n.InnerText;
-            } else {
-                name += functionNode.Attributes["name"].Value;
-            }
-            return "functions/" + UrlEncode(name) + ".html";
-        }
-        
+        #endregion Private Instance Methods
+
+        #region Internal Static Methods
+
         internal static NAntXsltUtilities CreateInstance(XmlDocument doc, NAntDocumenterConfig config){
             // just in case... but we should never see this happen.
             lock (Instances) {

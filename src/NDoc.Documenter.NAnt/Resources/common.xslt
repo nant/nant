@@ -131,6 +131,10 @@
 					    <xsl:call-template name="get-a-href">
 						    <xsl:with-param name="cref" select="@cref" />
 					    </xsl:call-template>
+                        <!-- if this is a functionset add suffix Functions -->
+                        <xsl:if test="boolean(NAntUtil:IsFunctionSet(@cref))">
+                            <xsl:text> Functions</xsl:text>
+                        </xsl:if>
 				    </xsl:when>
 				    <xsl:when test="@href">
 					    <a href="{@href}">

@@ -280,7 +280,7 @@ namespace NDoc.Documenter.NAnt {
                 throw new ArgumentNullException("typeNode");
             }
 
-            if (docType == ElementDocType.None) {
+            if (docType == ElementDocType.None || docType == ElementDocType.FunctionSet) {
                 // we don't need to document this type
                 return;
             }
@@ -291,9 +291,9 @@ namespace NDoc.Documenter.NAnt {
                 return;
             }
 
-            string filename = NAntXsltUtilities.GetFileNameForType(typeNode);
+            string filename = utilities.GetFileNameForType(typeNode);
             if (filename == null) {
-                // we don't have to document this type
+                // we should never get here, but just in case ...
                 return;
             }
 
@@ -339,7 +339,7 @@ namespace NDoc.Documenter.NAnt {
             // (This is a restriction of NAnt.Core.Attributes.BuildElementAttribute)
             foreach (XmlNode propertyNode in typeNode.SelectNodes("property[attribute]")) {
                 //get the xml element
-                string elementName = NAntXsltUtilities.GetElementNameForProperty(propertyNode);
+                string elementName = utilities.GetElementNameForProperty(propertyNode);
                 if (elementName != null) {
                     // try to get attribute info if it is an array/collection.
                     // strip the array brakets "[]" to get the type
@@ -397,7 +397,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             string methodID = functionElement.GetAttribute("id");
-            string filename = NAntXsltUtilities.GetFileNameForFunction(functionElement);
+            string filename = utilities.GetFileNameForFunction(functionElement);
 
             XsltArgumentList arguments = CreateXsltArgumentList();
 
