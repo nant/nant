@@ -22,10 +22,17 @@
 
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">
     <!-- match attribute by names -->
-    <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute']" mode="NestedElements">
+    <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute' and ancestor::property]" mode="NestedElements">
         <xsl:comment>Element</xsl:comment>
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam" select="../@type" />
+        </xsl:call-template>
+    </xsl:template>
+
+    <xsl:template match="attribute[@name = 'NAnt.Core.Attributes.BuildElementAttribute' and ancestor::method]" mode="NestedElements">
+        <xsl:comment>Element</xsl:comment>
+        <xsl:call-template name="NestedElement">
+            <xsl:with-param name="elementTypeParam" select="../parameter[position()=1]/@type" />
         </xsl:call-template>
     </xsl:template>
     

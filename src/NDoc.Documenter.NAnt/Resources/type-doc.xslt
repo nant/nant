@@ -171,10 +171,11 @@
         <xsl:variable name="arrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" />
         <xsl:variable name="colls" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute' ]" />
         <xsl:variable name="elements" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]" />
+        <xsl:variable name="orderedElements" select="method[attribute/@name = 'NAnt.Core.Attributes.BuildElementAttribute' ]" />
 
-        <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0">
+        <xsl:if test="count($arrays) != 0 or count($elements) != 0 or count($colls) != 0 or count($orderedElements) != 0">
             <h3>Nested Elements:</h3>
-            <xsl:apply-templates select="property/attribute" mode="NestedElements">
+            <xsl:apply-templates select="child::*/attribute" mode="NestedElements">
                 <xsl:sort select="property[@name='Required' and @value='True']" />
             </xsl:apply-templates>
         </xsl:if>
@@ -190,6 +191,28 @@
 
     <!-- returns the summary doc string for a given class property (called from the property templates )-->
     <xsl:template match="class/property" mode="docstring">
+        <xsl:choose>
+            <xsl:when test="@declaringType">
+                <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']" />
+                <xsl:if test="count($ObsoleteAttribute) > 0">
+                    <i>Deprecated.</i>
+                    <xsl:text> </xsl:text>
+                </xsl:if>
+                <xsl:apply-templates select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/documentation/summary" mode="slashdoc" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
+                <xsl:if test="count($ObsoleteAttribute) > 0">
+                    <i>Deprecated.</i>
+                    <xsl:text> </xsl:text>
+                </xsl:if>
+                <xsl:apply-templates select="documentation/summary" mode="slashdoc" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
+    <!-- returns the summary doc string for a given class method -->
+    <xsl:template match="class/method" mode="docstring">
         <xsl:choose>
             <xsl:when test="@declaringType">
                 <xsl:variable name="ObsoleteAttribute" select="//class[@id = concat('T:', current()/@declaringType)]/*[@name = current()/@name]/attribute[@name = 'System.ObsoleteAttribute']" />
