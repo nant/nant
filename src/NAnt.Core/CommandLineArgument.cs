@@ -31,18 +31,18 @@ namespace SourceForge.NAnt {
         #region Public Instance Constructors
 
         public CommandLineArgument(CommandLineArgumentAttribute attribute, PropertyInfo propertyInfo) {
-            this._attribute = attribute;
-            this._propertyInfo = propertyInfo;
-            this._seenValue = false;
+            _attribute = attribute;
+            _propertyInfo = propertyInfo;
+            _seenValue = false;
 
-            this._elementType = GetElementType(propertyInfo);
-            this._argumentType = GetArgumentType(attribute, propertyInfo);
+            _elementType = GetElementType(propertyInfo);
+            _argumentType = GetArgumentType(attribute, propertyInfo);
            
             if (IsCollection) {
-                this._collectionValues = new ArrayList();
+                _collectionValues = new ArrayList();
             }
             
-            Debug.Assert(this.LongName != null && this.LongName.Length > 0);
+            Debug.Assert(LongName != null && LongName.Length > 0);
             Debug.Assert(!IsCollection || AllowMultiple, "Collection arguments must have allow multiple");
             Debug.Assert(!Unique || IsCollection, "Unique only applicable to collection arguments");
         }
@@ -60,7 +60,7 @@ namespace SourceForge.NAnt {
         /// this property will returns the underlying type of that collection.
         /// </remarks>
         public Type ValueType {
-            get { return this.IsCollection ? this._elementType : this.Type; }
+            get { return IsCollection ? _elementType : Type; }
         }
         
         /// <summary>
@@ -69,10 +69,10 @@ namespace SourceForge.NAnt {
         /// <value>The long name of the argument.</value>
         public string LongName {
             get { 
-                if (this._attribute != null && this._attribute.Name != null) {
-                    return this._attribute.Name;
+                if (_attribute != null && _attribute.Name != null) {
+                    return _attribute.Name;
                 } else {
-                    return this._propertyInfo.Name;
+                    return _propertyInfo.Name;
                 }
             }
         }
@@ -83,8 +83,8 @@ namespace SourceForge.NAnt {
         /// <value>The short name of the argument.</value>
         public string ShortName {
             get { 
-                if (this._attribute != null) {
-                    return this._attribute.ShortName;
+                if (_attribute != null) {
+                    return _attribute.ShortName;
                 } else {
                     return null;
                 }
@@ -97,8 +97,8 @@ namespace SourceForge.NAnt {
         /// <value>The description of the argument.</value>
         public string Description {
             get { 
-                if (this._attribute != null) {
-                    return this._attribute.Description;
+                if (_attribute != null) {
+                    return _attribute.Description;
                 } else {
                     return null;
                 }
@@ -112,7 +112,7 @@ namespace SourceForge.NAnt {
         /// <c>true</c> if the argument is required; otherwise, <c>false</c>.
         /// </value>
         public bool IsRequired {
-            get { return 0 != (this._argumentType & CommandLineArgumentType.Required); }
+            get { return 0 != (_argumentType & CommandLineArgumentType.Required); }
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace SourceForge.NAnt {
         /// found; otherwise, <c>false</c>.
         /// </value>
         public bool SeenValue {
-            get { return this._seenValue; }
+            get { return _seenValue; }
         }
         
         /// <summary>
@@ -136,7 +136,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool AllowMultiple {
-            get { return IsCollection && (0 != (this._argumentType & CommandLineArgumentType.Multiple)); }
+            get { return IsCollection && (0 != (_argumentType & CommandLineArgumentType.Multiple)); }
         }
         
         /// <summary>
@@ -148,7 +148,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool Unique {
-            get { return 0 != (this._argumentType & CommandLineArgumentType.Unique); }
+            get { return 0 != (_argumentType & CommandLineArgumentType.Unique); }
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace SourceForge.NAnt {
         /// applied.
         /// </value>
         public Type Type {
-            get { return this._propertyInfo.PropertyType; }
+            get { return _propertyInfo.PropertyType; }
         }
         
         /// <summary>
@@ -180,7 +180,7 @@ namespace SourceForge.NAnt {
         /// <c>true</c> if the argument is the default argument; otherwise, <c>false</c>.
         /// </value>
         public bool IsDefault {
-            get { return (this._attribute != null && this._attribute is DefaultCommandLineArgumentAttribute); }
+            get { return (_attribute != null && _attribute is DefaultCommandLineArgumentAttribute); }
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace SourceForge.NAnt {
         /// otherwise, <c>false</c>.
         /// </value>
         public bool IsExclusive {
-            get { return 0 != (this._argumentType & CommandLineArgumentType.Exclusive); }
+            get { return 0 != (_argumentType & CommandLineArgumentType.Exclusive); }
         }
 
         #endregion Public Instance Properties
@@ -205,14 +205,14 @@ namespace SourceForge.NAnt {
         /// <param name="destination">The object on which the value of the argument should be set.</param>
         /// <exception cref="CommandLineArgumentException">The argument is required and no value was specified.</exception>
         public void Finish(object destination) {
-            if (this.IsRequired && !this.SeenValue) {
-                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Missing required argument '-{0}'.", this.LongName));
+            if (IsRequired && !SeenValue) {
+                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Missing required argument '-{0}'.", LongName));
             }
 
-            if (this.IsCollection) {
-                this._propertyInfo.SetValue(destination, this._collectionValues.ToArray(this._elementType), BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+            if (IsCollection) {
+                _propertyInfo.SetValue(destination, _collectionValues.ToArray(_elementType), BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
             } else {
-                this._propertyInfo.SetValue(destination, this._argumentValue, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
+                _propertyInfo.SetValue(destination, _argumentValue, BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
             }
         }
 
@@ -226,22 +226,22 @@ namespace SourceForge.NAnt {
         /// <para>Invalid value.</para>
         /// </exception>
         public void SetValue(string value) {
-            if (this.SeenValue && !AllowMultiple) {
-                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate argument '-{0}'.", this.LongName));
+            if (SeenValue && !AllowMultiple) {
+                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate argument '-{0}'.", LongName));
             }
 
-            this._seenValue = true;
+            _seenValue = true;
             
-            object newValue = ParseValue(this.ValueType, value);
+            object newValue = ParseValue(ValueType, value);
 
-            if (this.IsCollection) {
-                if (this.Unique && this._collectionValues.Contains(newValue)) {
-                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate '-{0}' argument '{1}'.", this.LongName, value));
+            if (IsCollection) {
+                if (Unique && _collectionValues.Contains(newValue)) {
+                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Duplicate '-{0}' argument '{1}'.", LongName, value));
                 } else {
-                    this._collectionValues.Add(newValue);
+                    _collectionValues.Add(newValue);
                 }
             } else {
-                this._argumentValue = newValue;
+                _argumentValue = newValue;
             }
         }
 
@@ -296,7 +296,7 @@ namespace SourceForge.NAnt {
                 }
             }
                             
-            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for option '-{1}'.", stringData, this.LongName));
+            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Invalid value '{0}' for option '-{1}'.", stringData, LongName));
         }
 
         #endregion Private Instance Methods

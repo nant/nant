@@ -33,7 +33,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="argumentType">Specifies the checking to be done on the argument.</param>
         public CommandLineArgumentAttribute(CommandLineArgumentType argumentType) {
-            this._argumentType = argumentType;
+            _argumentType = argumentType;
         }
 
         #endregion Public Instance Constructors
@@ -45,7 +45,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <value>The checking that should be done on the argument.</value>
         public CommandLineArgumentType Type {
-            get { return this._argumentType; }
+            get { return _argumentType; }
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <value>The long name of the argument.</value>
         public string Name {
-            get { return this._name; }
-            set { this._name = value; }
+            get { return _name; }
+            set { _name = value; }
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <value>The short name of the argument.</value>
         public string ShortName {
-            get { return this._shortName; }
-            set { this._shortName = value; }
+            get { return _shortName; }
+            set { _shortName = value; }
         }
 
         /// <summary>
@@ -71,8 +71,8 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <value>The description of the argument.</value>
         public string Description {
-            get { return this._description; }
-            set { this._description = value; }
+            get { return _description; }
+            set { _description = value; }
         }
 
         #endregion Public Instance Properties

@@ -33,8 +33,8 @@ namespace SourceForge.NAnt {
         /// <value>The buildfile that should be executed.</value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name="buildfile", ShortName="file",  Description="use given buildfile")]
         public FileInfo BuildFile {
-            get { return this._buildFile; }
-            set { this._buildFile = value; }
+            get { return _buildFile; }
+            set { _buildFile = value; }
         }
 
         /// <summary>
@@ -46,8 +46,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name = "verbose", ShortName="v", Description = "displays more information during build process")]
         public bool Verbose {
-            get { return this._verbose; }
-            set { this._verbose = value; }
+            get { return _verbose; }
+            set { _verbose = value; }
         }
 
         /// <summary>
@@ -60,8 +60,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name = "find", Description = "search parent directories for buildfile")]
         public bool FindInParent {
-            get { return this._findInParent; }
-            set { this._findInParent = value; }
+            get { return _findInParent; }
+            set { _findInParent = value; }
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name = "indent", Description = "number of characters to indent build output")]
         public int Indent {
-            get { return this._indent; }
-            set { this._indent = value; }
+            get { return _indent; }
+            set { _indent = value; }
         }
 
         /// <summary>
@@ -85,8 +85,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.MultipleUnique, Name = "D", Description = "use value for given property")]
         public string[] Properties {
-            get { return this._properties; }
-            set { this._properties = value; }
+            get { return _properties; }
+            set { _properties = value; }
         }
 
         /// <summary>
@@ -99,8 +99,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name="logger", Description="use given type as logger")]
         public string LoggerType {
-            get { return this._loggerType; }
-            set { this._loggerType = value; }
+            get { return _loggerType; }
+            set { _loggerType = value; }
         }
 
         /// <summary>
@@ -111,8 +111,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name="logfile", ShortName="l", Description="use value as name of log output file")]
         public FileInfo LogFile {
-            get { return this._logFile; }
-            set { this._logFile = value; }
+            get { return _logFile; }
+            set { _logFile = value; }
         }
 
         /// <summary>
@@ -124,8 +124,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name = "projecthelp", Description = "prints project help information")]
         public bool ShowProjectHelp {
-            get { return this._showProjectHelp; }
-            set { this._showProjectHelp = value; }
+            get { return _showProjectHelp; }
+            set { _showProjectHelp = value; }
         }
 
         /// <summary>
@@ -137,8 +137,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.AtMostOnce, Name = "nologo", Description = "surpresses display of the logo banner")]
         public bool NoLogo {
-            get { return this._noLogo; }
-            set { this._noLogo = value; }
+            get { return _noLogo; }
+            set { _noLogo = value; }
         }
 
         /// <summary>
@@ -150,8 +150,8 @@ namespace SourceForge.NAnt {
         /// </value>
         [CommandLineArgument(CommandLineArgumentType.Exclusive, Name = "help", ShortName = "h", Description = "prints this message")]
         public bool ShowHelp {
-            get { return this._showHelp; }
-            set { this._showHelp = value; }
+            get { return _showHelp; }
+            set { _showHelp = value; }
         }
 
         /// <summary>
@@ -161,10 +161,10 @@ namespace SourceForge.NAnt {
         /// <value>
         /// The list of targets that should be executed.
         /// </value>
-        [DefaultCommandLineArgument(CommandLineArgumentType.MultipleUnique, Name="target")]
+        [CommandLineArgument(CommandLineArgumentType.MultipleUnique, Name="target")]
         public string[] Targets {
-            get { return this._targets; }
-            set { this._targets = value; }
+            get { return _targets; }
+            set { _targets = value; }
         }
 
         #endregion Public Instance Properties

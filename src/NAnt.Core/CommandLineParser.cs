@@ -43,21 +43,21 @@ namespace SourceForge.NAnt {
                 throw new ArgumentNullException("argumentSpecification");
             }
 
-            this._argumentCollection = new CommandLineArgumentCollection();
+            _argumentCollection = new CommandLineArgumentCollection();
 
             foreach (PropertyInfo propertyInfo in argumentSpecification.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 if (propertyInfo.CanWrite) {
                     CommandLineArgumentAttribute attribute = GetCommandLineAttribute(propertyInfo);
                     if (attribute is DefaultCommandLineArgumentAttribute) {
-                        Debug.Assert(this._defaultArgument == null);
-                        this._defaultArgument = new CommandLineArgument(attribute, propertyInfo);
+                        Debug.Assert(_defaultArgument == null);
+                        _defaultArgument = new CommandLineArgument(attribute, propertyInfo);
                     } else if (attribute != null) {
-                        this._argumentCollection.Add(new CommandLineArgument(attribute, propertyInfo));
+                        _argumentCollection.Add(new CommandLineArgument(attribute, propertyInfo));
                     }
                 }
             }
 
-            this._argumentSpecification = argumentSpecification;
+            _argumentSpecification = argumentSpecification;
         }
         
         #endregion Public Instance Constructors
@@ -150,10 +150,10 @@ namespace SourceForge.NAnt {
 
                 helpText.Append("Usage : " + assembly.GetName().Name + " [options]");
 
-                if (this._defaultArgument != null) {
-                    helpText.Append(" <" + this._defaultArgument.LongName + ">");
-                    if (this._defaultArgument.AllowMultiple) {
-                        helpText.Append(" <" + this._defaultArgument.LongName + ">");
+                if (_defaultArgument != null) {
+                    helpText.Append(" <" + _defaultArgument.LongName + ">");
+                    if (_defaultArgument.AllowMultiple) {
+                        helpText.Append(" <" + _defaultArgument.LongName + ">");
                         helpText.Append(" ...");
                     }
                 }
@@ -166,7 +166,7 @@ namespace SourceForge.NAnt {
                 helpText.Append('\n');
                 helpText.Append('\n');
 
-                foreach (CommandLineArgument argument in this._argumentCollection) {
+                foreach (CommandLineArgument argument in _argumentCollection) {
                     string valType = "";
 
                     if (argument.ValueType == typeof(string)) {
@@ -208,14 +208,14 @@ namespace SourceForge.NAnt {
         /// </summary>
         public bool NoArgs {
             get {
-                foreach(CommandLineArgument argument in this._argumentCollection) {
+                foreach(CommandLineArgument argument in _argumentCollection) {
                     if (argument.SeenValue) {
                         return true;
                     }
                 }
 
-                if (this._defaultArgument != null) {
-                    return this._defaultArgument.SeenValue;
+                if (_defaultArgument != null) {
+                    return _defaultArgument.SeenValue;
                 }
 
                 return false;
@@ -238,19 +238,19 @@ namespace SourceForge.NAnt {
                 throw new ArgumentNullException("destination");
             }
 
-            if (!this._argumentSpecification.IsAssignableFrom(destination.GetType())) {
+            if (!_argumentSpecification.IsAssignableFrom(destination.GetType())) {
                 throw new ArgumentException("Type of destination does not match type of argument specification.");
             }
 
             ParseArgumentList(args);
 
             // check for missing required arguments
-            foreach (CommandLineArgument arg in this._argumentCollection) {
+            foreach (CommandLineArgument arg in _argumentCollection) {
                 arg.Finish(destination);
             }
 
-            if (this._defaultArgument != null) {
-                this._defaultArgument.Finish(destination);
+            if (_defaultArgument != null) {
+                _defaultArgument.Finish(destination);
             }
         }
 
@@ -277,7 +277,7 @@ namespace SourceForge.NAnt {
                                     optionArgument = argument.Substring(option.Length + 1);
                                 }
                                 
-                                CommandLineArgument arg = this._argumentCollection[option];
+                                CommandLineArgument arg = _argumentCollection[option];
                                 if (arg == null) {
                                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", argument));
                                 } else {
@@ -289,8 +289,8 @@ namespace SourceForge.NAnt {
                                 }
                                 break;
                             default:
-                                if (this._defaultArgument != null) {
-                                    this._defaultArgument.SetValue(argument);
+                                if (_defaultArgument != null) {
+                                    _defaultArgument.SetValue(argument);
                                 } else {
                                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", argument));
                                 }

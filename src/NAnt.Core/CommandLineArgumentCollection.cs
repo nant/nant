@@ -39,7 +39,7 @@ namespace SourceForge.NAnt {
         /// with the specified <see cref="CommandLineArgumentCollection"/> instance.
         /// </summary>
         public CommandLineArgumentCollection(CommandLineArgumentCollection value) {
-            this.AddRange(value);
+            AddRange(value);
         }
         
         /// <summary>
@@ -47,7 +47,7 @@ namespace SourceForge.NAnt {
         /// with the specified array of <see cref="CommandLineArgument"/> instances.
         /// </summary>
         public CommandLineArgumentCollection(CommandLineArgument[] value) {
-            this.AddRange(value);
+            AddRange(value);
         }
 
         #endregion Public Instance Constructors
@@ -97,29 +97,29 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Adds a <see cref="CommandLineArgument"/> to the end of the collection.
         /// </summary>
-        ///	<param name="item">The <see cref="CommandLineArgument"/> to be added to the end of the collection.</param> 
-        ///	<returns>The position into which the new element was inserted.</returns>
+        /// <param name="item">The <see cref="CommandLineArgument"/> to be added to the end of the collection.</param> 
+        /// <returns>The position into which the new element was inserted.</returns>
         public int Add(CommandLineArgument item) {
             return base.List.Add(item);
         }
 
         /// <summary>
         /// Adds the elements of a <see cref="CommandLineArgument"/> array to the end of the collection.
-        ///	</summary>
-        ///	<param name="items">The array of <see cref="CommandLineArgument"/> elements to be added to the end of the collection.</param> 
+        /// </summary>
+        /// <param name="items">The array of <see cref="CommandLineArgument"/> elements to be added to the end of the collection.</param> 
         public void AddRange(CommandLineArgument[] items) {
             for (int i = 0; (i < items.Length); i = (i + 1)) {
-                this.Add(items[i]);
+                Add(items[i]);
             }
         }
 
         /// <summary>
         /// Adds the elements of a <see cref="CommandLineArgumentCollection"/> to the end of the collection.
-        ///	</summary>
-        ///	<param name="items">The <see cref="CommandLineArgumentCollection"/> to be added to the end of the collection.</param> 
+        /// </summary>
+        /// <param name="items">The <see cref="CommandLineArgumentCollection"/> to be added to the end of the collection.</param> 
         public void AddRange(CommandLineArgumentCollection items) {
             for (int i = 0; (i < items.Count); i = (i + 1)) {
-                this.Add(items[i]);
+                Add(items[i]);
             }
         }
         
@@ -157,7 +157,7 @@ namespace SourceForge.NAnt {
         
         /// <summary>
         /// Inserts a <see cref="CommandLineArgument"/> into the collection at the specified index.
-        ///	</summary>
+        /// </summary>
         /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
         /// <param name="item">The <see cref="CommandLineArgument"/> to insert.</param>
         public void Insert(int index, CommandLineArgument item) {
@@ -167,7 +167,7 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Returns an enumerator that can iterate through the collection.
         /// </summary>
-        ///	<returns>
+        /// <returns>
         /// A <see cref="CommandLineArgumentEnumerator"/> for the entire collection.
         /// </returns>
         public new CommandLineArgumentEnumerator GetEnumerator() {
@@ -195,8 +195,8 @@ namespace SourceForge.NAnt {
             /// </summary>
             /// <param name="mappings">The collection that should be enumerated.</param>
             internal CommandLineArgumentEnumerator(CommandLineArgumentCollection mappings) {
-                this.temp = ((IEnumerable)(mappings));
-                this.baseEnumerator = temp.GetEnumerator();
+                temp = ((IEnumerable)(mappings));
+                baseEnumerator = temp.GetEnumerator();
             }
             
             /// <summary>
