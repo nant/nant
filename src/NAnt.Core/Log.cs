@@ -1104,6 +1104,28 @@ namespace NAnt.Core {
 
         #endregion Override implementation of TextWriter
 
+        #region Override implementation of MarshalByRefObject
+
+        /// <summary>
+        /// Obtains a lifetime service object to control the lifetime policy for 
+        /// this instance.
+        /// </summary>
+        /// <returns>
+        /// An object of type <see cref="ILease" /> used to control the lifetime 
+        /// policy for this instance. This is the current lifetime service object 
+        /// for this instance if one exists; otherwise, a new lifetime service 
+        /// object initialized with a lease that will never time out.
+        /// </returns>
+        public override Object InitializeLifetimeService() {
+            ILease lease = (ILease) base.InitializeLifetimeService();
+            if (lease.CurrentState == LeaseState.Initial) {
+                lease.InitialLeaseTime = TimeSpan.Zero;
+            }
+            return lease;
+        }
+
+        #endregion Override implementation of MarshalByRefObject
+
         #region Protected Instance Properties
 
         /// <summary>
