@@ -243,7 +243,7 @@ namespace NAnt.Core {
             //   the values from the xml node to set the instance properties.
             
             //* Removed the inheritance walking as it isn't necessary for extraction of public properties
-            _xmlNode = elementNode;
+            XmlNode = elementNode;
 
             Type currentType = GetType();
             
@@ -253,13 +253,13 @@ namespace NAnt.Core {
 
             //collect a list of attributes, we will check to see if we use them all.
             StringCollection attribs = new StringCollection();
-            foreach (XmlAttribute xmlattr in _xmlNode.Attributes) {
+            foreach (XmlAttribute xmlattr in XmlNode.Attributes) {
                 attribs.Add(xmlattr.Name);
             }
 
             //create collection of element names. We will remove 
             StringCollection childElementsRemaining = new StringCollection();
-            foreach (XmlNode childNode in _xmlNode) {
+            foreach (XmlNode childNode in XmlNode) {
                 //skip existing names. We only need unique names.
                 if(childElementsRemaining.Contains(childNode.Name))
                     continue;
@@ -325,7 +325,7 @@ namespace NAnt.Core {
                         propertyInfo.DeclaringType.FullName));
 
                     // locate attribute in build file
-                    attributeNode = _xmlNode.Attributes[buildAttribute.Name];
+                    attributeNode = XmlNode.Attributes[buildAttribute.Name];
 
                     if (attributeNode != null) {
                         // get the configured value
@@ -369,13 +369,10 @@ namespace NAnt.Core {
                         propertyInfo.DeclaringType.Name));
 
                     if (propertyInfo.CanWrite) {
-                        // set the property value instead
-                        MethodInfo info = propertyInfo.GetSetMethod();
-
-                        // If the object is an emum
+                        // get the type of the property
                         Type propertyType = propertyInfo.PropertyType;
 
-                        //validate attribute value with custom ValidatorAttribute(ors)
+                        // validate attribute value with custom ValidatorAttribute(ors)
                         object[] validateAttributes = (ValidatorAttribute[]) 
                             Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                         try {
@@ -383,7 +380,7 @@ namespace NAnt.Core {
                                 logger.Info(string.Format(
                                     CultureInfo.InvariantCulture,
                                     "Validating <{1} {2}='...'> with {0}", 
-                                    validator.GetType().Name, _xmlNode.Name, attributeNode.Name));
+                                    validator.GetType().Name, XmlNode.Name, attributeNode.Name));
 
                                 validator.Validate(attributeValue);
                             }
@@ -395,6 +392,7 @@ namespace NAnt.Core {
                         // holds the attribute value converted to the property type
                         object propertyValue = null;
 
+                        // If the object is an emum
                         if (propertyType.IsEnum) {
                             try {
                                 propertyValue = Enum.Parse(propertyType, attributeValue);
@@ -742,7 +740,7 @@ namespace NAnt.Core {
         /// configuration node can be located in that section, the framework-neutral
         /// section of NAnt configuration file will be searched.
         /// </remarks>
-        private XmlNode GetAttributeConfigurationNode(string attributeName) {
+        protected XmlNode GetAttributeConfigurationNode(string attributeName) {
             XmlNode attributeNode = null;
             XmlNode nantSettingsNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
 
@@ -759,8 +757,13 @@ namespace NAnt.Core {
                         xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
                         level++;
                     } else if (!(parentElement is Target)) {
-                        // perform lookup using name of the node, not element name
-                        xpath += " and parent::element[@name=\"" + parentElement.XmlNode.Name + "\""; 
+                        if (parentElement.XmlNode != null) {
+                            // perform lookup using name of the node
+                            xpath += " and parent::element[@name=\"" + parentElement.XmlNode.Name + "\""; 
+                        } else {
+                            // perform lookup using name of the element
+                            xpath += " and parent::element[@name=\"" + parentElement.Name + "\""; 
+                        }
                         level++;
                     }
 
