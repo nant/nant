@@ -472,7 +472,7 @@
             <fileset>
                 <include name="doc/**/*.html" />
             </fileset>
-            <filterchain encoding="utf-8">
+            <filterchain>
                 <replacetokens>
                     <token key="PRODUCT_VERSION" value="${project.version}" />
                 </replacetokens>
