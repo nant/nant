@@ -188,7 +188,6 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildSourceChanged() {
             Test_BuildAll();
-            System.Console.Write("in BuildSourceChanged");
             for (int i = 0; i < _sourceCount; ++i) {
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);
                 string result = RunBuild(_test_build);
