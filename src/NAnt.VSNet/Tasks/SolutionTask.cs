@@ -125,6 +125,7 @@ namespace NAnt.VSNet.Tasks {
             _projects = new FileSet();
             _referenceProjects = new FileSet();
             _excludeProjects = new FileSet();
+            _assemblyFolders = new FileSet();
             _webMaps = new WebMapCollection();
         }
 
@@ -133,7 +134,7 @@ namespace NAnt.VSNet.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The names of the projects to build.
+        /// The projects to build.
         /// </summary>
         [FileSet("projects", Required=false)]
         public FileSet Projects {
@@ -142,11 +143,11 @@ namespace NAnt.VSNet.Tasks {
         }
 
         /// <summary>
-        /// The names of the projects to scan, but not build.
+        /// The projects to scan, but not build.
         /// </summary>
         /// <remarks>
-        /// These projects are used to resolve project references.  These projects 
-        /// are generally external to the solution being built.  References to 
+        /// These projects are used to resolve project references and are 
+        /// generally external to the solution being built. References to 
         /// these project's output files are converted to use the appropriate 
         /// solution configuration at build time.
         /// </remarks>
