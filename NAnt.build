@@ -4,7 +4,50 @@
 	<tstamp/>
 	<property name="debug" value="true"/>
 	<property name="project.name" value="nant"/>
-	<property name="project.version" value="0.7.0"/> 	<!-- TODO: get this from AssemblyInfo.cs using a regular expression some how -->
+
+	<!-- Use script task to get this from AssemblyInfo.cs using a regular expression -->
+	<property name="project.version" value="x.x.x"/>
+
+	<script language="C#" mainclass="VersionReader">
+		<code><![CDATA[
+
+		using System.IO;
+
+		class VersionReader {
+
+			public static void ScriptMain(Project project) {
+				PropertyDictionary properties = project.Properties;
+
+				string asmInfo = properties["nant.base.dir"] + "\\src\\NAnt\\AssemblyInfo.cs";
+
+				FileStream asmInfoStream = null;
+				asmInfoStream = new FileStream(asmInfo, FileMode.Open);
+
+				StreamReader reader = new StreamReader(asmInfoStream);
+
+
+				Regex commentRE = new Regex("^(\\s)*//");
+				Regex versionRE = new Regex("(?<=AssemblyVersion(\\s)*\\(\")\\d\\.\\d\\.\\d");
+
+				string line = reader.ReadLine();
+				while (line != null) {
+					if (!commentRE.Match(line).Success) {
+						Match versionMatch = versionRE.Match(line);
+						if (versionMatch.Success) {
+							properties["project.version"] = versionMatch.Value;
+							break;
+						}
+					}
+					line = reader.ReadLine();
+				}
+			}
+
+		}
+
+		]]></code>
+	</script>
+
+
 	<property name="dist.dir" value="${project.name}"/>
 	<property name="build.dir" value="build"/>
 	<property name="dist.name" value="${project.name}-src-${project.version}.zip"/>
