@@ -9,7 +9,7 @@
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- perform a 'release' package and upload to sf.net -->
-    <target name="build-release" depends="set-net-1.0-framework-configuration, release, package, deploy-sf" description="Perform a 'release' package and uploads to sf.net" />
+    <target name="build-release" depends="set-net-1.0-framework-configuration, release, package, deploy-sf, install" description="Perform a 'release' package, uploads to sf.net and installs it" />
     <!-- deploy content to sourceforge -->
     <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-help-sf">
         <!-- remove existing symlink, if it exists -->
