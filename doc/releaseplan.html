@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>NAnt Release Plan</title>
@@ -10,8 +10,8 @@
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a>
-                    <img src="arrow.gif" alt="-&gt;" width="13" height="9" />To Do
+                    <a title="NAnt home page" href="index.html"><b>NAnt</b></a> <img src="arrow.gif" alt="->" width="13" height="9" />To 
+                    Do
                 </td>
             </tr>
         </table>
@@ -19,31 +19,34 @@
             <tr>
                 <td>
                     <h1>
-                        <span class="N">N</span><span class="Ant">Ant</span> Release Plan</h1>
+                        <span class="N">N</span><span class="Ant">Ant</span>
+                        Release Plan</h1>
                     <p>
-                        The following is a rough guide to what features are being worked on and when they
-                        will be worked on in the future.
+                        The following is a rough guide to what features are being worked on and when 
+                        they will be worked on in the future.
                     </p>
                 </td>
-                <td style="text-align: right">
-                    <a href="index.html">
-                        <img style="border-width: 0px;" alt="NAnt logo (link to home page)" src="logo.gif"
-                            width="270" height="118" /></a>
+                <td>
+                    <a href="index.html"><img style="BORDER-TOP-WIDTH: 0px;BORDER-LEFT-WIDTH: 0px;BORDER-BOTTOM-WIDTH: 0px;BORDER-RIGHT-WIDTH: 0px"
+                            alt="NAnt logo (link to home page)" src="logo.gif" width="270" height="118" /></a>
                 </td>
             </tr>
         </table>
         <h3>Version 0.8.x</h3>
-        <div class="table" style="margin-left: 20px;">
+        <div class="table" style="MARGIN-LEFT: 20px">
             <table cellspacing="0" width="90%">
                 <colgroup>
-                    <col style="text-align: left; width: 65%;" />
-                    <col style="text-align: center; width: 15%;" />
-                    <col style="text-align: center; width: 10%;" />
+                    <col style="WIDTH: 65%; TEXT-ALIGN: left" />
+                    <col style="WIDTH: 15%; TEXT-ALIGN: center" />
+                    <col style="WIDTH: 10%; TEXT-ALIGN: center" />
                 </colgroup>
                 <tr>
-                    <th>Description</th>
-                    <th style="text-align: center;">Volunteers</th>
-                    <th style="text-align: center;">Status</th>
+                    <th>
+                        Description</th>
+                    <th>
+                        Volunteers</th>
+                    <th>
+                        Status</th>
                 </tr>
                 <tr>
                     <td>
@@ -63,25 +66,30 @@
                     </td>
                     <td>
                         <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
-                    <td>pending</td>
+                    <td>done</td>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Add assembly references support to <code>&lt;resgen&gt;</code> task.  For all but .NET 2.0, we need to implement this by copying the resgen tool, and all referenced assemblies to a temp directory, and launch resgen from there.
+                            Add assembly references support to <code>&lt;resgen&gt;</code> task. For all 
+                            but .NET 2.0, we need to implement this by copying the resgen tool, and all 
+                            referenced assemblies to a temp directory, and launch resgen from there.
                         </p>
                     </td>
-                    <td></td>
-                    <td>pending</td>
+                    <td>
+                        <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                    <td>done</td>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Use mechanism of <code>&lt;resgen&gt;</code> task for <code>&lt;license&gt;</code> task.
+                            Use mechanism of <code>&lt;resgen&gt;</code> task for <code>&lt;license&gt;</code>
+                            task.
                         </p>
                     </td>
-                    <td></td>
-                    <td>pending</td>
+                    <td>
+                        <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                    <td>done</td>
                 </tr>
                 <tr>
                     <td>
@@ -89,22 +97,32 @@
                             Add support for package references to the following tasks:
                         </p>
                         <ul>
-                            <li><code>&lt;csc&gt;</code></li>
-                            <li><code>&lt;vbc&gt;</code></li>
-                            <li><code>&lt;resgen&gt;</code>?</li>
+                            <li>
+                                <code>&lt;csc&gt;</code>
+                            (done)
+                            </li>
+                            <li>
+                                <code>&lt;vbc&gt;</code>
+                            (done)
+                            </li>
+                            <li>
+                                <code>&lt;resgen&gt;</code>?</li>
                         </ul>
                     </td>
-                    <td></td>
-                    <td>pending</td>
+                    <td>
+                        <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                    <td>75%</td>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Added <code>version</code> functions, and remove version functions from <code>assembly</code> namespace.
+                            Added <code>version</code> functions, and remove version functions from <code>assembly</code>
+                            namespace.
                         </p>
                     </td>
-                    <td></td>
-                    <td>pending</td>
+                    <td>
+                        <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                    <td>done</td>
                 </tr>
                 <tr>
                     <td>
@@ -112,27 +130,55 @@
                             Depreciate the following built-in properties:
                         </p>
                         <ul>
-                            <li>nant.filename</li>
-                            <li>nant.version</li>
-                            <li>nant.location</li>
-                            <li>nant.project.name</li>
-                            <li>nant.project.buildfile</li>
-                            <li>nant.project.default</li>
-                            <li>nant.platform</li>
-                            <li>nant.platform.win32</li>
-                            <li>nant.platform.unix</li>
-                            <li>nant.settings.currentframework.description</li>
-                            <li>nant.settings.currentframework.frameworkdirectory</li>
-                            <li>nant.settings.currentframework.sdkdirectory</li>
-                            <li>nant.settings.currentframework.frameworkassemblydirectory</li>
-                            <li>nant.settings.currentframework.runtimeengine</li>
-                            <li>nant.tasks.*</li>
+                            <li>
+                            nant.filename
+                            </li>
+                            <li>
+                            nant.version
+                            </li>
+                            <li>
+                            nant.location
+                            </li>
+                            <li>
+                            nant.project.name
+                            </li>                            
+                            <li>
+                            nant.project.buildfile
+                            </li>                            
+                            <li>
+                            nant.project.default
+                            </li>                            
+                            <li>
+                            nant.platform
+                            </li>                            
+                            <li>
+                            nant.platform.win32
+                            </li>                            
+                            <li>
+                            nant.platform.unix
+                            </li>                            
+                            <li>
+                            nant.settings.currentframework.description
+                            </li>                            
+                            <li>
+                            nant.settings.currentframework.frameworkdirectory
+                            </li>                            
+                            <li>
+                            nant.settings.currentframework.sdkdirectory
+                            </li>                            
+                            <li>
+                            nant.settings.currentframework.frameworkassemblydirectory
+                            </li>                            
+                            <li>
+                            nant.settings.currentframework.runtimeengine
+                            </li>                            
+                            <li>
+                                nant.tasks.*</li>
                         </ul>
                     </td>
                     <td></td>
                     <td>pending</td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>
@@ -146,12 +192,13 @@
                 <tr>
                     <td>
                         <p>
-                            Support configuration to enable targeting specific versions of the .NET Framework
-                            and additions like the .NET Compact Framework.
+                            Support configuration to enable targeting specific versions of the .NET 
+                            Framework and additions like the .NET Compact Framework.
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/drieseng/">
+                            Gert</a></td>
                     <td>done</td>
                 </tr>
                 <tr>
@@ -177,8 +224,8 @@
                 <tr>
                     <td>
                         <p>
-                            Rename FileSet xml elements: includes =&gt; include, excludes = &gt; exclude, name
-                            = &gt; pattern.
+                            Rename FileSet xml elements: includes =&gt; include, excludes = &gt; exclude, 
+                            name = &gt; pattern.
                         </p>
                     </td>
                     <td>
@@ -222,18 +269,20 @@
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/skot/">Scott</a></td>
-                    <td>70%</td>
+                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/skot/">
+                            Scott</a>, <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
+                    <td>85%</td>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Make sure the examples included in the distribution build. Currently some examples
-                            fail.
+                            Make sure the examples included in the distribution build. Currently some 
+                            examples fail.
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/jawn/">Bernard</a></td>
+                        <a href="http://sourceforge.net/users/jawn/">Bernard</a>, <a href="http://sourceforge.net/users/drieseng/">
+                            Gert</a></td>
                     <td>done</td>
                 </tr>
                 <tr>
@@ -250,8 +299,8 @@
                 <tr>
                     <td>
                         <p>
-                            Add <code>flatten</code> attribute to <code>&lt;zip&gt;</code> task with similar
-                            behaviour as the <code>flatten</code> attribute of the <code>&lt;copy&gt;</code>
+                            Add <code>flatten</code> attribute to <code>&lt;zip&gt;</code> task with 
+                            similar behaviour as the <code>flatten</code> attribute of the <code>&lt;copy&gt;</code>
                             and <code>&lt;move&gt;</code> tasks.
                         </p>
                     </td>
@@ -272,25 +321,27 @@
                 <tr>
                     <td>
                         <p>
-                            Move <code>&lt;aximp&gt;</code> task from <a href="http://NAntContrib.sourceforge.net">NAntContrib</a>
-                            to the <code>NAnt.Win32Tasks</code> assembly, so we can use it in the <code>&lt;solution&gt;</code>
-                            task.
+                            Move <code>&lt;aximp&gt;</code> task from <a href="http://NAntContrib.sourceforge.net">
+                                NAntContrib</a> to the <code>NAnt.Win32Tasks</code> assembly, so we can use 
+                            it in the <code>&lt;solution&gt;</code> task.
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/drieseng/"></a></td>
+                        <a href="http://sourceforge.net/users/drieseng/"></a>
+                    </td>
                     <td>pending</td>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Add support for registering an assembly for <a href="http://www.codeproject.com/dotnet/nettocom.asp">COM interop</a>
-                            to the <code>&lt;solution&gt;</code> task. We could delegate this to NAntContrib's
-                            <code>&lt;regasm&gt;</code> task.
+                            Add support for registering an assembly for <a href="http://www.codeproject.com/dotnet/nettocom.asp">
+                                COM interop</a> to the <code>&lt;solution&gt;</code> task. We could 
+                            delegate this to NAntContrib's <code>&lt;regasm&gt;</code> task.
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/drieseng/"></a></td>
+                        <a href="http://sourceforge.net/users/drieseng/"></a>
+                    </td>
                     <td>pending</td>
                 </tr>
                 <tr>
@@ -307,34 +358,37 @@
                 <tr>
                     <td>
                         <p>
-                            Modify <code>CompilerBase</code> and <code>AssemblyLinkerTask</code> to pass localized
-                            resources to <code>al.exe</code> using the response file instead of passing arguments
-                            directly on the commandline.
+                            Modify <code>CompilerBase</code> and <code>AssemblyLinkerTask</code> to pass 
+                            localized resources to <code>al.exe</code> using the response file instead of 
+                            passing arguments directly on the commandline.
                         </p>
                     </td>
-                    <td />
+                    <td></td>
                     <td>pending</td>
                 </tr>
             </table>
         </div>
         <h3>Version 0.9</h3>
-        <div class="table" style="margin-left: 20px;">
+        <div class="table" style="MARGIN-LEFT: 20px">
             <table cellspacing="0" width="90%">
                 <colgroup>
-                    <col style="text-align: left; width: 65%;" />
-                    <col style="text-align: center; width: 15%;" />
-                    <col style="text-align: center; width: 10%;" />
+                    <col style="WIDTH: 65%; TEXT-ALIGN: left" />
+                    <col style="WIDTH: 15%; TEXT-ALIGN: center" />
+                    <col style="WIDTH: 10%; TEXT-ALIGN: center" />
                 </colgroup>
                 <tr>
-                    <th>Description</th>
-                    <th style="text-align: center;">Volunteers</th>
-                    <th style="text-align: center;">Status</th>
+                    <th>
+                        Description</th>
+                    <th>
+                        Volunteers</th>
+                    <th>
+                        Status</th>
                 </tr>
                 <tr>
                     <td>
                         <p>
-                            Move to an <a href="http://www.apache.org/LICENSE">Apache</a> or <a href="http://www.opensource.org/licenses/bsd-license.php">BSD</a>-style
-                            license.
+                            Move to an <a href="http://www.apache.org/LICENSE">Apache</a> or <a href="http://www.opensource.org/licenses/bsd-license.php">
+                                BSD</a>-style license.
                         </p>
                     </td>
                     <td>
@@ -355,12 +409,13 @@
                 <tr>
                     <td>
                         <p>
-                            Refactor <code>&lt;solution&gt;</code> task to use <code>&lt;csc&gt;</code> and
-                            <code>&lt;vbc&gt;</code> tasks to compile assemblies.
+                            Refactor <code>&lt;solution&gt;</code> task to use <code>&lt;csc&gt;</code> and <code>
+                                &lt;vbc&gt;</code> tasks to compile assemblies.
                         </p>
                     </td>
                     <td>
-                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/drieseng/">Gert</a>
+                        <a href="http://sourceforge.net/users/ianm74/">Ian</a>, <a href="http://sourceforge.net/users/drieseng/">
+                            Gert</a>
                     </td>
                     <td>pending</td>
                 </tr>
@@ -389,8 +444,8 @@
                     <td>
                         <p>
                             Add support for <a href="http://www.mail-archive.com/nant-developers%40lists.sourceforge.net/msg02785.html">
-                                                expression evaluator</a> in all places where it makes sense.
-                            Support embedded expressions in strings.
+                                expression evaluator</a> in all places where it makes sense. Support 
+                            embedded expressions in strings.
                         </p>
                     </td>
                     <td>
@@ -422,12 +477,12 @@
                 <tr>
                     <td>
                         <p>
-                            Add support for deprecating tasks/types and named attributes.
+                            Add support for deprecating tasks/types/functions and named attributes.
                         </p>
                     </td>
                     <td>
                         <a href="http://sourceforge.net/users/drieseng/">Gert</a></td>
-                    <td>50%</td>
+                    <td>65%</td>
                 </tr>
                 <tr>
                     <td>
@@ -452,17 +507,20 @@
             </table>
         </div>
         <h3>Version 1.0</h3>
-        <div class="table" style="margin-left: 20px;">
+        <div class="table" style="MARGIN-LEFT: 20px">
             <table cellspacing="0" width="90%">
                 <colgroup>
-                    <col style="text-align: left; width: 65%;" />
-                    <col style="text-align: center; width: 15%;" />
-                    <col style="text-align: center; width: 10%;" />
+                    <col style="WIDTH: 65%; TEXT-ALIGN: left" />
+                    <col style="WIDTH: 15%; TEXT-ALIGN: center" />
+                    <col style="WIDTH: 10%; TEXT-ALIGN: center" />
                 </colgroup>
                 <tr>
-                    <th>Description</th>
-                    <th style="text-align: center;">Volunteers</th>
-                    <th style="text-align: center;">Status</th>
+                    <th>
+                        Description</th>
+                    <th>
+                        Volunteers</th>
+                    <th>
+                        Status</th>
                 </tr>
                 <tr>
                     <td>
@@ -497,17 +555,20 @@
             </table>
         </div>
         <h3>Version 1.1</h3>
-        <div class="table" style="margin-left: 20px;">
+        <div class="table" style="MARGIN-LEFT: 20px">
             <table cellspacing="0" width="90%">
                 <colgroup>
-                    <col style="text-align: left; width: 65%;" />
-                    <col style="text-align: center; width: 15%;" />
-                    <col style="text-align: center; width: 10%;" />
+                    <col style="WIDTH: 65%; TEXT-ALIGN: left" />
+                    <col style="WIDTH: 15%; TEXT-ALIGN: center" />
+                    <col style="WIDTH: 10%; TEXT-ALIGN: center" />
                 </colgroup>
                 <tr>
-                    <th>Description</th>
-                    <th style="text-align: center;">Volunteers</th>
-                    <th style="text-align: center;">Status</th>
+                    <th>
+                        Description</th>
+                    <th>
+                        Volunteers</th>
+                    <th>
+                        Status</th>
                 </tr>
                 <tr>
                     <td>
