@@ -211,7 +211,6 @@ namespace Tests.NAnt.Core {
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.nunit"]);
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.nunit2"]);
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.property"]);
-            Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.script"]);
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.sleep"]);
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.style"]);
             Assertion.AssertEquals(Boolean.TrueString, p.Properties["nant.tasks.sysinfo"]);
