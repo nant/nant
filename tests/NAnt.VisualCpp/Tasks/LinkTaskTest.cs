@@ -190,7 +190,6 @@ namespace Tests.NAnt.VisualCpp.Tasks
             Test_BuildAll();
             System.Console.Write("in BuildSourceChanged");
             for (int i = 0; i < _sourceCount; ++i) {
-                System.Console.Write("time test loop obj name is {0}", _objPathName[i]);
                 File.SetLastWriteTime(_objPathName[i], DateTime.Now);
                 string result = RunBuild(_test_build);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
