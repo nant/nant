@@ -401,7 +401,8 @@ namespace NAnt.DotNet.Tasks {
                             CompileResxResource(new FileInfo(fileName), new FileInfo(tmpResourcePath));
                             
                             // check if resource is localized
-                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
+                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName,
+                                Path.ChangeExtension(fileName, Extension));
                             if (resourceCulture != null) {
                                 if (!cultureResources.ContainsKey(resourceCulture.Name)) {
                                     // initialize collection for holding 
@@ -425,7 +426,8 @@ namespace NAnt.DotNet.Tasks {
                                 resources, fileName);
 
                             // check if resource is localized
-                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName);
+                            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(fileName,
+                                Path.ChangeExtension(fileName, Extension));
                             if (resourceCulture != null) {
                                 if (!cultureResources.ContainsKey(resourceCulture.Name)) {
                                     // initialize collection for holding 
@@ -521,7 +523,7 @@ namespace NAnt.DotNet.Tasks {
             string manifestResourceName = null;
           
             // check if we're dealing with a localized resource
-            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile);
+            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile, dependentFile);
 
             // determine the resource type
             switch (Path.GetExtension(resourceFile)) {
@@ -625,14 +627,14 @@ namespace NAnt.DotNet.Tasks {
                     "Resource '{0}' does not exist.", resourceFile), Location);
             }
 
-            // check if we're dealing with a localized resource
-            CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile);
-
             // determine the resource type
             switch (Path.GetExtension(resourceFile)) {
                 case ".resx":
                     // open matching source file if it exists
-                    string dependentFile = resourceFile.Replace("resx", Extension);
+                    string dependentFile = Path.ChangeExtension(resourceFile, Extension);
+
+                    // check if we're dealing with a localized resource
+                    CultureInfo resourceCulture = CompilerBase.GetResourceCulture(resourceFile, dependentFile);
 
                     // remove last occurrence of culture name from dependent file 
                     // for localized resources
@@ -1031,12 +1033,25 @@ namespace NAnt.DotNet.Tasks {
         /// scanning the filename for valid culture names.
         /// </summary>
         /// <param name="resourceFile">The resource file path to check for culture info.</param>
+        /// <param name="dependentFile">The file on which the resource file depends.</param>
         /// <returns>
         /// A valid <see cref="CultureInfo" /> instance if the resource is 
         /// associated with a specific culture; otherwise, <see langword="null" />.
         /// </returns>
-        public static CultureInfo GetResourceCulture(string resourceFile) {
+        public static CultureInfo GetResourceCulture(string resourceFile, string dependentFile) {
             string noextpath = Path.GetFileNameWithoutExtension(resourceFile);
+
+            if (dependentFile != null && File.Exists(dependentFile)) {
+                // there might be cases where the dependent file actually has
+                // a filename containing a valid culture name (eg. Form2.nl-BE.cs)
+                // in this case resx files for that file will have filenames
+                // containing culture names too (eg. Form2.nl-BE.resx), 
+                // although the files are not localized
+                if (Path.GetFileNameWithoutExtension(dependentFile) == noextpath) {
+                    return null;
+                }
+            } 
+
             int index = noextpath.LastIndexOf('.');
             if (index >= 0 && index <= noextpath.Length) {
                 string possibleculture = noextpath.Substring(index + 1, noextpath.Length - (index + 1));

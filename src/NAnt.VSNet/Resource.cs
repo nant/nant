@@ -44,7 +44,8 @@ namespace NAnt.VSNet {
             _resourceSourceFileRelativePath = resourceSourceFileRelativePath;
             _dependentFile = dependentFile;
             _solutionTask = solutionTask;
-            _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName);
+            _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName, 
+                dependentFile);
         }
 
         #endregion Public Instance Constructors
