@@ -27,6 +27,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -236,9 +237,9 @@ namespace NAnt.VSNet {
             Log(Level.Info, LogPrefix + "Building {0} [{1}]...", Name, configuration);
             Directory.CreateDirectory(cs.OutputPath);
 
-            string strTempFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
+            string tempResponseFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
 
-            using (StreamWriter sw = File.CreateText(strTempFile)) {
+            using (StreamWriter sw = File.CreateText(tempResponseFile)) {
                 if (CheckUpToDate(cs)) {
                     Log(Level.Verbose, LogPrefix + "Project is up-to-date.");
                     return true;
@@ -262,7 +263,7 @@ namespace NAnt.VSNet {
 
                 Log(Level.Verbose, LogPrefix + "Copying references:");
                 foreach (Reference reference in _htReferences.Values) {
-                    Log(Level.Verbose, _solutionTask.LogPrefix + " - " + reference.Name);
+                    Log(Level.Verbose, LogPrefix + " - " + reference.Name);
 
                     if (reference.CopyLocal) {
                         if (reference.IsCreated) {
@@ -273,8 +274,9 @@ namespace NAnt.VSNet {
                             ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                             psiRef.UseShellExecute = false;
                             psiRef.WorkingDirectory = cs.OutputPath;
+
                             try {
-                                Process pRef = Process.Start( psiRef );
+                                Process pRef = Process.Start(psiRef);
                                 pRef.WaitForExit();
                             } catch (Win32Exception ex) {
                                 throw new BuildException(string.Format("Unable to start process '{0}' with commandline '{1}'.", program, commandLine), ex);
@@ -299,11 +301,13 @@ namespace NAnt.VSNet {
                     sw.WriteLine(reference.Setting);
                 }
 
-                Log(Level.Verbose, LogPrefix + "Compiling resources:");
-                foreach (Resource resource in _htResources.Values) {
-                    Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
-                    resource.Compile(cs, bShowCommands);
-                    sw.WriteLine(resource.Setting);
+                if (_htResources.Count > 0) {
+                    Log(Level.Verbose, LogPrefix + "Compiling resources:");
+                    foreach (Resource resource in _htResources.Values) {
+                        Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
+                        resource.Compile(cs, bShowCommands);
+                        sw.WriteLine(resource.Setting);
+                    }
                 }
 
                 // Add the compiled files
@@ -313,7 +317,7 @@ namespace NAnt.VSNet {
             }
 
             if (bShowCommands) {
-                using (StreamReader sr = new StreamReader(strTempFile)) {
+                using (StreamReader sr = new StreamReader(tempResponseFile)) {
                     Console.WriteLine("Commands:");
                     Console.WriteLine(sr.ReadToEnd());
                 }
@@ -322,11 +326,11 @@ namespace NAnt.VSNet {
             Log(Level.Verbose, LogPrefix + "Starting compiler...");
             ProcessStartInfo psi = null;
             if (_projectSettings.Type == ProjectType.CSharp) {
-                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@" + strTempFile);
+                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@\"" + tempResponseFile + "\"");
             }
 
             if (_projectSettings.Type == ProjectType.VBNet) {
-                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe"), "@" + strTempFile);
+                psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "vbc.exe"), "@\"" + tempResponseFile + "\"");
             }
 
             psi.UseShellExecute = false;
@@ -376,25 +380,33 @@ namespace NAnt.VSNet {
 
                 // Copy any extra files over
                 foreach (string extraOutputFile in cs.ExtraOutputFiles) {
-                    FileInfo fi = new FileInfo(extraOutputFile);
+                    FileInfo sourceFile = new FileInfo(extraOutputFile);
                     if (_isWebProject) {
                         WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
-                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputPath + "/" + fi.Name);
+                        wdc.UploadFile(extraOutputFile, cs.RelativeOutputPath + "/" + sourceFile.Name);
                     } else {
-                        string outFile = cs.OutputPath + @"\" + fi.Name;
+                        FileInfo destFile = new FileInfo(Path.Combine(cs.OutputPath, sourceFile.Name));
 
-                        if (File.Exists(outFile)) {
-                            File.SetAttributes(outFile, FileAttributes.Normal);
-                            File.Delete(outFile);
+                        if (destFile.Exists) {
+                            // only copy the file if the source file is more 
+                            // recent than the destination file
+                            if (FileSet.FindMoreRecentLastWriteTime(sourceFile.FullName, destFile.LastWriteTime) == null) {
+                                continue; 
+                            }
+
+                            // make sure the destination file is writable
+                            destFile.Attributes = FileAttributes.Normal;
                         }
 
-                        File.Copy(fi.FullName, outFile);
+                        // copy the file and overwrite the destination file
+                        // if it already exists
+                        sourceFile.CopyTo(destFile.FullName, true);
                     }
                 }
             }
 
             if (!bSuccess ) {
-                Log(Level.Error, _solutionTask.LogPrefix + "Build failed.");
+                Log(Level.Error, LogPrefix + "Build failed.");
             }
 
             return bSuccess;
