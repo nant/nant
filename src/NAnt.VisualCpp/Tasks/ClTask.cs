@@ -58,21 +58,15 @@ namespace NAnt.VisualCpp.Tasks {
         private string _outputdir = null;
         private string _pchfile = null;
         private FileSet _sources = new FileSet();
-        private FileSet _includes = new FileSet();
-        private string _options = null;
+        private FileSet _includeDirs = new FileSet();
+        private FileSet _metaDataIncludeDirs = new FileSet();
+        private FileSet _forcedUsingFiles = new FileSet();
+        private bool _managedExtensions;
+        private string _options;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// Options to pass to the compiler.
-        /// </summary>
-        [TaskAttribute("options")]
-        public string Options {
-            get { return _options; }
-            set { _options = value; }
-        }
 
         /// <summary>
         /// Directory where all output files are placed.
@@ -94,6 +88,26 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         /// <summary>
+        /// Specifies whether Managed Extensions for C++ should be enabled.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("managedextensions")]
+        [BooleanValidator()]
+        public bool ManagedExtensions {
+            get { return _managedExtensions; }
+            set { _managedExtensions = value;}
+        }
+
+        /// <summary>
+        /// Options to pass to the compiler.
+        /// </summary>
+        [TaskAttribute("options")]
+        public string Options {
+            get { return _options; }
+            set { _options = value; }
+        }
+
+        /// <summary>
         /// The list of files to compile.
         /// </summary>
         [FileSet("sources")]
@@ -106,9 +120,29 @@ namespace NAnt.VisualCpp.Tasks {
         /// The list of directories in which to search for include files.
         /// </summary>
         [FileSet("includedirs")]
-        public FileSet Includes {
-            get { return _includes; }
-            set { _includes = value; }
+        public FileSet IncludeDirs {
+            get { return _includeDirs; }
+            set { _includeDirs = value; }
+        }
+
+        /// <summary>
+        /// Directories that the compiler will search to resolve file references 
+        /// passed to the <c>#using</c> directive.
+        /// </summary>
+        [FileSet("metadataincludedirs")]
+        public FileSet MetaDataIncludeDirs {
+            get { return _metaDataIncludeDirs; }
+            set { _metaDataIncludeDirs = value; }
+        }
+
+        /// <summary>
+        /// Specifies metadata files to reference in this compilation as an
+        /// alternative to passing a file name to <c>#using</c> in source code.
+        /// </summary>
+        [FileSet("forcedusingfiles")]
+        public FileSet ForcedUsingFiles {
+            get { return _forcedUsingFiles; }
+            set { _forcedUsingFiles = value; }
         }
 
         #endregion Public Instance Properties
@@ -138,6 +172,7 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of ExternalProgramBase
+
         private bool IsPchfileUpToDate() {
             // if no pch file, then then it is theoretically up to date
             if (_pchfile == null) {
@@ -206,6 +241,7 @@ namespace NAnt.VisualCpp.Tasks {
         protected virtual bool NeedsCompiling() {
             return !(IsPchfileUpToDate() && AreObjsUpToDate() && AreSourcesUpToDate());
         }
+
         #region Override implementation of Task
 
         /// <summary>
@@ -227,20 +263,36 @@ namespace NAnt.VisualCpp.Tasks {
                     // write basic switches
                     writer.WriteLine("/c"); // compile only
  
-                    // write user provided options
-                    if (_options != null) {
-                        writer.WriteLine(_options);
+                    // write user defined options
+                    writer.WriteLine(Options);
+
+                    if (ManagedExtensions) {
+                        // enables Managed Extensions for C++
+                        writer.WriteLine("/clr");
                     }
- 
+
                     // write user provided include directories
-                    foreach (string include in Includes.DirectoryNames) {
+                    foreach (string include in IncludeDirs.DirectoryNames) {
                         writer.WriteLine("/I \"{0}\"", include);
+                    }
+
+                    // write directories that the compiler will search to resolve 
+                    // file references  passed to the #using directive
+                    foreach (string metaDataIncludeDir in MetaDataIncludeDirs.DirectoryNames) {
+                        writer.WriteLine("/AI \"{0}\"", metaDataIncludeDir);
+                    }
+
+                    // writes metadata files to reference in this compilation 
+                    // as an alternative to passing a file name to #using in 
+                    // source code
+                    foreach (string forcedUsingFile in ForcedUsingFiles.FileNames) {
+                        writer.WriteLine("/FU \"{0}\"", forcedUsingFile);
                     }
  
                     // specify output directories.  not that these need to end in a slash, but not a backslash.  not sure if AltDirectorySeparatorChar is the right way to get this behavior.
                     writer.WriteLine("/Fd\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
                     writer.WriteLine("/Fo\"{0}{1}\"", Path.Combine(BaseDirectory, OutputDir), Path.AltDirectorySeparatorChar);
- 
+
                     // specify pch file, if user gave one
                     if (_pchfile != null) {
                         string pchPath;
@@ -251,14 +303,22 @@ namespace NAnt.VisualCpp.Tasks {
 
                         writer.WriteLine("/Fp\"{0}\"", Path.Combine(pchPath, PchFile));
                     }
- 
+
                     // write each of the filenames
                     foreach (string filename in Sources.FileNames) {
                         writer.WriteLine("\"{0}\"", filename);
                     }
  
                     writer.Close();
- 
+
+                    if (Verbose) {
+                        // display response file contents
+                        Log(Level.Info, LogPrefix + "Contents of {0}.", _responseFileName);
+                        StreamReader reader = File.OpenText(_responseFileName);
+                        Log(Level.Info, reader.ReadToEnd());
+                        reader.Close();
+                    }
+
                     // call base class to do the actual work
                     base.ExecuteTask();
                 } finally {
