@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,16 +22,33 @@ using System.Collections.Specialized;
 using System.IO;
 
 namespace NAnt.Core {
-    /// <summary>Used to search for files on the PATH. The local directory is
-    /// not searched (since this would already be covered by normal use of
-    /// the includes element). Also, advanced pattern matching isn't supported
-    /// here: you need to know the exact name of the file.</summary>
+    /// <summary>
+    /// Used to search for files on the PATH. 
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The local directory is not searched (since this would already be covered 
+    /// by normal use of the includes element).
+    /// </para>
+    /// <para>
+    /// Also, advanced pattern matching isn't supported: you need to know the 
+    /// exact name of the file.
+    /// </para>
+    /// </remarks>
     public class PathScanner {
+        #region Private Instance Fields
+
         private StringCollection _unscannedNames = new StringCollection();
         private StringCollection _scannedNames = new StringCollection();
 
-        /// <summary>Adds a file to the list to be scanned</summary>
-        /// <param name="fileName">The filename to add to the list</param>
+        #endregion Private Instance Fields
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Adds a file to the list of files to be scanned for.
+        /// </summary>
+        /// <param name="fileName">The filename to add to the list.</param>
         public void Add(string fileName) {
             _unscannedNames.Add(fileName);
         }
@@ -41,32 +58,34 @@ namespace NAnt.Core {
         }
 
         public StringCollection Scan() {
-            // Clear any files we might've found previously
+            // clear any files we might've found previously
             _scannedNames.Clear();
 
-            // Break apart the PATH
-            string[] paths = Environment.GetEnvironmentVariable("PATH").Split(System.IO.Path.PathSeparator);
+            // break apart the PATH
+            string[] paths = Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
 
-            // Walk the names list
+            // walk the names list
             foreach(string name in _unscannedNames) {
-                // Walk the paths, and see if the given file is on the path
+                // walk the paths, and see if the given file is on the path
                 foreach(string path in paths) {
                     //do not scan inaccessible directories.
-                    if(!Directory.Exists(path)) {
+                    if (!Directory.Exists(path)) {
                         continue;
                     }
 
                     string[] found = Directory.GetFiles(path, name);
 
-                    if(found.Length > 0) {
+                    if (found.Length > 0) {
                         _scannedNames.Add(found[0]);
                         break;
                     }
                 }
             }
 
-            // Return an enumerator to the scanned (& found) files
+            // return an enumerator to the scanned (& found) files
             return _scannedNames;
         }
+
+        #endregion Public Instance Methods
     }
 }
