@@ -1166,6 +1166,12 @@ namespace NAnt.VSNet {
         }
 
         private void RunLibrarian(VcProjectConfiguration projectConfig) {
+            // check if there's anything to do
+            if (_objFiles.Count == 0) {
+                Log(Level.Debug, "No files to compile.");
+                return;
+            }
+
             // create instance of Lib task
             LibTask libTask = new LibTask();
 
@@ -1194,9 +1200,21 @@ namespace NAnt.VSNet {
             libTask.Sources.NamespaceManager = libTask.NamespaceManager;
 
             // set task properties
-            string outFile = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
-            libTask.OutputFile = new FileInfo(FileUtils.CombinePaths(
-                ProjectDirectory.FullName, outFile));
+            string outFile = projectConfig.GetToolSetting("VCLibrarianTool", "OutputFile",
+                "$(OutDir)/$(ProjectName).lib");
+            // if OutputFile is explicitly set to an empty string, VS.NET
+            // uses file name of first obj file (in intermediate directory)
+            if (StringUtils.IsNullOrEmpty(outFile)) {
+                outFile = FileUtils.CombinePaths(ProjectDirectory.FullName,
+                    FileUtils.CombinePaths(projectConfig.IntermediateDir, 
+                    Path.GetFileNameWithoutExtension((string) _objFiles[0]) + ".lib"));
+            } else {
+                outFile = FileUtils.CombinePaths(ProjectDirectory.FullName, outFile);
+            }
+
+            libTask.OutputFile = new FileInfo(outFile);
+
+            Console.WriteLine("OUT=" + outFile);
 
             foreach (string objFile in _objFiles) {
                 libTask.Sources.FileNames.Add(objFile);
@@ -1259,6 +1277,25 @@ namespace NAnt.VSNet {
             linkTask.LibDirs.BaseDirectory = ProjectDirectory;
             linkTask.Modules.BaseDirectory = ProjectDirectory;
             linkTask.EmbeddedResources.BaseDirectory = ProjectDirectory;
+
+            string addDeps = projectConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
+            if (!StringUtils.IsNullOrEmpty(addDeps)) {
+                int insertedDeps = 0;
+                foreach (string addDep in addDeps.Split(' ')) {
+                    if (Path.GetExtension(addDep) == ".obj") {
+                        _objFiles.Insert(insertedDeps++, addDep);
+                    }
+                    linkTask.Sources.FileNames.Add(addDep);
+                }
+            }
+
+            foreach (string objFile in _objFiles) {
+                linkTask.Sources.FileNames.Add(objFile);
+            }
+
+            foreach (string defaultLib in _defaultLibraries) {
+                linkTask.Sources.FileNames.Add(defaultLib);
+            }
 
             string extension = null;
             switch (projectConfig.Type) {
@@ -1380,21 +1417,6 @@ namespace NAnt.VSNet {
 
             if (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary) {
                 linkTask.Arguments.Add(new Argument("/DLL"));
-            }
-
-            foreach (string objFile in _objFiles) {
-                linkTask.Sources.FileNames.Add(objFile);
-            }
-
-            string addDeps = projectConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
-            if (!StringUtils.IsNullOrEmpty(addDeps)) {
-                foreach (string addDep in addDeps.Split(' ')) {
-                    linkTask.Sources.FileNames.Add(addDep);
-                }
-            }
-
-            foreach (string defaultLib in _defaultLibraries) {
-                linkTask.Sources.FileNames.Add(defaultLib);
             }
 
             // add referenced static libraries

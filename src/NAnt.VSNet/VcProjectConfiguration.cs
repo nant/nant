@@ -209,6 +209,13 @@ namespace NAnt.VSNet {
         /// </value>
         public override string OutputPath {
             get {
+                // TODO : we might to move this to another property called TargetPath
+                // as the current implementation will not match the real output file
+                // of the project configuration
+                //
+                // Note: to determine the real output path we may even need access to
+                // the sources of the project (if no output file for linker is 
+                // explicitly set to an empty string)
                 string outputPath = null;
 
                 switch (Type) {
