@@ -29,38 +29,118 @@ using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 //
-// This file defines functions in nant:: namespace. 
+// This file defines functions for the NAnt category. 
 // 
-// Please note that nant::get-property-value() is defined in ExpressionEvaluator 
+// Please note that property::get-value() is defined in ExpressionEvaluator 
 // class because it needs the intimate knowledge of the expressione evaluation stack. 
 // Other functions should be defined here.
 // 
 
 namespace NAnt.Core.Functions {
-    [FunctionSet("nant", "NAnt")]
-    public class NAntFunctions : FunctionSetBase {
+    [FunctionSet("target", "NAnt")]
+    public class TargetFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
-        public NAntFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        public TargetFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
         }
 
         #endregion Public Instance Constructors
 
-        #region Public Static Methods
+        #region Public Instance Methods
 
         /// <summary>
         /// Checks whether the specified target exists.
         /// </summary>
-        /// <param name="targetName">The target to test.</param>
+        /// <param name="name">The target to test.</param>
         /// <returns>
         /// <see langword="true" /> if the specified target exists; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        [Function("target-exists")]
-        public bool TargetExists(string targetName) {
-            return Project.Targets.Find(targetName) != null;
+        [Function("exists")]
+        public bool Exists(string name) {
+            return Project.Targets.Find(name) != null;
         }
-        
+
+        /// <summary>
+        /// Checks whether the specified target has already been executed.
+        /// </summary>
+        /// <param name="name">The target to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified target has already been 
+        /// executed; otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("has-executed")]
+        public bool HasExecuted(string name) {
+            Target target = Project.Targets.Find(name);
+            if (target == null) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "Target '{0}' does not exist.", name));
+            }
+
+            return target.Executed;
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    [FunctionSet("task", "NAnt")]
+    public class TaskFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public TaskFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Checks whether the specified task exists.
+        /// </summary>
+        /// <param name="name">The task to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified task exists; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        [Function("exists")]
+        public bool Exists(string name) {
+            return TypeFactory.TaskBuilders.Contains(name);
+        }
+
+        /// <summary>
+        /// Returns the filename of the assembly from which the specified task
+        /// was loaded.
+        /// </summary>
+        /// <param name="name">The task to get the location of.</param>
+        /// <returns>
+        /// The filename of the assembly from which the specified task was 
+        /// loaded.
+        /// </returns>
+        [Function("get-location")]
+        public string GetLocation(string name) {
+            TaskBuilder task = TypeFactory.TaskBuilders[name];
+            if (task == null) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "Task '{0}' is not available.", name));
+            }
+
+            return task.AssemblyFileName;
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    [FunctionSet("property", "NAnt")]
+    public class PropertyFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public PropertyFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
         /// <summary>
         /// Checks whether the specified property exists.
         /// </summary>
@@ -69,11 +149,100 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified property exists; otherwise,
         /// <see langword="false" />.
         /// </returns>
-        [Function("property-exists")]
-        public bool PropertyExists(string name) {
+        [Function("exists")]
+        public bool Exists(string name) {
             return Project.Properties.Contains(name);
         }
 
-        #endregion Public Static Methods
+        /// <summary>
+        /// Checks whether the specified property is read-only.
+        /// </summary>
+        /// <param name="name">The property to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified property is read-only; 
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-readonly")]
+        public bool IsReadOnly(string name) {
+            if (!Project.Properties.Contains(name)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                    "Property '{0}' has not been set.", name));
+            }
+
+            return Project.Properties.IsReadOnlyProperty(name);
+        }
+
+        /// <summary>
+        /// Checks whether the specified property is a dynamic property.
+        /// </summary>
+        /// <param name="name">The property to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified property is a dynamic
+        /// property; otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-dynamic")]
+        public bool IsDynamic(string name) {
+            if (!Project.Properties.Contains(name)) {
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                    "Property '{0}' has not been set.", name));
+            }
+
+            return Project.Properties.IsDynamicProperty(name);
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    [FunctionSet("framework", "NAnt")]
+    public class FrameworkFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public FrameworkFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Checks whether the specified framework exists.
+        /// </summary>
+        /// <param name="name">The framework to test.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified framework exists; otherwise,
+        /// <see langword="false" />.
+        /// </returns>
+        [Function("exists")]
+        public bool Exists(string name) {
+            return Project.FrameworkInfoDictionary.ContainsKey(name);
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    [FunctionSet("environment", "NAnt")]
+    public class EnvironmentFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public EnvironmentFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Returns the value of the specified environment variable.
+        /// </summary>
+        /// <param name="name">The environment variable of which the value should be returned.</param>
+        /// <returns>
+        /// The value of the specified environment variable.
+        /// </returns>
+        [Function("get-variable")]
+        public string GetVariable(string name) {
+            return Environment.GetEnvironmentVariable(name);
+        }
+
+        #endregion Public Instance Methods
     }
 }
