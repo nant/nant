@@ -76,7 +76,7 @@ namespace SourceForge.NAnt {
         /// <value>
         /// <c>true</c> if only error or warning messages should be displayed; otherwise, <c>false</c>.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", Description = "displays only error or warning messages during build process")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "quiet", ShortName="q", Description = "displays only error or warning messages during build process")]
         public bool Quiet {
             get { return _quiet; }
             set { _quiet = value; }
@@ -102,7 +102,7 @@ namespace SourceForge.NAnt {
         /// <value>
         /// The indentation level of the build output.
         /// </value>
-        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "number of characters to indent build output")]
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "indent", Description = "indentation level of build output")]
         public int IndentationLevel {
             get { return _indentationLevel; }
             set { _indentationLevel = value; }
@@ -149,6 +149,21 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
+        /// Gets or sets a collection containing fully qualified type names of
+        /// classes implementating <see cref="IBuildListener" /> that should be
+        /// to the project as listener.
+        /// </summary>
+        /// <value>
+        /// A collection of fully qualified type names that should be added as 
+        /// listeners to the project.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="listener", Description="add an instance of class as a project listener")]
+        public StringCollection Listeners {
+            get { return _listeners; }
+            set { _listeners = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether project help should be
         /// printed.
         /// </summary>
@@ -188,10 +203,11 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets or sets a list of targets that should be executed.
+        /// Gets or sets a collection containing the targets that should be 
+        /// executed.
         /// </summary>
         /// <value>
-        /// The list of targets that should be executed.
+        /// A collection that contains the targets that should be executed.
         /// </value>
         [DefaultCommandLineArgument(CommandLineArgumentTypes.MultipleUnique, Name="target")]
         public StringCollection Targets {
@@ -213,6 +229,7 @@ namespace SourceForge.NAnt {
         private StringCollection _properties = new StringCollection();
         private string _loggerType;
         private FileInfo _logFile;
+        private StringCollection _listeners = new StringCollection();
         private StringCollection _targets = new StringCollection();
         private bool _showProjectHelp;
 
