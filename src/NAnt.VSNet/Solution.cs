@@ -53,15 +53,6 @@ namespace NAnt.VSNet {
                 string guid = projectMatch.Groups["guid"].Value;
                 string fullPath;
 
-                // only C#, VB.NET and C++ projects are supported at this moment
-                if (!ProjectFactory.IsSupportedProjectType(project)) {
-                    // output a warning message in the build log
-                    Log(Level.Warning, LogPrefix + "Only C#, VB.NET and C++ projects" +
-                        " are supported.  Skipping project '{0}'.", project);
-                    // skip the project
-                    continue;
-                }
-
                 // translate URLs to physical paths if using a webmap
                 string map = _webMaps.FindBestMatch(project);
                 if (map != null) {
@@ -91,6 +82,16 @@ namespace NAnt.VSNet {
                 if (Project.IsEnterpriseTemplateProject(fullPath)) {
                     RecursiveLoadTemplateProject(fullPath);
                 } else {
+                    // only C#, VB.NET and C++ projects are supported at this moment
+                    if (!ProjectFactory.IsSupportedProjectType(project)) {
+                        // output a warning message in the build log
+                        Log(Level.Warning, LogPrefix + "Only C#, VB.NET and C++ projects" +
+                            " are supported.  Skipping project '{0}'.", project);
+                        // skip the project
+                        continue;
+                    }
+
+                    // add project path to collection
                     _htProjectFiles[guid] = fullPath;
                 }
 
@@ -383,11 +384,12 @@ namespace NAnt.VSNet {
         private void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
                 string projectGuid = ProjectFactory.LoadGuid(projectFileName);
-                if (_htProjectFiles[projectGuid] != null)
+                if (_htProjectFiles[projectGuid] != null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Error loading project {0}. " 
                         + " Project GUID {1} already exists! Conflicting project is {2}.", 
                         projectFileName, projectGuid, _htProjectFiles[projectGuid]));
+                }
                 _htProjectFiles[projectGuid] = projectFileName;
                 if (isReferenceProject) {
                     _htReferenceProjects[projectGuid] = null;
@@ -514,7 +516,7 @@ namespace NAnt.VSNet {
         }
 
         private string FindGuidFromPath(string projectPath) {
-            foreach(DictionaryEntry de in _htProjectFiles) {
+            foreach (DictionaryEntry de in _htProjectFiles) {
                 string guid = (string) de.Key;
                 string path = (string) de.Value;
                 if (string.Compare(path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
