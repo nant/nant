@@ -67,6 +67,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         }
 
         #region Protected Instance Methods
+
         /// <summary>
         /// Checkout the project to a temporary path.
         /// </summary>
@@ -83,11 +84,7 @@ namespace Tests.NAnt.VSNet.Tasks {
                  module, cvsroot, destination, string.Empty, DateTime.Now};
 
             string build = FormatBuildFile(_checkoutXML, args);
-            System.Console.WriteLine(build);
-            string result = 
-                RunBuild(build, Level.Debug);
-
-            System.Console.WriteLine(result);
+            string result = RunBuild(build, Level.Info);
         }
 
         protected string FormatBuildFile(string baseFile, object[] args) {
@@ -95,6 +92,5 @@ namespace Tests.NAnt.VSNet.Tasks {
         }
 
         #endregion Protected Instance Methods
-
     }
 }
