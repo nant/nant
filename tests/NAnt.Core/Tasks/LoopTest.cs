@@ -36,7 +36,7 @@ namespace SourceForge.NAnt.Tests {
         public void Test_Loop_String_Default_Delim() {
             string _xml = @"
                     <project>
-                        <foreach item='String' in='1,2,3,4' delim=',' property='count'>
+                        <foreach item='String' in='1,2,3,4;5' delim=';,' property='count'>
                             <echo message='Count:${count}'/>
                         </foreach>
                     </project>";
@@ -46,7 +46,8 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(result.IndexOf("Count:2") != -1);
             Assertion.Assert(result.IndexOf("Count:3") != -1);
             Assertion.Assert(result.IndexOf("Count:4") != -1);
-        }
+			Assertion.Assert(result.IndexOf("Count:5") != -1);
+		}
         
         [Test]
         public void Test_Loop_Files() {
@@ -79,16 +80,57 @@ namespace SourceForge.NAnt.Tests {
 
 		[Test]
         public void Test_Loop_Lines() {
-            string _xml = @"
-                    <project>
-                    <!-- Hello from inside -->
-                        <foreach item='Line' in='${nant.project.basedir}/test.build' property='line'>
-                            <echo message='Line:${line}'/>
-                        </foreach>
-                    </project>";
-            string result = RunBuild(_xml);
-            //Log.WriteLine(result);
-            Assertion.Assert(result.IndexOf("Hello") != -1);
+			string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
+			using ( StreamWriter sw = new StreamWriter( strTempFile ) )
+			{
+				sw.WriteLine( "x,y" );
+				sw.WriteLine( "x2,y2  " );
+				sw.WriteLine( "x3  ,y3" );
+				sw.WriteLine( "x4,  y4" );
+				sw.Close();
+
+				string _xml = String.Format( @"
+						<project>
+						<!-- Hello from inside -->
+							<foreach item='Line' delim=',;' trim='Both' in='{0}' property='x,y'>
+								<echo message='|${{x}}=${{y}}|'/>
+							</foreach>
+						</project>", strTempFile );
+				string result = RunBuild(_xml);
+				//Log.WriteLine(result);
+				Assertion.Assert(result.IndexOf("|x=y|") != -1);
+				Assertion.Assert(result.IndexOf("|x2=y2|") != -1);
+				Assertion.Assert(result.IndexOf("|x3=y3|") != -1);
+				Assertion.Assert(result.IndexOf("|x4=y4|") != -1);
+			}
         }
-    }
+
+		[Test]
+		public void Test_Loop_Lines_No_Delim() 
+		{
+			string strTempFile = CreateTempFile("looptest.loop_lines_test.txt");
+			using ( StreamWriter sw = new StreamWriter( strTempFile ) )
+			{
+				sw.WriteLine( "x,y " );
+				sw.WriteLine( "x2,y2  " );
+				sw.WriteLine( "  x3  ,y3 " );
+				sw.WriteLine( "  x4,  y4 " );
+				sw.Close();
+
+				string _xml = String.Format( @"
+						<project>
+						<!-- Hello from inside -->
+							<foreach item='Line' trim='Start' in='{0}' property='x'>
+								<echo message='|${{x}}|'/>
+							</foreach>
+						</project>", strTempFile );
+				string result = RunBuild(_xml);
+				//Log.WriteLine(result);
+				Assertion.Assert(result.IndexOf("|x,y |") != -1);
+				Assertion.Assert(result.IndexOf("|x2,y2  |") != -1);
+				Assertion.Assert(result.IndexOf("|x3  ,y3 |") != -1);
+				Assertion.Assert(result.IndexOf("|x4,  y4 |") != -1);
+			}
+		}	
+	}
 }
