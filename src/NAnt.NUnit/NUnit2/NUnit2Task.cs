@@ -36,6 +36,7 @@ using NUnit.Framework;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
+
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Types;
 
@@ -225,7 +226,7 @@ namespace NAnt.NUnit2.Tasks {
 
                                     writer = new StreamWriter(outputFile);
                                 } else {
-                                    writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
+                                    writer = new LogWriter(this, Level.Info, LogPrefix, CultureInfo.InvariantCulture);
                                 }
                                 CreateSummaryDocument(xmlResultFile, writer, test);
                                 writer.Close();
@@ -263,7 +264,7 @@ namespace NAnt.NUnit2.Tasks {
 
         private TestResult RunSingleRemoteTest(NUnit2Test test, string testAssembly, EventListener listener) {
             try {
-                LogWriter writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
+                LogWriter writer = new LogWriter(this, Level.Info, LogPrefix, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
                 return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, listener);
             } catch (Exception ex) {
@@ -302,100 +303,5 @@ namespace NAnt.NUnit2.Tasks {
         }
         
         #endregion Private Instance Methods
-
-        /// <summary>
-        /// Implements a <see cref="TextWriter" /> for writing information to 
-        /// the NAnt logging infrastructure.
-        /// </summary>
-        private class LogWriter : TextWriter {
-            #region Public Instance Constructors
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="LogWriter" /> class 
-            /// with the specified prefix and format provider.
-            /// </summary>
-            /// <param name="task">Determines the indentation level.</param>
-            /// <param name="logPrefix">The prefix for written messages.</param>
-            /// <param name="formatProvider">An <see cref="IFormatProvider" /> object that controls formatting.</param>
-            public LogWriter(Task task, string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
-                _task = task;
-                _logPrefix = logPrefix;
-            }
-
-            #endregion Public Instance Constructors
-
-            #region Override implementation of TextWriter
-
-            /// <summary>
-            /// Gets the <see cref="Encoding" /> in which the output is written.
-            /// </summary>
-            /// <value>
-            /// The <see cref="LogWriter" /> always writes output in UTF8 
-            /// encoding.
-            /// </value>
-            public override Encoding Encoding {
-                get { return Encoding.UTF8; }
-            }
-
-            /// <summary>
-            /// Writes a character array to the text stream, while adding a 
-            /// prefix if its the first output on the current line.
-            /// </summary>
-            /// <param name="chars">The character array to write to the text stream.</param>
-            public override void Write(char[] chars) {
-                if (_needPrefix) {
-                    _message = _logPrefix;
-                }
-                _message += new string(chars, 0, chars.Length -1);
-            }
-
-            /// <summary>
-            /// Writes a string followed by a line terminator to the text stream.
-            /// </summary>
-            /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
-            public override void WriteLine(string value) {
-                string message = "";
-                if (_needPrefix) {
-                    message = _logPrefix;
-                }
-                _task.Log(Level.Info, message + value);
-                _needPrefix = true;
-            }
-
-            /// <summary>
-            /// Writes out a formatted string with prefix and a new line, using the same 
-            /// semantics as <see cref="string.Format(string, object[])" />.
-            /// </summary>
-            /// <param name="line">The formatting string.</param>
-            /// <param name="args">The object array to write into format string.</param>
-            public override void WriteLine(string line, params object[] args) {
-                string message = "";
-                if (_needPrefix) {
-                    message = _logPrefix;
-                }
-                _task.Log(Level.Info, message + line, args);
-                _needPrefix = true;
-            }   
-
-
-            public override void Close() {
-                if (!StringUtils.IsNullOrEmpty(_message)) {
-                    _task.Log(Level.Info, _message);
-                }
-                base.Close ();
-            }
-
-
-            #endregion Override implementation of TextWriter
-
-            #region Private Instance Fields
-
-            private Task _task;
-            private bool _needPrefix = true;
-            private string _logPrefix;
-            private string _message = "";
-
-            #endregion Private Instance Fields
-        }
     }
 }
