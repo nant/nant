@@ -155,7 +155,41 @@ namespace NAnt.Core.Types {
         public void Remove(FilterSet item) {
             base.List.Remove(item);
         }
-        
+
+        /// <summary>
+        /// Does replacement on the given string with token matching.
+        /// </summary>
+        /// <param name="line">The line to process the tokens in.</param>
+        /// <returns>
+        /// The line with the tokens replaced.
+        /// </returns>
+        public string ReplaceTokens(string line) {
+            string replacedLine = line;
+
+            foreach (FilterSet filterSet in base.List) {
+                replacedLine = filterSet.ReplaceTokens(replacedLine);
+            }
+
+            return replacedLine;
+        }
+    
+        /// <summary>
+        /// Checks to see if there are filters in the collection of filtersets.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if there are filters in this collection of
+        /// filtersets; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool HasFilters() {
+            foreach (FilterSet filterSet in base.List) {
+                if (filterSet.Filters.Count > 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         #endregion Public Instance Methods
     }
 

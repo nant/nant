@@ -124,7 +124,7 @@ namespace NAnt.Core.Types {
                             break;
                         }
 
-                        token = line.Substring(index + BeginToken.Length, endIndex);
+                        token = line.Substring(index + BeginToken.Length, endIndex - (index + BeginToken.Length));
                         b.Append(line.Substring(i, index));
 
                         if (Filters.Contains(token)) {
