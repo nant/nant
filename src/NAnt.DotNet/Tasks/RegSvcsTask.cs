@@ -56,43 +56,50 @@ namespace NAnt.DotNet.Tasks {
     /// </para>
     /// </remarks>
     /// <example>
-    /// <para>
-    /// Adds all public classes contained in <c>myTest.dll</c> to a COM+ application 
-    /// and produces the <c>myTest.tlb</c> type library. If the application already 
-    /// exists, it is overwritten.
-    /// </para>
-    /// <code>
+    ///   <para>
+    ///   Adds all public classes contained in <c>myTest.dll</c> to a COM+ 
+    ///   application and produces the <c>myTest.tlb</c> type library. If the 
+    ///   application already exists, it is overwritten.
+    ///   </para>
+    ///   <code>
     ///     <![CDATA[
     /// <regsvcs action="FindOrCreate" assembly="myTest.dll" />
     ///     ]]>
-    /// </code>
-    /// <para>
-    /// Adds all public classes contained in <c>myTest.dll</c> to <c>myTargetApp</c> 
-    /// and produces the <c>myTest.tlb</c> type library. If the application already 
-    /// exists, it is overwritten.
-    /// </para>
-    /// <code>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Adds all public classes contained in <c>myTest.dll</c> to <c>myTargetApp</c> 
+    ///   and produces the <c>myTest.tlb</c> type library. If the application already 
+    ///   exists, it is overwritten.
+    ///   </para>
+    ///   <code>
     ///     <![CDATA[
     /// <regsvcs action="FindOrCreate" assembly="myTest.dll" application="myTargetApp" />
     ///     ]]>
-    /// </code>
-    /// <para>
-    /// Adds all public classes contained in <c>myTest.dll</c> to a COM+ application 
-    /// and produces the <c>myTest.tlb</c> type library. A new application is always 
-    /// created.
-    /// </para>
-    /// <code>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Adds all public classes contained in <c>myTest.dll</c> to a COM+ 
+    ///   application and produces the <c>myTest.tlb</c> type library. A new 
+    ///   application is always created.
+    ///   </para>
+    ///   <code>
     ///     <![CDATA[
     /// <regsvcs action="Create" assembly="myTest.dll" />
     ///     ]]>
-    /// </code>
-    /// <para>
-    /// Uninstalls the COM+ application contained in <c>myTest.dll</c></para>
-    /// <code>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Uninstalls the COM+ application contained in <c>myTest.dll</c>.
+    ///   </para>
+    ///   <code>
     ///     <![CDATA[
     /// <regsvcs action="Uninstall" assembly="myTest.dll" />
     ///     ]]>
-    /// </code>
+    ///   </code>
     /// </example>
     [TaskName("regsvcs")]
     [ProgramLocation(LocationType.FrameworkDir)]
