@@ -228,7 +228,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         [TaskAttribute("objectfile")]
         public string ObjectFile {
-            get { return (_objectFile != null ? _objectFile : OutputDir.FullName); }
+            get { return (_objectFile != null ? Path.Combine(OutputDir.FullName, _objectFile) : OutputDir.FullName + "/"); }
             set { _objectFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
@@ -238,7 +238,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         [TaskAttribute("pdbfile")]
         public string ProgramDatabaseFile {
-            get { return (_pdbFile != null ? _pdbFile : OutputDir.FullName); }
+            get { return (_pdbFile != null ? Path.Combine(OutputDir.FullName, _pdbFile) : OutputDir.FullName + "/"); }
             set { _pdbFile = StringUtils.ConvertEmptyToNull(value); }
         }
 
