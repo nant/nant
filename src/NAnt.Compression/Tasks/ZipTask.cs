@@ -93,6 +93,9 @@ namespace SourceForge.NAnt.Tasks {
                     string entryName = file.Substring(basePath.Length + 1);
                    
                     ZipEntry entry = new ZipEntry(entryName);
+                    //write datetime from file (adjust for bug in lib).
+                    //TODO: Remove when bug is fixed.~!
+                    entry.DateTime = File.GetLastWriteTime(file).AddMonths(-1);
 
                     if (Verbose) {
                         Log.WriteLine(LogPrefix + "Adding {0}", entryName);
