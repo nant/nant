@@ -26,6 +26,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -86,7 +87,7 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Name of the resource file to output.
+        /// Name of the license file to output.
         /// </summary>
         [TaskAttribute("output", Required=false)]
         public string Output {
@@ -104,18 +105,30 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// The output executable file for which the license will be generated.
+        /// The executable file for which the license will be generated.
         /// </summary>
         [TaskAttribute("licensetarget", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Target {
-            get { return (_target != null) ? Project.GetFullPath(_target) : null; }
+            get { return _target; }
             set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
 
         #endregion Public Instance Properties
 
         #region Override implementation of Task
+
+        /// <summary>
+        /// Initializes the <see cref="LicenseTask" /> class.
+        /// </summary>
+        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
+        protected override void InitializeTask(XmlNode taskNode) {
+            if (!File.Exists(Input)) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Input file '{0}' does not exist.", Input), Location);
+            }
+        }
+
 
         /// <summary>
         /// Generates the license file.
@@ -152,16 +165,15 @@ namespace NAnt.DotNet.Tasks {
                     Output, Target), Location, ex);
             }
 
+            // make sure the directory for the .licenses file exists
+            Directory.CreateDirectory(Path.GetDirectoryName(resourceFilename));
+
             Log(Level.Verbose, LogPrefix + "Compiling license file {0} to {1}" 
                 + " using target {2}.", Input, resourceFilename, Target);
 
             // create new domain
-
-            AppDomainSetup setup = new AppDomainSetup();
-            setup.ConfigurationFile = @"D:\" + Project.CurrentFramework.Name + ".exe.config";
-
             AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
-                AppDomain.CurrentDomain.Evidence, setup);
+                AppDomain.CurrentDomain.Evidence);
 
             LicenseGatherer licenseGatherer = (LicenseGatherer)
                 newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
