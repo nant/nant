@@ -35,12 +35,12 @@ namespace NAnt.Core.Util {
         }
 
         /// <summary>
-        /// Converts an empty string ("") to <b>null</b>.
+        /// Converts an empty string ("") to <see langword="null" />.
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>
-        /// <b>null</b> if <paramref name="value" /> is an empty string ("")
-        /// or <b>null</b>; otherwise, <paramref name="value" />.
+        /// <see langword="null" /> if <paramref name="value" /> is an empty 
+        /// string ("") or <see langword="null" />; otherwise, <paramref name="value" />.
         /// </returns>
         public static string ConvertEmptyToNull(string value) {
             if (!IsNullOrEmpty(value)) {
@@ -48,6 +48,22 @@ namespace NAnt.Core.Util {
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Converts <see langword="null" /> to an empty string.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>
+        /// An empty string if <paramref name="value" /> is <see langword="null" />;
+        /// otherwise, <paramref name="value" />.
+        /// </returns>
+        public static string ConvertNullToEmpty(string value) {
+            if (value == null) {
+                return string.Empty;
+            }
+
+            return value;
         }
 
         #endregion Public Static Methods
