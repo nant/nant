@@ -9,8 +9,10 @@
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VisualCppTasks.dll"
             doc="${build.dir}/bin/NAnt.VisualCppTasks.xml">
-            <sources basedir="NAnt.VisualCppTasks">
-                <includes name="**/*.cs" />
+            <sources>
+                <includes name="NAnt.VisualCppTasks/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />

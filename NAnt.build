@@ -52,8 +52,10 @@
         </copy>
         <!-- build NAnt.Core -->
         <csc target="library" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.dll" doc="${build.dir}/bin/NAnt.Core.xml">
-            <sources basedir="src/NAnt.Core" failonempty="true">
-                <includes name="**/*.cs" />
+            <sources failonempty="true">
+                <includes name="src/NAnt.Core/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <resources basedir="src/NAnt.Core/Resources">
                 <includes name="**/*" />
@@ -65,14 +67,15 @@
         </csc>
         <!-- build NAnt.Core.Tests -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Core.Tests.dll">
-            <sources basedir="src/NAnt.Core.Tests" failonempty="true">
-                <includes name="**/*.cs" />
-                
+            <sources failonempty="true">
+                <includes name="src/NAnt.Core.Tests/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="src/CommonAssemblyInfo.cs" />
                 <!-- requires internet access and server resources -->
-                <excludes name="**/GetTaskTest.cs" />
-                <excludes name="**/MailTaskTest.cs" />
+                <excludes name="src/NAnt.Core.Tests/**/GetTaskTest.cs" />
+                <excludes name="src/NAnt.Core.Tests/**/MailTaskTest.cs" />
                 <!-- ??? why excluded ??? -->
-                <excludes name="**/TouchTaskTest.cs" />
+                <excludes name="src/NAnt.Core.Tests/**/TouchTaskTest.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
@@ -83,8 +86,10 @@
         </csc>
         <!-- build NAnt.Console -->
         <csc target="exe" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
-            <sources basedir="src/NAnt.Console" failonempty="true">
-                <includes name="**/*.cs" />
+            <sources failonempty="true">
+                <includes name="src/NAnt.Console/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="log4net-net-1.0.dll"/>
@@ -94,8 +99,10 @@
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="src/NAnt.Console/NAnt.Console.exe.config" />
         <!-- compile NAnt.Console.Tests -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.Console.Tests.dll">
-            <sources basedir="src/NAnt.Console.Tests" failonempty="true">
-                <includes name="**/*.cs" />
+            <sources failonempty="true">
+                <includes name="src/NAnt.Console.Tests/**/*.cs" />
+                <!-- common assembly-level attributes -->
+                <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll" />
@@ -226,11 +233,11 @@
         </ndoc>
     </target>
 
-	<target name="schema">
+    <target name="schema">
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema"/>
         <nantschema output="${build.dir}/schema/${project.name}-${project.version}.xsd" target-ns="http://nant.sf.net/schema/${project.name}-${project.version}.xsd"/>
-	</target>
+    </target>
     <!--
         use the following command line to create a debug package:
         nant debug package

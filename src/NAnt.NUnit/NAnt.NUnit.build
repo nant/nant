@@ -8,8 +8,10 @@
     <target name="build">
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitFormatters.dll" doc="${build.dir}/bin/NAnt.NUnitFormatters.xml">
-            <sources basedir="NAnt.NUnitTasks">
-                <includes name="*.cs"/>
+            <sources>
+                <includes name="NAnt.NUnitTasks/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
@@ -19,8 +21,10 @@
             <arg value="/nowarn:1591"/>
         </csc>
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
-            <sources basedir="NAnt.NUnitTasks">
-                <includes name="NUnit1/*.cs"/>
+            <sources>
+                <includes name="NAnt.NUnitTasks/NUnit1/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
@@ -32,10 +36,12 @@
         </csc>
         <!-- warnaserrors must be false to compile under 1.1 framework -->
         <csc target="library" warnaserror="false" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
-            <sources basedir="NAnt.NUnitTasks">
-                <includes name="NUnit2/*.cs"/>
+            <sources>
+                <includes name="NAnt.NUnitTasks/NUnit2/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
-            <references basedir="${build.dir}/bin">                
+            <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
                 <includes name="NDoc.Core.dll"/>
                 <includes name="nunit.framework.dll"/>
@@ -45,8 +51,9 @@
         </csc>
         <!-- build test assembly
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitTasks.Tests.dll">
-            <sources basedir="NAnt.NUnitTasks.Tests">
-                <includes name="NUnit2TaskTest.cs"/>
+            <sources>
+                <includes name="NAnt.NUnitTasks.Tests/NUnit2TaskTest.cs"/>
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.NUnitTasks.dll"/>
@@ -56,8 +63,9 @@
             </references>
         </csc>
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnitTasks.Tests.TestAssembly.dll">
-            <sources basedir="NAnt.NUnitTasks.Tests">
-                <includes name="MockTest.cs"/>
+            <sources>
+                <includes name="NAnt.NUnitTasks.Tests/MockTest.cs"/>
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="nunit.framework.dll"/>

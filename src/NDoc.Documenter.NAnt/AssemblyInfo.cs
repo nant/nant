@@ -14,31 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MaceLean (ian@maclean.ms)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 // DO NOT mark NDoc.Documenter.NAnt CLS compliant
 // because NDoc is not CLS-compliant
 [assembly: CLSCompliant(false)]
 
-// Make NDoc.Documenter.NAnt as NOT visible to COM
-[assembly: ComVisible(false)]
-
-[assembly: AssemblyTitle("NAnt Documenter")]
-[assembly: AssemblyDescription("NDoc Documenter for NAnt")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("http://nant.sf.net")]
-[assembly: AssemblyProduct("NAnt")]
-[assembly: AssemblyCopyright("Copyright (C) 2001-2002 Gerry Shaw")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.2.*")]
-
+// This will not compile with Visual Studio.  If you want to build a signed
+// executable use the NAnt build file.  To build under Visual Studio just
+// exclude this file from the build.
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("")]
+//[assembly: AssemblyKeyFile(@"..\NAnt.key")]
 [assembly: AssemblyKeyName("")]

@@ -8,8 +8,10 @@
     <target name="build">
         <!-- build main assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VSNetTasks.dll" doc="${build.dir}/bin/NAnt.VSNetTasks.xml">
-            <sources basedir="NAnt.VSNetTasks">
-                <includes name="**/*.cs"/>
+            <sources>
+                <includes name="NAnt.VSNetTasks/**/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>
@@ -21,8 +23,10 @@
         </csc>
         <!-- build test assembly -->
         <csc target="library" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.VSNetTasks.Tests.dll">
-            <sources basedir="NAnt.VSNetTasks.Tests">
-                <includes name="**/*.cs"/>
+            <sources>
+                <includes name="NAnt.VSNetTasks.Tests/**/*.cs"/>
+                <!-- common assembly-level attributes -->
+                <includes name="CommonAssemblyInfo.cs" />
             </sources>
             <references basedir="${build.dir}/bin">
                 <includes name="NAnt.Core.dll"/>

@@ -75,6 +75,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "CommonAssemblyInfo.cs"
+                    Link = "..\CommonAssemblyInfo.cs"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "FormatterCollection.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

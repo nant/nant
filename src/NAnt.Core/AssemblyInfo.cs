@@ -17,11 +17,10 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 // Configure log4net using the application configuration file 
 // (AppDomain.CurrentDomain.SetupInformation.ConfigurationFile).
@@ -33,19 +32,6 @@ using System.Runtime.InteropServices;
 
 // Mark NAnt.Core CLS compliant
 [assembly: CLSCompliant(true)]
-
-// Make NAnt.Core as NOT visible to COM
-[assembly: ComVisible(false)]
-
-[assembly: AssemblyTitle("NAnt")]
-[assembly: AssemblyDescription("A .NET Build Tool")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("http://nant.sourceforge.net")]
-[assembly: AssemblyProduct("NAnt")]
-[assembly: AssemblyCopyright("Copyright (C) 2001-2003 Gerry Shaw")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("0.8.2.*")]
 
 // This will not compile with Visual Studio.  If you want to build a signed
 // executable use the NAnt build file.  To build under Visual Studio just
