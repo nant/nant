@@ -19,6 +19,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
@@ -41,6 +42,11 @@ namespace NAnt.Core {
         private Level _threshold = Level.Info;
         [NonSerialized()]
         private XmlTextWriter _xmlWriter;
+
+        /// <summary>
+        /// Holds the stack of currently executing projects.
+        /// </summary>
+        private Stack _projectStack = new Stack();
 
         #endregion Private Instance Fields
 
@@ -68,6 +74,7 @@ namespace NAnt.Core {
             _buffer = info.GetValue("Buffer", typeof(StringWriter)) as StringWriter;
             _threshold = (Level) info.GetValue("Threshold", typeof(Level));
             _xmlWriter = new XmlTextWriter(_buffer);
+            _projectStack = (Stack) info.GetValue("ProjectStack", typeof(Stack));
         }
 
         #endregion Protected Instance Constructors
@@ -84,6 +91,7 @@ namespace NAnt.Core {
             info.AddValue("OutputWriter", _outputWriter);
             info.AddValue("Buffer", _buffer);
             info.AddValue("Threshold", _threshold);
+            info.AddValue("ProjectStack", _projectStack);
         }
 
         #endregion Implementation of ISerializable
@@ -112,6 +120,9 @@ namespace NAnt.Core {
         public void BuildStarted(object sender, BuildEventArgs e) {
             _xmlWriter.WriteStartElement(Elements.BuildResults);
             _xmlWriter.WriteAttributeString(Attributes.Project, e.Project.ProjectName);
+
+            // add an item to the project stack
+            _projectStack.Push(null);
         }
 
         /// <summary>
@@ -132,6 +143,16 @@ namespace NAnt.Core {
             // close buildresults node
             _xmlWriter.WriteEndElement();
             _xmlWriter.Flush();
+
+            // remove an item from the project stack
+            _projectStack.Pop();
+
+            // check if there are still nested projects executing
+            if (_projectStack.Count != 0) {
+                // do not yet persist build results, as the main project is 
+                // not finished yet
+                return;
+            }
 
             try {
                 // write results to file
@@ -243,7 +264,9 @@ namespace NAnt.Core {
         /// Gets or sets the highest level of message this logger should respond 
         /// to.
         /// </summary>
-        /// <value>The highest level of message this logger should respond to.</value>
+        /// <value>
+        /// The highest level of message this logger should respond to.
+        /// </value>
         /// <remarks>
         /// Only messages with a message level higher than or equal to the given 
         /// level should be written to the log.
