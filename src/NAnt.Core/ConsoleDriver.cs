@@ -46,10 +46,12 @@ namespace NAnt.Core {
         #region Public Static Methods
                 
         /// <summary>
-        /// Starts NAnt. This is the Main entry point
+        /// Starts NAnt. This is the Main entry point.
         /// </summary>
         /// <param name="args">Command Line args, or whatever you want to pass it. They will treated as Command Line args.</param>
-        /// <returns>The exit code.</returns>
+        /// <returns>
+        /// The exit code.
+        /// </returns>
         public static int Main(string[] args) {
             CommandLineParser commandLineParser = null;
             Project project = null;
@@ -160,9 +162,9 @@ namespace NAnt.Core {
                     }
                 }
                 return 0;
-            } catch (CommandLineArgumentException e) {
+            } catch (CommandLineArgumentException ex) {
                 // Log exception to internal log
-                logger.Warn("Invalid command line specified.", e);
+                logger.Warn("Invalid command line specified.", ex);
 
                 // Write logo banner to conole if parser was created successfully
                 if (commandLineParser != null) {
@@ -170,17 +172,21 @@ namespace NAnt.Core {
                 }
 
                 // Write message of exception to console
-                Console.WriteLine(e.Message);
+                Console.WriteLine(ex.Message);
                 return 1;
-            } catch (ApplicationException e) {
-                Console.WriteLine(e.Message);
-                if (e.InnerException != null && e.InnerException.Message != null) {
-                    Console.WriteLine(" " + e.InnerException.Message);
+            } catch (ApplicationException ex) {
+                Console.WriteLine(ex.Message);
+
+                Exception nestedException = ex.InnerException;
+                while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
+                    Console.WriteLine(" " + nestedException.Message);
+                    nestedException = nestedException.InnerException;
                 }
+
                 Console.WriteLine();
 
                 if (logger.IsWarnEnabled) {
-                    logger.Warn("NAnt Build Failure", e);
+                    logger.Warn("NAnt Build Failure", ex);
                     Console.WriteLine("Consult the log4net output for more information.");
                 } else {
                     Console.WriteLine("For more information regarding the cause of the " +
@@ -191,14 +197,14 @@ namespace NAnt.Core {
                 Console.WriteLine();
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
-                Console.WriteLine(e.Message);
+                Console.WriteLine(ex.Message);
 
                 Console.WriteLine();
                 if (logger.IsFatalEnabled) {
-                    logger.Fatal("Internal Nant Error", e);
+                    logger.Fatal("Internal Nant Error", ex);
                     Console.WriteLine("Consult the log4net output for more information.");
                 } else {
                     Console.WriteLine("For more information regarding the cause of the " +
