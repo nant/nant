@@ -1,10 +1,19 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
     <echo message="Using '${framework::get-target-framework()}' framework on '${platform::get-name()}' platform." />
+    <!-- set build.date property to current date in format yyyy-MM-dd -->
+    <tstamp property="build.date" pattern="yyyy-MM-dd" />
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.85" unless="${property::exists('project.version')}" />
     <property name="project.release.type" value="dev" unless="${property::exists('project.release.type')}" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
+    <if test="${project.release.type == 'nightly'}">
+        <property name="project.version.full" value="${project.version + '-nightly-' + build.date}" />
+    </if>
+    <if test="${project.release.type != 'nightly'}">
+        <property name="project.version.full" value="${project.version + if(project.release.type == 'release', '', '-' + project.release.type)}" dynamic="true" />    
+    </if>
+    
     <!-- 
         specifies whether the CommonAssemblyInfo.cs file should be created.
         we do not want this for releases (whether they're beta or release) as
@@ -70,7 +79,7 @@
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
-        <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}-${project.version}" />
+        <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}" />
     </target>
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
@@ -167,10 +176,11 @@
         <echo message="Running unit tests with just built version of NAnt." />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
             <arg value="${project.config}" />
             <arg value="self-test" />
-            <arg value="-D:project.version=${project.version}" />
-            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
     <target name="self-test" depends="init, test-examples">
@@ -236,11 +246,11 @@
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
-            <arg value="${project.config}" />
-            <arg value="self-userdoc" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-userdoc" />
         </exec>
     </target>
     <target name="self-userdoc" depends="init">
@@ -278,7 +288,7 @@
                         <property name="NamespaceFilter" value="" />
                         <!-- set the name and version of the product for which docs are generated -->
                         <property name="ProductName" value="NAnt" />
-                        <property name="ProductVersion" value="${project.version}" />
+                        <property name="ProductVersion" value="${project.version.full}" />
                         <property name="ProductUrl" value="http://nant.sourceforge.net" />                        
                         <property name="Preliminary" value="${not(project.release.type == 'release')}" />
                         <property name="DocumentAttributes" value="True" />
@@ -306,6 +316,7 @@
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
             <arg value="-targetframework:${framework::get-target-framework()}" />
             <arg value="${project.config}" />
             <arg value="self-sdkdoc" />
@@ -340,7 +351,7 @@
                         <property name="SdkLinksOnWeb" value="${link.sdkdoc.web}" />
                         <property name="HtmlHelpName" value="NAnt-SDK" />
                         <property name="IncludeFavorites" value="False" />
-                        <property name="Title" value="NAnt SDK Documentation - v${project.version}" />
+                        <property name="Title" value="NAnt SDK Documentation - v${project.version.full}" />
                         <property name="SplitTOCs" value="False" />
                         <property name="DefaulTOC" value="" />
                         <property name="ShowVisualBasic" value="True" />
@@ -378,19 +389,20 @@
     </target>
     
     <target name="self-schema" depends="init">
-        <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version}.xsd"/>
+        <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version.full}.xsd" />
         <!-- generate schema -->
-        <mkdir dir="${build.dir}/schema"/>
-        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/schemas/${project.name}-${project.version}.${platform::get-name()}.${framework::get-target-framework()}.xsd"/>
+        <mkdir dir="${build.dir}/schema" />
+        <nantschema output="${schema.output}" target-ns="http://nant.sf.net/release/${project.name}-${project.version.full}/nant.xsd" />
     </target>
 
     <target name="schema" depends="build">
         <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
             <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
             <arg value="${project.config}" />
             <arg value="self-schema" />
-            <arg value="-D:project.version=${project.version}" />
-            <arg value="-targetframework:${framework::get-target-framework()}" />
         </exec>
     </target>
     
@@ -412,15 +424,15 @@
             out="${build.dir}/${changes.name-without-extension}.html" 
             >
             <parameters>
-                <parameter name="module" value="nant"/>
-                <parameter name="title" value="NAnt Changelog ( ${project.version} )" />
-                <parameter name="logo" value="doc/logo.gif"/>
+                <parameter name="module" value="nant" />
+                <parameter name="title" value="NAnt Changelog (${project.version.full})" />
+                <parameter name="logo" value="doc/logo.gif" />
                 <parameter name="cvsweb" value="http://cvs.sourceforge.net/viewcvs.py/nant/" />
-                <parameter name="start-date" value="${start.date}"/>
-                <parameter name="end-date" value="${end.date}"/>
+                <parameter name="start-date" value="${start.date}" />
+                <parameter name="end-date" value="${end.date}" />
             </parameters>
         </style> 
-        <delete file="${build.dir}/${changes.name-without-extension}.xml"/>
+        <delete file="${build.dir}/${changes.name-without-extension}.xml" />
     </target>
     
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
@@ -479,7 +491,7 @@
             </fileset>
             <filterchain>
                 <replacetokens>
-                    <token key="PRODUCT_VERSION" value="${project.version}" />
+                    <token key="PRODUCT_VERSION" value="${project.version.full}" />
                 </replacetokens>
                 <!-- when NOT building a release package, add prelimary notice -->
                 <replacestring
@@ -496,17 +508,12 @@
             </filterchain>
         </copy>
         <!-- determine the zip file prefix directory -->
-        <if test="${project.release.type == 'release'}">
-            <property name="project.zip.prefix" value="${project.name}-${project.version}" />
-        </if>    
-        <if test="${not(project.release.type == 'release')}">
-            <property name="project.zip.prefix" value="${project.name}-${project.version}-${project.release.type}" />
-        </if>
+        <property name="project.zip.prefix" value="${project.name}-${project.version.full}" />
     </target>
 
     <target name="package-help" depends="package-common">
         <!-- determine name of help distribution -->
-        <property name="project.gzip-path.help" value="${project::get-base-directory()}/build/${project.name}-${project.version}-help.tar.gz" />
+        <property name="project.gzip-path.help" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-help.tar.gz" />
         <!-- remove package gzip file if it already exists -->
         <delete file="${project.gzip-path.help}" if="${file::exists(project.gzip-path.help)}" />
         <!-- create package gzip file -->
@@ -520,7 +527,7 @@
 
     <target name="package-src" depends="package-common">
         <!-- determine name of source zip distribution -->
-        <property name="project.zip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version}-src.zip" />
+        <property name="project.zip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-src.zip" />
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.src}" if="${file::exists(project.zip-path.src)}" />
         <!-- create package zip file -->
@@ -556,7 +563,7 @@
             </fileset>
         </zip>
         <!-- determine name of source gzipped tar distribution -->
-        <property name="project.gzip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version}-src.tar.gz" />
+        <property name="project.gzip-path.src" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-src.tar.gz" />
         <!-- remove package gzip file if it already exists -->
         <delete file="${project.gzip-path.src}" if="${file::exists(project.gzip-path.src)}" />
         <!-- create package gzip file -->
@@ -597,7 +604,7 @@
 
     <target name="package-bin" depends="package-common">
         <!-- determine name of binary zip distribution -->
-        <property name="project.zip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version}-bin.zip" />
+        <property name="project.zip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-bin.zip" />
         <!-- remove package zip file if it already exists -->
         <delete file="${project.zip-path.bin}" if="${file::exists(project.zip-path.bin)}" />
         <!-- create package zip file -->
@@ -614,7 +621,7 @@
             </fileset>
         </zip>
         <!-- determine name of binary gzipped tar distribution -->
-        <property name="project.gzip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version}-bin.tar.gz" />
+        <property name="project.gzip-path.bin" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}-bin.tar.gz" />
         <!-- remove package gzip file if it already exists -->
         <delete file="${project.gzip-path.bin}" if="${file::exists(project.gzip-path.bin)}" />
         <!-- create package gzip file -->
