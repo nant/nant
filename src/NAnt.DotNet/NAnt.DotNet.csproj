@@ -128,6 +128,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\DelaySignTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\ResGenTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
