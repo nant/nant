@@ -163,7 +163,7 @@ namespace SourceForge.NAnt.Tasks {
                 if (destFile == null || destFile.Length == 0) {
                     // TODO: use System.IO.Path (gs)
                     // append extension if necessary
-                    string ext = Extension.IndexOf(".")>-1 ? Extension : "." + Extension;
+                    string ext = Extension.IndexOf(".") > -1 ? Extension : "." + Extension;
                     int extPos = srcFile.LastIndexOf('.');
                     if (extPos == -1) {
                         destFile = srcFile + ext;

@@ -152,7 +152,7 @@ namespace SourceForge.NAnt.Tasks {
 
         #endregion Public Instance Properties
 
-        #region Override implementation of Task            
+        #region Override implementation of Task
 
         protected override void ExecuteTask() {
             // get and print current date
@@ -197,7 +197,7 @@ namespace SourceForge.NAnt.Tasks {
 
         /// <summary>
         /// The property to set.
-        /// </summary>       
+        /// </summary>
         [TaskAttribute("property", Required=true)]
         public string Property {
             get { return _property; }
