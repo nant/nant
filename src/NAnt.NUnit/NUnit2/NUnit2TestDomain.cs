@@ -22,6 +22,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
+using System.Collections;
+using System.Collections.Specialized;
 using System.Xml;
 using NUnit.Framework;
 using NUnit.Core;
@@ -46,70 +48,45 @@ namespace SourceForge.NAnt.Tasks.NUnit2
          _errorStream = errorStream;
       }
 
-
       /// <summary>
-      /// Create a testsuite and run it from an assembly
+      /// Run a single testcase
       /// </summary>
-      /// <param name="assemblyFile"></param>
+      /// <param name="testcase">The test to run, or null if running all tests</param>
+      /// <param name="assemblyFiles"></param>
       /// <param name="configFilePath"></param>
       /// <param name="listener"></param>
-      /// <returns></returns>
-      public TestResult Run ( 
-                  string assemblyFile, 
+      /// <returns>The results of the test</returns>
+      public TestResult[] RunTest ( 
+                  string testcase, 
+                  StringCollection assemblyFiles,
                   string configFilePath, 
                   EventListener listener
                )
       {
-         string assemblyDir = Path.GetDirectoryName(assemblyFile);
-         AppDomain domain = CreateDomain(assemblyDir, configFilePath);
+         ArrayList results = new ArrayList();
+         foreach ( string assemblyFile in assemblyFiles ) {
+            string assemblyDir = Path.GetFullPath( Path.GetDirectoryName(assemblyFile) );
+            AppDomain domain = CreateDomain(assemblyDir, configFilePath);
 
-         string currentDir = Directory.GetCurrentDirectory();
-         Directory.SetCurrentDirectory(assemblyDir);
+            string currentDir = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(assemblyDir);
 
-         try 
-         {
-            RemoteTestRunner runner = CreateTestRunner(domain);
+            try {
+                RemoteTestRunner runner = CreateTestRunner(domain);
+                if (testcase != null)
+                    runner.Initialize(testcase, assemblyFile);
+                else
+                    runner.Initialize(assemblyFile);
+                domain.DoCallBack(new CrossAppDomainDelegate(runner.BuildSuite));
+                results.Add( runner.Run(listener, _outStream, _errorStream) );
 
-            runner.Initialize(assemblyFile);
-            domain.DoCallBack(new CrossAppDomainDelegate(runner.BuildSuite));
-            return runner.Run(listener, _outStream, _errorStream);
+            } finally {
+                Directory.SetCurrentDirectory(currentDir);
+                AppDomain.Unload(domain);
+            }
+        }
 
-         } finally {
-            Directory.SetCurrentDirectory(currentDir);
-            AppDomain.Unload(domain);
-         }
-      }
-
-      /// <summary>
-      /// Run a single testcase
-      /// </summary>
-      /// <param name="testcase"></param>
-      /// <param name="assemblyFile"></param>
-      /// <param name="configFilePath"></param>
-      /// <param name="listener"></param>
-      /// <returns></returns>
-      public TestResult RunTest ( 
-                  string testcase, string assemblyFile,
-                  string configFilePath, EventListener listener
-               )
-      {
-         string assemblyDir = Path.GetDirectoryName(assemblyFile);
-         AppDomain domain = CreateDomain(assemblyDir, configFilePath);
-
-         string currentDir = Directory.GetCurrentDirectory();
-         Directory.SetCurrentDirectory(assemblyDir);
-
-         try 
-         {
-            RemoteTestRunner runner = CreateTestRunner(domain);
-            runner.Initialize(testcase, assemblyFile);
-            domain.DoCallBack(new CrossAppDomainDelegate(runner.BuildSuite));
-            return runner.Run(listener, _outStream, _errorStream);
-
-         } finally {
-            Directory.SetCurrentDirectory(currentDir);
-            AppDomain.Unload(domain);
-         }
+        return ( TestResult[] )results.ToArray( typeof( TestResult ) );
       }
 
       private AppDomain CreateDomain(string basedir, string configFilePath)

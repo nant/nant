@@ -26,6 +26,7 @@ using System.Xml.XPath;
 using System.Reflection;
 using System.Resources;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Text;
 using SourceForge.NAnt.Attributes;
 using SourceForge.NAnt.Tasks.NUnit.Formatters;
@@ -44,7 +45,17 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
     ///   <code>
     /// <![CDATA[
     /// <nunit2>
-    ///     <test assemblyname="MyProject.Tests.dll" outfile="results.xml"/>
+    ///     <test assemblyname="MyProject.Tests.dll"/>
+    /// </nunit2>
+    /// ]]>
+    ///   </code>
+    ///   <para>Run all tests in files listed in the <c>tests.txt</c> file.</para>
+    ///   <code>
+    /// <![CDATA[
+    /// <nunit2>
+    ///     <test>
+    ///         <includesList name="tests.txt" />
+    ///     </test>
     /// </nunit2>
     /// ]]>
     ///   </code>
@@ -97,58 +108,67 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
         protected override void ExecuteTask() {
             foreach (NUnit2Test test in tests) {
                 EventListener listener = new NullListener();
-                TestResult result = RunRemoteTest(test, listener);
-                if ( result == null )
-                   continue;
+                TestResult[] results = RunRemoteTest(test, listener);
+                StringCollection assemblies = GetTestAssemblies(test);
+                for ( int i = 0; i < results.Length; i++ ) {
+                        
+                    string assemblyFile = assemblies[ i ];
+                    TestResult result = results[ i ];
+
+                    string xmlResultFile = assemblyFile + "-results.xml";                    
+                                
+                    XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
+                    result.Accept(resultVisitor);
+                    resultVisitor.Write();    
                     
-                string xmlResultFile = test.AssemblyName + "-results.xml";                  
-                            
-                XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
-                result.Accept(resultVisitor);
-                resultVisitor.Write();  
-                
-                foreach (FormatterElement formatter in _formatterElements) {
-                    if (formatter.Type == FormatterType.Xml) {
-                        if (!formatter.UseFile) {
-                            using (StreamReader reader = new StreamReader(xmlResultFile)) {
-                                // strip off the xml header
-                                reader.ReadLine();
-                                StringBuilder builder = new StringBuilder();
-                                while (reader.Peek() > -1)
-                                    builder.Append(reader.ReadLine().Trim()).Append("\n");
-                                Log.WriteLine(builder.ToString());
+                    foreach (FormatterElement formatter in _formatterElements) {
+                        if (formatter.Type == FormatterType.Xml) {
+                            if (!formatter.UseFile) {
+                                using (StreamReader reader = new StreamReader(xmlResultFile)) {
+                                    // strip off the xml header
+                                    reader.ReadLine();
+                                    StringBuilder builder = new StringBuilder();
+                                    while (reader.Peek() > -1)
+                                        builder.Append(reader.ReadLine().Trim()).Append("\n");
+                                    Log.WriteLine(LogPrefix + builder.ToString());
+                                }
                             }
+                        } else if (formatter.Type == FormatterType.Plain) {
+                            TextWriter writer;
+                            if (formatter.UseFile) {
+                                writer = new StreamWriter(assemblyFile + "-results" + formatter.Extension);
+                            } else {
+                                writer = new LogWriter(LogPrefix);
+                            }
+                            CreateSummaryDocument(xmlResultFile, writer, test);
+                            writer.Close();
                         }
-                    } else if (formatter.Type == FormatterType.Plain) {
-                        TextWriter writer;
-                        if (formatter.UseFile) {
-                            writer = new StreamWriter(test.AssemblyName + "-results" + formatter.Extension);
-                        } else {
-                            writer = new LogWriter();
-                        }
-                        CreateSummaryDocument(xmlResultFile, writer, test);
-                        writer.Close();
                     }
+                    if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
+                        throw new BuildException("Tests Failed");
+                    }        
                 }
-                if (result.IsFailure && (test.HaltOnFailure || HaltOnFailure)) {
-                    throw new BuildException("Tests Failed");
-                }       
             }
         }
         
-        private TestResult RunRemoteTest(NUnit2Test test, EventListener listener) {
+        private StringCollection GetTestAssemblies(NUnit2Test test) {
+            StringCollection files = new StringCollection();
+
+            if ( test.AssemblyName != null )
+                files.Add( test.AssemblyName );
+            else
+                files = test.Assemblies.FileNames;
+
+            return files;
+        }
+
+        private TestResult[] RunRemoteTest(NUnit2Test test, EventListener listener) {
             try
             {
-               LogWriter writer = new LogWriter();
-               string assemblyName = Project.GetFullPath(test.AssemblyName);
-               string appConfig = Project.GetFullPath(test.AppConfigFile);
+                LogWriter writer = new LogWriter(LogPrefix);
+                NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
 
-               NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
-               if ( test.TestName != null ) {
-                  return domain.RunTest(test.TestName, assemblyName, appConfig, listener);
-               } else {
-                  return domain.Run(assemblyName, appConfig, listener);
-               }
+                return domain.RunTest(test.TestName, GetTestAssemblies(test), test.AppConfigFile, listener);
             } catch ( Exception e ) {
                if ( HaltOnError )
                   throw new BuildException("NUnit 2.0 Error: " + e.Message);
@@ -157,7 +177,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                return null;
             }
         }
-        
+
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument (resultFile);
             XslTransform summaryXslTransform = new XslTransform();
@@ -193,18 +213,36 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             
             public override Encoding Encoding { get { return Encoding.UTF8; } }
             
+            public LogWriter( string logPrefix ) {
+                _logPrefix = logPrefix;
+            }
+
+            private void CheckWritePrefix() {
+                if (_needPrefix) {
+                    Log.Write(_logPrefix);
+                    _needPrefix = false;
+                }
+            }
             
             public override void Write(char[] chars) {
-                Log.WriteLine(new String(chars, 0, chars.Length -1));
+                CheckWritePrefix();
+                Log.Write(new String(chars, 0, chars.Length -1));
             }
             
             public override void WriteLine(string line) {
+                CheckWritePrefix();
                 Log.WriteLine(line);
+                _needPrefix = true;
             }
             
             public override void WriteLine(string line, params object[] args) {
+                CheckWritePrefix();
                 Log.WriteLine(line, args);
-            }               
+                _needPrefix = true;
+            }                
+
+            private bool _needPrefix = true;
+            private string _logPrefix;
         }
     }
 }

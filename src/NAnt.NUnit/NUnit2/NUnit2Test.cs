@@ -30,23 +30,27 @@ namespace SourceForge.NAnt.Tasks.NUnit2
         private string _assemblyName = null;               
         private string _testname = null;
         private bool _haltOnFailure = true;
-        private bool _haltOnError = true;
         private string _transformFile;
+        private FileSet _assemblies = new FileSet();
         string _appConfigFile = null;
 
         /// <summary>Name of the assembly to search for tests.</summary>
-        [TaskAttribute("assemblyname", Required=true)]
+        [TaskAttribute("assemblyname")]
         public string AssemblyName { get { return _assemblyName; } set {_assemblyName = value;} }
         
         /// <summary>Name of a specific test to run. If Not specified then all tests in the assembly are run.</summary>
         [TaskAttribute("testname")]
         public string TestName { get { return _testname; } set {_testname = value;} }
-        
+
+        /// <summary>Assemblies to include in test.</summary>
+        [FileSet("assemblies")]
+        public FileSet Assemblies { get { return _assemblies; } set {_assemblies = value;} }
+
         /// <summary>Build fails on failure</summary>
         [TaskAttribute("haltonfailure")]
         [BooleanValidator()]
         public bool HaltOnFailure { get { return _haltOnFailure; } set { _haltOnFailure = value; } }
-        
+
         /// <summary>XSLT transform file to use when using the Xml formatter</summary>
         [TaskAttribute("transformfile")]
         public string TransformFile { get { return _transformFile; } set { _transformFile = value; } }
