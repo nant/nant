@@ -13,7 +13,7 @@
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
     <target name="nightly" depends="set-net-1.0-runtime-configuration, package, deploy, install" description="Perform a 'nightly' package, and installs NAnt." />
     <!-- deploy content to sourceforge -->
-    <target name="deploy" depends="deploy-zip, deploy-schema, deploy-help" />
+    <target name="deploy" depends="deploy-zip, deploy-schema, deploy-help, deploy-web" />
     <!-- copy the zipped nighly build to sourceforge -->
     <target name="deploy-zip" depends="set-net-1.0-runtime-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
@@ -78,6 +78,49 @@
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod -R 755 ${sf.net.web.path}/nightly/help" />
+        </exec>
+    </target>
+    <!-- copy website to sourceforge -->
+    <target name="deploy-web" depends="set-net-1.0-runtime-configuration, release, package">
+        <!-- make sure the directory tree exists -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}" />
+        </exec>
+        <!-- try to remove existing files -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec rm --force {} \;" />
+        </exec>
+        <!-- copy html files for website to sourceforge (using compression) -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="*.html" />
+            <arg value="${serverpart}" />
+        </exec>
+        <!-- copy images for website to sourceforge (using compression) -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="*.gif" />
+            <arg value="${serverpart}" />
+        </exec>
+        <!-- copy stylesheet for website to sourceforge (using compression) -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="style.css" />
+            <arg value="${serverpart}" />
+        </exec>
+        <!-- copy logo's for website to sourceforge (using compression) -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="logo.*" />
+            <arg value="${serverpart}" />
+        </exec>
+        <echo message="Copied website over to SF.Net" />
+        <!-- make sure permissions are set right -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="find ${sf.net.web.path} -maxdepth 1 -type f -exec chmod 755 {} \;" />
         </exec>
     </target>
     <!-- copies NAnt to install dir -->
