@@ -111,6 +111,10 @@
                         <h3><xsl:value-of select="$this_cat" /> Functions</h3>
                         <div class="table">
                             <table>
+                                <colgroup>
+                                    <col style="white-space: nowrap;" />
+                                    <col />
+                                </colgroup>
                                 <tr>
                                     <th>Name</th>
                                     <th>Summary</th>
