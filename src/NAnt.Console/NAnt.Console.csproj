@@ -1,8 +1,9 @@
 <VisualStudioProject>
     <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.2292"
-        SchemaVersion = "2.0"
+       ProjectType = "Local"
+       ProductVersion = "7.0.9466"
+       SchemaVersion = "1.0"
+
         ProjectGuid = "{859696F8-F405-4018-A155-D34561498A3E}"
     >
         <Build>
@@ -16,10 +17,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
                 RootNamespace = "NAnt.Console"
-                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -53,8 +51,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
@@ -73,8 +69,6 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.Net\"
                     RegisterForComInterop = "false"
