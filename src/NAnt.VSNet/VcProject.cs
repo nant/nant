@@ -345,7 +345,7 @@ namespace NAnt.VSNet {
 
             // build idl files before everything else
             foreach (VcConfigurationBase idlConfig in buildIdlConfigs.Keys) {
-                BuildIDLFiles((ArrayList) buildIdlConfigs[idlConfig], idlConfig);
+                BuildIDLFiles((ArrayList) buildIdlConfigs[idlConfig], projectConfig, idlConfig);
             }
 
             // If VC project uses precompiled headers then the precompiled header
@@ -599,8 +599,8 @@ namespace NAnt.VSNet {
                 clTask.OutputDir.Refresh();
             }
 
-            string includeDirs = MergeCompilerToolSetting(projectConfig, fileConfig, 
-                "AdditionalIncludeDirectories");
+            string includeDirs = MergeToolSetting(projectConfig, fileConfig, 
+                compilerTool, "AdditionalIncludeDirectories");
             if (includeDirs != null) {
                 foreach (string includeDir in includeDirs.Split(',', ';')) {
                     if (includeDir.Length == 0) {
@@ -611,8 +611,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string metadataDirs = MergeCompilerToolSetting(projectConfig, fileConfig, 
-                "AdditionalUsingDirectories");
+            string metadataDirs = MergeToolSetting(projectConfig, fileConfig, 
+                compilerTool, "AdditionalUsingDirectories");
             if (metadataDirs != null) {
                 foreach (string metadataDir in metadataDirs.Split(';')) {
                     if (metadataDir.Length == 0) {
@@ -623,8 +623,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string forcedUsingFiles = MergeCompilerToolSetting(projectConfig, fileConfig, 
-                "ForcedUsingFiles");
+            string forcedUsingFiles = MergeToolSetting(projectConfig, fileConfig, 
+                compilerTool, "ForcedUsingFiles");
             if (forcedUsingFiles != null) {
                 foreach (string forcedUsingFile in forcedUsingFiles.Split(';')) {
                     if (forcedUsingFile.Length == 0) {
@@ -677,7 +677,8 @@ namespace NAnt.VSNet {
                     Path.GetFileNameWithoutExtension(fileName) + ".obj"));
             }
 
-            string preprocessorDefs = MergeCompilerToolSetting(projectConfig, fileConfig, "PreprocessorDefinitions");
+            string preprocessorDefs = MergeToolSetting(projectConfig, fileConfig, 
+                compilerTool, "PreprocessorDefinitions");
             if (preprocessorDefs != null) {
                 foreach (string def in preprocessorDefs.Split(';', ',')) {
                     if (def.Length != 0) {
@@ -688,7 +689,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
+            string undefinePreprocessorDefs = MergeToolSetting(projectConfig, fileConfig,
+                compilerTool, "UndefinePreprocessorDefinitions");
             if (undefinePreprocessorDefs != null) { 
                 foreach (string def in undefinePreprocessorDefs.Split(';', ',')) { 
                     Option op = new Option();
@@ -909,13 +911,14 @@ namespace NAnt.VSNet {
         /// configuration.
         /// </summary>
         /// <param name="fileNames">The IDL files to build.</param>
+        /// <param name="projectConfig">The project configuration.</param>
         /// <param name="fileConfig">The build configuration.</param>
         /// <remarks>
         /// TODO: refactor this as we should always get only one element in the
         /// <paramref name="fileNames" /> list. Each IDL file should be built
         /// with its own file configuration.
         /// </remarks>
-        private void BuildIDLFiles(ArrayList fileNames, VcConfigurationBase fileConfig) {
+        private void BuildIDLFiles(ArrayList fileNames, VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig) {
             const string compilerTool = "VCMIDLTool";
 
             // create instance of MIDL task
@@ -1030,7 +1033,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string preprocessorDefs = fileConfig.GetToolSetting(compilerTool, "PreprocessorDefinitions");
+            string preprocessorDefs = MergeToolSetting(projectConfig, fileConfig,
+                compilerTool, "PreprocessorDefinitions");
             if (preprocessorDefs != null) {
                 foreach (string preprocessorDef in preprocessorDefs.Split(';')) {
                     if (preprocessorDef.Length == 0) {
@@ -1042,7 +1046,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string undefinePreprocessorDefs = fileConfig.GetToolSetting(compilerTool, "UndefinePreprocessorDefinitions");
+            string undefinePreprocessorDefs = MergeToolSetting(projectConfig, fileConfig,
+                compilerTool, "UndefinePreprocessorDefinitions");
             if (undefinePreprocessorDefs != null) {
                 foreach (string undefinePreprocessorDef in undefinePreprocessorDefs.Split(';')) {
                     if (undefinePreprocessorDef.Length == 0) {
@@ -1054,7 +1059,8 @@ namespace NAnt.VSNet {
                 }            
             }
 
-            string additionalIncludeDirs = fileConfig.GetToolSetting(compilerTool, "AdditionalIncludeDirectories");
+            string additionalIncludeDirs = MergeToolSetting(projectConfig, fileConfig,
+                compilerTool, "AdditionalIncludeDirectories");
             if (additionalIncludeDirs != null) {
                 foreach (string additionalIncludeDir in additionalIncludeDirs.Split(';')) {
                     if (additionalIncludeDir.Length == 0) {
@@ -1064,7 +1070,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            string cPreprocessOptions = fileConfig.GetToolSetting(compilerTool, "CPreprocessOptions");
+            string cPreprocessOptions = MergeToolSetting(projectConfig, fileConfig,
+                compilerTool, "CPreprocessOptions");
             if (cPreprocessOptions != null) {
                 foreach (string cPreprocessOption in cPreprocessOptions.Split(';')) {
                     if (cPreprocessOption.Length == 0) {
@@ -1391,17 +1398,22 @@ namespace NAnt.VSNet {
         /// The merge is suppressed when the flag $(noinherit) is defined in
         /// <paramref name="fileConfig" />.
         /// </remarks>
-        private string MergeCompilerToolSetting(VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig, string setting) {
-            const string compilerTool = "VCCLCompilerTool";
-            const string noinherit = "$(noinherit)";
-            string settingValue = fileConfig.GetToolSetting(compilerTool, setting);
+        private string MergeToolSetting(VcProjectConfiguration projectConfig, VcConfigurationBase fileConfig, string tool, string setting) {
+                    const string noinherit = "$(noinherit)";
 
+            // get tool setting from either the file configuration or project 
+            // configuration (if setting is not defined on file configuration)
+            string settingValue = fileConfig.GetToolSetting(tool, setting);
             if (settingValue == null) {
-                return projectConfig.GetToolSetting(compilerTool, setting);
+                // if setting value is null then either the file value is an
+                // empty string (which will be converted to null) or the
+                // there's no file config value and the project config value
+                // for the setting does not exist or is an empty string
+                return settingValue;
             }
 
             if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                string baseSettingValue = projectConfig.GetToolSetting(compilerTool, setting);
+                string baseSettingValue = projectConfig.GetToolSetting(tool, setting);
                 if (baseSettingValue != null) {
                     settingValue += ";" + baseSettingValue;
                 }

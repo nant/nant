@@ -118,10 +118,6 @@
                     output directory.
                 </li>
                 <li>
-                    Changes to C++ source files or headers do not trigger a recompile (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1155919&amp;group_id=31650&amp;atid=402868">
-                        #1155919</a>).
-                </li>
-                <li>
                     Projects are not always properly excluded (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1143845&amp;group_id=31650&amp;atid=402868">#1143845</a>).
                 </li>
                 <li>
@@ -132,8 +128,22 @@
                     file result in a circular dependency error.
                 </li>
                 <li>
-                    IDL files without a type library are not supported (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1160647&amp;group_id=31650">#1160647</a>).
-                </li>
+                    Visual C++
+                    <div style="margin-left: 20px;">
+                    <ul>
+                        <li>
+                            Changes to source files or headers do not trigger a recompile (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1155919&amp;group_id=31650&amp;atid=402868">
+                            #1155919</a>).
+                        </li>
+                        <li>
+                            IDL files without a type library are not supported (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1160647&amp;group_id=31650">#1160647</a>).
+                        </li>
+                        <li>
+                            Additional project-level include directories are not merged with file-level include directories (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1160647&amp;group_id=31650">#1160043</a>).
+                        </li>
+                    </ul>
+                    </div>                                        
+                </li>                
             </ul>
         </div>
         <h3>Changes</h3>
