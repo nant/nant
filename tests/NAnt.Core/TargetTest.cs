@@ -43,6 +43,12 @@ namespace Tests.NAnt.Core {
                 </target>
             </project>";
 
+        private const string BuildFragment1 = @"
+            <project>
+                <target name='Target'/>
+                <target name='*'/>
+                </project>";
+
         private const string BuildFragment2 = @"
             <project>
                 <target name='Init' />
@@ -117,6 +123,25 @@ namespace Tests.NAnt.Core {
             Assertion.Assert("Target1 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target1") == 1);
             Assertion.Assert("Target2 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target2") == 1);
             Assertion.Assert("Target3 should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target3") == 1);
+        }
+
+        [Test]
+        public void Test_Wild() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            Project project = CreateFilebasedProject(BuildFragment1);
+            //use Project.AttachBuildListeners to attach.
+            IBuildListener[] listners = {listener};
+            project.AttachBuildListeners(new BuildListenerCollection(listners));
+
+            //add targets like they are added from the command line.
+            project.BuildTargets.Add("WildTarget");
+
+            string result = ExecuteProject(project);
+
+            Assertion.Assert("WildTarget should have executed once." + Environment.NewLine + result, listener.GetTargetExecutionCount("WildTarget") == 1);
+            Assertion.Assert("Target should not have executed." + Environment.NewLine + result, listener.GetTargetExecutionCount("Target") == 0);
         }
 
         [Test]
