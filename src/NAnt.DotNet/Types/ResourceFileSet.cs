@@ -146,14 +146,30 @@ namespace NAnt.DotNet.Types {
         #region Public Instance Methods
 
         /// <summary>
-        /// Gets the manifest resource name for the file according to the 
-        /// attributes that resources was defined with.
+        /// Gets the manifest resource name for the specified resource file.
         /// </summary>
-        /// <param name="fileName">The full path and name of the file as returned from <see cref="FileSet.FileNames" />.</param>
+        /// <param name="resourceFile">The physical path of the resource file.</param>
         /// <returns>
         /// The manifest resource name to be sent to the compiler.
         /// </returns>
-        public string GetManifestResourceName(string fileName) {
+        public string GetManifestResourceName(string resourceFile) {
+            return GetManifestResourceName(resourceFile, resourceFile);
+        }
+
+        /// <summary>
+        /// Gets the manifest resource name for the file using both its physical
+        /// and logical path.
+        /// </summary>
+        /// <param name="physicalPath">The physical path of the resource file.</param>
+        /// <param name="logicalPath">The logical location of the resource file.</param>
+        /// <returns>
+        /// The manifest resource name to be sent to the compiler.
+        /// </returns>
+        /// <remarks>
+        /// We use the relative path of the logical path, but the filename and
+        /// and the extension of the physical path to match VS.NET
+        /// </remarks>
+        public string GetManifestResourceName(string physicalPath, string logicalPath) {
             StringBuilder prefix = new StringBuilder(Prefix);
 
             if (DynamicPrefix) {
@@ -163,12 +179,12 @@ namespace NAnt.DotNet.Types {
                     basedir += Path.DirectorySeparatorChar;
                 }
                 // ensure filedir ends with directory separator character
-                string filedir = Path.GetDirectoryName(fileName);
+                string filedir = Path.GetDirectoryName(logicalPath);
                 if (!filedir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                     filedir += Path.DirectorySeparatorChar;
                 }
                 string filePathRelativeToBaseDir = string.Empty;
-                if (filedir != basedir) {
+                if (filedir != basedir && filedir.StartsWith(basedir)) {
                     filePathRelativeToBaseDir = filedir.Substring(basedir.Length);
                 }
                 string relativePrefix = filePathRelativeToBaseDir.Replace(Path.DirectorySeparatorChar, '.').Replace(Path.AltDirectorySeparatorChar, '.');
@@ -208,8 +224,9 @@ namespace NAnt.DotNet.Types {
                 manifestResourceName.Append('.');
             }
 
-            // add filename to manifest resource name as is
-            manifestResourceName.Append(Path.GetFileName(fileName));
+            // add filename to manifest resource name as is, VS.NET apparently
+            // ignore the logical filename and uses the name of the physical file
+            manifestResourceName.Append(Path.GetFileName(physicalPath));
             // return manifest resource name
             return manifestResourceName.ToString();
         }   
