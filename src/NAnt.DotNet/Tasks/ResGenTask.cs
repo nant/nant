@@ -94,6 +94,13 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Instance Fields
 
+        #region Private Static Fields
+
+        private const int _maxCmdLineLength = 30000;
+
+        #endregion Private Static Fields
+
+
         #region Public Instance Properties
 
         /// <summary>
@@ -375,27 +382,68 @@ namespace NAnt.DotNet.Tasks {
                         Path.GetDirectoryName(filename), Resources.GetManifestResourceName(filename))));
 
                     if (NeedsCompiling(new FileInfo(filename), outputFile)) {
-                        if (StringUtils.IsNullOrEmpty(_arguments)) {
-                            AppendArgument ("/compile");
+                        // ensure output directory exists
+                        if (!outputFile.Directory.Exists) {
+                            outputFile.Directory.Create();
+                        }
 
+                        string cmdLineArg = string.Format(CultureInfo.InvariantCulture, 
+                            " \"{0},{1}\"", filename, outputFile.FullName);
+
+                        // check if adding arguments to compile current resx to 
+                        // total command line would cause it to exceed maximum
+                        // length
+                        bool maxCmdLineExceeded = (_arguments.Length + cmdLineArg.Length > _maxCmdLineLength);
+
+                        // if this is the first resx that we're compiling, or the
+                        // first one of the next execution of the resgen tool, then
+                        // add options to command line
+                        if (StringUtils.IsNullOrEmpty(_arguments) || maxCmdLineExceeded) {
                             if (UseSourcePath) {
                                 if (SupportsExternalFileReferences) {
-                                    AppendArgument(" /usesourcepath");
+                                    cmdLineArg = " /usesourcepath";
                                 } else {
                                     Log(Level.Warning, "The resource compiler for {0}"
                                         + " does not support external file references.", 
                                         Project.TargetFramework.Description);
                                 }
                             }
+
+                            cmdLineArg = "/compile" + cmdLineArg;
                         }
 
-                        // ensure output directory exists
-                        if (!outputFile.Directory.Exists) {
-                            outputFile.Directory.Create();
+                        // if maximum length would have been exceeded by compiling
+                        // the current resx file, then first execute the resgen
+                        // tool
+                        if (maxCmdLineExceeded) {
+                            try {
+                                // call base class to do the work
+                                base.ExecuteTask();
+                            } catch {
+                                // we only need to remove temporary directory when 
+                                // an error occurred and if it was actually created
+                                if (_workingDirectory != null) {
+                                    // delete temporary directory and all files in it
+                                    DeleteTask deleteTask = new DeleteTask();
+                                    deleteTask.Project = Project;
+                                    deleteTask.Parent = this;
+                                    deleteTask.InitializeTaskConfiguration();
+                                    deleteTask.Directory = _workingDirectory;
+                                    deleteTask.Threshold = Level.None; // no output in build log
+                                    deleteTask.Execute();
+                                }
+
+                                // rethrow exception
+                                throw;
+                            }
+
+                            // reset command line arguments as we've processed them
+                            _arguments = string.Empty;
                         }
 
-                        AppendArgument(string.Format(CultureInfo.InvariantCulture, 
-                            " \"{0},{1}\"", filename, outputFile.FullName));
+                        // append command line arguments to compile current resx
+                        // file to the total command line
+                        AppendArgument(cmdLineArg);
                     }
                 }
             } else {
@@ -534,7 +582,7 @@ namespace NAnt.DotNet.Tasks {
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
-       
+
         /// <summary>
         /// Determines the full path and extension for the output file.
         /// </summary>
