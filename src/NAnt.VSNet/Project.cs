@@ -439,16 +439,36 @@ namespace NAnt.VSNet {
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
 
-                // VS.NET (probably) uses the <project dir>\obj\<configuration>
-                // as working directory, so we should do the same to make sure
-                // relative paths are resovled correctly (eg. AssemblyKeyFile)
-                DirectoryInfo objConfigDir = new DirectoryInfo(Path.Combine(_projectDirectory, 
-                    Path.Combine("obj", cs.Name)));
-                if (!objConfigDir.Exists) {
-                    objConfigDir.Create();
-                }
-                psi.WorkingDirectory = objConfigDir.FullName;
+                switch (ProjectSettings.Type) {
+                    case ProjectType.CSharp:
+                        // Visual C#.NET uses the <project dir>\obj\<configuration> 
+                        // as working directory, so we should do the same to make 
+                        // sure relative paths are resovled correctly 
+                        // (eg. AssemblyKeyFile attribute)
 
+                        DirectoryInfo objConfigDir = new DirectoryInfo(Path.Combine(
+                            _projectDirectory, Path.Combine("obj", cs.Name)));
+                        if (!objConfigDir.Exists) {
+                            objConfigDir.Create();
+                        }
+                        psi.WorkingDirectory = objConfigDir.FullName;
+                        break;
+                    case ProjectType.VBNet:
+                        // Visual Basic.NET uses the directory from which VS.NET 
+                        // was launched as working directory, the closest match
+                        // and best behaviour for us is to use the <solution dir>
+                        // as working directory and fallback to the <project dir>
+                        // if the project was explicitly specified
+                        
+                        if (SolutionTask.SolutionFile != null) {
+                            psi.WorkingDirectory = SolutionTask.SolutionFile.DirectoryName;
+                        } else {
+                            psi.WorkingDirectory = _projectDirectory;
+                        }
+                        break;
+                }
+
+                // start compiler
                 Process p = Process.Start(psi);
 
                 // increment indentation level
