@@ -79,10 +79,7 @@ namespace NAnt.Core.Tasks {
         private Hashtable _fileCopyMap = new Hashtable();
         private bool _includeEmptyDirs = true;
         private string _encodingName;
-
-
-        //Chain of filters
-        private FilterChain _copyFilterChain;
+        private FilterChain _filters;
 
         #endregion Private Instance Fields
 
@@ -168,14 +165,13 @@ namespace NAnt.Core.Tasks {
             set { _encodingName = StringUtils.ConvertEmptyToNull(value); }
         }
 
-
         /// <summary>
         /// The filterchain definition to use when filter-copying the files.
         /// </summary>
         [BuildElement("filterchain")]
-        public FilterChain CopyFilterChain {
-            get { return _copyFilterChain; }
-            set { _copyFilterChain = value; }
+        public virtual FilterChain Filters {
+            get { return _filters; }
+            set { _filters = value; }
         }
 
         #endregion Public Instance Properties
@@ -191,7 +187,7 @@ namespace NAnt.Core.Tasks {
                     return System.Text.Encoding.GetEncoding(EncodingName);
                 }
 
-                return null;
+                return Encoding.Default;
             }
         }
 
@@ -402,9 +398,8 @@ namespace NAnt.Core.Tasks {
                             Log(Level.Verbose, LogPrefix + "Created directory '{0}'.", destinationDirectory);
                         }
 
-
                         //Copy with filters
-                        FileUtils.CopyWithFilters(sourceFile, destinationFile, _copyFilterChain);
+                        FileUtils.CopyWithFilters(sourceFile, destinationFile, Filters, Encoding);
 
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
