@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2003 Gerry Shaw
+// Copyright (C) 2001-2004 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,13 +29,11 @@ using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
-    
     /// <summary>
-    /// Functions to return version information for a given assembly.
+    /// Functions to return information for a given assembly.
     /// </summary>
     [FunctionSet("assembly", "Assembly")]
     public class AssemblyFunctions : FunctionSetBase {
-
         #region Public Instance Constructors
 
         public AssemblyFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {}
@@ -45,71 +43,23 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
         
         /// <summary>
-        /// Gets the Version of the given assembly file as a string.
+        /// Gets the version of the given assembly file.
         /// </summary>
         /// <param name="fileName">The file name of the assembly to get version info for.</param>
         /// <returns>
-        /// The full version in string form.
+        /// The full version of the given assembly file.
         /// </returns>
         [Function("get-version")]
         public static string GetVersion(string fileName) {
             return AssemblyName.GetAssemblyName(fileName).Version.ToString(); 
         }
-                          
-        /// <summary>
-        /// Gets the value of the major component of the version number for the given assembly file.
-        /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
-        /// <returns>
-        /// Major version.
-        /// </returns>
-        [Function("get-major-version")]
-        public static int GetMajorVersion(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Version.Major;
-        }
-        
-        /// <summary>
-        /// Gets the value of the minor component of the version number for the given assembly file.
-        /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
-        /// <returns>
-        /// Minor version.
-        /// </returns>
-        [Function("get-minor-version")]
-        public static int GetMinorVersion(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Version.Minor;
-        }
-        
-        /// <summary>
-        /// Gets the value of the revision component of the version number for the given assembly file.
-        /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
-        /// <returns>
-        /// Revision version.
-        /// </returns>
-        [Function("get-revision-version")]
-        public static int GetRevisionVersion(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Version.Revision;
-        }
-        
-        /// <summary>
-        /// Gets the value of the build component of the version number for the given assembly file.
-        /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
-        /// <returns>
-        /// Build version.
-        /// </returns>
-        [Function("get-build-version")]
-        public static int GetBuildVersion(string fileName) {
-            return AssemblyName.GetAssemblyName(fileName).Version.Build;
-        }
         
         /// <summary>
         /// Gets the full name of the assembly, also known as the display name.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
+        /// <param name="fileName">The file name of the assembly to get the full name for.</param>
         /// <returns>
-        /// The full name.
+        /// The full name of the assembly, also known as the display name.
         /// </returns>
         [Function("get-full-name")]
         public static string GetFullName(string fileName) {
@@ -119,9 +69,10 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the simple, unencrypted name of the assembly.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
+        /// <param name="fileName">The file name of the assembly to get the name for.</param>
         /// <returns>
-        /// Simple name.</returns>
+        /// The simple, unencrypted name of the assembly.
+        /// </returns>
         [Function("get-name")]
         public static string GetName(string fileName) {
             return AssemblyName.GetAssemblyName(fileName).Name;
@@ -130,14 +81,15 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the culture supported by the assembly.
         /// </summary>
-        /// <param name="fileName">The file name of the assembly to get version info for.</param>
+        /// <param name="fileName">The file name of the assembly to get the culture for.</param>
         /// <returns>
-        /// Display name of the assemblies culture.
+        /// Display name of the assembly's culture.
         /// </returns>
         [Function("get-culture")]
         public static string GetCulture(string fileName) {
             return AssemblyName.GetAssemblyName(fileName).CultureInfo.DisplayName;
         }
+
         #endregion Public Static Methods
     }
 }
