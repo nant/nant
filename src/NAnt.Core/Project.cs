@@ -53,34 +53,30 @@ namespace SourceForge.NAnt {
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        //xml element and attribute names that are not defined in metadata
+        private const string RootXml = "project";
+        private const string ProjectNameAttribute = "name";
+        private const string ProjectDefaultAttribte = "default";
+        private const string ProjectBaseDirAttribute = "basedir";
+        private const string TargetXml = "target";
+        private const string TargetDependsAttribute = "depends";
+
         #endregion Private Static Fields
 
-        #region Protected Static Fields
+        #region Internal Static Fields
 
-        //xml element and attribute names that are not defined in metadata
-        protected const string ROOT_XML = "project";
-        protected const string PROJECT_NAME_ATTRIBUTE = "name";
-        protected const string PROJECT_DEFAULT_ATTRIBUTE = "default";
-        protected const string PROJECT_BASEDIR_ATTRIBUTE = "basedir";
-        protected const string TARGET_XML = "target";
-        protected const string TARGET_DEPENDS_ATTRIBUTE = "depends";
+        // named properties
+        internal const string NAntPropertyFileName = "nant.filename";
+        internal const string NAntPropertyVersion = "nant.version";
+        internal const string NAntPropertyLocation = "nant.location";
+        internal const string NAntPropertyProjectName = "nant.project.name";
+        internal const string NAntPropertyProjectBuildFile = "nant.project.buildfile";
+        internal const string NAntPropertyProjectBaseDir = "nant.project.basedir";
+        internal const string NAntPropertyProjectDefault = "nant.project.default";
+        internal const string NAntPropertyOnSuccess = "nant.onsuccess";
+        internal const string NAntPropertyOnFailure = "nant.failure";
 
-        #endregion Protected Static Fields
-
-        #region Public Static Fields
-
-        public const string NANT_PROPERTY_FILENAME = "nant.filename";
-        public const string NANT_PROPERTY_VERSION = "nant.version";
-        public const string NANT_PROPERTY_LOCATION = "nant.location";
-        public const string NANT_PROPERTY_PROJECT_NAME = "nant.project.name";
-        public const string NANT_PROPERTY_PROJECT_BUILDFILE = "nant.project.buildfile";
-        public const string NANT_PROPERTY_PROJECT_BASEDIR = "nant.project.basedir";
-        public const string NANT_PROPERTY_PROJECT_DEFAULT = "nant.project.default";
-
-        public const string NANT_PROPERTY_ONSUCCESS = "nant.onsuccess";
-        public const string NANT_PROPERTY_ONFAILURE = "nant.failure";
-
-        #endregion Public Static Fields
+        #endregion Internal Static Fields
 
         #region Public Instance Fields
 
@@ -142,52 +138,50 @@ namespace SourceForge.NAnt {
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
         public Project(XmlDocument doc, Level threshold, int indentLevel) {
-            ctorHelper(doc, threshold, indentLevel);
+            CtorHelper(doc, threshold, indentLevel);
         }
 
         /// <summary>
         /// Initializes a new <see cref="Project" /> class with the given 
         /// source, message threshold and default indentation level.
         /// </summary>
-        /// <param name="UriOrFilePath">
+        /// <param name="uriOrFilePath">
         /// <para>The full path to the build file.</para>
-        /// <para> This can be of any form that XmlDocument.Load(string url) accepts.</para>
+        /// <para> This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="threshold">The message threshold.</param>
         /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
-        public Project(string UriOrFilePath, Level threshold) : this(UriOrFilePath, threshold, 0) {
+        public Project(string uriOrFilePath, Level threshold) : this(uriOrFilePath, threshold, 0) {
         }
 
         /// <summary>
         /// Initializes a new <see cref="Project" /> class with the given 
         /// source, message threshold and indentation level.
         /// </summary>
-        /// <param name="UriOrFilePath">
-        /// <para> The full path to the build file.</para>
-        /// <para> This can be of any form that XmlDocument.Load(string url) accepts.</para>
+        /// <param name="uriOrFilePath">
+        /// <para>The full path to the build file.</para>
+        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
         /// <remarks><para>If the source is a uri of form 'file:///path' then use the path part.</para></remarks>
-        public Project(string UriOrFilePath, Level threshold, int indentLevel) {
-            string path = UriOrFilePath;
+        public Project(string uriOrFilePath, Level threshold, int indentLevel) {
+            string path = uriOrFilePath;
             //if the source is not a valid uri, pass it thru.
             //if the source is a file uri, pass the localpath of it thru.
             try {
-                Uri testURI = new Uri(UriOrFilePath);
+                Uri testURI = new Uri(uriOrFilePath);
                 if(testURI.IsFile) {
                     path = testURI.LocalPath;
                 }
-            }
-            catch(Exception e) {
+            } catch(Exception e) {
                 logger.Debug("Error creating URI in project constructor. Moving on... ", e);
-            }
-            finally{
+            } finally {
                 if(path == null)
-                    path = UriOrFilePath;
+                    path = uriOrFilePath;
             }
 
-            ctorHelper(LoadBuildFile(path), threshold, indentLevel);
+            CtorHelper(LoadBuildFile(path), threshold, indentLevel);
         }
 
         #endregion Public Instance Constructors
@@ -200,7 +194,7 @@ namespace SourceForge.NAnt {
         /// <value>The indentation level of the build output.</value>
         /// <remarks>
         /// To change the <see cref="IndentationLevel" />, the <see cref="Indent()" /> 
-        /// and <see cref="UnIndent()" /> methods should be used.
+        /// and <see cref="Unindent()" /> methods should be used.
         /// </remarks>
         public int IndentationLevel {
             get { return _indentationLevel; }
@@ -241,19 +235,23 @@ namespace SourceForge.NAnt {
         /// </remarks>
         public string BaseDirectory {
             get {
-                string basedir = Properties[NANT_PROPERTY_PROJECT_BASEDIR];
+                string basedir = Properties[NAntPropertyProjectBaseDir];
 
-                if (basedir == null) return null;
+                if (basedir == null) {
+                    return null;
+                }
 
-                if (!Path.IsPathRooted(basedir))
+                if (!Path.IsPathRooted(basedir)) {
                     throw new BuildException("BaseDirectory must be rooted! " + basedir);
+                }
 
-                return basedir; }
+                return basedir; 
+            }
             set {
                 if (!Path.IsPathRooted(value))
                     throw new BuildException("BaseDirectory must be rooted! " + value);
 
-                Properties[NANT_PROPERTY_PROJECT_BASEDIR] = value;
+                Properties[NAntPropertyProjectBaseDir] = value;
             }
         }
 
@@ -265,14 +263,13 @@ namespace SourceForge.NAnt {
         /// Gets the <see cref="Uri" /> form of the current project definition.
         /// </summary>
         /// <value>The <see cref="Uri" /> form of the current project definition.</value>
-        public Uri BuildFileURI {
+        public Uri BuildFileUri {
             get {
                 //TODO: Need to remove this.
-                if(Doc == null || Doc.BaseURI == "") {
+                if(Document == null || Document.BaseURI.Length == 0) {
                     return null;//new Uri("http://localhost");
-                }
-                else {
-                    return new Uri(Doc.BaseURI);
+                } else {
+                    return new Uri(Document.BaseURI);
                 }
             }
         }
@@ -309,8 +306,8 @@ namespace SourceForge.NAnt {
         /// </summary>
         public string BuildFileLocalName {
             get {
-                if (BuildFileURI != null && BuildFileURI.IsFile) {
-                    return BuildFileURI.LocalPath;
+                if (BuildFileUri != null && BuildFileUri.IsFile) {
+                    return BuildFileUri.LocalPath;
                 }
                 else {
                     return null;
@@ -322,7 +319,7 @@ namespace SourceForge.NAnt {
         /// Gets the active <see cref="Project" /> definition.
         /// </summary>
         /// <value>The active <see cref="Project" /> definition.</value>
-        public virtual XmlDocument Doc {
+        public XmlDocument Document {
             get { return _doc; }
         }
 
@@ -338,15 +335,19 @@ namespace SourceForge.NAnt {
             get { return Level.Verbose >= Threshold; }
         }
 
-        /// <summary>The list of targets to built.</summary>
+        /// <summary>
+        /// The list of targets to built.
+        /// </summary>
         /// <remarks>
         ///   <para>Targets are built in the order they appear in the collection.  If the collection is empty the default target will be built.</para>
         /// </remarks>
         public StringCollection BuildTargets {
             get { return _buildTargets; }
         }
-        /// <summary>Gets the properties defined in this project.</summary>
-        /// <value>The properties deined in this project.</value>
+        /// <summary>
+        /// Gets the properties defined in this project.
+        /// </summary>
+        /// <value>The properties defined in this project.</value>
         /// <remarks>
         ///   <para>This is the collection of Properties that are defined by the system and property task statements.</para>
         ///   <para>These properties can be used in expansion.</para>
@@ -364,7 +365,7 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Gets a the build listeners for this project. 
+        /// Gets the build listeners for this project. 
         /// </summary>
         /// <value>The build listeners for this project.</value>
         public BuildListenerCollection BuildListeners {
@@ -387,11 +388,11 @@ namespace SourceForge.NAnt {
         /// Dispatches a <see cref="BuildStarted" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnBuildStarted(object source, BuildEventArgs e) {
+        public void OnBuildStarted(object sender, BuildEventArgs e) {
             if (BuildStarted != null) {
-                BuildStarted(source, e);
+                BuildStarted(sender, e);
             }
         }
 
@@ -399,11 +400,11 @@ namespace SourceForge.NAnt {
         /// Dispatches a <see cref="BuildFinished" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnBuildFinished(object source, BuildEventArgs e) {
+        public void OnBuildFinished(object sender, BuildEventArgs e) {
             if (BuildFinished != null) {
-                BuildFinished(source, e);
+                BuildFinished(sender, e);
             }
         }
 
@@ -411,11 +412,11 @@ namespace SourceForge.NAnt {
         /// Dispatches a <see cref="TargetStarted" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnTargetStarted(object source, BuildEventArgs e) {
+        public void OnTargetStarted(object sender, BuildEventArgs e) {
             if (TargetStarted != null) {
-                TargetStarted(source, e);
+                TargetStarted(sender, e);
             }
         }
 
@@ -423,11 +424,11 @@ namespace SourceForge.NAnt {
         /// Dispatches a <see cref="TargetFinished" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnTargetFinished(object source, BuildEventArgs e) {
+        public void OnTargetFinished(object sender, BuildEventArgs e) {
             if (TargetFinished != null) {
-                TargetFinished(source, e);
+                TargetFinished(sender, e);
             }
         }
 
@@ -435,11 +436,11 @@ namespace SourceForge.NAnt {
         /// Dispatches a <see cref="TaskStarted" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnTaskStarted(object source, BuildEventArgs e) {
+        public void OnTaskStarted(object sender, BuildEventArgs e) {
             if (TaskStarted != null) {
-                TaskStarted(source, e);
+                TaskStarted(sender, e);
             }
         }
 
@@ -447,11 +448,11 @@ namespace SourceForge.NAnt {
         /// Dispatches the <see cref="TaskFinished" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>
-        /// <param name="source">The source of the event.</param>
+        /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> that contains the event data.</param>
-        public void OnTaskFinished(object source, BuildEventArgs e) {
+        public void OnTaskFinished(object sender, BuildEventArgs e) {
             if (TaskFinished != null) {
-                TaskFinished(source, e);
+                TaskFinished(sender, e);
             }
         }
 
@@ -525,14 +526,15 @@ namespace SourceForge.NAnt {
             OnMessageLogged(eventArgs);
         }
 
-        /// <summary>Executes the default target.</summary>
+        /// <summary>
+        /// Executes the default target.
+        /// </summary>
         /// <remarks>
         ///     <para>No top level error handling is done. Any BuildExceptions will make it out of this method.</para>
         /// </remarks>
         public virtual void Execute() {
-
             //will initialize the list of Targets, and execute any global tasks.
-            InitializeProjectDocument(Doc);
+            InitializeProjectDocument(Document);
 
             if (BuildTargets.Count == 0 && DefaultTargetName != null) {
                 BuildTargets.Add(DefaultTargetName);
@@ -540,15 +542,16 @@ namespace SourceForge.NAnt {
 
             if (BuildTargets.Count == 0) {               
                 //throw new BuildException("No Target Specified");
-            }
-            else {
-                foreach(string targetName in BuildTargets) {
+            } else {
+                foreach (string targetName in BuildTargets) {
                     Execute(targetName);
                 }
             }
         }
 
-        /// <summary>Executes a specific target, and only that target.</summary>
+        /// <summary>
+        /// Executes a specific target, and only that target.
+        /// </summary>
         /// <param name="targetName">target name to execute.</param>
         /// <remarks>
         ///   <para>Only the target is executed. No global tasks are executed.</para>
@@ -562,9 +565,12 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Does Execute() and wraps in error handling and time stamping.
+        /// Executes the default target and wraps in error handling and time 
+        /// stamping.
         /// </summary>
-        /// <returns>Indication of success</returns>
+        /// <returns>
+        /// <c>true</c> if the build was successful; otherwise, <c>false</c>.
+        /// </returns>
         public bool Run() {
             Exception error = null;
             DateTime startTime = DateTime.Now;
@@ -572,7 +578,7 @@ namespace SourceForge.NAnt {
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));
 
-                Log(Level.Info, "Buildfile: {0}", BuildFileURI);
+                Log(Level.Info, "Buildfile: {0}", BuildFileUri);
 
                 // Write verbose project information after Initialize to make sure
                 // properties are correctly initialized.
@@ -605,10 +611,10 @@ namespace SourceForge.NAnt {
                 return false;
             } finally {
                 string endTask;
-                if(error != null) {
-                    endTask = _properties[NANT_PROPERTY_ONSUCCESS];
+                if(error == null) {
+                    endTask = Properties[NAntPropertyOnSuccess];
                 } else {
-                    endTask = _properties[NANT_PROPERTY_ONFAILURE];
+                    endTask = Properties[NAntPropertyOnFailure];
                 }
 
                 if (endTask != null && endTask.Length != 0) {
@@ -627,20 +633,21 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Creates a new Task from the given XmlNode
+        /// Creates a new <see ref="Task" /> from the given <see cref="XmlNode" />.
         /// </summary>
-        /// <param name="taskNode">The task definition.</param>
-        /// <returns>The new Task instance</returns>
+        /// <param name="taskNode">The <see cref="Task" /> definition.</param>
+        /// <returns>The new <see cref="Task" /> instance.</returns>
         public Task CreateTask(XmlNode taskNode) {
             return CreateTask(taskNode, null);
         }
 
         /// <summary>
-        /// Creates a new Task from the given XmlNode within a Target
+        /// Creates a new <see cref="Task" /> from the given <see cref="XmlNode" /> 
+        /// within a <see cref="Target" />.
         /// </summary>
-        /// <param name="taskNode">The task definition.</param>
-        /// <param name="target">The owner Target</param>
-        /// <returns>The new Task instance</returns>
+        /// <param name="taskNode">The <see cref="Task" /> definition.</param>
+        /// <param name="target">The owner <see cref="Target" />.</param>
+        /// <returns>The new <see cref="Task" /> instance.</returns>
         public Task CreateTask(XmlNode taskNode, Target target) {
             Task task = TaskFactory.CreateTask(taskNode, this);
             task.Project = this;
@@ -650,11 +657,11 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Expands a string from known properties
+        /// Expands a <see cref="string" /> from known properties.
         /// </summary>
-        /// <param name="input">The string with replacement tokens</param>
-        /// <param name="location">The location in the build file. Used to throw more accurate exceptions</param>
-        /// <returns>The expanded and replaced string</returns>
+        /// <param name="input">The <see cref="string" /> with replacement tokens.</param>
+        /// <param name="location">The location in the build file. Used to throw more accurate exceptions.</param>
+        /// <returns>The expanded and replaced <see cref="string" />.</returns>
         public string ExpandProperties(string input, Location location) {
             return _properties.ExpandProperties(input, location );
         }
@@ -712,7 +719,7 @@ namespace SourceForge.NAnt {
         /// <summary>
         /// Decreases the <see cref="IndentationLevel" /> of the <see cref="Project" />.
         /// </summary>
-        public void UnIndent() {
+        public void Unindent() {
             _indentationLevel--;
         }
 
@@ -790,7 +797,7 @@ namespace SourceForge.NAnt {
         /// <param name="doc">An <see cref="XmlDocument" /> representing the project definition.</param>
         /// <param name="threshold">The project message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
-        protected virtual void ctorHelper(XmlDocument doc, Level threshold, int indentLevel) {
+        protected void CtorHelper(XmlDocument doc, Level threshold, int indentLevel) {
             string newBaseDir = null;
 
             TaskFactory.AddProject(this);
@@ -811,11 +818,11 @@ namespace SourceForge.NAnt {
             CreateDefaultLogger();
 
             //fill the namespace manager up. So we can make qualified xpath expressions.
-            if(doc.DocumentElement.NamespaceURI == null || doc.DocumentElement.NamespaceURI.Equals(string.Empty)){
+            if (doc.DocumentElement.NamespaceURI == null || doc.DocumentElement.NamespaceURI.Length == 0) {
                 string defURI;
-                if(doc.DocumentElement.Attributes["xmlns", "nant"] == null){
+                if (doc.DocumentElement.Attributes["xmlns", "nant"] == null) {
                     defURI = @"http://none";
-                }else {
+                } else {
                     defURI = doc.DocumentElement.Attributes["xmlns", "nant"].Value;
                 }
                 XmlAttribute attr = doc.CreateAttribute("xmlns");
@@ -829,26 +836,32 @@ namespace SourceForge.NAnt {
             _nm.AddNamespace("nant", doc.DocumentElement.NamespaceURI);
 
             //check to make sure that the root element in named correctly
-            if(!doc.DocumentElement.Name.Equals(ROOT_XML))
-                throw new ApplicationException("Root Element must be named " + ROOT_XML + " in " + doc.BaseURI);
+            if (!doc.DocumentElement.Name.Equals(RootXml)) {
+                throw new ApplicationException("Root Element must be named " + RootXml + " in " + doc.BaseURI);
+            }
 
             // get project attributes
-            if(doc.DocumentElement.HasAttribute(PROJECT_NAME_ATTRIBUTE))    _projectName            = doc.DocumentElement.GetAttribute(PROJECT_NAME_ATTRIBUTE);
-            if(doc.DocumentElement.HasAttribute(PROJECT_BASEDIR_ATTRIBUTE)) newBaseDir         = doc.DocumentElement.GetAttribute(PROJECT_BASEDIR_ATTRIBUTE);
-            if(doc.DocumentElement.HasAttribute(PROJECT_DEFAULT_ATTRIBUTE)) _defaultTargetName  = doc.DocumentElement.GetAttribute(PROJECT_DEFAULT_ATTRIBUTE);
+            if (doc.DocumentElement.HasAttribute(ProjectNameAttribute)) {
+                _projectName = doc.DocumentElement.GetAttribute(ProjectNameAttribute);
+            }
+            if (doc.DocumentElement.HasAttribute(ProjectBaseDirAttribute)) {
+                newBaseDir = doc.DocumentElement.GetAttribute(ProjectBaseDirAttribute);
+            }
+            if (doc.DocumentElement.HasAttribute(ProjectDefaultAttribte)) {
+                _defaultTargetName  = doc.DocumentElement.GetAttribute(ProjectDefaultAttribte);
+            }
 
             // give the project a meaningful base directory
             if (newBaseDir == null) {
                 if (BuildFileLocalName != null) {
                     newBaseDir = Path.GetDirectoryName(BuildFileLocalName);
-                }
-                else {
+                } else {
                     newBaseDir = Environment.CurrentDirectory;
                 }
             } else {
             
                 // if basedir attribute is set to a relative path the resolve it relative to the build file path
-                if ( BuildFileLocalName != null && ! Path.IsPathRooted(newBaseDir) ) { 
+                if (BuildFileLocalName != null && ! Path.IsPathRooted(newBaseDir)) { 
                     newBaseDir = Path.GetDirectoryName(Path.Combine( Path.GetDirectoryName(BuildFileLocalName), newBaseDir ) );
                 }
             }
@@ -863,47 +876,47 @@ namespace SourceForge.NAnt {
             //set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
             
-            Properties.AddReadOnly(NANT_PROPERTY_FILENAME, ass.CodeBase);
-            Properties.AddReadOnly(NANT_PROPERTY_VERSION,  ass.GetName().Version.ToString());
-            Properties.AddReadOnly(NANT_PROPERTY_LOCATION, AppDomain.CurrentDomain.BaseDirectory);
+            Properties.AddReadOnly(NAntPropertyFileName, ass.CodeBase);
+            Properties.AddReadOnly(NAntPropertyVersion,  ass.GetName().Version.ToString());
+            Properties.AddReadOnly(NAntPropertyLocation, AppDomain.CurrentDomain.BaseDirectory);
 
-            Properties.AddReadOnly(NANT_PROPERTY_PROJECT_NAME, ProjectName);
-            if(BuildFileURI != null) {
-                Properties.AddReadOnly(NANT_PROPERTY_PROJECT_BUILDFILE, BuildFileURI.ToString());
+            Properties.AddReadOnly(NAntPropertyProjectName, ProjectName);
+            if(BuildFileUri != null) {
+                Properties.AddReadOnly(NAntPropertyProjectBuildFile, BuildFileUri.ToString());
             }
 
-            Properties.AddReadOnly(NANT_PROPERTY_PROJECT_DEFAULT,   DefaultTargetName);
+            Properties.AddReadOnly(NAntPropertyProjectDefault, DefaultTargetName);
 
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_FILENAME, 
-                Properties[NANT_PROPERTY_FILENAME]));
+                NAntPropertyFileName, 
+                Properties[NAntPropertyFileName]));
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_VERSION, 
-                Properties[NANT_PROPERTY_VERSION]));
+                NAntPropertyVersion, 
+                Properties[NAntPropertyVersion]));
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_LOCATION, 
-                Properties[NANT_PROPERTY_LOCATION]));
+                NAntPropertyLocation, 
+                Properties[NAntPropertyLocation]));
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_PROJECT_NAME, 
-                Properties[NANT_PROPERTY_PROJECT_NAME]));
+                NAntPropertyProjectName, 
+                Properties[NAntPropertyProjectName]));
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_PROJECT_BUILDFILE, 
-                Properties[NANT_PROPERTY_PROJECT_BUILDFILE]));
+                NAntPropertyProjectBuildFile, 
+                Properties[NAntPropertyProjectBuildFile]));
             logger.Debug(string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}={1}", 
-                NANT_PROPERTY_PROJECT_DEFAULT, 
-                Properties[NANT_PROPERTY_PROJECT_DEFAULT]));
+                NAntPropertyProjectDefault, 
+                Properties[NAntPropertyProjectDefault]));
         }
 
         #endregion Protected Instance Methods
@@ -924,13 +937,13 @@ namespace SourceForge.NAnt {
             // initialize targets and global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
                 //add targets to list
-                if(childNode.Name.Equals(TARGET_XML) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+                if (childNode.Name.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
                     target.Project = this;
                     target.Parent = this;
                     target.Initialize(childNode);
                     Targets.Add(target);
-                } else if(!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+                } else if (!childNode.Name.StartsWith("#") && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Task task = CreateTask(childNode);
 
                     //see comments below.                   

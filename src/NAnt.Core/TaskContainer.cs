@@ -68,7 +68,7 @@ namespace SourceForge.NAnt {
         protected virtual void ExecuteChildTasks() {
             foreach(XmlNode childNode in XmlNode) {
                 if(childNode.Name.StartsWith("#") && 
-                    childNode.NamespaceURI.Equals(Project.Doc.DocumentElement.NamespaceURI)) {
+                    childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
                     continue;
                 }
 
