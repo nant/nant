@@ -216,25 +216,6 @@ namespace NAnt.Core.Types {
 
         #endregion Public Instance Constructors
 
-        #region Protected Instance Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FileSet" /> class from
-        /// the specified <see cref="FileSet" />.
-        /// </summary>
-        /// <param name="source">The <see cref="FileSet" /> that should be used to create a new instance of the <see cref="FileSet" /> class.</param>
-        protected FileSet(FileSet source) {
-            _defaultExcludes = source._defaultExcludes;
-            Location = source.Location;
-            Parent = source.Parent;
-            Project = source.Project;
-            if ( XmlNode != null ) {
-                XmlNode = source.XmlNode.Clone();
-            }
-        }
-
-        #endregion Protected Instance Constructors
-
         #region Public Instance Properties
 
         /// <summary>
