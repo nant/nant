@@ -231,6 +231,10 @@ namespace SourceForge.NAnt {
                 else {
                     newBaseDir = Environment.CurrentDirectory;
                 }
+            } else {
+                if ( BuildFileLocalName != null) {
+                    newBaseDir = Path.GetDirectoryName(Path.Combine( Path.GetDirectoryName(BuildFileLocalName), newBaseDir ) );
+                }
             }
 
             newBaseDir = Path.GetFullPath(newBaseDir);
