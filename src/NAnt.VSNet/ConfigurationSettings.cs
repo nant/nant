@@ -34,7 +34,10 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             if (StringUtils.IsNullOrEmpty(outputDir)) {
                 _relativeOutputPath = elemConfig.Attributes["OutputPath"].Value;
-                _outputPath = new DirectoryInfo(projectSettings.RootDirectory + @"\" + elemConfig.Attributes["OutputPath"].Value).FullName;
+                if (!_relativeOutputPath.EndsWith(@"\")) {
+                    _relativeOutputPath = _relativeOutputPath + @"\";
+                }
+                _outputPath = new DirectoryInfo(Path.Combine(projectSettings.RootDirectory, elemConfig.GetAttribute("OutputPath")).FullName;
             } else {
                 _relativeOutputPath = outputDir;
                 if (!_relativeOutputPath.EndsWith(@"\")) {
