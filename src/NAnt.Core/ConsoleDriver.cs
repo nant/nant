@@ -74,8 +74,8 @@ namespace SourceForge.NAnt {
         /// <returns>The CommandLineOption enum value indicating the flag represented by arg.</returns>
         private static CommandLineOption IdentifyArgument(string arg) {
             if (    arg.StartsWith(buildfileOption) || 
-                    arg.StartsWith(buildfileOption2) ||
-                    arg.StartsWith(buildfileOption3)) {
+                arg.StartsWith(buildfileOption2) ||
+                arg.StartsWith(buildfileOption3)) {
                 return CommandLineOption.OPTION_BUILDFILE;
             } else if (arg.StartsWith(setOption)) {
                 return CommandLineOption.OPTION_SET;
@@ -94,8 +94,8 @@ namespace SourceForge.NAnt {
             } else if (arg.StartsWith(logFileOption) || arg.StartsWith(logFileOption2)) {
                 return CommandLineOption.OPTION_LOGFILE;
             }
-            //I kept this logic about arg.Length > 0, but isn't it redundant?  
-            //"".StartsWith("-") == false
+                //I kept this logic about arg.Length > 0, but isn't it redundant?  
+                //"".StartsWith("-") == false
             else if (arg.Length > 0 && arg.StartsWith("-")) {
                 throw new ApplicationException(String.Format(CultureInfo.InvariantCulture, "Unknown argument '{0}'", arg));
             } else {
@@ -248,27 +248,28 @@ namespace SourceForge.NAnt {
                             throw new ApplicationException("");
                         }
                     }
-                    }
+                }
                 return 0;
             } catch (ApplicationException e) {
                 debuglogger.Debug("Internal Nant Error", e);
-                Console.WriteLine("More information was logged via log4net at level debug");
-                
+               
                 if (e.InnerException != null && e.InnerException.Message != null) {
                     Console.WriteLine(e.Message + "\n\t" + e.InnerException.Message);
                 } else {
                     Console.WriteLine(e.Message);
                 }
+                Console.WriteLine("More information was logged via log4net at level debug");
                 Console.WriteLine();
                 Console.WriteLine("Try 'nant -help' for more information");
                 return 1;
             } catch (Exception e) {
                 debuglogger.Debug("Internal Nant Error", e);
-                Console.WriteLine("More information was logged via log4net at level debug");
 
                 // all other exceptions should have been caught
                 Console.WriteLine("INTERNAL ERROR");
                 Console.WriteLine(e.Message);
+                Console.WriteLine();
+                Console.WriteLine("More information was logged via log4net at level debug");
                 Console.WriteLine();
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
                 return 2;
