@@ -18,7 +18,7 @@
 // Kevin Connors (connors@karmet.com)
 // Ian MacLean (ian_maclean@another.com)
 
-using System;
+using System.Globalization;
 using System.IO;
 
 using NAnt.Core;
@@ -68,32 +68,36 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         [TaskAttribute("options")]
         public string Options {
-            get {return _options;}
-            set {_options = value;}}
+            get { return _options; }
+            set { _options = value; }
+        }
 
         /// <summary>
         /// Path to store Header file.
         /// </summary>
         [TaskAttribute("headerpath")]
         public string HeaderPath {
-            get {return _headerpath;}
-            set {_headerpath = value;}}
+            get { return _headerpath; }
+            set { _headerpath = value; }
+        }
 
         /// <summary>
         /// Path to store RC file.
         /// </summary>
         [TaskAttribute("rcpath")]
         public string RCPath {
-            get {return _rcpath;}
-            set {_rcpath = value;}}
+            get { return _rcpath; }
+            set { _rcpath = value; }
+        }
 
         /// <summary>
         /// Input filename.
         /// </summary>
         [TaskAttribute("mcfile", Required=true)]
         public string McFile {
-            get {return _mcfile;}
-            set {_mcfile = value;}}
+            get { return _mcfile; }
+            set { _mcfile = value; }
+        }
 
         #endregion Public Instance Properties
 
@@ -124,15 +128,15 @@ namespace NAnt.VisualCpp.Tasks {
                 }
 
                 if (_headerpath != null) {
-                    str += String.Format("-h \"{0}\" ", HeaderPath);
+                    str += string.Format(CultureInfo.InvariantCulture, "-h \"{0}\" ", HeaderPath);
                 }
 
                 if (_rcpath != null) {
-                    str += String.Format("-r \"{0}\" ", RCPath);
+                    str += string.Format(CultureInfo.InvariantCulture, "-r \"{0}\" ", RCPath);
                 }
 
                 if (_options != null) {
-                    str += String.Format("{0} ", _options);
+                    str += string.Format(CultureInfo.InvariantCulture, "{0} ", _options);
                 }
 
                 str += _mcfile;
@@ -180,14 +184,14 @@ namespace NAnt.VisualCpp.Tasks {
 
                 FileInfo dstInfo = new FileInfo(Project.GetFullPath(dstFile));
                 if ((!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime)) {
-                    return(true);
+                    return true;
                 } else {
-                    return(false);
+                    return false;
                 }
             } else {
-                //If it doesn't exist, let the compiler throw the error
+                // if the source file doesn't exist, let the compiler throw the error
                 Log(Level.Info, LogPrefix + "Source file doesn't exist!  Compiler may whine: {0}", srcInfo.FullName);
-                return(true);
+                return true;
             }
         }
 
