@@ -14,16 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Bernard Vander Beken
 
 using System;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Tasks {
 
     [TestFixture]
     public class SleepTaskTest : BuildTestBase {

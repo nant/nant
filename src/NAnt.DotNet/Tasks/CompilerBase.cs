@@ -24,10 +24,13 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
+using NAnt.DotNet.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Provides the abstract base class for compiler tasks.
     /// </summary>

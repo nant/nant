@@ -21,16 +21,17 @@ using System.Xml;
 using System.Collections;
 using System.Text.RegularExpressions;
 
-using SourceForge.NAnt;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
+using NAnt.DotNet.Tasks;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for Resouce.
     /// </summary>
     public class Resource {
-        public Resource( Project p, string strResourceSourceFile, string strResourceSourceFileRelPath, string strDependentFile, SourceForge.NAnt.Task nanttask ) {
+        public Resource(Project p, string strResourceSourceFile, string strResourceSourceFileRelPath, string strDependentFile, Task nanttask) {
             _p = p;
             _ps = p.ProjectSettings;
 
@@ -195,6 +196,6 @@ namespace SourceForge.NAnt.Tasks {
         private ProjectSettings            _ps;
         private Project                    _p;
         private ConfigurationSettings    _cs;
-        private SourceForge.NAnt.Task _nanttask;
+        private Task _nanttask;
     }
 }

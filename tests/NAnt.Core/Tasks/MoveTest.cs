@@ -25,10 +25,10 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// <para>Tests move task.</para>
     /// </summary>

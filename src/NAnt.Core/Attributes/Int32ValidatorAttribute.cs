@@ -21,7 +21,7 @@ using System;
 using System.Reflection;
 using System.Globalization;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Indicates that property should be able to be converted into a Int32 within the given range.
     /// </summary>

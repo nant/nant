@@ -26,10 +26,11 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using NAnt.Core.Attributes;
+
+namespace Tests.NAnt.Core {
 
     /// <summary>A simple task for testing Task class.</summary>
     [TaskName("test")]

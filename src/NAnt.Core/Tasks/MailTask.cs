@@ -24,10 +24,10 @@ using System.IO;
 using System.Text;
 using System.Web.Mail;
 
-using SourceForge.NAnt;
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks { 
+namespace NAnt.Core.Tasks { 
     /// <summary>A task to send SMTP email.</summary>
     /// <remarks>
     /// Text and text files to include in the message body may be specified as well as binary attachments.

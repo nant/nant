@@ -19,12 +19,12 @@
 
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
-	/// <summary>
-	/// Decorates NUnits <see cref="TestResult" /> with extra information such as 
-	/// run-time.
-	///</summary>
-	public class TestResultExtra : TestResult {
+namespace NAnt.NUnit1.Types {
+    /// <summary>
+    /// Decorates NUnits <see cref="TestResult" /> with extra information such as 
+    /// run-time.
+    ///</summary>
+    public class TestResultExtra : TestResult {
         #region Public Instance Constructors
 
         /// <summary>
@@ -48,12 +48,11 @@ namespace SourceForge.NAnt.Tasks.NUnit {
         }
 
         #endregion Public Instance Properties
-		
+
         #region Private Instance Fields
 		
         long _runTime;
 		 
         #endregion Private Instance Fields
-
-	}
+    }
 }

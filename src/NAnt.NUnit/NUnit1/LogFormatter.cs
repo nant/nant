@@ -25,7 +25,7 @@ using System.Text.RegularExpressions;
 
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Prints information about running tests directly to the build log.
     /// </summary>

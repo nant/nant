@@ -22,27 +22,29 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using Tests.NAnt.Core.Util;
 
-	[TestFixture]
+namespace Tests.NAnt.Core {
+
+    [TestFixture]
     public class LocationTest {
 
         string _tempFileName = null;
 
-		[SetUp]
+        [SetUp]
         protected void SetUp() {
             _tempFileName = TempFile.Create();
         }
 
-		[TearDown]
+        [TearDown]
         protected void TearDown() {
             File.Delete(_tempFileName);
             Assertion.Assert(_tempFileName + " exists.", !File.Exists(_tempFileName));
         }
 
-		[Test]
+        [Test]
         public void Test_Constructor_FileName() {
             Location l = new Location(_tempFileName);
             Assertion.AssertNotNull(l);
@@ -51,7 +53,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
-		[Test]
+        [Test]
         public void Test_Constructor_FileNameLineColumn() {
             Location l = new Location(_tempFileName, 2, 5);
             Assertion.AssertNotNull(l);
@@ -60,7 +62,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
-		[Test]
+        [Test]
         public void Test_Constructor_UriFileName() {
             Uri uri = new Uri("file://" + _tempFileName);
             Location l = new Location(uri.ToString(), 3, 6);
@@ -70,7 +72,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.AssertEquals(_tempFileName, l.FileName);
         }
 
-		[Test]
+        [Test]
         public void Test_ToString() {
             // NOTE: This regular expression will fail on file systems that do not use '\' as the directory seperator.
             Assertion.AssertEquals('\\', Path.DirectorySeparatorChar);

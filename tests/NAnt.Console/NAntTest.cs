@@ -27,10 +27,12 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using Tests.NAnt.Core;
+using Tests.NAnt.Core.Util;
 
+namespace Tests.NAnt.Console {
     [TestFixture]
     public class NAntTest : BuildTestBase {
 
@@ -181,7 +183,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.ConsoleDriver.Main(args);
+                ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -206,7 +208,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.ConsoleDriver.Main(args);
+                ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -238,7 +240,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.ConsoleDriver.Main(args);
+                ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -288,7 +290,7 @@ namespace SourceForge.NAnt.Tests {
 
             string result = null;
             using (ConsoleCapture c = new ConsoleCapture()) {
-                SourceForge.NAnt.ConsoleDriver.Main(args);
+                ConsoleDriver.Main(args);
                 result = c.Close();
             }
 
@@ -331,10 +333,10 @@ namespace SourceForge.NAnt.Tests {
 
         [Test]
         public void Test_CreateLogger() {
-            string xmlLogger = "SourceForge.NAnt.XmlLogger";
-            string defaultLogger = "SourceForge.NAnt.DefaultLogger";
-            string badLogger = "SourceForge.NAnt.LoggerThatDoesNotExistUnlessSomeJerkCreatedIt";
-            string notLogger = "SourceForge.NAnt.Task";
+            string xmlLogger = "NAnt.Core.XmlLogger";
+            string defaultLogger = "NAnt.Core.DefaultLogger";
+            string badLogger = "NAnt.Core.LoggerThatDoesNotExistUnlessSomeJerkCreatedIt";
+            string notLogger = "NAnt.Core.Task";
 
             IBuildLogger logger;
 
@@ -361,8 +363,8 @@ namespace SourceForge.NAnt.Tests {
 
         [Test]
         public void Test_CreateLoggerWithFile() {
-            string xmlLogger = "SourceForge.NAnt.XmlLogger";
-            string consoleLogger = "SourceForge.NAnt.DefaultLogger";
+            string xmlLogger = "NAnt.Core.XmlLogger";
+            string consoleLogger = "NAnt.Core.DefaultLogger";
 
             IBuildLogger logger;
 

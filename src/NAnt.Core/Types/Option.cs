@@ -20,9 +20,9 @@
 
 using System;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Types {
+namespace NAnt.Core.Types {
     /// <summary>
     /// Represents an option.
     /// </summary>

@@ -25,10 +25,8 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// Tests mkdir Tasks. <para>Creates a temp directory and deletes it.</para>
     /// </summary>

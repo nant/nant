@@ -22,9 +22,10 @@ using System.IO;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core.Tasks;
+
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// Tests available Task.
     /// </summary>

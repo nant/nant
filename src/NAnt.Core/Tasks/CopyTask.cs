@@ -26,10 +26,10 @@ using System.IO;
 using System.Xml;
 using System.Text;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Copies a file or fileset to a new file or directory.
     /// </summary>

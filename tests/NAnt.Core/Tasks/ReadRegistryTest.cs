@@ -18,10 +18,10 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NUnit.Framework;
+
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// Tests the ReadRegistryTask.
     /// </summary>
@@ -54,7 +54,7 @@ namespace SourceForge.NAnt.Tests {
                     </project>";
             try {
                 string result = RunBuild(_xml);
-                Console.WriteLine(result);
+                System.Console.WriteLine(result);
                 Assertion.Fail("Invalid key did not generate an exception");
             }
             catch (TestBuildException be) {

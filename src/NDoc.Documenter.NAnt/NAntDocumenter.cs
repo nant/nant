@@ -28,7 +28,7 @@ using System.Xml.Xsl;
 
 using NDoc.Core;
 
-namespace Sourceforge.NAnt.Documenter {
+namespace NAnt.Documenter.NDoc {
     /// <summary>
     /// NDoc Documenter for building custom NAnt User documentation.
     /// </summary>
@@ -118,7 +118,7 @@ namespace Sourceforge.NAnt.Documenter {
             TransformAndWriteResult(_xsltTaskIndex, "index.html");
 
             // generate a page for each marked task
-            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'SourceForge.NAnt.Attributes.TaskNameAttribute']");
+            XmlNodeList taskAttrNodes = _xmlDocumentation.SelectNodes("/ndoc/assembly/module/namespace/class/attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']");
             foreach (XmlNode node in taskAttrNodes) {
                 // create arguments for nant task page transform
                 XsltArgumentList arguments = new XsltArgumentList();

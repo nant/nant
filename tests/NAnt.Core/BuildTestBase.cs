@@ -23,9 +23,11 @@ using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Core {
 
     /// <summary>Base class for running build files and checking results.</summary>
     /// <remarks>
@@ -36,7 +38,7 @@ namespace SourceForge.NAnt.Tests {
         string _tempDirName = null;
        
         /// <summary>
-        /// The Temp Directory name for this test case. Should be in the form %temp%\ClassName (ex. c:\temp\SourceForge.NAnt.Test.BuildTestBase).
+        /// The Temp Directory name for this test case. Should be in the form %temp%\ClassName (ex. c:\temp\Tests.NAnt.Core.BuildTestBase).
         /// </summary>
         public string TempDirName {
             get { return _tempDirName; }

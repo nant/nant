@@ -24,10 +24,10 @@ using System.Globalization;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt;
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Util {
 
     [TestFixture]
     public class XmlLoggerTest {

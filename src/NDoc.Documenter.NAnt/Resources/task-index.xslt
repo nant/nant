@@ -69,7 +69,7 @@
 <!-- match class tag -->
 <xsl:template match="class">
 <xsl:variable name = "attr" select="attribute/@name"/>	
-	<xsl:if test="string($attr) = 'SourceForge.NAnt.Attributes.TaskNameAttribute'">
+	<xsl:if test="string($attr) = 'NAnt.Core.Attributes.TaskNameAttribute'">
 		<tr>
 			<td class="Table-Cell"><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
 			<td class="Table-Cell"><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>

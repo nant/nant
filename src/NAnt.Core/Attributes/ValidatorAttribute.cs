@@ -19,7 +19,7 @@
 
 using System;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Base class for all validator attributes.
     /// </summary>

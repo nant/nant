@@ -21,14 +21,13 @@ using System;
 using System.IO;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Util {
 
-	[TestFixture]
+    [TestFixture]
     public class TempFileTest {
 
-		[Test]
+        [Test]
         public void Test_Create() {
             string fileName = TempFile.Create();
             Assertion.Assert(fileName + " does not exists.", File.Exists(fileName));
@@ -40,7 +39,7 @@ namespace SourceForge.NAnt.Tests {
             Assertion.Assert(fileName + " exists.", !File.Exists(fileName));
         }
 
-		[Test]
+        [Test]
         public void Test_Create_NullArgument() {
             try {
                 TempFile.Create(null);
@@ -49,7 +48,7 @@ namespace SourceForge.NAnt.Tests {
             }
         }
 
-		[Test]
+        [Test]
         public void Test_Create_WithContents() {
             string expected = "Line 1\nLine Two\n\nLine Three";
             string fileName = TempFile.CreateWithContents(expected);

@@ -28,9 +28,10 @@ using System.Text;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+
+namespace Tests.NAnt.Core {
 
     /// <summary>General purpose test that checks to see that all exceptions implement required methods.</summary>
     /// <remarks>

@@ -20,10 +20,11 @@ using System.ComponentModel;
 using System.Collections;
 using System.Diagnostics;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Compiles VS.NET solutions (or sets of projects), automatically determining project dependencies from inter-project references.
     /// </summary>

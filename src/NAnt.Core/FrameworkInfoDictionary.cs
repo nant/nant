@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     public class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields
 

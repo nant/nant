@@ -21,9 +21,9 @@
 using System;
 using System.Globalization;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Sets a property in the current project.
     /// </summary>

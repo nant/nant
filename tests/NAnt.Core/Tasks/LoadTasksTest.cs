@@ -23,11 +23,12 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+using NUnit.Framework;
+
+using NAnt.Core;
+
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// <para>Load Tasks Test.</para>
     /// </summary>

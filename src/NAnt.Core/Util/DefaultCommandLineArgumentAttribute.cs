@@ -19,7 +19,7 @@
 
 using System;
 
-namespace SourceForge.NAnt.Util {
+namespace NAnt.Core.Util {
     /// <summary>
     /// Marks a command-line option as being the default option.  When the name of 
     /// a command-line argument is not specified, this option will be assumed.

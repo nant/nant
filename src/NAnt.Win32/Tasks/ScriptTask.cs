@@ -28,10 +28,10 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Executes the code contained within the task.
     /// </summary>
@@ -50,7 +50,7 @@ namespace SourceForge.NAnt.Tasks {
     ///         System.IO,
     ///         System.Text,
     ///         System.Text.RegularExpressions and
-    ///         SourceForge.NAnt.
+    ///         NAnt.Core.
     ///     </para>
     /// </remarks>
     /// <example>
@@ -78,7 +78,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("script")]
-    public class ScriptTask : Task {
+    public class ScriptTask : NAnt.Core.Task {
         #region Private Instance Fields
 
         private string _language = "Unknown";
@@ -100,7 +100,7 @@ namespace SourceForge.NAnt.Tasks {
                                                                   "System.IO",
                                                                   "System.Text",
                                                                   "System.Text.RegularExpressions",
-                                                                  "SourceForge.NAnt"};
+                                                                  "NAnt.Core"};
 
         #endregion Private Static Fields
 
@@ -261,12 +261,12 @@ namespace SourceForge.NAnt.Tasks {
                 throw new BuildException("Invalid entry point declaration (wrong number of parameters).", Location);
             }
 
-            if (entryParams[0].ParameterType.FullName != "SourceForge.NAnt.Project") {
+            if (entryParams[0].ParameterType.FullName != "NAnt.Core.Project") {
                 throw new BuildException("Invalid entry point declaration (invalid parameter type, Project expected).", Location);
             }
 
             try {
-                entry.Invoke(null, new Object[] {Project});
+                entry.Invoke(null, new object[] {Project});
             } catch (Exception e) {
                 // This exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception

@@ -24,10 +24,11 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using Tests.NAnt.Core;
+using Tests.NAnt.Core.Util;
 
+namespace Tests.NAnt.DotNet.Tasks {
 	[TestFixture]
     public class JscTaskTest : BuildTestBase {
 

@@ -19,7 +19,7 @@ using System;
 using System.Net;
 using System.IO;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for WebDavClient.
     /// </summary>

@@ -28,9 +28,9 @@ using System.Security.Permissions;
 using System.Xml;
 using System.Xml.Schema;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Creates an XSD File for all available tasks.
     /// </summary>

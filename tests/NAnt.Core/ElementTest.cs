@@ -26,11 +26,11 @@ using System.Xml;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core {
 
     /// <summary>A simple task with a null element to test failures.</summary>
     [TaskName("elementTest1")]

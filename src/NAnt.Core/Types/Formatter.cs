@@ -17,9 +17,9 @@
 //
 // Gert Driesen (gert.driesen@ardatis.com)
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Types {
+namespace NAnt.Core.Types {
     [ElementName("formatter")]
     public class Formatter : Element {
         #region Private Instance Fields

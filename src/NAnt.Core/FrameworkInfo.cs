@@ -21,7 +21,7 @@ using System;
 using System.Globalization;
 using System.IO;
     
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Encalsulates information about installed frameworks incuding version 
     /// information and directory locations for finding tools.

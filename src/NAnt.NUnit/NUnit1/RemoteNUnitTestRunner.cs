@@ -18,8 +18,10 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
-   
-namespace SourceForge.NAnt.Tasks.NUnit {
+
+using NAnt.NUnit1.Types;
+
+namespace NAnt.NUnit1.Tasks {
     public class RemoteNUnitTestRunner : MarshalByRefObject {
         #region Public Instance Constructors
 

@@ -21,10 +21,11 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Compiles C# programs.
     /// </summary>

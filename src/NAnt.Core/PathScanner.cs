@@ -21,7 +21,7 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>Used to search for files on the PATH. The local directory is
     /// not searched (since this would already be covered by normal use of
     /// the includes element). Also, advanced pattern matching isn't supported

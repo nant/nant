@@ -25,7 +25,7 @@ using System.Runtime.Remoting;
 
 using NUnit.Core;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 {
+namespace NAnt.NUnit2.Tasks {
     /// <summary>
     /// Custom TestDomain, similar to the one included with NUnit 2.0, in order 
     /// to workaround some limitations in it.

@@ -25,10 +25,11 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Zip.Tasks {
     /// <summary>
     /// Creates a zip file from a specified fileset.
     /// </summary>

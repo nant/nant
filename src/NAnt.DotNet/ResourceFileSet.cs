@@ -21,9 +21,10 @@
 using System.IO;
 using System.Text;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Types {
+namespace NAnt.DotNet.Types {
     /// <summary>
     /// Specialized <see cref="FileSet" /> class for managing resource files. 
     /// </summary>

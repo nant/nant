@@ -35,7 +35,7 @@ using System.IO;
 using System.Text;
 using System.Web.Mail;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Defines the set of levels recognised by the NAnt logging system.
     /// </summary>

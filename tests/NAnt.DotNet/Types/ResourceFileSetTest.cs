@@ -24,10 +24,10 @@ using System.Xml;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Types;
+using NAnt.DotNet.Types;
+using Tests.NAnt.Core;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.DotNet.Types {
 
     [TestFixture]
     public class ResourceFileSetTest {

@@ -22,10 +22,11 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using NUnit.Framework;
 using System.Xml;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+using NUnit.Framework;
+
+namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Prints detailed information about running tests in XML format.
     /// </summary>

@@ -26,10 +26,10 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+
+namespace Tests.NAnt.Core.Tasks {
 
 	[TestFixture]
     public class SysInfoTaskTest : BuildTestBase {

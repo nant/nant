@@ -21,7 +21,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Contains a strongly typed collection of <see cref="TaskBuilder"/> objects.
     /// </summary>

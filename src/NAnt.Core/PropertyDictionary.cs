@@ -24,7 +24,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
 
     public class PropertyDictionary : DictionaryBase {
 

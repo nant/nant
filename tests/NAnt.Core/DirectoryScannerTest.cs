@@ -21,9 +21,11 @@ using System;
 using System.IO;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Core {
 
     [TestFixture]
     public class DirectoryScannerTest {

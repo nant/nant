@@ -20,11 +20,13 @@
 using System.Globalization;
 using System.IO;
 
-namespace SourceForge.NAnt.Tasks {
+using NAnt.Core;
+
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Provides the abstract base class for an external SDK program task.
     /// </summary>
-    public abstract class SdkExternalProgramBase : ExternalProgramBase {
+    public abstract class SdkExternalProgramBase : NAnt.Core.Tasks.ExternalProgramBase {
         #region Override implementation of ExternalProgramBase
 
         /// <summary>

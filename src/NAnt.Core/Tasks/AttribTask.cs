@@ -23,10 +23,10 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Globalization;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Changes the file attributes of a file or set of files.
     /// </summary>

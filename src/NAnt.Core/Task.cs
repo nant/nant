@@ -26,9 +26,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Provides the abstract base class for tasks.
     /// </summary>

@@ -22,7 +22,7 @@ using System.IO;
 
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Types {
     public interface IResultFormatter : ITestListener {
         /// <summary>
         /// The whole test suite started.

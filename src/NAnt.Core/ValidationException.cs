@@ -21,7 +21,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     [Serializable()]
     public class ValidationException : BuildException {
         #region Public Instance Constructors

@@ -17,9 +17,9 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Calls a NAnt target in the current project.
     /// </summary>

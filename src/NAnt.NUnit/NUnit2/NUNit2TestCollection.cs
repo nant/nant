@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 {
+namespace NAnt.NUnit2.Types {
     /// <summary>
     /// Contains a strongly typed collection of <see cref="NUnit2Test"/> objects.
     /// </summary>

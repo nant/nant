@@ -28,10 +28,10 @@ using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// <para>
     ///     Processes a document via XSLT.</para>

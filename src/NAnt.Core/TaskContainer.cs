@@ -24,9 +24,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Executes embedded tasks. First inherit from TaskContainer, then call ExecuteChildTasks during Exec.
     /// <note>

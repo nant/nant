@@ -28,7 +28,7 @@ using System.Xml;
 
 using NDoc.Core;
 
-namespace Sourceforge.NAnt.Documenter {
+namespace NAnt.Documenter.NDoc {
     /// <summary>
     /// NDoc configuration class for <see cref="NAntTaskDocumenter" />.
     /// </summary>

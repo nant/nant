@@ -20,9 +20,10 @@
 
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Compiles JScript.NET programs.
     /// </summary>

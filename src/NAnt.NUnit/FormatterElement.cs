@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2002 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+//
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
+namespace NAnt.NUnit.Types {
     /// <summary>
     /// The built-in formatter types.
     /// </summary>
@@ -47,7 +48,7 @@ namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
     /// Represents the FormatterElement of the NUnit task.
     /// </summary>
     [ElementName("formatter")]
-    public class FormatterElement : Element {
+    public class FormatterElement : NAnt.Core.Element {
         #region Private Instance Fields
 
         private FormatterData _data = new FormatterData();

@@ -21,9 +21,9 @@
 using System.Collections.Specialized;
 using System.Globalization;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Runs NAnt on a supplied build file. This can be used to build subprojects.
     /// </summary>

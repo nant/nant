@@ -30,9 +30,9 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 
-using SourceForge.NAnt.Util;
+using NAnt.Core.Util;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Main entry point to NAnt that is called by the ConsoleStub.
     /// </summary>

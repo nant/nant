@@ -22,9 +22,9 @@ using System;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
+using NAnt.NUnit.Types;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Carries data specified through the test element.
     /// </summary>

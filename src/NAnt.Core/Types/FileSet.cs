@@ -24,9 +24,9 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Types {
+namespace NAnt.Core.Types {
     /// <summary>
     /// The FileSet element.
     /// </summary>

@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Maps XML nodes to the text positions from their original source.
     /// </summary>

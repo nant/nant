@@ -24,7 +24,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Used to wrap log messages in xml &lt;message/&gt; elements.
     /// </summary>

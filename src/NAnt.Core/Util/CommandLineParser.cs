@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 
-namespace SourceForge.NAnt.Util {
+namespace NAnt.Core.Util {
     /// <summary>
     /// Commandline parser.
     /// </summary>

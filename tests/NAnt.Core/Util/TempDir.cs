@@ -22,9 +22,8 @@ using System;
 using System.IO;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Util {
 
     public sealed class TempDir {
         /// <summary>Creates a temporary directory for a unit test.</summary>

@@ -18,9 +18,10 @@
 // Ian MacLean (ian_maclean@another.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Represents a test element of an NUnit task.
     /// </summary>

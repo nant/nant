@@ -22,9 +22,8 @@ using System.IO;
 using System.Text;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Util {
 
     /// <summary>Captures console output to a string</summary>
     /// <remarks>
@@ -46,9 +45,9 @@ namespace SourceForge.NAnt.Tests {
         TextWriter   _oldWriter;
 
         public ConsoleCapture() {
-            _oldWriter = Console.Out;
+            _oldWriter = System.Console.Out;
             _writer = new StringWriter();
-            Console.SetOut(_writer);
+            System.Console.SetOut(_writer);
         }
 
         ~ConsoleCapture() {
@@ -68,7 +67,7 @@ namespace SourceForge.NAnt.Tests {
             if (!_disposed) {
                 _writer.Flush();
                 _writer.Close();
-                Console.SetOut(_oldWriter);
+                System.Console.SetOut(_oldWriter);
             }
             _disposed = true;
             GC.SuppressFinalize(this);

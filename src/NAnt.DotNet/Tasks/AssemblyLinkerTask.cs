@@ -23,10 +23,11 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Wraps Al.exe, the assembly linker for the .NET Framework.
     /// </summary>
@@ -46,7 +47,7 @@ namespace SourceForge.NAnt.Tasks {
     ///   </code>
     /// </example>
     [TaskName("al")]
-    public class AssemblyLinkerTask : ExternalProgramBase {
+    public class AssemblyLinkerTask : NAnt.Core.Tasks.ExternalProgramBase {
         #region Private Instance Fields
 
         string _arguments;

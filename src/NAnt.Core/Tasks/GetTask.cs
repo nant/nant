@@ -23,10 +23,10 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Get a particular file from a URL source.
     /// </summary>

@@ -23,9 +23,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Security.Permissions;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     public class TaskBuilder {
         #region Public Instance Constructors
 

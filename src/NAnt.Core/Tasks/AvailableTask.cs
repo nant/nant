@@ -22,9 +22,9 @@ using System;
 using System.IO;
 using System.Globalization;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Checks if a resource is available at runtime.
     /// </summary>

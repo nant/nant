@@ -22,9 +22,7 @@ using System.Xml;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt;
-
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
     /// Tests the Echo test.
     /// </summary>

@@ -1,4 +1,4 @@
-// $Id: ConfigurationSection.cs,v 1.2 2003/04/16 18:32:57 drieseng Exp $
+// $Id: ConfigurationSection.cs,v 1.3 2003/05/25 08:20:24 drieseng Exp $
 // NAnt - A .NET build tool
 // Copyright (C) 2003 Scott Hernandez
 //
@@ -23,7 +23,7 @@ using System.Text;
 using System.Xml;
 using System.Configuration;
 
-namespace SourceForge.NAnt{
+namespace NAnt.Core{
     /// <summary>
     /// Custom configuration section handler for the <nantsettings/> element.
     /// </summary>

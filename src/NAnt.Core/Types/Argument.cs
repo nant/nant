@@ -20,9 +20,9 @@
 using System;
 using System.Collections;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Types {
+namespace NAnt.Core.Types {
     /// <summary>
     /// Represents a command-line argument.
     /// </summary>

@@ -24,9 +24,10 @@ using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Core.Tasks {
 
 	[TestFixture]
     public class ExecTaskTest : BuildTestBase {

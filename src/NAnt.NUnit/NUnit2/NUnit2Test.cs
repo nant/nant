@@ -20,10 +20,11 @@
 
 using System.Collections.Specialized;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 {
+namespace NAnt.NUnit2.Types {
     /// <summary>
     /// Represents a test element of an NUnit2 task.
     /// </summary>

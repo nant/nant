@@ -19,14 +19,17 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 // this test or task is broken
+
 #if false
 using System;
 using System.Collections.Specialized;
 using System.IO;
-using SourceForge.NAnt.Tasks;
+
 using NUnit.Framework;
-namespace SourceForge.NAnt.Tests {
-    
+
+using NAnt.Core.Tasks;
+
+namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
     public class MailTaskTest  {
 

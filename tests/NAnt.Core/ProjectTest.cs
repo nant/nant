@@ -24,9 +24,11 @@ using System.IO;
 using System.Globalization;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core;
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Core {
 
     /// <summary>
     /// Tests project is initialized correctly. Checks the following props:
@@ -41,7 +43,7 @@ namespace SourceForge.NAnt.Tests {
     /// </summary>
 
 	[TestFixture]    
-    public class ProjectTest : BuildTestBase{
+    public class ProjectTest : BuildTestBase {
 
         string _format = @"<?xml version='1.0'?>
             <project name='ProjectTest' default='test' basedir='{0}'>

@@ -21,7 +21,7 @@ using System;
 
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
+namespace NAnt.NUnit.Types {
     /// <summary>
     /// Carries data specified through the formatter element.
     /// </summary>

@@ -16,17 +16,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.IO;
-using System.Xml;
 using System.Collections;
+using System.IO;
 using System.Text.RegularExpressions;
+using System.Xml;
 
-namespace SourceForge.NAnt.Tasks {
+using NAnt.Core;
+
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for Solution.
     /// </summary>
     public class Solution {
-        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask ) {
+        public Solution( string strSolutionFilename, ArrayList alAdditionalProjects, ArrayList alReferenceProjects, Task nanttask ) {
             _strFilename = strSolutionFilename;
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
@@ -105,7 +107,7 @@ namespace SourceForge.NAnt.Tasks {
             }
         }
 
-        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, SourceForge.NAnt.Task nanttask ) {
+        public Solution( ArrayList alProjects, ArrayList alReferenceProjects, Task nanttask ) {
             _htProjects = new Hashtable();
             _htProjectDirectories = new Hashtable();
             _htOutputFiles = new Hashtable();
@@ -292,6 +294,6 @@ namespace SourceForge.NAnt.Tasks {
         private Hashtable _htProjectDependencies;
         private Hashtable _htOutputFiles;
         private Hashtable _htReferenceProjects;
-        private SourceForge.NAnt.Task _nanttask;
+        private Task _nanttask;
     }
 }

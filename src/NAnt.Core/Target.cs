@@ -25,9 +25,9 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
 
     public class Target : Element, ICloneable {
 

@@ -19,9 +19,9 @@
 
 using System;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// An empty task that allows a build file to contain a description.
     /// </summary>

@@ -22,9 +22,9 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>Used to search for files on an arbitrary list of directories. 
     /// Advanced pattern matching isn't supported here: you need to know the 
     /// exact name of the file.</summary>

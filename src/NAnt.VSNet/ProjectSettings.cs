@@ -20,9 +20,10 @@ using System.IO;
 using System.Collections;
 using System.Xml;
 using System.CodeDom.Compiler;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tasks {
+using NAnt.Core;
+
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for ProjectSettings.
     /// </summary>

@@ -23,9 +23,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Sets properties with system information.
     /// </summary>

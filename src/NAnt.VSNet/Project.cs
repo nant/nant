@@ -27,16 +27,17 @@ using System.ComponentModel.Design;
 using System.Xml;
 using System.Text.RegularExpressions;
 
-using SourceForge.NAnt.Tasks;
+using NAnt.Core;
+using NAnt.Core.Tasks;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for Project.
     /// </summary>
     public class Project {
         private const string COMMAND_FILE = "compile-commands.txt";
 
-        public Project(SourceForge.NAnt.Task nanttask) {
+        public Project(Task nanttask) {
             _htConfigurations = new Hashtable();
             _htReferences = new Hashtable();
             _htFiles = new Hashtable();
@@ -270,7 +271,7 @@ namespace SourceForge.NAnt.Tasks {
                                     pRef.WaitForExit();
                                 }
                                 catch ( Win32Exception e ) {
-                                    throw new SourceForge.NAnt.BuildException( String.Format( "Unable to start process with commandline: {0} {1}", strProgram, strCommandLine ), e );
+                                    throw new BuildException(String.Format("Unable to start process with commandline: {0} {1}", strProgram, strCommandLine), e);
                                 }
                             }
                             else {
@@ -436,7 +437,7 @@ namespace SourceForge.NAnt.Tasks {
         private Hashtable    _htResources;
         private Hashtable    _htAssemblies;
         private string         _strImports;
-        private SourceForge.NAnt.Task _nanttask;
+        private Task _nanttask;
         private bool        _bWebProject;
 
         private string            _strProjectDirectory;

@@ -30,7 +30,7 @@ using System.Xml;
 
 using Microsoft.Win32;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>Central representation of a NAnt project.</summary>
     /// <example>
     ///   <para>The <c>Run</c> method will initialize the project with the build file specified in the <c>BuildFile</c> property and execute the default target.</para>
@@ -925,7 +925,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>
         /// This method is only meant to be used by the <see cref="Project"/> 
-        /// class and <see cref="SourceForge.NAnt.Tasks.IncludeTask"/>.
+        /// class and <see cref="NAnt.Core.Tasks.IncludeTask"/>.
         /// </summary>
         internal void InitializeProjectDocument(XmlDocument doc) {
             // load line and column number information into position map

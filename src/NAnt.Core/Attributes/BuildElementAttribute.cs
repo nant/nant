@@ -19,7 +19,7 @@
 
 using System;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Indicates that property should be treated as a xml file set for the task.
     /// </summary>

@@ -20,7 +20,7 @@
 using System;
 using System.Reflection;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Indicates that class should be treated as a NAnt element.
     /// </summary>

@@ -21,10 +21,10 @@ using System;
 using System.IO;
 using System.Globalization;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Deletes a file, fileset or directory.
     /// </summary>

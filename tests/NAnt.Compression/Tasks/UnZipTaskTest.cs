@@ -23,9 +23,11 @@ using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using Tests.NAnt.Core;
+using Tests.NAnt.Core.Util;
+
+namespace Tests.NAnt.Zip.Tasks {
 	[TestFixture]
     public class UnZipTaskTest : BuildTestBase {
 

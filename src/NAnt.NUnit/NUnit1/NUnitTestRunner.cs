@@ -26,9 +26,10 @@ using System.Xml;
 using NUnit.Framework;
 using NUnit.Runner;
 
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
+using NAnt.NUnit.Types;
+using NAnt.NUnit1.Types;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Tasks {
     public enum RunnerResult {
         Success,
         Failures,

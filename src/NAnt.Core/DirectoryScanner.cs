@@ -49,7 +49,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Used for searching filesystem based on given include/exclude rules.
     /// </summary>

@@ -23,10 +23,11 @@ using System.Collections.Specialized;
 using System.IO;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core.Tasks;
+using Tests.NAnt.Core.Util;
 
+namespace Tests.NAnt.Core.Tasks {
 	[TestFixture]
     public class TouchTaskTest : BuildTestBase {
 

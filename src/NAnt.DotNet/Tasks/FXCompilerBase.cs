@@ -20,7 +20,9 @@
 using System.Globalization;
 using System.IO;
 
-namespace SourceForge.NAnt.Tasks {
+using NAnt.Core;
+
+namespace NAnt.DotNet.Tasks {
     /// <summary>
     /// Provides the abstract base class for a compiler task.
     /// </summary>

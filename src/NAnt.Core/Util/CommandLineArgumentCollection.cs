@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt.Util {
+namespace NAnt.Core.Util {
     /// <summary>
     /// Contains a strongly typed collection of <see cref="CommandLineArgument"/> objects.
     /// </summary>

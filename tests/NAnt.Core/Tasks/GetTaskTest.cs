@@ -22,10 +22,11 @@ using System;
 using System.IO;
 using System.Net;
 
-using SourceForge.NAnt.Tasks;
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tests {
+using NAnt.Core.Tasks;
+
+namespace Tests.NAnt.Core.Tasks {
 
 	[TestFixture]
     public class GetTaskTest : BuildTestBase {

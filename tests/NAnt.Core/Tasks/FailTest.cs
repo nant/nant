@@ -22,11 +22,9 @@ using System.Xml;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt;
-
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Tasks {
     /// <summary>
-    /// Tests the Echo test.
+    /// Tests the Fail task.
     /// </summary>
     [TestFixture]
     public class FailTest : BuildTestBase {

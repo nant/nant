@@ -20,17 +20,14 @@ using System.IO;
 using System.Collections;
 using System.Xml;
 
-using SourceForge.NAnt;
+using NAnt.Core;
 
-namespace SourceForge.NAnt.Tasks
-{
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for ConfigurationSettings.
     /// </summary>
-    public class ConfigurationSettings
-    {
-        public ConfigurationSettings( ProjectSettings ps, XmlElement elemConfig )
-        {
+    public class ConfigurationSettings {
+        public ConfigurationSettings( ProjectSettings ps, XmlElement elemConfig ) {
             _alSettings = new ArrayList();
             _strRelOutputPath = elemConfig.Attributes[ "OutputPath" ].Value;
             _strOutputPath = new DirectoryInfo( ps.ProjectRootDirectory + @"\" + elemConfig.Attributes[ "OutputPath" ].Value ).FullName;
@@ -40,8 +37,7 @@ namespace SourceForge.NAnt.Tasks
 
             _strDocFilename = null;
             if ( ( elemConfig.Attributes[ "DocumentationFile" ] != null ) &&
-               ( elemConfig.Attributes[ "DocumentationFile" ].Value.Length > 0 ))
-            {
+                ( elemConfig.Attributes[ "DocumentationFile" ].Value.Length > 0 )) {
                 FileInfo fiDocumentation = new FileInfo( ps.ProjectRootDirectory + @"/" + elemConfig.Attributes[ "DocumentationFile" ].Value );
                 _strDocFilename = fiDocumentation.FullName;
                 _alSettings.Add( @"/doc:""" + _strDocFilename + @"""" );
@@ -55,8 +51,7 @@ namespace SourceForge.NAnt.Tasks
             htStringSettings[ "BaseAddress" ] = @"/baseaddress:{0}";
             htStringSettings[ "FileAlignment" ] = @"/filealign:{0}";
             
-            if ( ps.Type == ProjectType.CSharp )
-            {
+            if ( ps.Type == ProjectType.CSharp ) {
                 htStringSettings[ "WarningLevel" ] = @"/warn:{0}";
                 htBooleanSettings[ "IncrementalBuild" ] = "/incremental";
             }
@@ -67,18 +62,15 @@ namespace SourceForge.NAnt.Tasks
             htBooleanSettings[ "TreatWarningsAsErrors" ] = "/warnaserror";
             htBooleanSettings[ "Optimize" ] = "/optimize";
 
-            foreach ( DictionaryEntry de in htStringSettings )
-            {
+            foreach ( DictionaryEntry de in htStringSettings ) {
                 string strValue = elemConfig.GetAttribute( de.Key.ToString() );
                 if ( strValue != null && strValue.Length > 0 )
                     _alSettings.Add( String.Format( de.Value.ToString(), strValue ) );
             }
 
-            foreach ( DictionaryEntry de in htBooleanSettings )
-            {
+            foreach ( DictionaryEntry de in htBooleanSettings ) {
                 string strValue = elemConfig.GetAttribute( de.Key.ToString() );
-                if ( strValue != null && strValue.Length > 0 )
-                {
+                if ( strValue != null && strValue.Length > 0 ) {
                     if ( strValue == "true" )
                         _alSettings.Add( de.Value.ToString() + "+" );
                     else if ( strValue == "false" )
@@ -89,15 +81,12 @@ namespace SourceForge.NAnt.Tasks
             _alSettings.Add( String.Format( @"/out:""{0}{1}""", OutputPath, ps.OutputFile ) );
         }
 
-        public Task[] GetRequiredTasks()
-        {
+        public Task[] GetRequiredTasks() {
             return new Task[ 0 ];
         }
 
-        public string[] ExtraOutputFiles
-        {
-            get
-            {
+        public string[] ExtraOutputFiles {
+            get {
                 if ( _strDocFilename == null )
                     return new string[ 0 ];
 
@@ -105,28 +94,23 @@ namespace SourceForge.NAnt.Tasks
             }
         }
 
-        public string RelOutputPath
-        {
+        public string RelOutputPath {
             get { return _strRelOutputPath; }
         }
 
-        public string OutputPath
-        {
+        public string OutputPath {
             get { return _strOutputPath; }
         }
 
-        public string FullOutputFile
-        {
+        public string FullOutputFile {
             get { return Path.Combine( _strOutputPath, _ps.OutputFile ); }
         }
 
-        public string[] Settings
-        {
+        public string[] Settings {
             get { return ( string[] )_alSettings.ToArray( typeof( string ) ); }
         }
 
-        public string Name
-        {
+        public string Name {
             get { return _strName; }
         }
 

@@ -22,9 +22,9 @@ using System.Collections;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Sets project properties based on the evaluatuion of a regular expression.
     /// </summary>

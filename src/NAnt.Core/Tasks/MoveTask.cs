@@ -22,9 +22,9 @@ using System;
 using System.Globalization;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Moves a file or fileset to a new file or directory.
     /// </summary>

@@ -21,9 +21,10 @@ using System.IO;
 
 using ICSharpCode.SharpZipLib.Zip;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Zip.Tasks {
     /// <summary>
     /// Extracts files from a zip file.
     /// </summary>

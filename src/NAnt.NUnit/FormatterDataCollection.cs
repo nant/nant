@@ -20,7 +20,7 @@
 using System;
 using System.Collections;
 
-namespace SourceForge.NAnt.Tasks.NUnit.Formatters {
+namespace NAnt.NUnit.Types {
     /// <summary>
     /// Contains a strongly typed collection of <see cref="FormatterData"/> objects.
     /// </summary>

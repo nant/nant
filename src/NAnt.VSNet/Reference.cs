@@ -16,19 +16,22 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-using Microsoft.Win32;
-using System.Collections;
-using System.Collections.Specialized;
 
-namespace SourceForge.NAnt.Tasks {
+using Microsoft.Win32;
+
+using NAnt.Core;
+
+namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Summary description for Reference.
     /// </summary>
     public class Reference {
-        public Reference( Solution sln, ProjectSettings ps, XmlElement elemReference, SourceForge.NAnt.Task nanttask ) {
+        public Reference( Solution sln, ProjectSettings ps, XmlElement elemReference, Task nanttask ) {
             _ps = ps;
             _nanttask = nanttask;
             _dtReferenceTimeStamp = DateTime.MinValue;
@@ -272,6 +275,6 @@ namespace SourceForge.NAnt.Tasks {
         private ConfigurationSettings    _cs;
 
         private Project _p;
-        private SourceForge.NAnt.Task _nanttask;
+        private Task _nanttask;
     }
 }

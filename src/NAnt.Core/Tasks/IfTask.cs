@@ -21,10 +21,10 @@ using System;
 using System.Globalization;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Attributes;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// Checks the conditional attributes and executes the children if true.
     /// </summary>

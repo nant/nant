@@ -33,10 +33,12 @@ using System.Xml.XPath;
 using NUnit.Core;
 using NUnit.Framework;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Tasks.NUnit.Formatters;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.NUnit.Types;
+using NAnt.NUnit2.Types;
 
-namespace SourceForge.NAnt.Tasks.NUnit2 {
+namespace NAnt.NUnit2.Tasks {
     /// <summary>Runs tests using the NUnit V2.0 framework.</summary>
     /// <remarks>
     ///   <para>See the <a href="http://nunit.sf.net">NUnit home page</a> for more information.</para>

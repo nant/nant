@@ -29,7 +29,7 @@
 <xsl:output method="html" indent="yes" />
 
 <!-- The class we are documenting this time. This value will be passed in by the caller. argv[] equivalent. Default value is used for testing -->
-<xsl:param name="class-id">T:SourceForge.NAnt.Tasks.AttribTask</xsl:param>
+<xsl:param name="class-id">T:NAnt.Core.Tasks.AttribTask</xsl:param>
 
 <xsl:template match="/">
     <html>
@@ -41,7 +41,7 @@
 <xsl:template match="class">
 
     <xsl:variable name = "attr" select="attribute/@name"/>
-    <xsl:if test="string($attr) = 'SourceForge.NAnt.Attributes.TaskNameAttribute'">
+    <xsl:if test="string($attr) = 'NAnt.Core.Attributes.TaskNameAttribute'">
         <head>
             <meta http-equiv="Content-Language" content="en-ca" />
             <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
@@ -80,20 +80,20 @@
                     <th class="Table-Header">Description</th>
                     <th class="Table-Header" align="center">Required</th>
                 </tr>
-                <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.TaskAttributeAttribute' ]" mode="TaskAttribute">
+                <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.TaskAttributeAttribute' ]" mode="TaskAttribute">
                     <!-- uncomment to sort attributes by name <xsl:sort select="@name"/> -->
                 </xsl:apply-templates>
             </table>
             </div>
         </xsl:if>
-        <xsl:variable name = "filesets" select="property[attribute/@name = 'SourceForge.NAnt.Attributes.FileSetAttribute' ]"/>
-        <xsl:variable name = "elementarrays" select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementArrayAttribute' ]"/>
+        <xsl:variable name = "filesets" select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]"/>
+        <xsl:variable name = "elementarrays" select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]"/>
         <xsl:if test="count($filesets) != 0 or count($elementarrays) != 0">
             <h3>Nested Elements</h3>
             <!-- now do filesets -->
-            <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.FileSetAttribute' ]" mode="FileSet"/>
-            <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementArrayAttribute' ]" mode="BuildElementArrayAttribute"/>
-            <xsl:apply-templates select="property[attribute/@name = 'SourceForge.NAnt.Attributes.BuildElementCollectionAttribute' ]" mode="BuildElementCollectionAttribute"/>            
+            <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.FileSetAttribute' ]" mode="FileSet"/>
+            <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementArrayAttribute' ]" mode="BuildElementArrayAttribute"/>
+            <xsl:apply-templates select="property[attribute/@name = 'NAnt.Core.Attributes.BuildElementCollectionAttribute' ]" mode="BuildElementCollectionAttribute"/>
         </xsl:if> 
 
         <!-- Example -->
@@ -106,7 +106,7 @@
 
 <!-- match property tag -->
 <xsl:template match="property" mode="TaskAttribute">
-    <xsl:variable name = "TaskAttr" select="attribute[@name='SourceForge.NAnt.Attributes.TaskAttributeAttribute']"/>
+    <xsl:variable name = "TaskAttr" select="attribute[@name='NAnt.Core.Attributes.TaskAttributeAttribute']"/>
     <xsl:if test="count($TaskAttr) = 1">
          <xsl:variable name = "documentation" >
                 <xsl:call-template name="docstring" >
@@ -123,7 +123,7 @@
 
 <!-- match fileset property tag -->
 <xsl:template match="property" mode="FileSet">
-    <xsl:variable name = "FileSetAttr" select="attribute[@name='SourceForge.NAnt.Attributes.FileSetAttribute']"/>
+    <xsl:variable name = "FileSetAttr" select="attribute[@name='NAnt.Core.Attributes.FileSetAttribute']"/>
     <xsl:variable name = "documentation" >
         <xsl:call-template name="docstring" >
         </xsl:call-template>
@@ -135,7 +135,7 @@
 
 <!-- match BuildElementArray property tag -->
 <xsl:template match="property" mode="BuildElementArrayAttribute">
-    <xsl:variable name = "BuildElementArrayAttr" select="attribute[@name='SourceForge.NAnt.Attributes.BuildElementArrayAttribute']"/>
+    <xsl:variable name = "BuildElementArrayAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementArrayAttribute']"/>
     <xsl:variable name = "documentation" >
         <xsl:call-template name="docstring" />
     </xsl:variable>
@@ -146,7 +146,7 @@
 
 <!-- match BuildElementCollection property tag -->
 <xsl:template match="property" mode="BuildElementCollectionAttribute">
-    <xsl:variable name = "BuildElementCollectionAttr" select="attribute[@name='SourceForge.NAnt.Attributes.BuildElementCollectionAttribute']"/>
+    <xsl:variable name = "BuildElementCollectionAttr" select="attribute[@name='NAnt.Core.Attributes.BuildElementCollectionAttribute']"/>
     <xsl:variable name = "documentation" >
         <xsl:call-template name="docstring" />
     </xsl:variable>

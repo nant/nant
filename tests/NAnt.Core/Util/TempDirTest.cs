@@ -21,15 +21,14 @@ using System;
 using System.IO;
 
 using NUnit.Framework;
-using SourceForge.NAnt;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Util {
 
-	[TestFixture]
+    [TestFixture]
     public class TempDirTest {
 
 
-		[Test]
+        [Test]
         public void Test_CreateAndDestroy() {
             string path = TempDir.Create("foobar");
             Assertion.Assert(path + " does not exists.", Directory.Exists(path));

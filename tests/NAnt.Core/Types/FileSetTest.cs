@@ -23,10 +23,10 @@ using System.Xml;
 
 using NUnit.Framework;
 
-using SourceForge.NAnt;
-using SourceForge.NAnt.Types;
+using NAnt.Core.Types;
+using Tests.NAnt.Core.Util;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core {
 
     [TestFixture]
     public class FileSetTest : BuildTestBase {

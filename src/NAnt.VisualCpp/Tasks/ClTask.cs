@@ -26,10 +26,12 @@
 using System;
 using System.IO;
 
-using SourceForge.NAnt.Attributes;
-using SourceForge.NAnt.Types;
+using NAnt.Core;
+using NAnt.Core.Attributes;
+using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.VisualCpp.Tasks {
     /// <summary>
     /// Compiles C/C++ programs using cl, Microsoft's C/C++ compiler.
     /// </summary>

@@ -23,7 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
 
     /// <summary>
     /// Stores the file name, line number and column number to record a position in a text file.

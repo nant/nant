@@ -23,7 +23,7 @@ using System.Configuration;
 using System.Reflection;
 using System.Globalization;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Console {
     /// <summary>
     /// Stub used to created <see cref="AppDomain" /> and launch real <c>ConsoleDriver</c> 
     /// class in Core assembly.
@@ -87,7 +87,7 @@ namespace SourceForge.NAnt {
                 try {
                     cachePathInfo = Directory.CreateDirectory(cachePath);
                 } catch (Exception e) {
-                    Console.WriteLine("Failed to create: {0}. Using default CachePath." + e.ToString(), cachePath);
+                    System.Console.WriteLine("Failed to create: {0}. Using default CachePath." + e.ToString(), cachePath);
                 } finally {
                     if(cachePathInfo != null) {
                         myDomainSetup.CachePath = cachePathInfo.FullName;
@@ -142,7 +142,7 @@ namespace SourceForge.NAnt {
                     } catch (FileNotFoundException ex) {
                         logger.Error("Files not found.", ex);
                     } catch (Exception ex) {
-                        Console.WriteLine("Unable to delete cache({1}).\n {0}.", ex.ToString(), cachePath);
+                        System.Console.WriteLine("Unable to delete cache({1}).\n {0}.", ex.ToString(), cachePath);
                     }
                 }
             }
@@ -218,7 +218,7 @@ namespace SourceForge.NAnt {
                     nantCore.FullName));
 
                 //get the ConsoleDriver by name
-                Type consoleDriverType = nantCore.GetType("SourceForge.NAnt.ConsoleDriver", true, true);
+                Type consoleDriverType = nantCore.GetType("NAnt.Core.ConsoleDriver", true, true);
 
                 //find the Main Method, this method is less than optimal, but other methods failed.
                 foreach (MethodInfo methodInfo in consoleDriverType.GetMethods(BindingFlags.Static | BindingFlags.Public)) {

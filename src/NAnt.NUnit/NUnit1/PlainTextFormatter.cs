@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 
 using NUnit.Framework;
 
-namespace SourceForge.NAnt.Tasks.NUnit {
+namespace NAnt.NUnit1.Types {
     /// <summary>
     /// Prints information about running tests in plain text.
     /// </summary>

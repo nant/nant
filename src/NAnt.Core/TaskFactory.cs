@@ -26,9 +26,9 @@ using System.Reflection;
 using System.Security.Permissions;
 using System.Xml;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
-namespace SourceForge.NAnt {
+namespace NAnt.Core {
     /// <summary>
     /// Comprises all of the loaded, and available, tasks. 
     /// Use these static methods to register, initialize and create a task.

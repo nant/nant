@@ -19,7 +19,7 @@
 
 using System;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Indicates that the property should be treated as a container for a 
     /// collection of build elements.

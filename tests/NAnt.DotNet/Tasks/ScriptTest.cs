@@ -24,10 +24,8 @@ using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
-using SourceForge.NAnt.Tasks;
-using SourceForge.NAnt.Attributes;
 
-namespace SourceForge.NAnt.Tests {
+namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
     public class ScriptTest : BuildTestBase {
         [Test]
@@ -37,7 +35,7 @@ namespace SourceForge.NAnt.Tests {
                <script language='VB'>
                     <code>
                         <![CDATA[
-                            Public Shared Sub ScriptMain(p As SourceForge.NAnt.Project)
+                            Public Shared Sub ScriptMain(p As NAnt.Core.Project)
                                 p.Properties(""foo"")=1
                             End Sub
                         ]]>

@@ -23,11 +23,10 @@ using System.Security.Permissions;
 
 using Microsoft.Win32;
 
-using SourceForge.NAnt.Attributes;
+using NAnt.Core.Attributes;
 
 [assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
-
-namespace SourceForge.NAnt.Tasks {
+namespace NAnt.Core.Tasks {
     /// <summary>
     /// A task that reads a value or set of values from the Windows Registry into one or 
     /// more NAnt properties.

@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 
-namespace SourceForge.NAnt.Attributes {
+namespace NAnt.Core.Attributes {
     /// <summary>
     /// Used to indicate that a property should be able to be converted into a <see cref="bool" />.
     /// </summary>
