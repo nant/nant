@@ -29,11 +29,11 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Changes the file attributes of a file or set of files.
+    /// Changes the file attributes of a file or set of files and directories.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <see cref="AttribTask" /> does not have the concept of turning file 
+    /// <see cref="AttribTask" /> does not have the concept of turning 
     /// attributes off.  Instead you specify all the attributes that you want 
     /// turned on and the rest are turned off by default.
     /// </para>
@@ -43,19 +43,27 @@ namespace NAnt.Core.Tasks {
     /// </para>
     /// </remarks>
     /// <example>
-    ///   <para>Set the <c>read-only</c> file attribute for the specified file in the project directory.</para>
+    ///   <para>
+    ///     Set the <c>read-only</c> file attribute for the specified file in 
+    ///     the project directory.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib file="myfile.txt" readonly="true" />
     ///     ]]>
     ///   </code>
-    ///   <para>Set the <c>normal</c> file attribute for the specified file.</para>
+    ///   <para>
+    ///     Set the <c>normal</c> file attribute for the specified file.
+    ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib file="myfile.txt" normal="true" />
     ///     ]]>
     ///   </code>
-    ///   <para>Set the <c>normal</c> file attribute for all executable files in the current project directory and sub-directories.</para>
+    ///   <para>
+    ///     Set the <c>normal</c> file attribute for all executable files in 
+    ///     the current project directory and sub-directories.
+    ///     </para>
     ///   <code>
     ///     <![CDATA[
     /// <attrib normal="true">
@@ -94,7 +102,8 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// All the files in this fileset will have their file attributes set.
+        /// All the matching files and directories in this fileset will have 
+        /// their attributes set.
         /// </summary>
         [BuildElement("fileset")]
         public FileSet AttribFileSet {
@@ -169,42 +178,39 @@ namespace NAnt.Core.Tasks {
                 AttribFileSet.Includes.Add(File.FullName);
             }
 
-            // gather the information needed to perform the operation
-            StringCollection fileNames = AttribFileSet.FileNames;
+            // add the shortcut filename to the file set
+            if (File != null) {
+                AttribFileSet.Includes.Add(File.FullName);
+            }
+
+            // determine attributes to set on files
             FileAttributes fileAttributes = GetFileAttributes();
 
             // display build log message
             Log(Level.Info, LogPrefix + "Setting file attributes for {0} files to {1}.", 
-                fileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
+                AttribFileSet.FileNames.Count, fileAttributes.ToString(CultureInfo.InvariantCulture));
 
-            // perform operation
-            foreach (string path in fileNames) {
+            // perform operation on files
+            foreach (string path in AttribFileSet.FileNames) {
                 SetFileAttributes(path, fileAttributes);
+            }
+
+            // determine attributes to set on directories
+            FileAttributes directoryAttributes = GetDirectoryAttributes();
+
+            // display build log message
+            Log(Level.Info, LogPrefix + "Setting attributes for {0} directories to {1}.", 
+                AttribFileSet.DirectoryNames.Count, directoryAttributes.ToString(CultureInfo.InvariantCulture));
+
+            // perform operation on directories
+            foreach (string path in AttribFileSet.DirectoryNames) {
+                SetDirectoryAttributes(path, directoryAttributes);
             }
         }
 
         #endregion Override implementation of Task
 
         #region Private Instance Methods
-
-        private void SetFileAttributes(string path, FileAttributes fileAttributes) {
-            try {
-                if (System.IO.File.Exists(path)) {
-                    Log(Level.Verbose, LogPrefix + path);
-                    System.IO.File.SetAttributes(path, fileAttributes);
-                } else {
-                    throw new FileNotFoundException();
-                }
-            } catch (Exception ex) {
-                string msg = string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot set file attributes for '{0}'.", path);
-                if (FailOnError) {
-                    throw new BuildException(msg, Location, ex);
-                } else {
-                    Log(Level.Verbose, LogPrefix + msg);
-                }
-            }
-        }
 
         private FileAttributes GetFileAttributes() {
             FileAttributes fileAttributes = 0;
@@ -231,6 +237,65 @@ namespace NAnt.Core.Tasks {
             }
 
             return fileAttributes;
+        }
+
+        private void SetFileAttributes(string path, FileAttributes fileAttributes) {
+            try {
+                if (System.IO.File.Exists(path)) {
+                    Log(Level.Verbose, LogPrefix + path);
+                    System.IO.File.SetAttributes(path, fileAttributes);
+                } else {
+                    throw new FileNotFoundException();
+                }
+            } catch (Exception ex) {
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot set attributes for file '{0}'.", path);
+                if (FailOnError) {
+                    throw new BuildException(msg, Location, ex);
+                } else {
+                    Log(Level.Verbose, LogPrefix + msg);
+                }
+            }
+        }
+
+        private FileAttributes GetDirectoryAttributes() {
+            FileAttributes directoryAttributes = FileAttributes.Directory;
+
+            if (!NormalAttrib) {
+                if (ArchiveAttrib) {
+                    directoryAttributes |= FileAttributes.Archive;
+                }
+                if (HiddenAttrib) {
+                    directoryAttributes |= FileAttributes.Hidden;
+                }
+                if (ReadOnlyAttrib) {
+                    directoryAttributes |= FileAttributes.ReadOnly;
+                }
+                if (SystemAttrib) {
+                    directoryAttributes |= FileAttributes.System;
+                }
+            }
+
+            return directoryAttributes;
+        }
+
+        private void SetDirectoryAttributes(string path, FileAttributes fileAttributes) {
+            try {
+                if (System.IO.Directory.Exists(path)) {
+                    Log(Level.Verbose, LogPrefix + path);
+                    System.IO.File.SetAttributes(path, fileAttributes);
+                } else {
+                    throw new DirectoryNotFoundException();
+                }
+            } catch (Exception ex) {
+                string msg = string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot set attributes for directory '{0}'.", path);
+                if (FailOnError) {
+                    throw new BuildException(msg, Location, ex);
+                } else {
+                    Log(Level.Verbose, LogPrefix + msg);
+                }
+            }
         }
 
         #endregion Private Instance Methods
