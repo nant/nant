@@ -102,6 +102,7 @@ namespace NAnt.SourceControl.Tasks {
         #endregion Protected Instance Constructors
 
         #region Protected Instance Properties
+
         /// <summary>
         /// The name of the passfile, overriden for each version control system (VCS).
         /// </summary>
@@ -139,14 +140,6 @@ namespace NAnt.SourceControl.Tasks {
         #endregion
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// The name of the version control system executable.
-        /// </summary>
-        public override string ExeName {
-            get {return _exeName;}
-            set {_exeName = value;}
-        }
 
         /// <summary>
         /// <para>
@@ -257,13 +250,6 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Get the command line arguments for the task.
-        /// </summary>
-        public override string ProgramArguments {
-            get {return _commandLine;}
-        }
-
-        /// <summary>
         /// The name of the command that is going to be executed.
         /// </summary>
         public virtual string CommandName {
@@ -290,10 +276,50 @@ namespace NAnt.SourceControl.Tasks {
             set {_ssh = value;}
         }
 
+        #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
         /// <summary>
         /// The environment name for the ssh variable.
         /// </summary>
-        protected abstract string SshEnv {get;}
+        protected abstract string SshEnv {
+            get;
+        }
+
+        #endregion Protected Instance Properties
+
+        #region Override implementation of ExternalProgramBase
+
+        /// <summary>
+        /// The name of the version control system executable.
+        /// </summary>
+        public override string ExeName {
+            get {return _exeName;}
+            set {_exeName = value;}
+        }
+
+        /// <summary>
+        /// Get the command line arguments for the task.
+        /// </summary>
+        public override string ProgramArguments {
+            get {return _commandLine;}
+        }
+
+        /// <summary>
+        /// Build up the command line arguments, determine which executable is being
+        /// used and find the path to that executable and set the working 
+        /// directory.
+        /// </summary>
+        /// <param name="process">The process to prepare.</param>
+        protected override void PrepareProcess (Process process) {
+            base.PrepareProcess(process);
+            SetEnvironment(process);
+        }
+
+        #endregion Override implementation of ExternalProgramBase
+
+        #region Protected Instance Methods
 
         /// <summary>
         /// Adds a new global option if none exists.  If one does exist then
@@ -343,21 +369,6 @@ namespace NAnt.SourceControl.Tasks {
             option.IfDefined = on;
         }
 
-        #endregion Public Instance Properties
-
-        #region Override Task Implementation
-
-        /// <summary>
-        /// Build up the command line arguments, determine which executable is being
-        /// used and find the path to that executable and set the working 
-        /// directory.
-        /// </summary>
-        /// <param name="process">The process to prepare.</param>
-        protected override void PrepareProcess (Process process) {
-            base.PrepareProcess(process);
-            SetEnvironment(process);
-        }
-
         /// <summary>
         /// Set up the environment variables for a process.
         /// </summary>
@@ -391,49 +402,6 @@ namespace NAnt.SourceControl.Tasks {
             Log(Level.Verbose, "Using .cvspass file: {0}", process.StartInfo.EnvironmentVariables[CvsPassFileVariable]);
         }
 
-        #endregion
-
-        #region Protected Instance Methods
-
-        #endregion
-
-        #region Private Instance Methods
-
-        private FileInfo DeriveFullPathFromEnv(string environmentVar, string fileName) {
-            string environmentValue = StringUtils.ConvertEmptyToNull(
-                System.Environment.GetEnvironmentVariable(environmentVar));
-
-            Log(Level.Debug, "Environment variable: {0}", environmentVar);
-            Log(Level.Debug, "Environment value: {0}", environmentValue);
-
-            if (environmentValue != null) {
-				string[] environmentPaths = environmentValue.Split(Path.PathSeparator);
-                foreach (string environmentPath in environmentPaths) {
-                    if (null != environmentPath) {
-                        string fileFullName = Path.Combine(environmentPath, fileName);
-                        Log(Level.Debug, "Environment Path: {0}", environmentPath);
-                        Log(Level.Debug, "FileName: {0}", fileName);
-                        Log(Level.Debug, "FileFullName: {0}", fileFullName);
-                        if (environmentPath.IndexOf(fileName) > -1 &&
-                            File.Exists(fileName)) {
-                            if (!(Path.GetDirectoryName(fileName).IndexOf(
-                                Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory)) > 1)) {
-                                return new FileInfo(fileName);
-                            }
-                        }
-                        if (fileFullName.IndexOf(fileName) > -1 &&
-                            File.Exists(fileFullName)) {
-                            if (Path.GetDirectoryName(fileFullName).IndexOf(
-                                Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory)) == -1) {
-                                return new FileInfo(fileFullName);
-                            }
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
         /// <summary>
         /// Append the files specified in the fileset to the command line argument.
         /// Files are changed to use a relative path from the working directory
@@ -446,7 +414,7 @@ namespace NAnt.SourceControl.Tasks {
                     relativePath = relativePath.Substring(1, relativePath.Length - 1);
                 }
                 relativePath = relativePath.Replace("\\", "/");
-				Arguments.Add(new Argument("\"" + relativePath + "\""));
+                Arguments.Add(new Argument("\"" + relativePath + "\""));
             }
         }
 
@@ -463,6 +431,51 @@ namespace NAnt.SourceControl.Tasks {
                 vcsFile = DeriveFullPathFromEnv(PathVariable, VcsExeName);
             }
             return vcsFile;
+        }
+
+        #endregion Protected Instance Methods
+
+        #region Private Instance Methods
+
+        private FileInfo DeriveFullPathFromEnv(string environmentVar, string fileName) {
+            string environmentValue = StringUtils.ConvertEmptyToNull(
+                System.Environment.GetEnvironmentVariable(environmentVar));
+
+            Log(Level.Debug, "Environment variable: {0}", environmentVar);
+            Log(Level.Debug, "Environment value: {0}", environmentValue);
+
+            if (environmentValue != null) {
+				string[] environmentPaths = environmentValue.Split(Path.PathSeparator);
+                foreach (string environmentPath in environmentPaths) {
+                    if (environmentPath == null) {
+                        continue;
+                    }
+
+                    // remove leading or trailing quotes, which are valid for
+                    // individual entries in PATH but are considered invalid 
+                    // path characters
+                    string cleanPath = environmentPath.Trim('\"');
+
+                    Log(Level.Debug, "Environment Path: {0}", cleanPath);
+                    Log(Level.Debug, "FileName: {0}", fileName);
+
+                    string fileFullName = Path.Combine(cleanPath, fileName);
+                    Log(Level.Debug, "FileFullName: {0}", fileFullName);
+                    if (environmentPath.IndexOf(fileName) > -1 && File.Exists(fileName)) {
+                        if (!(Path.GetDirectoryName(fileName).IndexOf(
+                            Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory)) > 1)) {
+                            return new FileInfo(fileName);
+                        }
+                    }
+                    if (fileFullName.IndexOf(fileName) > -1 && File.Exists(fileFullName)) {
+                        if (Path.GetDirectoryName(fileFullName).IndexOf(
+                            Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory)) == -1) {
+                            return new FileInfo(fileFullName);
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         #endregion Private Instance Methods
