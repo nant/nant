@@ -400,7 +400,7 @@ namespace NAnt.VSNet {
         ///     </item>
         ///     <item>
         ///         <term>
-        ///             The .NET Framework directory.
+        ///             The .NET Framework directory (see KB306149) 
         ///         </term>
         ///     </item>
         ///     <item>
@@ -422,12 +422,12 @@ namespace NAnt.VSNet {
         ///                 </item>
         ///                 <item>
         ///                     <term>
-        ///                         HKLM\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+        ///                         HKLM\SOFTWARE\Microsoft\VisualStudio\&lt;major version&gt;.&lt;minor version&gt;\AssemblyFolders
         ///                     </term>
         ///                 </item>
         ///                 <item>
         ///                     <term>
-        ///                         HKCU\SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders
+        ///                         HKCU\SOFTWARE\Microsoft\VisualStudio\&lt;major version&gt;.&lt;minor version&gt;\AssemblyFolders
         ///                     </term>
         ///                 </item>
         ///             </list>
