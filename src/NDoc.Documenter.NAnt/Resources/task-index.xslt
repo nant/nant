@@ -82,8 +82,8 @@
     <!-- match class tag -->
     <xsl:template match="class">
         <xsl:variable name="attr" select="attribute[@name = 'NAnt.Core.Attributes.TaskNameAttribute']/@name" />
-        <xsl:element name="tr">
-            <xsl:if test="string-length(string($attr)) != 0">
+        <xsl:if test="string-length(string($attr)) != 0 and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())">
+            <xsl:element name="tr">
                 <xsl:variable name="ObsoleteAttribute" select="attribute[@name = 'System.ObsoleteAttribute']" />
                 <xsl:choose>
                     <!-- check if the task is deprecated -->
@@ -101,10 +101,10 @@
                         <td><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" /></td>
                 </xsl:otherwise>
                 </xsl:choose>
-            </xsl:if>
-            <td>
-                <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
-            </td>
-        </xsl:element>
+                <td>
+                    <xsl:value-of select="ancestor::assembly/@name" /> (<xsl:value-of select="ancestor::assembly/@version" />)
+                </td>
+            </xsl:element>                
+        </xsl:if>
     </xsl:template>
 </xsl:stylesheet>

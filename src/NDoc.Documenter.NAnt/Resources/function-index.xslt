@@ -59,8 +59,8 @@
                 </table>
                 <h1>Function Reference</h1>
 
-                <!-- table of contents -->
-                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute']">
+                <!-- table of contents, only document functions in classes that pass NamespaceFilter -->
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute' and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())]">
                     <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
@@ -74,7 +74,8 @@
                     </xsl:if>
                 </xsl:for-each>
 
-                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute']">
+                <!-- only document functions in classes that pass NamespaceFilter -->
+                <xsl:for-each select="//class[attribute/@name='NAnt.Core.Attributes.FunctionSetAttribute' and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())]">
                     <xsl:sort select="number(attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='UserDocSortOrder']/@value)" order="ascending" />
                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value" order="ascending" />
 
@@ -92,9 +93,8 @@
                                     <th>Summary</th>
                                 </tr>
 
-                                <!-- for each class having FunctionSet attribute with this category, then for each method having Function attribute -->
-
-                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value=$this_cat]/method[attribute/@name='NAnt.Core.Attributes.FunctionAttribute']">
+                                <!-- for each class having FunctionSet attribute with this category and passing NamespaceFilter, then for each method having Function attribute -->
+                                <xsl:for-each select="//class[attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value=$this_cat and starts-with(substring(@id, 3, string-length(@id) - 2), NAntUtil:GetNamespaceFilter())]/method[attribute/@name='NAnt.Core.Attributes.FunctionAttribute']">
                                     <xsl:sort select="../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value" order="ascending" />
                                     <xsl:sort select="attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value" order="ascending" />
 
