@@ -113,11 +113,13 @@ namespace NAnt.VSNet {
                 if (!StringUtils.IsNullOrEmpty(value)) {
                     switch (de.Key.ToString()) {
                         case "BaseAddress":
-                            // vbc expects the base address to be specified as a
-                            // hexadecimal number, csc supports decimal, hexadecimal, 
-                            // or octal number
+                            // vbc and vjs expect the base address to be specified
+                            // as a hexadecimal number, csc supports decimal, 
+                            // hexadecimal, or octal number
+                            //
+                            // so use hexadecimal as all compiler support this
                             int intvalue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
-                            value = intvalue.ToString("x", CultureInfo.InvariantCulture);
+                            value = "0x" + intvalue.ToString("x", CultureInfo.InvariantCulture);
                             break;
                         case "DefineConstants":
                             // vbc fails when the symbol contains spaces
