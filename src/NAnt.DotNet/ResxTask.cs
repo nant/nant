@@ -29,6 +29,10 @@ namespace SourceForge.NAnt.Tasks
 	/// <summary>
 	/// Task to generate a .resources file from a .resx file.
 	/// </summary>
+	/// <remarks>
+	/// If no output file is specified, the default filename is the name of the input file with the extension changed
+	/// to ".resources".
+	/// </remarks>
 	/// <example>
 	///   <para>Generate a .resources file for <c>translations.resx</c>.</para>
 	///   <code>
@@ -60,18 +64,35 @@ namespace SourceForge.NAnt.Tasks
 
 		protected override void ExecuteTask()
 		{
-			if ( !File.Exists( _strInput ) )
-				throw new BuildException( String.Format( "Unable to find file: {0}", _strInput ), Location );
+			// First determing the input filename
+			string strInput = null;
+			try {
+				strInput = Project.GetFullPath( _strInput );
+			} catch ( Exception e ) {
+				string msg = String.Format( "Could not determine path from {0}", _strInput );
+				throw new BuildException( msg, Location, e );
+			}
 
+			if ( !File.Exists( strInput ) )
+				throw new BuildException( String.Format( "Unable to find file: {0}", strInput ), Location );
+
+			// Now determine the output filename, using the input filename if necessary
 			string strOutput = _strOutput;
 			if ( strOutput == null )
-				strOutput = Path.ChangeExtension( _strInput, ".resources" );
+				strOutput = Path.ChangeExtension( strInput, ".resources" );
+			else {
+				try {
+					strOutput = Project.GetFullPath( strOutput );
+				} catch ( Exception e ) {
+					string msg = String.Format( "Could not determine path from {0}", _strInput );
+					throw new BuildException( msg, Location, e );
+				}
+			}
 
-			if ( Verbose )
-				Log.WriteLine( "Compiling {0} to {1}...", _strInput, strOutput );
+			Log.WriteLine( "Compiling resource file {0} to {1}", _strInput, strOutput );
 
 			// Open in the input .resx file
-			using ( ResXResourceReader rrr = new ResXResourceReader( _strInput ) )
+			using ( ResXResourceReader rrr = new ResXResourceReader( strInput ) )
 			{
 				// Open the output .resources file
 				using ( ResourceWriter rw = new ResourceWriter( strOutput ) )
