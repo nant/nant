@@ -12,7 +12,7 @@
         <csc target="exe" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <warnaserror>
                 <!-- do not consider deprecation warnings as errors on .NET 2.0 -->
-                <exclude number="618" if="${framework::get-target-framework()='net-2.0'}" />
+                <exclude number="618" if="${framework::get-target-framework() == 'net-2.0'}" />
             </warnaserror>
             <sources failonempty="true">
                 <include name="**/*.cs" />

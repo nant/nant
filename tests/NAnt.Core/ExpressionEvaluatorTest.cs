@@ -65,8 +65,8 @@ namespace Tests.NAnt.Core {
         [Test]
         public void TestRelationOperators() {
             // string & string
-            AssertExpression("'a' = 'a'", true);
-            AssertExpression("'a' = 'b'", false);
+            AssertExpression("'a' == 'a'", true);
+            AssertExpression("'a' == 'b'", false);
             AssertExpression("'a' != 'b'", true);
             AssertExpression("'a' != 'a'", false);
             AssertExpression("'a' > 'b'", false);
@@ -83,8 +83,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("'b' <= 'a'", false);
 
             // bool & bool
-            AssertExpression("false = false", true);
-            AssertExpression("false = true", false);
+            AssertExpression("false == false", true);
+            AssertExpression("false == true", false);
             AssertExpression("false != true", true);
             AssertExpression("false != false", false);
             AssertExpression("false > true", false);
@@ -101,8 +101,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("true <= false", false);
             
             // int & int
-            AssertExpression("1 = 1", true);
-            AssertExpression("1 = 2", false);
+            AssertExpression("1 == 1", true);
+            AssertExpression("1 == 2", false);
             AssertExpression("1 != 2", true);
             AssertExpression("1 != 1", false);
             AssertExpression("1 > 2", false);
@@ -119,8 +119,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("2 <= 1", false);
 
             // int & double
-            AssertExpression("1 = 1.0", true);
-            AssertExpression("1 = 1.5", false);
+            AssertExpression("1 == 1.0", true);
+            AssertExpression("1 == 1.5", false);
             AssertExpression("1 != 1.5", true);
             AssertExpression("1 != 1.0", false);
             AssertExpression("1 > 1.5", false);
@@ -137,8 +137,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("1.5 <= 1", false);
 
             // double & double
-            AssertExpression("1.0 = 1.0", true);
-            AssertExpression("1.0 = 2.0", false);
+            AssertExpression("1.0 == 1.0", true);
+            AssertExpression("1.0 == 2.0", false);
             AssertExpression("1.0 != 2.0", true);
             AssertExpression("1.0 != 1.0", false);
             AssertExpression("1.0 > 2.0", false);
@@ -155,8 +155,8 @@ namespace Tests.NAnt.Core {
             AssertExpression("2.0 <= 1.0", false);
 
             // double & int
-            AssertExpression("1.0 = 1", true);
-            AssertExpression("1.0 = 2", false);
+            AssertExpression("1.0 == 1", true);
+            AssertExpression("1.0 == 2", false);
             AssertExpression("1.0 != 2", true);
             AssertExpression("1.0 != 1", false);
             AssertExpression("1.0 > 2", false);
@@ -176,8 +176,8 @@ namespace Tests.NAnt.Core {
             // TO-DO !!!!
 
             // timespan & timespan
-            AssertExpression("timespan::from-days(1.0) = timespan::from-days(1.0)", true);
-            AssertExpression("timespan::from-days(1.0) = timespan::from-days(2.0)", false);
+            AssertExpression("timespan::from-days(1.0) == timespan::from-days(1.0)", true);
+            AssertExpression("timespan::from-days(1.0) == timespan::from-days(2.0)", false);
             AssertExpression("timespan::from-days(1.0) != timespan::from-days(2.0)", true);
             AssertExpression("timespan::from-days(1.0) != timespan::from-days(1.0)", false);
             AssertExpression("timespan::from-days(1.0) > timespan::from-days(2.0)", false);
@@ -210,13 +210,13 @@ namespace Tests.NAnt.Core {
             AssertExpression("--1", 1);
             AssertExpression("10 % 3", 1);
             AssertExpression("10 % 3 % 5", 1);
-            AssertExpression("-1 = 1 - 2", true);
-            AssertExpression("--1.0 = 1.0", true);
+            AssertExpression("-1 == 1 - 2", true);
+            AssertExpression("--1.0 == 1.0", true);
             AssertExpression("1 != 1", false);
-            AssertExpression("1 = 2", false);
+            AssertExpression("1 == 2", false);
             AssertExpression("10.0 - 1.0 >= 8.9", true);
             AssertExpression("10.0 + 1 <= 11.1", true);
-            AssertExpression("1 * 1.0 = 1.0", true);
+            AssertExpression("1 * 1.0 == 1.0", true);
             AssertFailure("1.aaaa"); // fractional part expected
             AssertFailure("(1 1)");
             AssertFailure("aaaa::1");
@@ -247,12 +247,12 @@ namespace Tests.NAnt.Core {
         
         [Test]
         public void TestRelationalOperators() {
-            AssertExpression("'a' = 'a'", true);
-            AssertExpression("'a' = 'b'", false);
+            AssertExpression("'a' == 'a'", true);
+            AssertExpression("'a' == 'b'", false);
             AssertExpression("'a' != 'a'", false);
             AssertExpression("'a' != 'b'", true);
-            AssertExpression("'a' + 'b' = 'ab'", true);
-            AssertExpression("1 = 1", true);
+            AssertExpression("'a' + 'b' == 'ab'", true);
+            AssertExpression("1 == 1", true);
             AssertExpression("1 < 2", true);
             AssertExpression("1 > 2", false);
             AssertExpression("2 < 1", false);
@@ -260,14 +260,14 @@ namespace Tests.NAnt.Core {
             AssertExpression("2 <= 1", false);
             AssertExpression("2 >= 1", true);
             AssertExpression("1 != 2", true);
-            AssertExpression("1.0 = 1.0", true);
+            AssertExpression("1.0 == 1.0", true);
             AssertExpression("1.0 != 1.0", false);
-            AssertExpression("1.0 = 2.0", false);
+            AssertExpression("1.0 == 2.0", false);
             AssertExpression("1.0 != 2.0", true);
             AssertExpression("true", true);
             AssertExpression("false", false);
-            AssertExpression("true = true", true);
-            AssertExpression("true = false", false);
+            AssertExpression("true == true", true);
+            AssertExpression("true == false", false);
             AssertExpression("true != false", true);
             AssertExpression("true != true", false);
         }
@@ -283,9 +283,9 @@ namespace Tests.NAnt.Core {
             AssertExpression("false and true and true", false);
             AssertExpression("not true", false);
             AssertExpression("not false", true);
-            AssertExpression("not (1=1)", false);
-            AssertExpression("true or not (1=1)", true);
-            AssertExpression("true or not (--1=1)", true);
+            AssertExpression("not (1==1)", false);
+            AssertExpression("true or not (1 == 1)", true);
+            AssertExpression("true or not (--1 == 1)", true);
         }
         
         [Test]
@@ -311,24 +311,24 @@ namespace Tests.NAnt.Core {
         [Test]
         public void TestStringFunctions() {
             AssertExpression("string::get-length('')", 0);
-            AssertExpression("string::get-length('')=0", true);
-            AssertExpression("string::get-length('')=1", false);
+            AssertExpression("string::get-length('') == 0", true);
+            AssertExpression("string::get-length('') == 1", false);
             AssertExpression("string::get-length('test')", 4);
-            AssertExpression("string::get-length('test')=4", true);
-            AssertExpression("string::get-length('test')=5", false);
+            AssertExpression("string::get-length('test') == 4", true);
+            AssertExpression("string::get-length('test') == 5", false);
             AssertExpression("string::get-length(prop1)", 4);
             AssertExpression("string::get-length('d''Artagnan')", 10);
-            AssertExpression("string::get-length('d''Artagnan')=10", true);
-            AssertExpression("string::get-length('d''Artagnan')=11", false);
-            AssertExpression("string::substring('abcde',1,2)='bc'", true);
-            AssertExpression("string::trim('  ab  ')='ab'", true);
-            AssertExpression("string::trim-start('  ab  ')='ab  '", true);
-            AssertExpression("string::trim-end('  ab  ')='  ab'", true);
-            AssertExpression("string::pad-left('ab',5,'.')='...ab'", true);
-            AssertExpression("string::pad-right('ab',5,'.')='ab...'", true);
-            AssertExpression("string::index-of('abc','c')=2", true);
-            AssertExpression("string::index-of('abc','d')=-1", true);
-            AssertExpression("string::index-of('abc','d')=-1", true);
+            AssertExpression("string::get-length('d''Artagnan') == 10", true);
+            AssertExpression("string::get-length('d''Artagnan') == 11", false);
+            AssertExpression("string::substring('abcde',1,2) == 'bc'", true);
+            AssertExpression("string::trim('  ab  ') == 'ab'", true);
+            AssertExpression("string::trim-start('  ab  ') == 'ab  '", true);
+            AssertExpression("string::trim-end('  ab  ') == '  ab'", true);
+            AssertExpression("string::pad-left('ab',5,'.') == '...ab'", true);
+            AssertExpression("string::pad-right('ab',5,'.') == 'ab...'", true);
+            AssertExpression("string::index-of('abc','c') == 2", true);
+            AssertExpression("string::index-of('abc','d') == -1", true);
+            AssertExpression("string::index-of('abc','d') == -1", true);
         }
         
         [Test]

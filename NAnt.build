@@ -130,7 +130,7 @@
             <buildfiles refid="tas.core"/>
         </nant>
         <!-- build Microsoft.NET specific task assemblies if we are on win32 and targeting a .NET Framework -->
-        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) == 'net'}">
             <buildfiles refid="tas.msnet"/>
         </nant>
         <!-- build win32 specific task assemblies if we are on win32 -->
@@ -146,7 +146,7 @@
             <buildfiles refid="tas.core.tests"/>
         </nant>
         <!-- build tests for Microsoft.NET specific extension assemblies if we are on win32 and targeting a .NET Framework -->
-        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+        <nant target="build" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) == 'net'}">
             <buildfiles refid="tas.msnet.tests"/>
         </nant>
         <nant target="build" if="${platform::is-win32()}">
@@ -183,14 +183,14 @@
             <buildfiles refid="tas.core.tests"/>
         </nant>
         <!-- test Microsoft.NET specific extension assemblies if we are on win32 and targeting a .NET Framework -->
-        <nant target="test" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) = 'net'}">
+        <nant target="test" if="${platform::is-win32() and framework::get-family(framework::get-target-framework()) == 'net'}">
             <buildfiles refid="tas.msnet.tests"/>
         </nant>
         <nant target="test" if="${platform::is-win32()}">
             <buildfiles refid="tas.win32.tests" />
         </nant>
     </target>
-    <target name="test-examples" depends="init" unless="${framework::get-family(framework::get-target-framework())='mono'}">
+    <target name="test-examples" depends="init" unless="${framework::get-family(framework::get-target-framework()) == 'mono'}">
         <echo message="Examples: Copy local and build."/>
         <copy todir="${build.dir}">
             <fileset>
@@ -270,7 +270,7 @@
                         <!-- set the name and version of the product for which docs are generated -->
                         <property name="ProductName" value="NAnt" />
                         <property name="ProductVersion" value="${project.version}" />
-                        <property name="Preliminary" value="${not(project.release.type='release')}" />
+                        <property name="Preliminary" value="${not(project.release.type == 'release')}" />
                         <property name="DocumentAttributes" value="True" />
                         <property name="IncludeAssemblyVersion" value="True" />
                         <property name="ShowMissingParams" value="True" />
@@ -341,7 +341,7 @@
                         <property name="SplitTOCs" value="False" />
                         <property name="DefaulTOC" value="" />
                         <property name="ShowVisualBasic" value="True" />
-                        <property name="Preliminary" value="${not(project.release.type='release')}" />
+                        <property name="Preliminary" value="${not(project.release.type == 'release')}" />
                         <property name="ShowMissingSummaries" value="${build.debug}" />
                         <property name="ShowMissingRemarks" value="${build.debug}" />
                         <property name="ShowMissingParams" value="${build.debug}" />
@@ -439,13 +439,13 @@
                 <replacestring
                     from="&lt;!-- @PRELIMINARY_NOTICE@ -->"
                     to="&lt;p class=&quot;topicstatus&quot;>[This is preliminary documentation and subject to change.]&lt;/p>"
-                    unless="${project.release.type='release'}" 
+                    unless="${project.release.type == 'release'}" 
                 />
                 <!-- when building a release package, remove the placeholder -->
                 <replacestring
                     from="&lt;!-- @PRELIMINARY_NOTICE@ -->"
                     to=""
-                    if="${project.release.type='release'}" 
+                    if="${project.release.type == 'release'}" 
                 />
             </filterchain>
         </copy>
