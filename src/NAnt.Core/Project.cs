@@ -799,7 +799,7 @@ namespace NAnt.Core {
         public virtual void Execute() {
             if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
                 BuildTargets.Add(DefaultTargetName);
-            }            
+            }
 
             //log the targets specified, or the default target if specified.
             StringBuilder sb = new StringBuilder();
@@ -1284,7 +1284,8 @@ namespace NAnt.Core {
 
             // initialize targets first
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.                
+                // skip non-nant namespace elements and special elements like 
+                // comments, pis, text, etc.
                 if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     Target target = new Target();
 
@@ -1298,8 +1299,8 @@ namespace NAnt.Core {
 
             // initialize datatypes and execute global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-                //skip targets that were handled above.
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                // skip targets that were handled above, skip non-nant namespace 
+                // elements and special elements like comments, pis, text, etc.
                 if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant")) || childNode.LocalName.Equals(TargetXml)) {
                     continue;
                 }
@@ -1307,17 +1308,15 @@ namespace NAnt.Core {
                 if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
                     // create task instance
                     Task task = CreateTask(childNode);
-
                     task.Parent = this;
-
                     // execute task
                     task.Execute();
                 } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                     // we are an datatype declaration
                     DataTypeBase dataType = CreateDataTypeBase(childNode);
 
-                    Log(Level.Debug, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);                    
-                    if ( ! DataTypeReferences.Contains(dataType.ID ) ) {
+                    Log(Level.Debug, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+                    if (! DataTypeReferences.Contains(dataType.ID)) {
                         DataTypeReferences.Add(dataType.ID, dataType);
                     } else {
                         DataTypeReferences[dataType.ID] = dataType; // overwrite with the new reference.
@@ -1346,10 +1345,8 @@ namespace NAnt.Core {
         private XmlDocument LoadBuildFile(string source) {
             XmlDocument doc = new XmlDocument();
 
-            //Uri srcURI = new Uri(source);
             try {
                 doc.Load(source);
-                // TODO: validate against xsd schema
             } catch (XmlException ex) {
                 Location location = new Location(source, ex.LineNumber, ex.LinePosition);
 
@@ -1505,11 +1502,6 @@ namespace NAnt.Core {
             visiting.Push(root);
 
             Target target = (Target) targets.Find(root);
-
-            if (target == null) {
-            }
-
-            // Make sure the target exists
             if (target == null) {
                 // check if there's a wildcard target defined
                 target = (Target) targets.Find(WildTarget);

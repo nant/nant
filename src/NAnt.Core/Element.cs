@@ -69,7 +69,7 @@ namespace NAnt.Core {
         /// <summary>
         /// Initializes a new instance of the <see cref="Element" /> class.
         /// </summary>
-        protected Element(){
+        protected Element() {
         }
 
         /// <summary>
@@ -125,7 +125,8 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets the properties local to this <see cref="Element" /> and the <see cref="Project" />.
+        /// Gets the properties local to this <see cref="Element" /> and the 
+        /// <see cref="Project" />.
         /// </summary>
         /// <value>
         /// The properties local to this <see cref="Element" /> and the <see cref="Project" />.

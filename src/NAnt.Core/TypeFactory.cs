@@ -302,7 +302,7 @@ namespace NAnt.Core {
                     if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
                         logger.Info(string.Format(CultureInfo.InvariantCulture, "Creating DataTypeBaseBuilder for {0}", type.Name));
                         DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, taskAssembly.Location);
-                        if (DataTypeBuilders[dtb.DataTypeName ] == null) {
+                        if (DataTypeBuilders[dtb.DataTypeName] == null) {
                             DataTypeBuilders.Add(dtb);
                             foreach (WeakReference wr in _projects) {
                                 if (!wr.IsAlive) {
