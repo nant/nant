@@ -351,7 +351,7 @@
             <ifnot targetexists="set-${nant.settings.currentframework}-runtime-configuration">
                 <fail message="No runtime configuration was specified and the current runtime (${nant.settings.currentframework}) is not supported by NAnt." />
             </ifnot>
-            <call target="set-${nant.settings.currentframework}-runtime-configuration" force="true" />
+            <call target="set-${nant.settings.currentframework}-runtime-configuration"/>
         </ifnot>
         <ifnot propertyexists="current.runtime.version">
             <ifnot propertyexists="nant.settings.currentframework">
@@ -365,7 +365,7 @@
         <ifnot targetexists="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration">
             <fail message="The ${current.runtime.config}-${current.runtime.version} runtime is not supported by NDoc." />
         </ifnot>
-        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration" force="true" />
+        <call target="set-${current.runtime.config}-${current.runtime.version}-runtime-configuration"/>
     </target>
     <target name="set-net-1.0-runtime-configuration">
         <property name="current.runtime.config" value="net" />
@@ -377,7 +377,7 @@
         <property name="nant.settings.currentframework" value="${current.runtime.config}-${current.runtime.version}" />
         <property name="sourceconfig" value="NAnt.Console.exe.config"/>
         <property name="linux" value="false"/>
-        <call target="set-runtime-configuration-flags" force="true" />
+        <call target="set-runtime-configuration-flags"/>
     </target>
     <target name="set-net-1.1-runtime-configuration">
         <property name="current.runtime.config" value="net" />
