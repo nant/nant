@@ -149,14 +149,14 @@
         <!-- build the documenter -->
         <csc target="library" warnaserror="true" nowarn="0618" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <sources failonempty="true">
-                <includes name="src/NAnt.Documenter.NDoc/*.cs" />
+                <includes name="src/NDoc.Documenter.NAnt/*.cs" />
                 <!-- common assembly-level attributes -->
                 <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references failonempty="true">
                 <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
-            <resources basedir="src/NAnt.Documenter.NDoc/Resources" prefix="Documenter.xslt.">
+            <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
                 <includes name="**/*" />
             </resources>
         </csc>
