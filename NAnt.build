@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
 <project name="nant" default="test">
+    <echo message="Using '${nant.settings.defaultframework}' Framework"/>
+    
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.8.3" />
@@ -246,7 +248,7 @@
                     <property name="HtmlHelpName" value="NAnt-SDK" />
                     <property name="HtmlHelpCompilerFilename" value="${project.html-help.dir}\hhc.exe" />
                     <property name="IncludeFavorites" value="False" />
-                    <property name="Title" value="NAnt SDK Documentation" />
+                    <property name="Title" value="NAnt SDK Documentation - v.${project.version}" />
                     <property name="SplitTOCs" value="False" />
                     <property name="DefaulTOC" value="" />
                     <property name="ShowVisualBasic" value="True" />
