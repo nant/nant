@@ -762,8 +762,7 @@ namespace SourceForge.NAnt {
             } 
             catch ( Exception e)  {
                 throw new ApplicationException( String.Format( CultureInfo.InvariantCulture,   "Error loading settings file {0}." + e.Message,  configpath ), e ); 
-            }
-            Log.WriteLineIf(Verbose, "");
+            }            
         }
         #endregion
     }
