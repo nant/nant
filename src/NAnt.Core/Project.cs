@@ -729,6 +729,10 @@ namespace SourceForge.NAnt {
                 TaskStarted -= new BuildEventHandler(listener.TaskStarted);
                 TaskFinished -= new BuildEventHandler(listener.TaskFinished);
                 MessageLogged -= new BuildEventHandler(listener.MessageLogged);
+
+                if (typeof(IBuildLogger).IsAssignableFrom(listener.GetType())) {
+                    ((IBuildLogger) listener).Flush();
+                }
             }
             BuildListeners.Clear();
         }
