@@ -24,6 +24,17 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Calls a NAnt target in the current project.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   When the <see cref="CallTask" /> is used to execute a target, both that 
+    ///   target and all its dependent targets will be re-executed.
+    ///   </para>
+    ///   <para>
+    ///   To avoid dependent targets from being executed more than once, an &quot;unless&quot;
+    ///   attribute with value &quot;${<see href="../functions/target.has-executed.html">target::has-executed</see>('<c>&lt;target name&gt;</c>')}&quot;
+    ///   should be added to the dependent targets.
+    ///   </para>
+    /// </remarks>
     /// <example>
     ///   <para>
     ///   Call the target &quot;build&quot;.
@@ -42,12 +53,16 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <project default="build">
-    ///     <target name="compile">
+    ///     <property name="debug" value="false" />
+    ///     <target name="init" unless="${target::has-executed('init')}">
+    ///         <echo message="initializing" />
+    ///     </target>
+    ///     <target name="compile" depends="init">
     ///         <echo message="compiling with debug = ${debug}" />
     ///     </target>
     ///     <target name="build">
     ///         <property name="debug" value="false" />
-    ///         <call target="compile"/>
+    ///         <call target="compile" />
     ///         <property name="debug" value="true" />
     ///         <call target="compile" />
     ///     </target>
