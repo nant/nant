@@ -72,13 +72,13 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
-		private const string COMMAND_NAME = "checkout";
-		/// <summary>
-		/// The name of the cvs command that is going to be executed.
-		/// </summary>
-		public override string CommandName {
-			get {return COMMAND_NAME;}
-		}
+
+        #region Public Constants
+        /// <summary>
+        /// The command being executed.
+        /// </summary>
+        public const string COMMAND_NAME = "update";
+        #endregion
 
         #region Public Instance Constructors
 
@@ -91,6 +91,13 @@ namespace NAnt.SourceControl.Tasks {
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// The name of the cvs command that is going to be executed.
+        /// </summary>
+        public override string CommandName {
+            get {return COMMAND_NAME;}
+        }
 
         /// <summary>
         /// Specify the revision to checkout.  This corresponds to the "sticky-tag"

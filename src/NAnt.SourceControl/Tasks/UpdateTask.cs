@@ -178,10 +178,15 @@ namespace NAnt.SourceControl.Tasks {
 
         private static readonly log4net.ILog Logger = 
 			log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-		private const string COMMAND_NAME = "update";
 
         #endregion Private Static Fields
 
+        #region Public Constants
+        /// <summary>
+        /// The command being executed.
+        /// </summary>
+        public const string COMMAND_NAME = "update";
+        #endregion
         #region Public Instance Constructors
 
         /// <summary>

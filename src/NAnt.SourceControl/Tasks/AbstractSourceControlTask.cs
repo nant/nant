@@ -461,8 +461,10 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		protected void AppendFiles () {
 			foreach (string pathname in this.VcsFileSet.FileNames) {
-                string relativePath = pathname.Substring(this.DestinationDirectory.FullName.Length + 1,
-                        pathname.Length - this.DestinationDirectory.FullName.Length - 1).Replace("\\", "/");
+                string relativePath = pathname.Replace(this.DestinationDirectory.FullName, "").Replace("\\", "/");
+                if (relativePath.IndexOf('/') == 0) {
+                    relativePath = relativePath.Substring(1, relativePath.Length - 1);
+                }
                 try {
                     Arguments.Add(new Argument(relativePath));
                 } catch (Exception e) {

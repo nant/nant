@@ -181,7 +181,7 @@ namespace NAnt.SourceControl.Tasks
         }
 
         /// <summary>
-        /// Indicates whether the head revision should be used if the 
+        /// Indicates whether the head revision should be used if the revision specified by
         /// <see cref="ActOnTag"/> or the <see cref="ActOnDate"/> tags are not
         /// found. 
         /// </summary>

@@ -103,8 +103,7 @@ namespace NAnt.SourceControl.Tasks {
 		private string _module;
 		private bool _useSharpCvsLib = DEFAULT_USE_SHARPCVSLIB;
 		private bool _isUseSharpCvsLibSet = false;
-
-		private FileSet _fileset = new FileSet();
+        private FileInfo _cvsFullPath;
 
 		private string _sharpcvslibExeName;
 
@@ -146,6 +145,9 @@ namespace NAnt.SourceControl.Tasks {
 		/// </summary>
 		public override string ExeName {
 			get {
+                if (null != this.CvsFullPath) {
+                    return this.CvsFullPath.FullName;
+                }
 				string _exeNameTemp;
 				if (this.UseSharpCvsLib) {
 					_exeNameTemp = this._sharpcvslibExeName;
@@ -158,6 +160,23 @@ namespace NAnt.SourceControl.Tasks {
 				return _exeNameTemp;
 			}
 		}
+
+        /// <summary>
+        /// The full path to the cvs binary used.  The cvs tasks will attempt to
+        /// "guess" the location of your cvs binary based on your path.  If the
+        /// task is unable to resolve the location, or resolves it incorrectly
+        /// this can be used to manually specify the path.
+        /// </summary>
+        /// <value>
+        /// A full path (i.e. including file name) of your cvs binary:
+        ///     On Windows: c:\vcs\cvs\cvs.exe 
+        ///     On *nix: /usr/bin/cvs
+        /// </value>
+        [TaskAttribute("cvsfullpath", Required=false)]
+        public FileInfo CvsFullPath {
+            get {return this._cvsFullPath;}
+            set {this._cvsFullPath = value;}
+        }
 
 		/// <summary>
 		/// The name of the cvs binary, or <code>cvs.exe</code> at the time this 
@@ -388,7 +407,7 @@ namespace NAnt.SourceControl.Tasks {
 
 			Logger.Debug("number of arguments: " + Arguments.Count);
 			if (null == this.Arguments || 0 == this.Arguments.Count) {
-				if (IsModuleNeeded) {
+				if (IsCvsRootNeeded) {
 					this.Arguments.Add(new Argument(String.Format("-d{0}", this.Root)));
 				}
 				this.AppendGlobalOptions();
@@ -458,17 +477,31 @@ namespace NAnt.SourceControl.Tasks {
 			}
 		}
 
-		private void AddArg (String arg) {
+        /// <summary>
+        /// Add the given argument to the command line options.
+        /// </summary>
+        /// <param name="arg"></param>
+		protected void AddArg (String arg) {
 			Arguments.Add(new Argument(String.Format("{0}",
 				arg)));
 		}
 
-		private bool IsModuleNeeded {
+        private bool IsModuleNeeded {
+            get {
+                if (UpdateTask.COMMAND_NAME.Equals(this.CommandName)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+		private bool IsCvsRootNeeded {
 			get {
-				if ("checkout".Equals(this.CommandName)) {
-					return true;
-				} else {
+				if (UpdateTask.COMMAND_NAME.Equals(this.CommandName)) {
 					return false;
+				} else {
+					return true;
 				}
 			}
 		}
