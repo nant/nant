@@ -17,6 +17,7 @@
 //
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Scott Hernandez (ScottHernandez@_yeah_not_really_@hotmail.com)
 
 using System;
 using System.Collections;
@@ -49,6 +50,9 @@ namespace NAnt.Core.Tasks {
     ///   This task can only be in the global (project level) section of the 
     ///   build file.
     ///   </note>
+    ///   <note>
+    ///   This task can only include files from the file system.
+    ///   </note>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -66,6 +70,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private string _buildFileName = null;
+        private bool _failOnMissingFile = true;
 
         #endregion Private Instance Fields
 
@@ -91,6 +96,16 @@ namespace NAnt.Core.Tasks {
         public string BuildFileName {
             get { return _buildFileName; }
             set { _buildFileName = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether an error should be generated on a missing file. Default is <see langword="true"/>.
+        /// </summary>
+        [TaskAttribute("failonmissing", Required=false)]
+        [BooleanValidator()]
+        public bool FailOnMissingFile{
+            get { return _failOnMissingFile ; }
+            set { _failOnMissingFile = value; }
         }
 
         #endregion Public Instance Properties
@@ -123,6 +138,12 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             string includedFileName = Path.GetFullPath(Path.Combine(_currentBasedir, BuildFileName));
+            
+            //if we aren't supported to fail if the file is missing, then we should finish up now.
+            if (!FailOnMissingFile && !File.Exists(includedFileName)) {
+                Log(Level.Verbose, LogPrefix + "Include file not found {0}({1})", includedFileName, BuildFileName);
+                return;
+            }
            
             // has this file already been mapped ?
             if (Project.LocationMap.FileIsMapped(includedFileName)) {
@@ -163,7 +184,7 @@ namespace NAnt.Core.Tasks {
                 _nestinglevel--;
                 
                  // restore original base directory
-                _currentBasedir = oldBaseDir;
+               _currentBasedir = oldBaseDir;
            }
         }
 
