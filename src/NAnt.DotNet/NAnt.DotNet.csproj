@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                RootNamespace = "SourceForge.NAnt.DotNetTasks"
+                RootNamespace = "NAnt.DotNet"
                 StartupObject = ""
             >
                 <Config
