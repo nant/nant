@@ -110,18 +110,19 @@ namespace NAnt.Console {
 
             // add lib/<family>/<version> dir to privatebinpath if it exists
             if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkVersionLibDir))) {
-                privateBinPath += (privateBinPath != null) ? ";" + frameworkVersionLibDir : frameworkVersionLibDir;
+                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
+                    + frameworkVersionLibDir : frameworkVersionLibDir;
             }
 
             // add lib/<family> dir to privatebinpath if it exists
             if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkFamilyLibDir))) {
-                privateBinPath += (privateBinPath != null) ? ";" + frameworkFamilyLibDir : frameworkFamilyLibDir;
+                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
+                    + frameworkFamilyLibDir : frameworkFamilyLibDir;
             }
 
             // add privatebinpath of current domain to privatebinpath 
             if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
-                
-                privateBinPath += ";" + AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
+                privateBinPath += Path.PathSeparator + AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
             }
 
             if (nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
@@ -158,7 +159,7 @@ namespace NAnt.Console {
                 // shadowcopy everything in base directory of appdomain and
                 // privatebinpath
                 myDomainSetup.ShadowCopyDirectories = myDomainSetup.ApplicationBase 
-                    + ";" +myDomainSetup.PrivateBinPath; 
+                    + Path.PathSeparator + myDomainSetup.PrivateBinPath; 
                 
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
@@ -315,7 +316,7 @@ namespace NAnt.Console {
 
                 // add framework specific entries to privatebinpath
                 if (_probePaths != null) {
-                    foreach (string probePath in _probePaths.Split(';')) {
+                    foreach (string probePath in _probePaths.Split(Path.PathSeparator)) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture,
                             "Adding '{0}' to private bin path.", probePath));
 
