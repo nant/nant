@@ -389,7 +389,7 @@
     </target>
     
     <target name="self-schema" depends="init">
-        <property name="schema.output" value="${build.dir}/schema/${project.name}-${project.version.full}.xsd" />
+        <property name="schema.output" value="${build.dir}/schema/${project.name}.xsd" />
         <!-- generate schema -->
         <mkdir dir="${build.dir}/schema" />
         <nantschema output="${schema.output}" target-ns="http://nant.sf.net/release/${project.name}-${project.version.full}/nant.xsd" />
