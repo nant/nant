@@ -6,9 +6,8 @@ namespace NAnt.DotNet.Types {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   When set to either <see langword="true" />, <see cref="Full" /> or
-    ///   <see cref="PdbOnly" /> then the following conditional compilation
-    ///   symbols will also be defined:
+    ///   When set to <see langword="true" /> then the following conditional 
+    ///   compilation symbols will also be defined:
     ///   </para>
     ///   <list type="bullet">
     ///     <item>
@@ -38,12 +37,12 @@ namespace NAnt.DotNet.Types {
         /// <summary>
         /// Enable attaching a debugger to the running program.
         /// </summary>
-        Full = @true,
+        Full = 2,
 
         /// <summary>
         /// Only display assembler when the running program is attached to the 
         /// debugger.
         /// </summary>
-        PdbOnly = 2
+        PdbOnly = 3
     }
 }

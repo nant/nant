@@ -350,16 +350,21 @@ namespace NAnt.DotNet.Tasks {
             switch (DebugOutput) {
                 case DebugOutput.None:
                     break;
-                case DebugOutput.Full:
+                case DebugOutput.@true:
                     WriteOption(writer, "debug");
-                    goto default;
-                case DebugOutput.PdbOnly:
-                    WriteOption(writer, "debug", "pdbonly");
-                    goto default;
-                default:
                     WriteOption(writer, "define", "DEBUG=True");
                     WriteOption(writer, "define", "TRACE=True");
                     break;
+                case DebugOutput.Full:
+                    WriteOption(writer, "debug");
+                    break;
+                case DebugOutput.PdbOnly:
+                    WriteOption(writer, "debug", "pdbonly");
+                    break;
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Invalid value \"{0}\" for attribute \"debug\".", 
+                        DebugOutput), Location);
             }
 
             string imports = Imports.ToString();

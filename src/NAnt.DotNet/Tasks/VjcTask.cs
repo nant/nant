@@ -17,6 +17,7 @@
 //
 // Tom Jordan (tdjordan@users.sourceforge.net)
 
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -340,18 +341,21 @@ namespace NAnt.DotNet.Tasks {
             switch (DebugOutput) {
                 case DebugOutput.None:
                     break;
-                case DebugOutput.Full:
+                case DebugOutput.@true:
                     WriteOption(writer, "debug");
                     WriteOption(writer, "define", "DEBUG");
                     WriteOption(writer, "define", "TRACE");
-                    goto default;
+                    break;
+                case DebugOutput.Full:
+                    WriteOption(writer, "debug");
+                    break;
                 case DebugOutput.PdbOnly:
                     WriteOption(writer, "debug", "pdbonly");
-                    goto default;
-                default:
-                    WriteOption(writer, "define", "DEBUG");
-                    WriteOption(writer, "define", "TRACE");
                     break;
+                default:
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Invalid value \"{0}\" for attribute \"debug\".", 
+                        DebugOutput), Location);
             }
 
             if (WarningLevel != null) {
