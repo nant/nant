@@ -3,22 +3,24 @@
     <!-- set project.version to current date/time in yyyyMMdd format -->
     <tstamp property="project.version" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
-    <property name="sf.net.build.path" value="/home/groups/n/na/nant/htdocs" />
+    <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- retrieve system information and environment variables -->
     <sysinfo />
     <!-- setup property that holds partial path to be used by scp -->
-    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.build.path}" />
+    <property name="serverpart" value="${sys.env.USERNAME}@${sf.net.ssh.server}:${sf.net.web.path}" />
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- Perform a 'nightly' build, and install NAnt to install.dir -->
-    <target name="nightly" depends="package, deploy-zip, deploy-schema, deploy-help, install" description="Perform a 'nightly' package, and installs NAnt." />
+    <target name="nightly" depends="set-net-1.0-runtime-configuration, package, deploy, install" description="Perform a 'nightly' package, and installs NAnt." />
+    <!-- deploy content to sourceforge -->
+    <target name="deploy" depends="deploy-zip, deploy-schema, deploy-help" />
     <!-- copy the zipped nighly build to sourceforge -->
-    <target name="deploy-zip" depends="package">
+    <target name="deploy-zip" depends="set-net-1.0-runtime-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/builds" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}/nightly/builds" />
         </exec>
         <!-- copy the build to sourceforge -->
         <exec workingdir="${execpath}" program="scp">
@@ -29,15 +31,15 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 755 ${sf.net.build.path}/nightly/builds/${execfilename}" />
+            <arg value="chmod 755 ${sf.net.web.path}/nightly/builds/${execfilename}" />
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema" depends="package">
+    <target name="deploy-schema" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/schema" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}/nightly/schema" />
         </exec>
         <!-- copy the schema file to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/schema" program="scp">
@@ -49,20 +51,20 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 755 ${sf.net.build.path}/nightly/schema/${project.name}-${project.version}.xsd" />
+            <arg value="chmod 755 ${sf.net.web.path}/nightly/schema/${project.name}-${project.version}.xsd" />
         </exec>
     </target>
     <!-- copy help to sourceforge -->
-    <target name="deploy-help" depends="package">
+    <target name="deploy-help" depends="set-net-1.0-runtime-configuration, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 --parents ${sf.net.build.path}/nightly/help" />
+            <arg value="mkdir --mode=755 --parents ${sf.net.web.path}/nightly/help" />
         </exec>
         <!-- try to remove existing files and directories -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="rm -R --force ${sf.net.build.path}/nightly/help/*" />
+            <arg value="rm -R --force ${sf.net.web.path}/nightly/help/*" />
         </exec>
         <!-- copy the help to sourceforge (using compression) -->
         <exec workingdir="${build.dir}/doc/help" program="scp">
@@ -75,11 +77,11 @@
         <!-- make sure permissions are set right -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod -R 755 ${sf.net.build.path}/nightly/help" />
+            <arg value="chmod -R 755 ${sf.net.web.path}/nightly/help" />
         </exec>
     </target>
     <!-- copies NAnt to install dir -->
-    <target name="install" depends="package">
+    <target name="install" depends="set-net-1.0-runtime-configuration, package">
         <ifnot propertyexists="install.dir">
             <echo level="Error">Please specify the directory to where NAnt should be installed on the commandline.</echo>
             <fail />
