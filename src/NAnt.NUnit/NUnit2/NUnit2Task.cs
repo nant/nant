@@ -162,7 +162,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                                     while (reader.Peek() > -1) {
                                         builder.Append(reader.ReadLine().Trim()).Append("\n");
                                     }
-                                    Log.WriteLine(LogPrefix + builder.ToString());
+                                    Log(Level.Info, LogPrefix + builder.ToString());
                                 }
                             }
                         }  else if (formatter.Type == FormatterType.Plain) {
@@ -170,7 +170,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
                             if (formatter.UseFile) {
                                 writer = new StreamWriter(result.Name + "-results" + formatter.Extension);
                             } else {
-                                writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
+                                writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
                             }
                             CreateSummaryDocument(xmlResultFile, writer, test);
                             writer.Close();
@@ -203,14 +203,14 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
 
         private TestResult RunSingleRemoteTest(NUnit2Test test, string testAssembly, EventListener listener) {
             try {
-                LogWriter writer = new LogWriter(LogPrefix, CultureInfo.InvariantCulture);
+                LogWriter writer = new LogWriter(this, LogPrefix, CultureInfo.InvariantCulture);
                 NUnit2TestDomain domain = new NUnit2TestDomain(writer, writer);
                 return domain.RunTest(test.TestName, testAssembly, test.AppConfigFile, listener);
             } catch (Exception ex) {
                 if (HaltOnError) {
                     throw new BuildException("NUnit 2.0 Error: ", ex);
                 }
-                Log.WriteLine(LogPrefix + "NUnit 2.0 Error: " + ex.ToString());
+                Log(Level.Error, LogPrefix + "NUnit 2.0 Error: " + ex.ToString());
                 return null;
             }
         }
@@ -254,9 +254,11 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             /// Initializes a new instance of the <see cref="LogWriter" /> class 
             /// with the specified prefix and format provider.
             /// </summary>
+            /// <param name="task">Determines the indentation level.</param>
             /// <param name="logPrefix">The prefix for written messages.</param>
             /// <param name="formatProvider">An <see cref="IFormatProvider" /> object that controls formatting.</param>
-            public LogWriter(string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
+            public LogWriter(Task task, string logPrefix, IFormatProvider formatProvider) : base(formatProvider) {
+                _task = task;
                 _logPrefix = logPrefix;
             }
 
@@ -281,8 +283,10 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             /// </summary>
             /// <param name="chars">The character array to write to the text stream.</param>
             public override void Write(char[] chars) {
-                CheckWritePrefix();
-                Log.Write(new String(chars, 0, chars.Length -1));
+                if (_needPrefix) {
+                    _message = _logPrefix;
+                }
+                _message += new string(chars, 0, chars.Length -1);
             }
 
             /// <summary>
@@ -290,8 +294,11 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             /// </summary>
             /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
             public override void WriteLine(string value) {
-                CheckWritePrefix();
-                Log.WriteLine(value);
+                string message = "";
+                if (_needPrefix) {
+                    message = _logPrefix;
+                }
+                _task.Log(Level.Info, message + value);
                 _needPrefix = true;
             }
 
@@ -302,32 +309,31 @@ namespace SourceForge.NAnt.Tasks.NUnit2 {
             /// <param name="line">The formatting string.</param>
             /// <param name="args">The object array to write into format string.</param>
             public override void WriteLine(string line, params object[] args) {
-                CheckWritePrefix();
-                Log.WriteLine(line, args);
+                string message = "";
+                if (_needPrefix) {
+                    message = _logPrefix;
+                }
+                _task.Log(Level.Info, message + line, args);
                 _needPrefix = true;
             }   
 
-            #endregion Override implementation of TextWriter
 
-            #region Private Instance Methods
-
-            /// <summary>
-            /// Writes a prefix to the text stream if its the first output on
-            /// the current line.
-            /// </summary>
-            private void CheckWritePrefix() {
-                if (_needPrefix) {
-                    Log.Write(_logPrefix);
-                    _needPrefix = false;
+            public override void Close() {
+                if (_message.Length != 0) {
+                    _task.Log(Level.Info, _message);
                 }
+                base.Close ();
             }
 
-            #endregion Private Instance Methods
+
+            #endregion Override implementation of TextWriter
 
             #region Private Instance Fields
 
+            private Task _task = null;
             private bool _needPrefix = true;
             private string _logPrefix;
+            private string _message = "";
 
             #endregion Private Instance Fields
         }
