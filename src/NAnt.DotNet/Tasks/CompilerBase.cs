@@ -87,13 +87,7 @@ namespace SourceForge.NAnt.Tasks {
         [FileSet("sources")]
         public FileSet Sources { get { return _sources; } set { _sources = value; }}
 
-        public override string ProgramFileName  {
-            get { 
-                // Instead of relying on the .NET compilers to be in the user's path point
-                // to the compiler directly since it lives in the .NET Framework's runtime directory
-                return Path.Combine(Path.GetDirectoryName(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()), Name);
-            } 
-        }
+        public override string ProgramFileName  {get { return Name; } }          
 
         public override string ProgramArguments { get { return "@" + _responseFileName; } }
 
@@ -239,8 +233,21 @@ namespace SourceForge.NAnt.Tasks {
                         string actualFileName = Path.GetFileNameWithoutExtension(fileName);
                         string tmpResourcePath = Path.ChangeExtension( fileName, "resources" );                                                       
                         string manifestResourceName = Path.GetFileName(tmpResourcePath);
-                        if(prefix != "")
+                        
+                        // cater for asax/aspx special cases ...
+                        if (manifestResourceName.IndexOf(".aspx") > -1){
+                            manifestResourceName = manifestResourceName.Replace( ".aspx", "" );
+                            actualFileName = actualFileName.Replace( ".aspx", "" );
+                        }
+                        else if (manifestResourceName.IndexOf(".asax") > -1){
+                            manifestResourceName = manifestResourceName.Replace( ".asax", "" );
+                            actualFileName = actualFileName.Replace( ".asax", "" );
+                        }
+                        
+                        if(prefix != ""){
+                            //manifestResourceName = prefix + "." + manifestResourceName; 
                             manifestResourceName = manifestResourceName.Replace(actualFileName, prefix + "." + actualFileName );          
+                        }
                         string resourceoption = tmpResourcePath + "," + manifestResourceName;    
                         WriteOption(writer, "resource", resourceoption);          
                     }
