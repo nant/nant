@@ -54,6 +54,8 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using NAnt.Core.Util;
+
 namespace NAnt.Core {
     /// <summary>
     /// Used for searching filesystem based on given include/exclude rules.
@@ -217,11 +219,21 @@ namespace NAnt.Core {
         public DirectoryInfo BaseDirectory {
             get { 
                 if (_baseDirectory == null) {
-                    _baseDirectory = new DirectoryInfo(Environment.CurrentDirectory);
+                    _baseDirectory = new DirectoryInfo(CleanPath(
+                        Environment.CurrentDirectory).ToString()));
                 }
                 return _baseDirectory; 
             }
-            set { _baseDirectory = value; }
+            set { 
+                if (value != null) {
+                    // convert both slashes and backslashes to directory separator 
+                    // char
+                    _baseDirectory = new DirectoryInfo(CleanPath(
+                        value.FullName).ToString());
+                } else {
+                    _baseDirectory = value;
+                }
+            }
         }
 
         /// <summary>
@@ -520,21 +532,52 @@ namespace NAnt.Core {
 
             // Only include the valid patterns for this path
             foreach (RegexEntry entry in _includePatterns) {
-                string baseDirectory = ( caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower() ); 
-                
-                if (compare.Compare(path, baseDirectory, compareOptions) == 0
-                    || (entry.IsRecursive && pathCompare.StartsWith( baseDirectory + Path.DirectorySeparatorChar ))) {
+                string baseDirectory = (caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower()); 
+
+                // check if the directory being searched is equal to the 
+                // basedirectory of the RegexEntry
+                if (compare.Compare(path, baseDirectory, compareOptions) == 0) {
                     includedPatterns.Add(entry);
+                } else {
+                    // check if the directory being searched is subdirectory of 
+                    // basedirectory of RegexEntry
+
+                    if (!entry.IsRecursive) {
+                        continue;
+                    }
+
+                    // make sure basedirectory ends with directory separator
+                    if (!StringUtils.EndsWith(baseDirectory, Path.DirectorySeparatorChar)) {
+                        baseDirectory += Path.DirectorySeparatorChar;
+                    }
+
+                    if (pathCompare.StartsWith(baseDirectory)) {
+                        includedPatterns.Add(entry);
+                    }
                 }
             }
 
             foreach (RegexEntry entry in _excludePatterns) {
-                string baseDirectory = ( caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower() ); 
+                string baseDirectory = (caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower()); 
                 
-                if (entry.BaseDirectory.Length == 0 
-                    || compare.Compare(path, baseDirectory, compareOptions) == 0
-                    || (entry.IsRecursive && pathCompare.StartsWith( baseDirectory + Path.DirectorySeparatorChar ))) {
+                if (entry.BaseDirectory.Length == 0 || compare.Compare(path, baseDirectory, compareOptions) == 0) {
                     excludedPatterns.Add(entry);
+                } else {
+                    // check if the directory being searched is subdirectory of 
+                    // basedirectory of RegexEntry
+
+                    if (!entry.IsRecursive) {
+                        continue;
+                    }
+
+                    // make sure basedirectory ends with directory separator
+                    if (!StringUtils.EndsWith(baseDirectory, Path.DirectorySeparatorChar)) {
+                        baseDirectory += Path.DirectorySeparatorChar;
+                    }
+
+                    if (pathCompare.StartsWith(baseDirectory)) {
+                        excludedPatterns.Add(entry);
+                    }
                 }
             }
 
@@ -593,7 +636,11 @@ namespace NAnt.Core {
             if (path.Length == entry.BaseDirectory.Length)
                 return r.IsMatch(String.Empty);
 
-            return r.IsMatch(path.Substring(entry.BaseDirectory.Length + 1));
+            if (StringUtils.EndsWith(entry.BaseDirectory, Path.DirectorySeparatorChar)) {
+                return r.IsMatch(path.Substring(entry.BaseDirectory.Length));
+            } else {
+                return r.IsMatch(path.Substring(entry.BaseDirectory.Length + 1));
+            }
         }
 
         private bool IsPathIncluded(string path, bool caseSensitive, ArrayList includedPatterns, ArrayList excludedPatterns) {
