@@ -629,26 +629,10 @@ namespace NAnt.VSNet {
             string buildCommandLine = ProjectSettings.PreBuildEvent;
             // check if there are pre build commands to be run
             if (buildCommandLine != null) {
-                Log(Level.Debug, "PreBuild commandline: {0}", buildCommandLine);
-                // create a batch file for this, mirroring the behavior of VS.NET
-                // the file is not even removed after a successful build by VS.NET,
-                // so we don't either
-                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"))) {
-                    sw.WriteLine("@echo off");
-                    // replace any VS macros in the command line with real values
-                    buildCommandLine = cs.ExpandMacros(buildCommandLine);
-                    // handle linebreak charaters
-                    buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
-                    sw.WriteLine(buildCommandLine);
-                    sw.WriteLine("if errorlevel 1 goto EventReportError");
-                    sw.WriteLine("goto EventEnd");
-                    sw.WriteLine(":EventReportError");
-                    sw.WriteLine("echo Project error: A tool returned an error code from the build event");
-                    sw.WriteLine("exit 1");
-                    sw.WriteLine(":EventEnd");
-                }
-                // now that we have to file on disk execute it
-                return ExecuteBuildEvent(Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat"), "PreBuildEvent");
+                string batchFile = Path.Combine(cs.OutputDir.FullName, "PreBuildEvent.bat");
+                string workingDirectory = cs.OutputDir.FullName;
+                return ExecuteBuildEvent("PreBuildEvent", buildCommandLine, 
+                    batchFile, workingDirectory, cs);
             }
             // nothing to do, signal success
             return true;
@@ -659,22 +643,10 @@ namespace NAnt.VSNet {
             // check if there are post build commands to be run
             if (buildCommandLine != null) {
                 Log(Level.Debug, "PostBuild commandline: {0}", buildCommandLine);
-                // Create a batch file for this. This mirrors VS behavior. Also this
-                // file is not removed even after a successful build by VS so we don't either.
-                using (StreamWriter sw = new StreamWriter(Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat"))) {
-                    sw.WriteLine("@echo off");
-                    // replace any VS macros in the command line with real values
-                    buildCommandLine = cs.ExpandMacros(buildCommandLine);
-                    // handle linebreak charaters
-                    buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
-                    sw.WriteLine(buildCommandLine);
-                    sw.WriteLine("if errorlevel 1 goto EventReportError");
-                    sw.WriteLine("goto EventEnd");
-                    sw.WriteLine(":EventReportError");
-                    sw.WriteLine("echo Project error: A tool returned an error code from the build event");
-                    sw.WriteLine("exit 1");
-                    sw.WriteLine(":EventEnd");
-                }
+
+                string batchFile = Path.Combine(cs.OutputDir.FullName, "PostBuildEvent.bat");
+                string workingDirectory = cs.OutputDir.FullName;
+
                 bool bBuildEventSuccess;
                 // there are three different settings for when the PostBuildEvent should be run
                 switch (ProjectSettings.RunPostBuildEvent) {
@@ -684,8 +656,8 @@ namespace NAnt.VSNet {
                         // as long as the build succeeds
                         if (bCompileSuccess) {
                             Log(Level.Debug, "PostBuild+OnBuildSuccess+bCompileSuccess");
-                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
-                                cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
+                            bBuildEventSuccess = ExecuteBuildEvent("PostBuildEvent", 
+                                buildCommandLine, batchFile, workingDirectory, cs);
                         } else {
                             Log(Level.Debug, "PostBuild+OnBuildSuccess");
                             bBuildEventSuccess = true;
@@ -695,8 +667,8 @@ namespace NAnt.VSNet {
                         // post-build event will run regardless of whether the 
                         // build succeeded
                         Log(Level.Debug, "PostBuild+Always");
-                        bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
-                            cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
+                        bBuildEventSuccess = ExecuteBuildEvent("PostBuildEvent", 
+                            buildCommandLine, batchFile, workingDirectory, cs);
                         break;
                     case "OnOutputUpdated":
                         // post-build event will only run when the compiler's 
@@ -705,8 +677,8 @@ namespace NAnt.VSNet {
                         // event will not run if a project is up-to-date
                         if (bOutputUpdated) {
                             Log(Level.Debug, "PostBuild+OnOutputUpdated+bOutputUpdated");
-                            bBuildEventSuccess = ExecuteBuildEvent(Path.Combine(
-                                cs.OutputDir.FullName, "PostBuildEvent.bat"), "PostBuildEvent");
+                            bBuildEventSuccess = ExecuteBuildEvent("PostBuildEvent", 
+                                buildCommandLine, batchFile, workingDirectory, cs);
                         } else {
                             Log(Level.Debug, "PostBuild+OnOutputUpdated");
                             bBuildEventSuccess = true;
@@ -722,35 +694,6 @@ namespace NAnt.VSNet {
             }
             // nothing to do, signal success
             return true;
-        }
-
-        private bool ExecuteBuildEvent(string batchFile, string buildEvent) {
-            // need to set some process info
-            ProcessStartInfo psi = new ProcessStartInfo(batchFile);
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true; // For logging
-            psi.WorkingDirectory = Path.GetDirectoryName(batchFile);
-            // start the process now
-            Process batchEvent = Process.Start(psi);
-            // keep logging output from the process for as long as it exists
-            while (true) {
-                string logContents = batchEvent.StandardOutput.ReadLine();
-                if (logContents == null) {
-                    break;
-                }
-                Log(Level.Verbose, "      [" + buildEvent.ToLower(CultureInfo.InvariantCulture) 
-                    + "] " + logContents);
-            }
-            batchEvent.WaitForExit();
-            // notify if there where problems running the batch file or it 
-            // returned errors
-            int exitCode = batchEvent.ExitCode;
-            if (exitCode == 0) {
-                Log(Level.Verbose, "{0} succeeded (exit code = 0)", buildEvent);
-            } else {
-                Log(Level.Error, "{0} failed with exit code = {1}", buildEvent, exitCode);
-            }
-            return (exitCode == 0) ? true : false;
         }
 
         private bool CheckUpToDate(ConfigurationSettings cs) {

@@ -22,6 +22,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml;
@@ -605,6 +606,51 @@ namespace NAnt.VSNet {
                 // restore indentation level
                 ct.Project.Unindent();
             }
+        }
+
+        protected bool ExecuteBuildEvent(string buildEvent, string buildCommandLine, string batchFile, string workingDirectory, ConfigurationBase config) {
+            // create the batch file
+            using (StreamWriter sw = new StreamWriter(batchFile)) {
+                sw.WriteLine("@echo off");
+                // replace any VS macros in the command line with real values
+                buildCommandLine = config.ExpandMacros(buildCommandLine);
+                // handle linebreak charaters
+                buildCommandLine = buildCommandLine.Replace("&#xd;&#xa;", "\n");
+                sw.WriteLine(buildCommandLine);
+                sw.WriteLine("if errorlevel 1 goto EventReportError");
+                sw.WriteLine("goto EventEnd");
+                sw.WriteLine(":EventReportError");
+                sw.WriteLine("echo Project error: A tool returned an error code from the build event");
+                sw.WriteLine("exit 1");
+                sw.WriteLine(":EventEnd");
+            }
+
+            // execute the batch file
+            ProcessStartInfo psi = new ProcessStartInfo(batchFile);
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true; // For logging
+            psi.WorkingDirectory = workingDirectory;
+            // start the process now
+            Process batchEvent = Process.Start(psi);
+            // keep logging output from the process for as long as it exists
+            while (true) {
+                string logContents = batchEvent.StandardOutput.ReadLine();
+                if (logContents == null) {
+                    break;
+                }
+                Log(Level.Verbose, "      [" + buildEvent.ToLower(CultureInfo.InvariantCulture) 
+                    + "] " + logContents);
+            }
+            batchEvent.WaitForExit();
+            // notify if there where problems running the batch file or it 
+            // returned errors
+            int exitCode = batchEvent.ExitCode;
+            if (exitCode == 0) {
+                Log(Level.Verbose, "{0} succeeded (exit code = 0)", buildEvent);
+            } else {
+                Log(Level.Error, "{0} failed with exit code = {1}", buildEvent, exitCode);
+            }
+            return (exitCode == 0) ? true : false;
         }
 
         /// <summary>

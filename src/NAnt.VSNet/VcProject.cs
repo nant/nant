@@ -330,6 +330,11 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // perform pre-build actions
+            if (!PreBuild(projectConfig)) {
+                return false;
+            }
+
             string nmakeCommand = projectConfig.GetToolSetting("VCNMakeTool", "BuildCommandLine");
             if (nmakeCommand != null) {
                 RunNMake(nmakeCommand);
@@ -372,6 +377,11 @@ namespace NAnt.VSNet {
             } else {
                 string linkOutput = projectConfig.GetToolSetting("VCLinkerTool", "OutputFile");
                 if (linkOutput != null) {
+                    // perform pre-link actions
+                    if (!PreLink(projectConfig)) {
+                        return false;
+                    }
+
                     RunLinker(projectConfig);
                 }
             }
@@ -394,6 +404,11 @@ namespace NAnt.VSNet {
                         CopyFile(srcFile, destFile, SolutionTask);
                     }
                 }
+            }
+
+            // perform post-build actions
+            if (!PostBuild(projectConfig)) {
+                return false;
             }
 
             return true;
@@ -1372,6 +1387,95 @@ namespace NAnt.VSNet {
             }
 
             return StringUtils.ConvertEmptyToNull(settingValue);
+        }
+
+        private bool PreBuild(VcProjectConfiguration projectConfig) {
+            const string compilerTool = "VCPreBuildEventTool";
+
+            // check if the build event should be executed
+            string excludedFromBuild = projectConfig.GetToolSetting(compilerTool,
+                "ExcludedFromBuild");
+            if (excludedFromBuild != null) {
+                if (string.Compare(excludedFromBuild.Trim(), "true", true, CultureInfo.InvariantCulture) == 0) {
+                    return true;
+                }
+            }
+
+            string commandLine = projectConfig.GetToolSetting(compilerTool,
+                "CommandLine");
+            if (commandLine != null && commandLine.Length != 0) {
+                Log(Level.Info, "Performing Pre-Build Event...");
+                return ExecuteBuildEvent("Pre-Build", commandLine, projectConfig);
+            }
+
+            return true;
+        }
+
+        private bool PostBuild(VcProjectConfiguration projectConfig) {
+            const string compilerTool = "VCPostBuildEventTool";
+
+            // check if the build event should be executed
+            string excludedFromBuild = projectConfig.GetToolSetting(compilerTool,
+                "ExcludedFromBuild");
+            if (excludedFromBuild != null) {
+                if (string.Compare(excludedFromBuild.Trim(), "true", true, CultureInfo.InvariantCulture) == 0) {
+                    return true;
+                }
+            }
+
+            string commandLine = projectConfig.GetToolSetting(compilerTool,
+                "CommandLine");
+            if (commandLine != null && commandLine.Length != 0) {
+                Log(Level.Info, "Performing Post-Build Event...");
+                return ExecuteBuildEvent("Post-Build", commandLine, projectConfig);
+            }
+
+            return true;
+        }
+
+        private bool PreLink(VcProjectConfiguration projectConfig) {
+            const string compilerTool = "VCPreLinkEventTool";
+
+            // check if the build event should be executed
+            string excludedFromBuild = projectConfig.GetToolSetting(compilerTool,
+                "ExcludedFromBuild");
+            if (excludedFromBuild != null) {
+                if (string.Compare(excludedFromBuild.Trim(), "true", true, CultureInfo.InvariantCulture) == 0) {
+                    return true;
+                }
+            }
+
+            string commandLine = projectConfig.GetToolSetting(compilerTool,
+                "CommandLine");
+            if (commandLine != null && commandLine.Length != 0) {
+                Log(Level.Info, "Performing Pre-Link Event...");
+                return ExecuteBuildEvent("Pre-Link", commandLine, projectConfig);
+            }
+
+            return true;
+        }
+
+        private bool ExecuteBuildEvent(string buildEvent, string buildCommandLine, ConfigurationBase config) {
+            string batchFile = null;
+
+            try {
+                // get unique temp file name to write command line of build event to
+                batchFile = Path.GetTempFileName();
+
+                // remove temp file
+                File.Delete(batchFile);
+
+                // change extension to .bat
+                batchFile = Path.ChangeExtension(batchFile, ".bat");
+
+                // execute the build event
+                return base.ExecuteBuildEvent(buildEvent, buildCommandLine, batchFile, 
+                    ProjectDirectory.FullName, config);
+            } finally {
+                if (batchFile != null && File.Exists(batchFile)) {
+                    File.Delete(batchFile);
+                }
+            }
         }
 
         #endregion Private Instance Methods
