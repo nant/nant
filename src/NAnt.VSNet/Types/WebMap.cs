@@ -45,10 +45,10 @@ namespace NAnt.VSNet.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// Specifies the URL of the project file.
+        /// Specifies the URL of the project file, or a URL fragment to match.
         /// </summary>
         /// <value>
-        /// The URL of the project file.
+        /// The URL of the project file or the URL fragment to match.
         /// </value>
         [TaskAttribute("url", Required=true)]
         [StringValidator(AllowEmpty=false)]
@@ -58,10 +58,10 @@ namespace NAnt.VSNet.Types {
         }
 
         /// <summary>
-        /// Specifies the actual path to the project file.
+        /// Specifies the actual path to the project file, or the path fragment to replace.
         /// </summary>
         /// <value>
-        /// The actual path to the project file.
+        /// The actual path to the project file or the path fragment to replace the URL fragment with.
         /// </value>
         [TaskAttribute("path", Required=true)]
         [StringValidator(AllowEmpty=false)]

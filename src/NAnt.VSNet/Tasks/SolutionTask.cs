@@ -114,15 +114,17 @@ namespace NAnt.VSNet.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Compiles all of the projects in the solution mapping the project at
-    ///   http://localhost/A/A.csproj to c:\inetpub\wwwroot\A\A.csproj.  This 
-    ///   allows the build to work without WebDAV.
+    ///   Compiles all of the projects in the solution mapping the specific project at
+    ///   http://localhost/A/A.csproj to c:\inetpub\wwwroot\A\A.csproj and any URLs under
+    ///   http://localhost/B/[remainder] to c:\other\B\[remainder].  This allows the build 
+    ///   to work without WebDAV.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
     /// <solution solutionfile="test.sln" configuration="release">
     ///     <webmap>
     ///         <map url="http://localhost/A/A.csproj" path="c:\inetpub\wwwroot\A\A.csproj" />
+    ///         <map url="http://localhost/B" path="c:\other\B" />
     ///     </webmap>
     /// </solution>
     ///     ]]>
