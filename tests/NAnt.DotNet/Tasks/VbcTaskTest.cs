@@ -16,11 +16,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 
 using System.Globalization;
 using System.IO;
-using NAnt.DotNet.Tasks;
+
 using NUnit.Framework;
+
+using NAnt.Core;
+
+using NAnt.DotNet.Tasks;
+using NAnt.DotNet.Types;
 
 using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
@@ -46,14 +52,26 @@ namespace Tests.NAnt.DotNet.Tasks {
             </project>";
 
         private const string _sourceCode = @"
-            imports System
+            Imports System
 
-            public class MainApp
-                shared sub Main()
+            Public Class HelloWorld
+                Shared Sub Main()
                     Console.WriteLine(""Hello World using VB.NET"")
-                        return
-                    end sub
-            end class";
+                    Return
+                End Sub
+            End Class";
+
+        private const string _sourceCodeWithNamespace = @"
+            Imports System
+
+            Namespace ResourceTest
+                Public Class HelloWorld
+                    Shared Sub Main()
+                        Console.WriteLine(""Hello World using VB.NET"")
+                        Return
+                    End sub
+                End Class
+            End Namespace";
 
         #endregion Private Static Fields
 
@@ -91,9 +109,732 @@ namespace Tests.NAnt.DotNet.Tasks {
             Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
+        [Test]
+        [ExpectedException(typeof(BuildException))]
+        public void Test_ManifestResourceName_NonExistingResource() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            vbcTask.GetManifestResourceName(resources, "I_dont_exist.txt");
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_StandAlone_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_StandAlone_DynamicPrefix_With_Prefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.resources", vbcTask.GetManifestResourceName(
+                resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.en-US.resources", vbcTask.GetManifestResourceName(
+                resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.en-US.dunno.en-US.resources", vbcTask.GetManifestResourceName(
+                resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_StandAlone_Prefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = false;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+                
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = false;
+
+            PerformDependentResxTests(vbcTask, resources);
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+                
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            PerformDependentResxTests(vbcTask, resources);
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_Prefix_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = true;
+
+            // prefix should be ignored for resx files
+            PerformDependentResxTests(vbcTask, resources);
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_Resx_Prefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = false;
+
+            // prefix should be ignored for resx files
+            PerformDependentResxTests(vbcTask, resources);
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_NonResx_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_NonResx_Prefix_With_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.en-US.dunno.txt", vbcTask.GetManifestResourceName(
+                resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_NonResx_Prefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = false;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.txt");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.txt", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual("SubDir" + "." + "ResourceFile.en-US.dunno.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_Prefix_With_DynamicPrefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = true;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "SubDir" + "." 
+                + "ResourceFile.en-US.dunno.en-US.resources", vbcTask.GetManifestResourceName(
+                resources, resourceFile));
+        }
+
+        [Test]
+        public void Test_ManifestResourceName_CompiledResource_Prefix() {
+            VbcTask vbcTask = new VbcTask();
+            vbcTask.Project = CreateEmptyProject();
+            vbcTask.RootNamespace = "TestRootNamespace";
+            
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.BaseDirectory = TempDirectory;
+            resources.Prefix = "TestNamespace";
+            resources.DynamicPrefix = false;
+
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resources");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // assert manifest resource name
+            Assert.AreEqual(resources.Prefix + "." + "ResourceFile.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
+
+        private void PerformDependentResxTests(VbcTask vbcTask, ResourceFileSet resources) {
+            // holds the path to the resource file
+            string resourceFile = null;
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
+                resources.BaseDirectory.FullName, "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCode, Path.Combine(
+                resources.BaseDirectory.FullName, "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
+                resources.BaseDirectory.FullName, "ResourceFile.cs"));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, 
+                "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCode, Path.Combine(
+                resources.BaseDirectory.FullName, "ResourceFile.cs"));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCode, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCode, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCodeWithNamespace, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile.en-US.dunno." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".ResourceTest.HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+
+            // initialize resource file
+            resourceFile = Path.Combine(resources.BaseDirectory.FullName, "SubDir" 
+                + Path.DirectorySeparatorChar + "ResourceFile.en-US.dunno.en-US.resx");
+            // create resource file
+            CreateTempFile(resourceFile);
+            // create dependent file
+            TempFile.CreateWithContents(_sourceCode, Path.Combine(
+                resources.BaseDirectory.FullName, "SubDir" + Path.DirectorySeparatorChar 
+                + "ResourceFile.en-US.dunno." + vbcTask.Extension));
+            // assert manifest resource name
+            Assert.AreEqual(vbcTask.RootNamespace + ".HelloWorld.en-US.resources", 
+                vbcTask.GetManifestResourceName(resources, resourceFile));
+        }
 
         private string FormatBuildFile(string attributes) {
             return string.Format(CultureInfo.InvariantCulture, _format, 
