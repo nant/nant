@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <project name="NAnt" default="build" basedir=".">
+	<tstamp/>
 	<property name="debug" value="true"/>
 	<property name="project.name" value="nant"/>
 	<property name="project.version" value="0.6.0"/> 	<!-- TODO: get this from AssemblyInfo.cs using a regular expression some how -->
 	<property name="dir.dist" value="dist"/>
 	<property name="zipfile.bin" value="${project.name}-src-${project.version}.zip" />
+	<property name="backup.name" value="..\nant-backup-${nant.dstamp}-${nant.tstamp}.zip" />
+
+	<property name="dir.build" value="build" />
 
 	<echo message="Building ${project.name}-${project.version}"/>
 
 	<target name="clean">
-		<delete dir="build" verbose="true"/>
-		<delete dir="build" verbose="true" failonerror="false"/>
+		<delete dir="${dir.build}" verbose="true" failonerror="false"/>
 		<delete dir="dist" verbose="true" failonerror="false"/>
 		<delete dir="dist-src" verbose="true" failonerror="false"/>
 	</target>
@@ -19,54 +22,56 @@
 	<target name="build">
 		<mkdir dir="build"/>
 		<csc target="exe" output="build\NAnt.exe" debug="${debug}">
-			<sources>
-				<includes name="src\NAnt\*.cs"/>
-				<includes name="src\NAnt\Attributes\*.cs"/>
-				<includes name="src\NAnt\Tasks\*.cs"/>
-				<includes name="src\NAnt\Util\*.cs"/>
+			<sources basedir="src\NAnt">
+				<includes name="**/*.cs"/>
 			</sources>
 			<references/>
 		</csc>
 	</target>
 
+<!--
 	<target name="test" depends="build">
-		<!-- <nant basedir="examples"/>-->
 		<exec program="build\nant.exe" commandline="-buildfile:test.build dist"/>
+	</target>
+-->
+
+	<target name="backup">
+		<!-- 
+			Not using the -q flag for large file sets seems to cause it to hang.
+			This is likely due to an error in reading the standard input back from
+			a buffer.
+		-->
+		<exec program="bin/zip.exe" commandline="-r -q ${backup.name} *"/>
 	</target>
 
 
 	<target name="dist" depends="build">
-
+		<copy todir="${dir.dist}\src">
+			<fileset basedir="src">
+				<includes name="**"/>
+			</fileset>
+		</copy>
 <!--
 		<copy file="${dir.build}\NAnt.exe" todir="${dir.dist}\bin"/>
 		<copy todir="${dir.dist}\doc">
 			<fileset basedir="doc">
 				<includes name="**"/>
-				<excludes name="**\CVS\*"/>
-			</fileset>
-		</copy>
-		<call target="clean-tests"/>
-		<copy todir="${dir.dist}\src">
-			<fileset basedir="src">
-				<includes name="**"/>
-				<excludes name="**\CVS\*"/>
 			</fileset>
 		</copy>
 
+		<copy todir="${dir.dist}">
+			<fileset>
+				<includes name="NAnt.build"/>
+				<includes name="NAnt.key"/>
+				<includes name="README.txt"/>
+				<includes name="COPYING.txt"/>
+			</fileset>
+		</copy>
 		<nant buildfile="examples\examples.build" target="clean"/>
 		<copy todir="${dir.dist}\examples">
 			<fileset basedir="examples">
 				<includes name="**"/>
 				<excludes name="**\CVS\*"/>
-			</fileset>
-		</copy>
-
-		<copy todir="${dir.dist}">
-			<fileset dir=".">
-				<includes name="NAnt.build"/>
-				<includes name="NAnt.key"/>
-				<includes name="README.txt"/>
-				<includes name="COPYING.txt"/>
 			</fileset>
 		</copy>
 -->
