@@ -185,6 +185,9 @@ namespace SourceForge.NAnt {
                         }
                         if (nestedElementNode != null) {
                             Element childElement = (Element)propertyInfo.GetValue(this, null);
+                            // Sanity check: Ensure property wasn't null.
+                            if ( childElement == null )
+                               throw new BuildException(String.Format("Property '{0}' value cannot be null", propertyInfo.Name), Location);
                             childElement.Project = Project;
                             childElement.Initialize(nestedElementNode);
                         }
