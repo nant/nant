@@ -45,11 +45,6 @@
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorlib.dll"
                 />
                 <Reference
-                    Name = "mscorcfg"
-                    AssemblyName = "mscorcfg"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorcfg.dll"
-                />
-                <Reference
                     Name = "System"
                     AssemblyName = "System"
                     HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.dll"
