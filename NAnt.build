@@ -143,6 +143,7 @@
                 <includes name="src/CommonAssemblyInfo.cs" />
             </sources>
             <references failonempty="true">
+                <includes name="${build.dir}/bin/NAnt.Core.dll" />
                 <includes name="${build.dir}/bin/NDoc.Core.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
