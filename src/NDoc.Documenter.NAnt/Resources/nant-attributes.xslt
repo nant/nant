@@ -41,7 +41,7 @@
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
-                    <xsl:when test="property[@name='ElementType']/@value != ''">
+                    <xsl:when test="property[@name='ElementType']/@value != 'null'">
                         <xsl:value-of select="property[@name='ElementType']/@value" />
                     </xsl:when>
                     <xsl:otherwise>
@@ -57,7 +57,7 @@
         <xsl:call-template name="NestedElement">
             <xsl:with-param name="elementTypeParam">
                 <xsl:choose>
-                    <xsl:when test="property[@name='ElementType']/@value != ''">
+                    <xsl:when test="property[@name='ElementType']/@value != 'null'">
                         <xsl:value-of select="property[@name='ElementType']/@value" />
                     </xsl:when>
                     <xsl:otherwise>
@@ -70,13 +70,12 @@
 
     <xsl:template name="NestedElement">
         <xsl:param name="elementTypeParam" select="'#'" />
-        
         <xsl:variable name="elementType" select="translate(translate(concat('T:', $elementTypeParam), '[]', ''), '+', '.')" />
         <xsl:variable name="href" select="string(NAntUtil:GetHRef($elementType))" />
         <xsl:variable name="typeNode" select="NAntUtil:GetClassNode($elementType)" />
         <xsl:variable name="childElementName">
             <xsl:choose>
-                <xsl:when test="property[@name='ChildElementName'] and not(property[@name='ChildElementName']/@value = '')"><xsl:value-of select="property[@name='ChildElementName']/@value" /></xsl:when>
+                <xsl:when test="property[@name='ChildElementName'] and not(property[@name='ChildElementName']/@value = 'null')"><xsl:value-of select="property[@name='ChildElementName']/@value" /></xsl:when>
                 <xsl:when test="property[@name='ChildElementName']">???</xsl:when>
                 <xsl:otherwise></xsl:otherwise>
             </xsl:choose>
