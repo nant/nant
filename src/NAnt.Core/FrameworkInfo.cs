@@ -153,7 +153,9 @@ namespace NAnt.Core {
         /// <summary>
         /// Gets the name of the framework.
         /// </summary>
-        /// <value>The name of the framework.</value>
+        /// <value>
+        /// The name of the framework.
+        /// </value>
         public string Name {
             get { return _name; }
         }
@@ -211,8 +213,8 @@ namespace NAnt.Core {
         /// Gets the path to the runtime engine for this framework.
         /// </summary>
         /// <value>
-        /// The path to the runtime engine for the framework or null if no
-        /// runtime gine is configured for the framework.
+        /// The path to the runtime engine for the framework or <see langword="null" />
+        /// if no runtime engine is configured for the framework.
         /// </value>
         public FileInfo RuntimeEngine {
             get { return _runtimeEngine; }
