@@ -21,60 +21,53 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/">
+        <html>
+            <head>
+                <meta http-equiv="Content-Language" content="en-ca" />
+                <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+                <meta name="description" content="Introduction" />
+                <link rel="stylesheet" type="text/css" href="../../style.css" />
+                <title>Task Reference</title>
+            </head>
+            <body>
+                <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+                    <tr>
+                        <td class="NavBar-Cell" width="100%">
+                            <a href="../../index.html"><b>NAnt</b></a>
+                            <img alt="->" src="../../arrow.gif" />
+                            <a href="../index.html">Help</a>
+                            <img alt="->" src="../../arrow.gif" />
+                            Task Reference
+                        </td>
+                    </tr>
+                </table>
+                <h1>Task Reference</h1>
+                <div class="Table-Section">
+                    <table class="Table">
+                        <tr>
+                            <th class="Table-Header">Task</th>
+                            <th class="Table-Header">Summary</th>
+                        </tr>
+                        <xsl:apply-templates select="//class">
+                            <xsl:sort select="attribute/property[@name='Name']/@value" />
+                        </xsl:apply-templates>
+                    </table>
+                </div>
+            </body>
+        </html>
+    </xsl:template>
+    
+    <xsl:template match="interface|enumeration" />
 
-<xsl:template match="/">
-	<html>
-
-	<head>
-		<meta http-equiv="Content-Language" content="en-ca" />
-		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
-		<meta name="description" content="Introduction" />
-		<link rel="stylesheet" type="text/css" href="../../style.css" />
-		<title>Task Reference</title>
-	</head>
-
-	<body>
-		<table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
-			<tr>
-			<td class="NavBar-Cell" width="100%">
-				<a href="../../index.html"><b>NAnt</b></a>
-				<img alt="->" src="../../arrow.gif" />
-				<a href="../index.html">Help</a>
-				<img alt="->" src="../../arrow.gif" />
-				Task Reference
-			</td>
-			</tr>
-		</table>
-
-		<h1>Task Reference</h1>
-		<div class="Table-Section">
-		<table class="Table">
-			<tr>
-				<th class="Table-Header">Task</th>
-				<th class="Table-Header">Summary</th>
-			</tr>
-			<xsl:apply-templates select="//class">
-				<xsl:sort select="attribute/property[@name='Name']/@value"/>
-			</xsl:apply-templates>
-		</table>
-		</div>
-	</body>
-
-	</html>
-</xsl:template>
-
-<xsl:template match="interface|enumeration">
-</xsl:template>
-
-<!-- match class tag -->
-<xsl:template match="class">
-<xsl:variable name = "attr" select="attribute/@name"/>	
-	<xsl:if test="string($attr) = 'NAnt.Core.Attributes.TaskNameAttribute'">
-		<tr>
-			<td class="Table-Cell"><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
-			<td class="Table-Cell"><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
-		</tr>
-	</xsl:if>	
-</xsl:template>
-
+    <!-- match class tag -->
+    <xsl:template match="class">
+        <xsl:variable name="attr" select="attribute[@name='NAnt.Core.Attributes.TaskNameAttribute']/@name" />
+        <xsl:if test="string-length(string($attr)) != 0">
+            <tr>
+                <td class="Table-Cell"><a><xsl:attribute name="href"><xsl:value-of select="attribute/property[@name='Name']/@value" />task.html</xsl:attribute><xsl:value-of select="attribute/property[@name='Name']/@value" /></a></td>
+                <td class="Table-Cell"><xsl:apply-templates select="documentation/summary/node()" mode="slashdoc"/></td>
+            </tr>
+        </xsl:if>
+    </xsl:template>
 </xsl:stylesheet>
