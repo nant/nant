@@ -26,67 +26,113 @@ using System.Reflection;
 using System.IO;
 
 using NAnt.Core;
-using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     /// <summary>
     /// Factory class for VS.NET projects.
     /// </summary>
-    public sealed class ReferenceGACCache : IDisposable 
-    {
+    public sealed class ReferenceGacCache : IDisposable {
         #region Public Instance Constructors
+
         /// <summary>
-        /// Initializes a new <see cref="ReferenceGACCache"/>.
+        /// Initializes a new instance of the <see cref="ReferenceGacCache"/>
+        /// class.
         /// </summary>
-        public ReferenceGACCache()
-        {
+        public ReferenceGacCache() {
             _appDomain = AppDomain.CreateDomain("temporaryDomain");
             _gacResolver = 
-                ((GACResolver) _appDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
-                typeof(GACResolver).FullName).Unwrap());
+                ((GacResolver) _appDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,
+                typeof(GacResolver).FullName).Unwrap());
             _gacQueryCache = CollectionsUtil.CreateCaseInsensitiveHashtable();
         }
         #endregion Public Instance Constructors
 
         #region Public Instance Destructors
-        ~ReferenceGACCache()
-        {
+
+        ~ReferenceGacCache() {
             Dispose();
         }
+
         #endregion Public Instance Destructors
 
+        #region Implementation of IDisposable
 
-        public void Dispose()
-        {
-            if (_appDomain != null)
-            {
+        public void Dispose() {
+            if (_appDomain != null) {
                 AppDomain.Unload(_appDomain);
                 _appDomain = null;
                 GC.SuppressFinalize(this);
             }
         }
 
-        public bool IsAssemblyInGac(string filename)
-        {
-            string strPath = Path.GetFullPath(filename);
-            if (_gacQueryCache.Contains(filename))
-                return (bool)_gacQueryCache[filename];
+        #endregion Implementation of IDisposable
 
-            _gacQueryCache[filename] = _gacResolver.IsAssemblyInGAC(filename);
-            return (bool)_gacQueryCache[filename];
-        }
+        #region Public Instance Methods
 
-        public class GACResolver : MarshalByRefObject
-        {
-            public bool IsAssemblyInGAC(string filename)
-            {
-                Assembly asm = Assembly.LoadFrom(filename);
-                return asm.GlobalAssemblyCache;
+        /// <summary>
+        /// Determines whether an assembly is installed in the Global
+        /// Assembly Cache given its file name or path.
+        /// </summary>
+        /// <param name="assemblyFile">The name or path of the file that contains the manifest of the assembly.</param>
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
+        /// installed in the Global Assembly Cache; otherwise, 
+        /// <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        /// To determine whether the specified assembly is installed in the 
+        /// Global Assembly Cache, the assembly is loaded into a separate
+        /// <see cref="AppDomain" />.
+        /// </remarks>
+        public bool IsAssemblyInGac(string assemblyFile) {
+            string assemblyFilePath = Path.GetFullPath(assemblyFile);
+            if (_gacQueryCache.Contains(assemblyFilePath)) {
+                return (bool) _gacQueryCache[assemblyFilePath];
             }
+
+            _gacQueryCache[assemblyFilePath] = _gacResolver.IsAssemblyInGAC(assemblyFilePath);
+            return (bool) _gacQueryCache[assemblyFilePath];
         }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Fields
 
         private AppDomain _appDomain;
+
+        /// <summary>
+        /// Holds a list of assembly files for which already has been determined 
+        /// whether they are located in the Global Assembly Cache.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The key of the <see cref="Hashtable" /> is the full path to the 
+        /// assembly file and the value is a <see cref="bool" /> indicating 
+        /// whether the assembly is located in the Global Assembly Cache.
+        /// </para>
+        /// </remarks>
         private Hashtable _gacQueryCache;
-        private GACResolver _gacResolver;
+
+        private GacResolver _gacResolver;
+
+        #endregion Private Instance Fields
+
+        public class GacResolver : MarshalByRefObject {
+            /// <summary>
+            /// Determines whether an assembly is installed in the Global
+            /// Assembly Cache given its file name or path.
+            /// </summary>
+            /// <param name="assemblyFile">The name or path of the file that contains the manifest of the assembly.</param>
+            /// <returns>
+            /// <see langword="true" /> if <paramref name="assemblyFile" /> is 
+            /// installed in the Global Assembly Cache; otherwise, 
+            /// <see langword="false" />.
+            /// </returns>
+            public bool IsAssemblyInGAC(string assemblyFile) {
+                AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                Assembly assembly = Assembly.Load(assemblyName);
+                return assembly.GlobalAssemblyCache;
+            }
+        }
     }
 }
