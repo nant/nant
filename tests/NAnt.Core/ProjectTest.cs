@@ -63,7 +63,7 @@ namespace Tests.NAnt.Core {
             // create the build file in the temp folder
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            Project p = new Project(_buildFileName, Level.Info);
+            Project p = new Project(_buildFileName, Level.Info, 0);
 
             Assertion.AssertNotNull("Property ('nant.version') not defined.", p.Properties["nant.version"]);
             Assertion.AssertNotNull("Property ('nant.location') not defined.", p.Properties["nant.location"]);
@@ -81,7 +81,7 @@ namespace Tests.NAnt.Core {
         public void Test_Initialization_DOMBuildFile() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             Assertion.AssertNotNull("Property not defined.", p.Properties["nant.version"]);
 
@@ -101,7 +101,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.BuildStarted += new BuildEventHandler(b.BuildStarted);
             p.OnBuildStarted(this, new BuildEventArgs(p));
@@ -115,7 +115,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.BuildFinished += new BuildEventHandler(b.BuildFinished);
             p.OnBuildFinished(this, new BuildEventArgs(p));
@@ -129,7 +129,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.TargetStarted += new BuildEventHandler(b.TargetStarted);
             p.OnTargetStarted(this, new BuildEventArgs(p));
@@ -143,7 +143,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.TargetFinished += new BuildEventHandler(b.TargetFinished);
             p.OnTargetFinished(this, new BuildEventArgs(p));
@@ -157,7 +157,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.TaskStarted += new BuildEventHandler(b.TaskStarted);
             p.OnTaskStarted(this, new BuildEventArgs(p));
@@ -171,7 +171,7 @@ namespace Tests.NAnt.Core {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             p.TaskFinished += new BuildEventHandler(b.TaskFinished);
             p.OnTaskFinished(this, new BuildEventArgs(p));

@@ -186,7 +186,7 @@ namespace Tests.NAnt.Core {
             string buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(xml, buildFileName);
 
-            return new Project(buildFileName, level);
+            return new Project(buildFileName, level, 0);
         }
 
         /// <summary>        /// Creates an empty project <see cref="XmlDocument" /> and loads it         /// with a new project.        /// </summary>        /// <returns>
@@ -195,7 +195,7 @@ namespace Tests.NAnt.Core {
         protected Project CreateEmptyProject() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.AppendChild(doc.CreateElement("project"));
-            return new Project(doc, Level.Info);
+            return new Project(doc, Level.Info, 0);
         }
 
         /// <summary>

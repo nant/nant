@@ -54,7 +54,7 @@ namespace Tests.NAnt.Core {
             _buildFileName = Path.Combine(TempDirName, "test.build");
             TempFile.CreateWithContents(FormatBuildFile("", ""), _buildFileName);
 
-            _project = new Project(_buildFileName, Level.Info);
+            _project = new Project(_buildFileName, Level.Info, 0);
             _project.Properties["prop1"] = "asdf";
         }
 

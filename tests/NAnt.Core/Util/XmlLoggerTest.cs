@@ -123,7 +123,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = formattedMessage;
@@ -141,7 +141,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = formattedMessage;
@@ -181,7 +181,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = formattedMessage;
@@ -199,7 +199,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = formattedMessage;
@@ -217,7 +217,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = message;
@@ -234,7 +234,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = message;
@@ -251,7 +251,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = message;
@@ -268,7 +268,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = baseMessage;
@@ -285,7 +285,7 @@ namespace Tests.NAnt.Core.Util {
 
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             args.Message = baseMessage;
@@ -299,7 +299,7 @@ namespace Tests.NAnt.Core.Util {
         public void Test_BuildStartedAndBuildFinished() {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(FormatBuildFile("", "", "testproject"));
-            Project p = new Project(doc, Level.Info);
+            Project p = new Project(doc, Level.Info, 0);
 
             BuildEventArgs args = new BuildEventArgs(p);
             string expected = String.Format(CultureInfo.InvariantCulture, "<buildresults project=\"{0}\" />", "testproject");

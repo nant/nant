@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core {
 					try {
 						System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
 						doc.LoadXml(file.ReadToEnd());
-						Project p = new Project(doc, Level.Info);
+						Project p = new Project(doc, Level.Info, 0);
 						stuff = BuildTestBase.ExecuteProject(p);
 						success = true;
 					}
