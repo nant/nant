@@ -1005,7 +1005,8 @@ namespace NAnt.Core {
             BaseDirectory = newBaseDir;
             
             // load settings out of settings file
-            ProcessSettings();
+            XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+            ProcessSettings(nantNode);
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -1333,12 +1334,9 @@ namespace NAnt.Core {
         }
                 
         /// <summary>
-        /// Loads and processes a settings file from the directory of the current 
-        /// <see cref="Assembly" />.
+        /// Loads and processes settings from the specified XmlNode.
         /// </summary>
-        private void ProcessSettings(){
-            XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
-
+        public void ProcessSettings(XmlNode nantNode) {
             logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
             if (nantNode == null) { 
