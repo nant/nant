@@ -42,6 +42,29 @@ namespace NAnt.Core.Util {
         #region Public Static Methods
 
         /// <summary>
+        /// Determines whether the last character of the given <see cref="string" />
+        /// matches the specified character.
+        /// </summary>
+        /// <param name="value">The string.</param>
+        /// <param name="c">The character.</param>
+        /// <returns>
+        /// <see langword="true" /> if the last character of <paramref name="value" />
+        /// matches <paramref name="c" />; otherwise, <see langword="false" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value" /> is <see langword="null" />.</exception>
+        public static bool EndsWith(string value, char c) {
+            if (value == null) {
+                throw new ArgumentNullException("value");
+            }
+
+            int stringLength = value.Length;
+            if ((stringLength != 0) && (value[stringLength - 1] == c)) {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Indicates whether or not the specified <see cref="string" /> is 
         /// <see langword="null" /> or an <see cref="string.Empty" /> string.
         /// </summary>
