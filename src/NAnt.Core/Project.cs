@@ -574,7 +574,7 @@ namespace SourceForge.NAnt {
             //path = this.ExpandProperties(path);
 
             if (!Path.IsPathRooted(path)) {
-                path = Path.Combine(BaseDirectory, path);
+                path = Path.GetFullPath( Path.Combine(BaseDirectory, path) ); 
             }
             return path;
         }

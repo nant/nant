@@ -44,7 +44,7 @@ namespace SourceForge.NAnt.Tasks {
         string _output = null;        
         FileSet _resources = new FileSet();
         string _targetExt = "resources";
-        string _toDir = "";
+        string _toDir = null;
 
         /// <summary>Input file to process.</summary>
         [TaskAttribute("input", Required=false)]
@@ -105,6 +105,9 @@ namespace SourceForge.NAnt.Tasks {
         protected override void ExecuteTask() {
             _arguments = "";
             if (Resources.FileNames.Count > 0) {
+                if (Output != String.Empty ){
+                    throw new BuildException("output attribute is incompatible with fileset use.", Location);
+                }
                 foreach ( string filename in Resources.FileNames ) {
                     string outputFile = getOutputFile(filename);
 
@@ -137,8 +140,16 @@ namespace SourceForge.NAnt.Tasks {
         // Determine the full path and extension for the output file
         private string getOutputFile(string filename) {
             FileInfo fileInfo = new FileInfo(filename);
-            string outputFile = Path.Combine (ToDirectory, Output) + fileInfo.Name;
-            outputFile = Path.ChangeExtension( outputFile, TargetExt );
+            string outputFile = "";
+            
+            // If output is empty just change the extension 
+            if (Output == String.Empty) {
+                outputFile = Path.Combine (ToDirectory, fileInfo.Name);
+                outputFile = Path.ChangeExtension( outputFile, TargetExt );
+            } 
+            else {
+                outputFile = Path.Combine (ToDirectory, Output);
+            }
             return outputFile;
         }
         
