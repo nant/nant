@@ -90,6 +90,7 @@
             </resources>
             <references basedir="${build.dir}/bin">
                 <includes name="${log4netdll}"/>
+                <includes name="${nant.settings.currentframework.frameworkassemblydirectory}/System.Web.dll"/>
             </references>
             <arg value="/d:mono" if="${mono}" />
         </csc>
