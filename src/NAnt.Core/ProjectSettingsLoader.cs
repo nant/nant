@@ -40,6 +40,7 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private Project _project;
+        private XmlNamespaceManager _nsMgr;
 
         #endregion Private Instance Fields
 
@@ -67,6 +68,10 @@ namespace NAnt.Core {
         /// <param name="project">The <see cref="Project" /> that should be configured.</param>
         internal ProjectSettingsLoader(Project project) {
             _project = project;
+
+            // setup namespace manager
+            _nsMgr = new XmlNamespaceManager(new NameTable());
+            _nsMgr.AddNamespace("nant", _nsMgr.DefaultNamespace);
         }
 
         #endregion Internal Instance Constructor
@@ -91,6 +96,20 @@ namespace NAnt.Core {
             get { return Project.Properties; }
         }
 
+        /// <summary>
+        /// Gets the <see cref="XmlNamespaceManager" />.
+        /// </summary>
+        /// <value>
+        /// The <see cref="XmlNamespaceManager" />.
+        /// </value>
+        /// <remarks>
+        /// The <see cref="NamespaceManager" /> defines the current namespace 
+        /// scope and provides methods for looking up namespace information.
+        /// </remarks>
+        private XmlNamespaceManager NamespaceManager {
+            get { return _nsMgr; }
+        }
+
         #endregion Private Instance Properties
 
         #region Public Instance Methods
@@ -102,11 +121,12 @@ namespace NAnt.Core {
         public void ProcessSettings() {
             // process the framework-neutral properties
             ProcessFrameworkNeutralProperties(Project.ConfigurationNode.SelectNodes(
-                "frameworks/properties/property"));
+                "nant:frameworks/nant:properties/nant:property", NamespaceManager));
 
             // process the framework nodes of the current platform
             ProcessFrameworks(Project.ConfigurationNode.SelectSingleNode(
-                "frameworks/platform[@name='" + Project.PlatformName + "']"));
+                "nant:frameworks/nant:platform[@name='" + Project.PlatformName + "']",
+                NamespaceManager));
 
             // only scan the extension assemblies for the runtime framework once
             if (!ScannedExtensions) {
@@ -128,7 +148,7 @@ namespace NAnt.Core {
 
             // process global properties
             ProcessGlobalProperties(Project.ConfigurationNode.SelectNodes(
-                "properties/property"));
+                "nant:properties/nant:property", NamespaceManager));
         }
 
         #endregion Public Instance Methods
@@ -203,7 +223,7 @@ namespace NAnt.Core {
             string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
 
             // deals with xml info from the config file, not build document.
-            foreach (XmlNode frameworkNode in platformNode.SelectNodes("framework")) {
+            foreach (XmlNode frameworkNode in platformNode.SelectNodes("nant:framework", NamespaceManager)) {
                 // skip special elements like comments, pis, text, etc.
                 if (!(frameworkNode.NodeType == XmlNodeType.Element)) {
                     continue;
@@ -226,7 +246,8 @@ namespace NAnt.Core {
                     string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
 
                     // get framework-specific property nodes
-                    XmlNodeList propertyNodes = frameworkNode.SelectNodes("properties/property");
+                    XmlNodeList propertyNodes = frameworkNode.SelectNodes("nant:properties/nant:property", 
+                        NamespaceManager);
 
                     // process framework property nodes
                     PropertyDictionary frameworkProperties = ProcessFrameworkProperties(propertyNodes);
@@ -266,7 +287,8 @@ namespace NAnt.Core {
                         frameworkProperties);
 
                     // get framework-specific environment nodes
-                    XmlNodeList environmentNodes = frameworkNode.SelectNodes("environment/env");
+                    XmlNodeList environmentNodes = frameworkNode.SelectNodes("nant:environment/nant:env", 
+                        NamespaceManager);
 
                     // process framework environment nodes
                     info.EnvironmentVariables = ProcessFrameworkEnvironmentVariables(
@@ -274,9 +296,10 @@ namespace NAnt.Core {
 
                     // process framework extensions
                     info.Extensions.Project = Project;
+                    info.Extensions.NamespaceManager = NamespaceManager;
                     info.Extensions.Parent = Project; // avoid warnings by setting the parent of the fileset
                     info.Extensions.ID = "extensions"; // avoid warnings by assigning an id
-                    XmlNode extensionsNode = frameworkNode.SelectSingleNode("extensions");
+                    XmlNode extensionsNode = frameworkNode.SelectSingleNode("nant:extensions", NamespaceManager);
                     if (extensionsNode != null) {
                         info.Extensions.Initialize(extensionsNode, info.Properties, info);
                     }
@@ -296,7 +319,7 @@ namespace NAnt.Core {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             "The current runtime framework '{0}' is not correctly" 
                             + " configured in the NAnt configuration file.", 
-                            name, ex));
+                            name), ex);
                     } else {
                         if (name != null && name == defaultTargetFramework) {
                             Project.Log(Level.Warning, "The default targetframework" +
@@ -418,6 +441,7 @@ namespace NAnt.Core {
                 // initialize element
                 EnvironmentVariable environmentVariable = new EnvironmentVariable();
                 environmentVariable.Project = Project;
+                environmentVariable.NamespaceManager = NamespaceManager;
 
                 // configure using xml node
                 environmentVariable.Initialize(environmentNode, framework.Properties, framework);

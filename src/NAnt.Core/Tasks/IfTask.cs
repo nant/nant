@@ -174,8 +174,8 @@ namespace NAnt.Core.Tasks {
                 if (_uptodateFiles == null) {
                     _uptodateFiles = new FileSet();
                     _uptodateFiles.Parent = this;
-                    _uptodateFiles.Project = this.Project;
-                    //_uptodateFiles.FailOnEmpty = true;
+                    _uptodateFiles.Project = Project;
+                    _uptodateFiles.NamespaceManager = NamespaceManager;
                 }
                 _uptodateFiles.Includes.Add(value); 
             }
@@ -191,8 +191,8 @@ namespace NAnt.Core.Tasks {
                 if (_compareFiles == null) {
                     _compareFiles = new FileSet();
                     _compareFiles.Parent = this;
-                    _compareFiles.Project = this.Project;
-                    //_compareFiles.FailOnEmpty=true;
+                    _compareFiles.Project = Project;
+                    _compareFiles.NamespaceManager = NamespaceManager;
                 }
                 _compareFiles.Includes.Add(value); 
             }

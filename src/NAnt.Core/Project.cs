@@ -967,8 +967,8 @@ namespace NAnt.Core {
                     CallTask callTask = new CallTask();
                     callTask.Parent = this;
                     callTask.Project = this;
-                    callTask.NamespaceManager = this.NamespaceManager;
-                    callTask.Verbose = this.Verbose;
+                    callTask.NamespaceManager = NamespaceManager;
+                    callTask.Verbose = Verbose;
                     callTask.FailOnError = false;
                     callTask.TargetName = endTarget;
                     callTask.Execute();
@@ -987,7 +987,7 @@ namespace NAnt.Core {
 
             type.Project = this;
             type.Parent = this;
-            type.NamespaceManager = this.NamespaceManager;
+            type.NamespaceManager = NamespaceManager;
             type.Initialize(elementNode);
             return type;
         }
@@ -1013,7 +1013,7 @@ namespace NAnt.Core {
 
             task.Project = this;
             task.Parent = target;
-            task.NamespaceManager = this.NamespaceManager;
+            task.NamespaceManager = NamespaceManager;
             task.Initialize(taskNode);
             return task;
         }
@@ -1312,7 +1312,7 @@ namespace NAnt.Core {
 
                     target.Project = this;
                     target.Parent = this;
-                    target.NamespaceManager = this.NamespaceManager;
+                    target.NamespaceManager = NamespaceManager;
                     target.Initialize(childNode);
                     Targets.Add(target);
                 }

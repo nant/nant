@@ -209,8 +209,11 @@ namespace NAnt.VSNet {
             // inherit project from solution task
             clTask.Project = SolutionTask.Project;
 
-            // inherit parent from solution task
-            clTask.Parent = SolutionTask.Parent;
+            // inherit namespace manager from solution task
+            clTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            clTask.Parent = SolutionTask;
 
             // inherit verbose setting from solution task
             clTask.Verbose = SolutionTask.Verbose;
@@ -229,6 +232,12 @@ namespace NAnt.VSNet {
             clTask.Sources.Project = clTask.Project;
             clTask.MetaDataIncludeDirs.Project = clTask.Project;
             clTask.ForcedUsingFiles.Project = clTask.Project;
+
+            // set namespace manager of child elements
+            clTask.IncludeDirs.NamespaceManager = clTask.NamespaceManager;
+            clTask.Sources.NamespaceManager = clTask.NamespaceManager;
+            clTask.MetaDataIncludeDirs.NamespaceManager = clTask.NamespaceManager;
+            clTask.ForcedUsingFiles.NamespaceManager = clTask.NamespaceManager;
 
             // set base directories
             clTask.IncludeDirs.BaseDirectory = fileConfig.ProjectDir;
@@ -339,8 +348,11 @@ namespace NAnt.VSNet {
             // inherit project from solution task
             libTask.Project = SolutionTask.Project;
 
-            // inherit parent from solution task
-            libTask.Parent = SolutionTask.Parent;
+            // inherit namespace manager from solution task
+            libTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            libTask.Parent = SolutionTask;
 
             // inherit verbose setting from solution task
             libTask.Verbose = SolutionTask.Verbose;
@@ -353,6 +365,9 @@ namespace NAnt.VSNet {
 
             // inherit project from solution task for child elements
             libTask.Sources.Project = libTask.Project;
+
+            // inherit namespace manager from parent
+            libTask.Sources.NamespaceManager = libTask.NamespaceManager;
 
             // set task properties
             string outFile = baseConfig.GetToolSetting("VCLibrarianTool", "OutputFile");
@@ -375,8 +390,11 @@ namespace NAnt.VSNet {
             // inherit project from solution task
             linkTask.Project = SolutionTask.Project;
 
-            // inherit parent from solution task
-            linkTask.Parent = SolutionTask.Parent;
+            // inherit namespace manager from solution task
+            linkTask.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            linkTask.Parent = SolutionTask;
 
             // inherit verbose setting from solution task
             linkTask.Verbose = SolutionTask.Verbose;
@@ -391,6 +409,10 @@ namespace NAnt.VSNet {
             // inherit project from solution task for child elements
             linkTask.Sources.Project = linkTask.Project;
             linkTask.LibDirs.Project = linkTask.Project;
+
+            // inherit namespace manager from parent
+            linkTask.Sources.NamespaceManager = linkTask.NamespaceManager;
+            linkTask.LibDirs.NamespaceManager = linkTask.NamespaceManager;
 
             // set task properties
             string outFile = baseConfig.GetToolSetting(linkerTool, "OutputFile");

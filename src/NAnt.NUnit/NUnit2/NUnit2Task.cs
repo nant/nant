@@ -166,6 +166,7 @@ namespace NAnt.NUnit2.Tasks {
             if (FormatterElements.Count == 0) {
                 FormatterElement defaultFormatter = new FormatterElement();
                 defaultFormatter.Project = Project;
+                defaultFormatter.NamespaceManager = NamespaceManager;
                 defaultFormatter.Type = FormatterType.Plain;
                 defaultFormatter.UseFile = false;
                 FormatterElements.Add(defaultFormatter);

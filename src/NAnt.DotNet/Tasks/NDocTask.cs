@@ -139,12 +139,13 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
         protected override void InitializeTask(XmlNode taskNode) {
             // Expand and store the xml node
-            _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", Project.NamespaceManager);
+            _docNodes = taskNode.Clone().SelectNodes("nant:documenters/nant:documenter", 
+                NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
             // check for valid documenters (any other validation can be done by NDoc itself at project load time)
             foreach (XmlNode node in _docNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     continue;
                 }
                 
@@ -230,7 +231,7 @@ namespace NAnt.DotNet.Tasks {
             writer.WriteStartElement("documenters");
             foreach (XmlNode node in _docNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     continue;
                 }
                 writer.WriteRaw(node.OuterXml);
@@ -254,7 +255,7 @@ namespace NAnt.DotNet.Tasks {
 
             foreach (XmlNode node in _docNodes) {
                 //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                if (!(node.NodeType == XmlNodeType.Element) || !node.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     continue;
                 }
             

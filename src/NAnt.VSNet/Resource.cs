@@ -113,12 +113,14 @@ namespace NAnt.VSNet {
             // defer to the resource management code in CscTask
             CscTask csc = new CscTask();      
             csc.Project = _solutionTask.Project;
+            csc.NamespaceManager = _solutionTask.NamespaceManager;
             csc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
                 Project.ProjectSettings.OutputFileName));
 
             // set-up resource fileset
             ResourceFileSet resources = new ResourceFileSet();
             resources.Project = _solutionTask.Project;
+            resources.NamespaceManager = _solutionTask.NamespaceManager;
             resources.Parent = csc;
             resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
             resources.Prefix = Project.ProjectSettings.RootNamespace;
@@ -132,6 +134,7 @@ namespace NAnt.VSNet {
             // defer to the resource management code in VbcTask
             VbcTask vbc = new VbcTask();
             vbc.Project = _solutionTask.Project;
+            vbc.NamespaceManager = _solutionTask.NamespaceManager;
             vbc.OutputFile = new FileInfo(Path.Combine(configSetting.OutputDir.FullName, 
                 Project.ProjectSettings.OutputFileName));
             vbc.RootNamespace = Project.ProjectSettings.RootNamespace;
@@ -139,6 +142,7 @@ namespace NAnt.VSNet {
             // set-up resource fileset
             ResourceFileSet resources = new ResourceFileSet();
             resources.Project = _solutionTask.Project;
+            resources.NamespaceManager = _solutionTask.NamespaceManager;
             resources.Parent = vbc;
             resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
             resources.Prefix = Project.ProjectSettings.RootNamespace;
@@ -161,8 +165,11 @@ namespace NAnt.VSNet {
             // inherit project from solution task
             lt.Project = _solutionTask.Project;
 
-            // inherit parent from solution task
-            lt.Parent = _solutionTask.Parent;
+            // inherit namespace manager from solution task
+            lt.NamespaceManager = _solutionTask.NamespaceManager;
+
+            // parent is solution task
+            lt.Parent = _solutionTask;
 
             // inherit verbose setting from solution task
             lt.Verbose = _solutionTask.Verbose;
@@ -173,8 +180,11 @@ namespace NAnt.VSNet {
             // set parent of child elements
             lt.Assemblies.Parent = lt;
 
-            // inherit project from solution task for child elements
+            // inherit project from solution task from parent task
             lt.Assemblies.Project = lt.Project;
+
+            // inherit namespace manager from parent task
+            lt.Assemblies.NamespaceManager = lt.NamespaceManager;
 
             // set task properties
             lt.InputFile = InputFile;
@@ -215,8 +225,11 @@ namespace NAnt.VSNet {
             // inherit project from solution task
             rt.Project = _solutionTask.Project;
 
-            // inherit parent from solution task
-            rt.Parent = _solutionTask.Parent;
+            // inherit namespace manager from solution task
+            rt.NamespaceManager = _solutionTask.NamespaceManager;
+
+            // parent is solution task
+            rt.Parent = _solutionTask;
 
             // inherit verbose setting from solution task
             rt.Verbose = _solutionTask.Verbose;

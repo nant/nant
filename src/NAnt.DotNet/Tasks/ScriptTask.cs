@@ -194,7 +194,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void InitializeTask(XmlNode taskNode) {
             //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
-            XmlNodeList codeList = taskNode.SelectNodes("nant:code", Project.NamespaceManager);
+            XmlNodeList codeList = taskNode.SelectNodes("nant:code", NamespaceManager);
             if (codeList.Count < 1) {
                 throw new BuildException("<code> block not found.", Location);
             }

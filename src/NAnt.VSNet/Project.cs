@@ -320,8 +320,11 @@ namespace NAnt.VSNet {
                                 // inherit project from solution task
                                 ct.Project = SolutionTask.Project;
 
-                                // inherit parent from solution task
-                                ct.Parent = SolutionTask.Parent;
+                                // inherit namespace manager from solution task
+                                ct.NamespaceManager = SolutionTask.NamespaceManager;
+
+                                // parent is solution task
+                                ct.Parent = SolutionTask;
 
                                 // inherit verbose setting from solution task
                                 ct.Verbose = SolutionTask.Verbose;
@@ -334,6 +337,9 @@ namespace NAnt.VSNet {
 
                                 // inherit project from solution task for child elements
                                 ct.CopyFileSet.Project = SolutionTask.Project;
+
+                                // inherit namespace manager from solution task
+                                ct.CopyFileSet.NamespaceManager = SolutionTask.NamespaceManager;
 
                                 // set base directory of fileset
                                 ct.CopyFileSet.BaseDirectory = reference.GetBaseDirectory(cs);
@@ -530,8 +536,9 @@ namespace NAnt.VSNet {
                         ArrayList resFiles = (ArrayList) de.Value;
 
                         AssemblyLinkerTask al = new AssemblyLinkerTask();
-                        al.Project = this.SolutionTask.Project;
-                        al.Parent = this.SolutionTask.Parent;
+                        al.Project = SolutionTask.Project;
+                        al.NamespaceManager = SolutionTask.NamespaceManager;
+                        al.Parent = SolutionTask;
                         al.BaseDirectory = cs.OutputDir;
                         al.InitializeTaskConfiguration();
 

@@ -972,10 +972,13 @@ namespace NAnt.DotNet.Tasks {
             AssemblyLinkerTask alink = new AssemblyLinkerTask();
 
             // inherit project from current task
-            alink.Project = this.Project;
+            alink.Project = Project;
 
-            // inherit parent from current task
-            alink.Parent = this.Parent;
+            // inherit namespace manager from current task
+            alink.NamespaceManager = NamespaceManager;
+
+            // current task is parent
+            alink.Parent = this;
 
             // make sure framework specific information is set
             alink.InitializeTaskConfiguration();
@@ -1013,14 +1016,21 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="outputFile">The name of the resource file to create.</param>
         protected void CompileResxResource(FileInfo inputFile, FileInfo outputFile) {
             ResGenTask resgen = new ResGenTask();
-            resgen.Project = this.Project;
-            resgen.Parent = this.Parent;
+
+            // inherit project from current task
+            resgen.Project = Project;
+
+            // inherit namespace manager from current task
+            resgen.NamespaceManager = NamespaceManager;
+
+            // current task is parent
+            resgen.Parent = this;
 
             // make sure framework specific information is set
             resgen.InitializeTaskConfiguration();
            
             // inherit Verbose setting from current task
-            resgen.Verbose = this.Verbose;
+            resgen.Verbose = Verbose;
 
             resgen.InputFile = inputFile;
             resgen.OutputFile = outputFile;

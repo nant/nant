@@ -226,6 +226,7 @@ namespace NAnt.Core {
             clone._name = _name;
             clone._unlessCondition = _unlessCondition;
             clone.Project = Project;
+            clone.NamespaceManager = NamespaceManager;
             clone.XmlNode = XmlNode;
             clone.Location = Location;
             clone.Parent = Parent;
@@ -242,7 +243,7 @@ namespace NAnt.Core {
                 
                     // select all the task nodes and execute them
                     foreach (XmlNode childNode in XmlNode) {
-                        if (!(childNode.NodeType == XmlNodeType.Element)|| !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                        if (!(childNode.NodeType == XmlNodeType.Element)|| !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                             continue;
                         }
                         

@@ -286,7 +286,7 @@ namespace NAnt.Core {
                                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                         "'{0}' is a required framework configuration setting for the" 
                                         + " '{1}' build element that should be set in the NAnt configuration" 
-                                        + " file.", frameworkAttribute.Name, this.Name), Location, ex);
+                                        + " file.", frameworkAttribute.Name, Name), Location, ex);
                                 }
 
                                 // set value to null
@@ -299,7 +299,7 @@ namespace NAnt.Core {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 "'{0}' is a required framework configuration setting for the '{1}'" 
                                 + " build element that should be set in the NAnt configuration file.", 
-                                frameworkAttribute.Name, this.Name), Location);
+                                frameworkAttribute.Name, Name), Location);
                         }
                     }
 

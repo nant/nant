@@ -319,12 +319,14 @@ namespace NAnt.Core {
         }
 
         /// <summary> 
-        /// Creates a new <see cref="Task" /> instance for the given xml and 
-        /// project.
+        /// Creates a new <see cref="Task" /> instance for the given XML and 
+        /// <see cref="Project" />.
         /// </summary>
         /// <param name="taskNode">The XML to initialize the task with.</param>
         /// <param name="proj">The <see cref="Project" /> that the <see cref="Task" /> belongs to.</param>
-        /// <returns>The new <see cref="Task" /> instance.</returns>
+        /// <returns>
+        /// The new <see cref="Task" /> instance.
+        /// </returns>
         public static Task CreateTask(XmlNode taskNode, Project proj) {
             if (taskNode == null) {
                 throw new ArgumentNullException("taskNode");
@@ -344,6 +346,7 @@ namespace NAnt.Core {
 
             Task task = builder.CreateTask();
             task.Project = proj;
+            task.NamespaceManager = proj.NamespaceManager;
 
             // check whether the task (or its base class) is deprecated
             ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
@@ -384,6 +387,7 @@ namespace NAnt.Core {
 
             DataTypeBase element = (DataTypeBase) builder.CreateDataTypeBase();
             element.Project = proj;
+            element.NamespaceManager = proj.NamespaceManager;
 
             // check whether the type (or its base class) is deprecated
             ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 

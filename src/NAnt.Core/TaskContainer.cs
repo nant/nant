@@ -87,7 +87,7 @@ namespace NAnt.Core {
         protected virtual void ExecuteChildTasks() {
             foreach (XmlNode childNode in XmlNode) {
                 //we only care about xmlnodes (elements) that are of the right namespace.
-                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(Project.Document.DocumentElement.NamespaceURI)) {
+                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
                     continue;
                 }
                 
