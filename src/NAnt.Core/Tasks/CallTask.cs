@@ -25,19 +25,23 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <example>
     ///   <para>Call the target &quot;build&quot;.</para>
-    ///   <code><![CDATA[<call target="build"/>]]></code>
+    ///   <code>
+    ///     <![CDATA[
+    /// <call target="build" />
+    ///     ]]>
+    ///   </code>
     ///   <para>This shows how a project could 'compile' a debug and release build using a common compile target.</para>
     ///   <code>
     ///     <![CDATA[
     /// <project default="build">
     ///     <target name="compile">
-    ///         <echo message="compiling with debug = ${debug}"/>
+    ///         <echo message="compiling with debug = ${debug}" />
     ///     </target>
     ///     <target name="build">
-    ///         <property name="debug" value="false"/>
+    ///         <property name="debug" value="false" />
     ///         <call target="compile"/>
-    ///         <property name="debug" value="true"/>
-    ///         <call target="compile" force="true"/> <!-- notice the force attribute -->
+    ///         <property name="debug" value="true" />
+    ///         <call target="compile" force="true" /> <!-- notice the force attribute -->
     ///     </target>
     /// </project>
     ///     ]]>
@@ -87,7 +91,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 //Execute a copy.
-                t.Copy().Execute();
+                t.Clone().Execute();
             } else {
                 Project.Execute(TargetName);
             }
