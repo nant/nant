@@ -137,7 +137,9 @@ namespace NAnt.SourceControl.Tasks {
         /// include any valid filename, excluding path information.
         /// </summary>
         [TaskAttribute("overridedir", Required=false)]
-        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=false, 
+            Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$", 
+            ExpressionErrorMessage=@"Module must be a directory name.")]
         public string OverrideDir {
             get {return ((Option)CommandOptions["overridedir"]).Value;}
             set {SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true);}
