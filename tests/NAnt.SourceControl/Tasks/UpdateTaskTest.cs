@@ -71,7 +71,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             // Run the update to bring the file back down.
             bool good = false;
             int run = 0;
-            while (!good || run < 100) {
+            while (!good && run < 100) {
                 try {
                     String result = this.RunBuild (_projectXML);
                     good = true;
