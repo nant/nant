@@ -28,6 +28,7 @@ namespace NAnt.Core.Types {
     /// Represents an environment variable.
     /// </summary>
     [Serializable()]
+    [ElementName("env")]
     public class EnvironmentVariable : Element {
         #region Private Instance Fields
 

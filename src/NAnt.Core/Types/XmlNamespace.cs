@@ -28,6 +28,7 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Represents an XML namespace.
     /// </summary>
+    [ElementName("namespace")]
     public class XmlNamespace : Element {
         #region Private Instance Fields
 

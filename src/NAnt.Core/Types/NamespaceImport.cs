@@ -29,8 +29,8 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Represents a namespace to import.
     /// </summary>
-    [ElementName("import")]
     [Serializable()]
+    [ElementName("import")]
     public class NamespaceImport : Element {
         #region Private Instance Fields
 
