@@ -1,4 +1,7 @@
-<VisualStudioProject>    <CSHARP        ProjectType = "Local"        ProductVersion = "7.0.9466"
+<VisualStudioProject>
+    <CSHARP
+        ProjectType = "Local"
+        ProductVersion = "7.0.9466"
         SchemaVersion = "1.0"
         ProjectGuid = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
     >
@@ -12,7 +15,7 @@
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Library"             
+                OutputType = "Library"
                 RootNamespace = "NAnt.DotNet"
                 StartupObject = ""
             >
@@ -142,6 +145,11 @@
                 />
                 <File
                     RelPath = "Tasks\JscTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\LicenseTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
