@@ -273,6 +273,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\UsePrecompiledHeader.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\WebMap.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -83,7 +83,6 @@ namespace NAnt.VSNet {
             map.AddEnum("RuntimeLibrary", null, "/MT", "/MTd", "/MD", "/MDd", "/ML", "/MLd");
             map.AddBool("StringPooling", "/GF");
             map.AddEnum("StructMemberAlignment", null, null, "/Zp1", "/Zp2", "/Zp4", "/Zp8", "/Zp16");
-            map.AddEnum("UsePrecompiledHeader", null, "", "/Yc", "/YX", "/Yu");
             map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
             map.AddBool("Detect64BitPortabilityProblems", "/Wp64");
             map.AddBool("MinimalRebuild", "/Gm");
@@ -181,8 +180,7 @@ namespace NAnt.VSNet {
                 int iValue = -1;
                 try {
                     iValue = Int32.Parse(propValue);
-                }
-                catch(FormatException) {
+                } catch(FormatException) {
                     return null;
                 }
                 

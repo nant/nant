@@ -370,6 +370,19 @@ namespace NAnt.VSNet {
             get { return _useOfATL; }
         }
 
+        public UsePrecompiledHeader UsePrecompiledHeader {
+            get {
+                string usePCHString = GetToolSetting("VCCLCompilerTool", 
+                    "UsePrecompiledHeader");
+                if (usePCHString == null) {
+                    return UsePrecompiledHeader.Unspecified;
+                }
+
+                return (UsePrecompiledHeader) Enum.ToObject(typeof(UsePrecompiledHeader), 
+                    int.Parse(usePCHString, CultureInfo.InvariantCulture));
+            }
+        }
+
         #endregion Public Instance Properties
 
         #region Internal Instance Properties

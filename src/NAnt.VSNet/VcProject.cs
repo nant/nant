@@ -304,17 +304,9 @@ namespace NAnt.VSNet {
             // output (.pch file) must be generated before compiling any other
             // source files.
             foreach (VcConfiguration vcConfig in buildConfigs.Keys) {
-                const string compilerTool = "VCCLCompilerTool";
-                Hashtable compilerArgs = vcConfig.GetToolArguments(compilerTool, _clArgMap);   
-
-                object o = compilerArgs["UsePrecompiledHeader"];
-
-                if (o != null) {
-                    string arg = o as string;
-                    if (arg.Equals("/Yc")) {
-                        BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
-                        stdafxConfig = vcConfig;
-                    }
+                if (vcConfig.UsePrecompiledHeader == UsePrecompiledHeader.Create) {
+                    BuildCPPFiles((ArrayList) buildConfigs[vcConfig], baseConfig, vcConfig);
+                    stdafxConfig = vcConfig;
                 }
             }
 
@@ -506,7 +498,42 @@ namespace NAnt.VSNet {
 
             // set task properties
             clTask.OutputDir = new DirectoryInfo(intermediateDir);
-            clTask.PchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
+
+            // check if precompiled headers are used
+            if (fileConfig.UsePrecompiledHeader != UsePrecompiledHeader.No && fileConfig.UsePrecompiledHeader != UsePrecompiledHeader.Unspecified) {
+                // get location of precompiled header file
+                string pchFile = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderFile");
+                if (pchFile == null) {
+                    pchFile = "$(IntDir)/$(TargetName).pch";
+                }
+
+                // we must set an absolute path for the PCH location file, 
+                // otherwise <cl> assumes a location relative to the output 
+                // directory - not the project directory.
+                clTask.PchFile = Path.Combine(ProjectDirectory.FullName,
+                    fileConfig.ExpandMacros(pchFile));
+
+                // check if a header file is specified for the precompiled header 
+                // file
+                string headerThrough = fileConfig.GetToolSetting(compilerTool, "PrecompiledHeaderThrough");
+                if (headerThrough == null) {
+                    headerThrough = "StdAfx.h";
+                } 
+                clTask.PchThroughFile = headerThrough;
+
+                switch (fileConfig.UsePrecompiledHeader) {
+                    case UsePrecompiledHeader.Use:
+                        clTask.PchMode = ClTask.PrecompiledHeaderMode.Use;
+                        break;
+                    case UsePrecompiledHeader.AutoCreate:
+                        clTask.PchMode = ClTask.PrecompiledHeaderMode.AutoCreate;
+                        break;
+                    case UsePrecompiledHeader.Create:
+                        clTask.PchMode = ClTask.PrecompiledHeaderMode.Create;
+                        break;
+                }
+            }
+
             clTask.CharacterSet = fileConfig.CharacterSet;
             
             // ensure output directory exists
@@ -636,39 +663,10 @@ namespace NAnt.VSNet {
             if (fileConfig.WholeProgramOptimization) {
                 clTask.Arguments.Add(new Argument("/GL"));
             }
-            
+
             Hashtable compilerArgs = fileConfig.GetToolArguments(compilerTool, _clArgMap);   
             foreach (string key in compilerArgs.Keys) {
-                switch (key) {
-                    case "PrecompiledHeaderThrough":
-                    case "PrecompiledHeaderFile":
-                        // skip these as they will only be used in combination 
-                        // with the "UsePrecompiledHeader" argument
-                        break;
-                    case "UsePrecompiledHeader":
-                        string arg = compilerArgs["UsePrecompiledHeader"] as string;
-
-                        // if arg.length == 0 then this configuration explicitly turns
-                        // OFF use of precompiled headers - even if parent config uses it.
-                        if (arg == null || arg.Length > 0) {
-                            string headerThrough = compilerArgs["PrecompiledHeaderThrough"] as string;
-                            if (headerThrough == null) {
-                                headerThrough = "StdAfx.h";
-                            }
-                            clTask.Arguments.Add(new Argument(((string) compilerArgs[key]) + "\"" + headerThrough + "\""));
-
-                            string headerFile = compilerArgs["PrecompiledHeaderFile"] as string;
-                            if (headerFile == null) {
-                                headerFile = fileConfig.ExpandMacros("$(IntDir)/$(TargetName).pch");
-                            }
-
-                            clTask.Arguments.Add(new Argument("/Fp\"" + headerFile + "\""));
-                        }
-                        break;
-                    default:
-                        clTask.Arguments.Add(new Argument((string) compilerArgs[key]));
-                        break;
-                }
+                clTask.Arguments.Add(new Argument((string) compilerArgs[key]));
             }
 
             // check for shared MFC
