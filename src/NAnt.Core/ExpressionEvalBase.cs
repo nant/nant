@@ -223,6 +223,10 @@ namespace NAnt.Core {
                             int i2 = (int) SafeConvert(typeof(int), o2, 
                                 "the right hand side of the addition operator", p2, p3);
                             o = i1 + i2;
+                        } else if (o is DateTime && o2 is TimeSpan) {
+                            DateTime i1 = (DateTime) o; 
+                            TimeSpan i2 = (TimeSpan) o2;
+                            o = i1 + i2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                 "Addition not supported for arguments of type '{0}' and '{1}'.", 
@@ -249,12 +253,16 @@ namespace NAnt.Core {
                             int i2 = (int) SafeConvert(typeof(int), o2, 
                                 "the right hand side of the subtraction operator", p2, p3);
                             o = i1 - i2;
-                        } else if (o is DateTime || o2 is DateTime) {
-                            DateTime date1 = (DateTime) SafeConvert(typeof(DateTime), o, 
-                                "the left hand side of the subtraction operator", p0, p1);
-                            DateTime date2 = (DateTime) SafeConvert(typeof(DateTime), o2, 
-                                "the right hand side of the subtraction operator", p2, p3);
-                            o = date1 - date2;
+                        } else if (o is DateTime && (o2 is TimeSpan || o2 is DateTime)) {
+                            DateTime date1 = (DateTime) o;
+
+                            if (o2 is TimeSpan) {
+                                // result is DateTime
+                                o = ((DateTime) o) - ((TimeSpan) o2);
+                            } else if (o2 is DateTime) {
+                                // result is TimeSpan
+                                o = ((DateTime) o) - ((DateTime) o2);
+                            }
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
                                 "Subtraction not supported for arguments of type '{0}' and '{1}'.", 
@@ -361,7 +369,7 @@ namespace NAnt.Core {
             
             bool cond = false;
             if (!SyntaxCheckOnly()) {
-                cond = (bool)SafeConvert(typeof(bool), val, "the conditional expression", p0, p1);
+                cond = (bool) SafeConvert(typeof(bool), val, "the conditional expression", p0, p1);
             }
 
             // skip comma between condition value and then
@@ -562,7 +570,7 @@ namespace NAnt.Core {
                         if (!SyntaxCheckOnly()) {
                             object convertedValue = SafeConvert(formalParameters[currentArgument].ParameterType,
                                     e,
-                                    string.Format(CultureInfo.InvariantCulture, "argument {1}({0}) of {2}()", formalParameters[currentArgument].Name, currentArgument + 1, functionOrPropertyName),
+                                    string.Format(CultureInfo.InvariantCulture, "argument {1} ({0}) of {2}()", formalParameters[currentArgument].Name, currentArgument + 1, functionOrPropertyName),
                                     beforeArgument, afterArgument);
                             args.Add(convertedValue);
                         }
@@ -625,7 +633,17 @@ namespace NAnt.Core {
                 // We shouldn't allow this. Add more cases like this here.
                 //
                 bool disallow = false;
-                
+
+                if (source == null) {
+                    if (returnType == typeof(string)) {
+                        return string.Empty;
+                    }
+
+                    throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot convert {0} to '{1}' (value was null).", 
+                        description, GetSimpleTypeName(returnType)), p0, p1);
+                }
+
                 if (source.GetType() == typeof(bool)) {
                     if (returnType != typeof(string) && returnType != typeof(bool)) {
                         // boolean can only be converted to string or boolean
@@ -653,21 +671,37 @@ namespace NAnt.Core {
                         disallow = true;
                     }
                 }
+
                 // Horrible hack to work around this mono bug:
                 // http://bugs.ximian.com/show_bug.cgi?id=53919
                 // Be sure to remove once that bug is fixed.
-                if ( (returnType == typeof(TimeSpan))  && (source.GetType() == typeof(TimeSpan)) ) {
-                    return (TimeSpan)source;
+                if (returnType == typeof(TimeSpan) && source.GetType() == typeof(TimeSpan)) {
+                    return (TimeSpan) source;
+                }
+
+                if (returnType == typeof(string)) {
+                    if (source is DirectoryInfo) {
+                        return ((DirectoryInfo) source).FullName;
+                    } else if (source is FileInfo) {
+                        return ((FileInfo) source).FullName;
+                    }
                 }
 
                 if (disallow) {
-                    throw BuildParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1);
+                    throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot convert {0} to '{1}' (actual type was '{2}').", 
+                        description, GetSimpleTypeName(returnType), 
+                        GetSimpleTypeName(source.GetType())), p0, p1);
                 }
                 
                 return Convert.ChangeType(source, returnType, CultureInfo.InvariantCulture);
-            }
-            catch (Exception ex) {
-                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, "Cannot convert {0} to '{1}' (actual type was '{2}').", description, GetSimpleTypeName(returnType), GetSimpleTypeName(source.GetType())), p0, p1, ex);
+            } catch (ExpressionParseException) {
+                throw;
+            } catch (Exception ex) {
+                throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
+                    "Cannot convert {0} to '{1}' (actual type was '{2}').", 
+                    description, GetSimpleTypeName(returnType), 
+                    GetSimpleTypeName(source.GetType())), p0, p1, ex);
             }
         }
 
@@ -682,6 +716,12 @@ namespace NAnt.Core {
                 return "boolean";
             } else if (t == typeof(DateTime)) {
                 return "datetime";
+            } else if (t == typeof(TimeSpan)) {
+                return "timespan";
+            } else if (t == typeof(DirectoryInfo)) {
+                return "directory";
+            } else if (t == typeof(FileInfo)) {
+                return "file";
             } else {
                 return t.FullName;
             }
