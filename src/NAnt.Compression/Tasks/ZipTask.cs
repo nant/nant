@@ -38,7 +38,7 @@ namespace NAnt.Zip.Tasks {
     /// Creates a zip file from a specified fileset.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
+    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.</para>
     /// </remarks>
     /// <example>
     ///   <para>Zip all files in the subdirectory <c>build</c> to <c>backup.zip</c>.</para>
@@ -59,7 +59,6 @@ namespace NAnt.Zip.Tasks {
         private FileInfo _zipfile;
         private int _ziplevel = 6; 
         private ZipFileSet _fileset = new ZipFileSet();
-        private Crc32 crc = new Crc32();
         private DateTime _stampDateTime = DateTime.MinValue;
         private string _comment = null;
         private bool _includeEmptyDirs = false;
