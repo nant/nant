@@ -37,7 +37,7 @@ namespace SourceForge.NAnt.Tasks.NUnit2
 
         /// <summary>Name of the assembly to search for tests.</summary>
         [TaskAttribute("assemblyname")]
-        public string AssemblyName { get { return Project.GetFullPath(_assemblyName); } set {_assemblyName = value;} }
+        public string AssemblyName { get { if (_assemblyName != null) return Project.GetFullPath(_assemblyName); else return null; } set {_assemblyName = value;} }
         
         /// <summary>Name of a specific test to run. If Not specified then all tests in the assembly are run.</summary>
         [TaskAttribute("testname")]
