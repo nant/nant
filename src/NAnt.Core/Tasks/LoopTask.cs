@@ -112,30 +112,47 @@ namespace NAnt.Core.Tasks {
     [TaskName("foreach")]
     public class LoopTask : TaskContainer {
         public enum LoopItem {
-            None,
-            File,
-            Folder,
-            String,
-            Line
+            File = 1,
+            Folder = 2,
+            String = 3,
+            Line = 4
         }
 
         public enum LoopTrim {
-            None,
-            End,
-            Start,
-            Both
+            /// <summary>
+            /// Do not remove any white space characters.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Remove all white space characters from the end of the current
+            /// item.
+            /// </summary>
+            End = 1,
+
+            /// <summary>
+            /// Remove all white space characters from the beginning of the 
+            /// current item.
+            /// </summary>
+            Start = 2,
+
+            /// <summary>
+            /// Remove all white space characters from the beginning and end of
+            /// the current item.
+            /// </summary>
+            Both = 3
         }
 
         #region Private Instance Fields
 
-        private string _prop = null;
-        private string[] _props = null;
-        private LoopItem _loopItem = LoopItem.None;
+        private string _prop;
+        private string[] _props;
+        private LoopItem _loopItem;
         private LoopTrim _loopTrim = LoopTrim.None;
-        private string _inAttribute = null;
-        private string _delim = null;
-        private InElement _inElement = null;
-        private TaskContainer _doStuff = null;
+        private string _inAttribute;
+        private string _delim;
+        private InElement _inElement;
+        private TaskContainer _doStuff;
 
         #endregion Private Instance Fields
 
@@ -168,7 +185,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [TaskAttribute("item", Required=true)]
         public LoopItem ItemType {
-            get { return _loopItem;}
+            get { return _loopItem; }
             set { _loopItem = value; }
         }
 
@@ -243,8 +260,6 @@ namespace NAnt.Core.Tasks {
             
             try {
                 switch (ItemType) {
-                    case LoopItem.None:
-                        throw new BuildException("Invalid itemtype", Location);
                     case LoopItem.File:
                         if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
