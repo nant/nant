@@ -310,6 +310,8 @@ namespace SourceForge.NAnt.Tasks {
                 lock ( _htThreadStream ) {
                     
                     logger.Error(strLogContents);
+                    //do not print LogPrefix, just pad that length...
+                    Log.WriteLine(new string(char.Parse(" "), LogPrefix.Length) + strLogContents);
 
                     if (OutputFile != null && OutputFile != "") {
                         StreamWriter writer = new StreamWriter(OutputFile, OutputAppend);
