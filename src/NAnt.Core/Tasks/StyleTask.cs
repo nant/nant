@@ -87,12 +87,11 @@ namespace NAnt.Core.Tasks {
     public class StyleTask : Task {
         #region Private Instance Fields
                 
-        private string _baseDir = null;
-        private string _destDir = null;
+        private DirectoryInfo _destDir;
         private string _extension = "html";
-        private string _xsltFile = null;
-        private string _srcFile = null;
-        private string _outputFile = null;
+        private FileInfo _xsltFile;
+        private FileInfo _srcFile;
+        private FileInfo _outputFile;
         private FileSet _inFiles = new FileSet();
         private XsltParameterCollection _xsltParameters = new XsltParameterCollection();
 
@@ -101,20 +100,17 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Where to find the source XML file, default is the project's basedir.
-        /// </summary>
-        [TaskAttribute("basedir", Required=false)]
-        public string BaseDir {
-            get { return _baseDir; }
-            set { _baseDir = value; }
-        }
-        
-        /// <summary>
-        /// Directory in which to store the results.
+        /// Directory in which to store the results. The default is the project
+        /// base directory.
         /// </summary>
         [TaskAttribute("destdir", Required=false)]
-        public string DestDir {
-            get { return _destDir; }
+        public DirectoryInfo DestDir {
+            get { 
+                if (_destDir == null) {
+                    return new DirectoryInfo(Project.BaseDirectory);
+                }
+                return _destDir; 
+            }
             set { _destDir = value; }
         }
         
@@ -133,8 +129,7 @@ namespace NAnt.Core.Tasks {
         /// basedir or as an absolute path.
         /// </summary>
         [TaskAttribute("style", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string StyleSheet {
+        public FileInfo XsltFile {
             get { return _xsltFile; }
             set { _xsltFile = value; }
         }
@@ -144,7 +139,7 @@ namespace NAnt.Core.Tasks {
         /// the <see cref="OutputFile" /> attribute.
         /// </summary>
         [TaskAttribute("in", Required=false)]
-        public string SrcFile {
+        public FileInfo SrcFile {
             get { return _srcFile; }
             set { _srcFile = value; }
         }
@@ -154,7 +149,7 @@ namespace NAnt.Core.Tasks {
         /// attribute.
         /// </summary>
         [TaskAttribute("out", Required=false)]
-        public string OutputFile {
+        public FileInfo OutputFile {
             get { return _outputFile; }
             set { _outputFile = value; }
         }
@@ -203,11 +198,11 @@ namespace NAnt.Core.Tasks {
 
         protected override void ExecuteTask() {
             StringCollection srcFiles = null;
-            if (!StringUtils.IsNullOrEmpty(SrcFile)) {
+            if (SrcFile != null) {
                 srcFiles = new StringCollection();
-                srcFiles.Add(SrcFile);
+                srcFiles.Add(SrcFile.FullName);
             } else if (InFiles.FileNames.Count > 0) {
-                if (!StringUtils.IsNullOrEmpty(OutputFile)) {
+                if (OutputFile != null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "The \"out\" attribute is not allowed when \"infiles\" is used."), 
                         Location);
@@ -221,17 +216,19 @@ namespace NAnt.Core.Tasks {
                     Location);
             }
 
-            string basedirPath = Project.GetFullPath(BaseDir);
-            string destdirPath = Project.GetFullPath(DestDir);
-            string xsltPath = Path.GetFullPath(Path.Combine(basedirPath, StyleSheet));
-            FileInfo xsltInfo = new FileInfo(xsltPath);
-            if (!xsltInfo.Exists) {
+            if (!XsltFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Unable to find stylesheet file {0}.", xsltPath), Location);
+                    "Stylesheet file '{0}' does not exist.", XsltFile.FullName), 
+                    Location);
             }
 
             foreach (string srcFile in srcFiles) {
-                string destFile = OutputFile;
+                string destFile = null;
+
+                if (OutputFile != null) {
+                    destFile = OutputFile.FullName;
+                }
+
                 if (StringUtils.IsNullOrEmpty(destFile)) {
                     // TODO: use System.IO.Path (gs)
                     // append extension if necessary
@@ -245,19 +242,19 @@ namespace NAnt.Core.Tasks {
                     destFile = Path.GetFileName(destFile);
                 }
 
-                string srcPath  = Path.GetFullPath(Path.Combine(basedirPath, srcFile));
-                string destPath = Path.GetFullPath(Path.Combine(destdirPath, destFile));
-                FileInfo srcInfo  = new FileInfo(srcPath);
-                FileInfo destInfo = new FileInfo(destPath);
+                FileInfo srcInfo = new FileInfo(srcFile);
+                FileInfo destInfo = new FileInfo(Path.GetFullPath(Path.Combine(
+                    DestDir.FullName, destFile)));
 
                 if (!srcInfo.Exists) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unable to find source XML file {0}.", srcPath), Location);
+                        "Unable to find source XML file '{0}'.", srcInfo.FullName), 
+                        Location);
                 }
 
                 bool destOutdated = !destInfo.Exists
                     || srcInfo.LastWriteTime  > destInfo.LastWriteTime
-                    || xsltInfo.LastWriteTime > destInfo.LastWriteTime;
+                    || XsltFile.LastWriteTime > destInfo.LastWriteTime;
 
                 if (destOutdated) {
                     XmlReader xmlReader = null;
@@ -266,15 +263,15 @@ namespace NAnt.Core.Tasks {
     
                     try {
                         // load the xml that needs to be transformed
-                        Log(Level.Verbose, LogPrefix + "Loading xml {0}.", 
-                            srcPath);
-                        xmlReader = CreateXmlReader(srcPath);
+                        Log(Level.Verbose, LogPrefix + "Loading XML file '{0}'.", 
+                            srcInfo.FullName);
+                        xmlReader = CreateXmlReader(srcInfo.FullName);
                         XPathDocument xml = new XPathDocument(xmlReader);
     
                         // load the stylesheet
-                        Log(Level.Verbose, LogPrefix + "Loading stylesheet {0}.", 
-                            xsltPath);
-                        xslReader = CreateXmlReader(xsltPath);
+                        Log(Level.Verbose, LogPrefix + "Loading stylesheet '{0}'.", 
+                            XsltFile.FullName);
+                        xslReader = CreateXmlReader(XsltFile.FullName);
                         XslTransform xslt = new XslTransform();
                         xslt.Load(xslReader);
 
@@ -290,17 +287,17 @@ namespace NAnt.Core.Tasks {
                         }
     
                         // create writer for the destination xml
-                        writer = CreateWriter(destPath);
+                        writer = CreateWriter(destInfo.FullName);
 
                         // do the actual transformation 
-                        Log(Level.Info, LogPrefix + "Processing {0} to {1}.", 
-                            srcPath, destPath);
+                        Log(Level.Info, LogPrefix + "Processing '{0}' to '{1}'.", 
+                            srcInfo.FullName, destInfo.FullName);
                         xslt.Transform(xml, xsltArgs, writer);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Could not perform XSLT transformation of {0} using" 
-                            + " stylesheet {1}.", srcPath, xsltPath), Location, 
-                            ex);
+                            "Could not perform XSLT transformation of '{0}' using" 
+                            + " stylesheet '{1}'.", srcInfo.FullName, XsltFile.FullName), 
+                            Location, ex);
                     } finally {
                         // ensure file handles are closed
                         if (xmlReader != null) {
