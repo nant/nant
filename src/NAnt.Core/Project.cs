@@ -53,7 +53,13 @@ namespace NAnt.Core {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        /// <summary>
+        /// Holds a value indicating whether a scan for tasks has already been 
+        /// performed on the configured task path.
+        /// </summary>
         private static bool ScannedTaskPath = false;
+
         //xml element and attribute names that are not defined in metadata
         private const string RootXml = "project";
         private const string ProjectNameAttribute = "name";
@@ -61,7 +67,7 @@ namespace NAnt.Core {
         private const string ProjectBaseDirAttribute = "basedir";
         private const string TargetXml = "target";
         private const string TargetDependsAttribute = "depends";
-        
+
         #endregion Private Static Fields
 
         #region Internal Static Fields
@@ -75,7 +81,7 @@ namespace NAnt.Core {
         internal const string NAntPropertyProjectBaseDir = "nant.project.basedir";
         internal const string NAntPropertyProjectDefault = "nant.project.default";
         internal const string NAntPropertyOnSuccess = "nant.onsuccess";
-        internal const string NAntPropertyOnFailure = "nant.failure";
+        internal const string NAntPropertyOnFailure = "nant.onfailure";
 
         #endregion Internal Static Fields
 
@@ -104,6 +110,7 @@ namespace NAnt.Core {
         TargetCollection    _targets = new TargetCollection();
         LocationMap         _locationMap = new LocationMap();
         PropertyDictionary  _properties = new PropertyDictionary();
+        PropertyDictionary  _frameworkNeutralProperties = new PropertyDictionary();
         XmlDocument         _doc = null; // set in ctorHelper
         XmlNamespaceManager _nm = new XmlNamespaceManager(new NameTable()); //used to map "nant" to default namespace.
         
@@ -326,7 +333,7 @@ namespace NAnt.Core {
         }
 
         /// <remarks>
-        ///   <para>Used only if BuildTargets collection is empty.</para>
+        /// <para>Used only if BuildTargets collection is empty.</para>
         /// </remarks>
         public string DefaultTargetName {
             get { return _defaultTargetName; }
@@ -346,6 +353,7 @@ namespace NAnt.Core {
         public StringCollection BuildTargets {
             get { return _buildTargets; }
         }
+
         /// <summary>
         /// Gets the properties defined in this project.
         /// </summary>
@@ -358,13 +366,39 @@ namespace NAnt.Core {
             get { return _properties; }
         }
 
-        
         /// <summary>
-        /// Gets the DataTypes defined in this project.
+        /// Gets the framework-neutral properties defined in the NAnt 
+        /// configuration file.
         /// </summary>
-        /// <value>The DataTypes defined in this project.</value>
+        /// <value>
+        /// The framework-neutral properties defined in the NAnt configuration file.
+        /// </value>
         /// <remarks>
-        ///   <para>This is the collection of DataTypes that are defined by datatype ( eg fileset ) declarations.</para>        
+        /// <para>
+        /// This is the collection of read-only properties that are defined in 
+        /// the NAnt configuration file.
+        /// </para>
+        /// <para>
+        /// These properties can only be used for expansion in framework-specific
+        /// and framework-neutral configuration settings.  These properties are 
+        /// not available for expansion in the build file.
+        /// </para>
+        /// </remarks>
+        public PropertyDictionary FrameworkNeutralProperties {
+            get { return _frameworkNeutralProperties; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="DataTypeBase" /> instances defined in this project.
+        /// </summary>
+        /// <value>
+        /// The <see cref="DataTypeBase" /> instances defined in this project.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// This is the collection of <see cref="DataTypeBase" /> instances that
+        /// are defined by <see cref="DataTypeBase" /> (eg fileset) declarations.
+        /// </para>
         /// </remarks>
         public DataTypeBaseDictionary DataTypeReferences {
             get {return _dataTypeReferences; }
@@ -625,20 +659,25 @@ namespace NAnt.Core {
                 // signal build failure
                 return false;
             } finally {
-                string endTask;
+                string endTarget;
                 if(error == null) {
-                    endTask = Properties[NAntPropertyOnSuccess];
+                    endTarget = Properties[NAntPropertyOnSuccess];
                 } else {
-                    endTask = Properties[NAntPropertyOnFailure];
+                    endTarget = Properties[NAntPropertyOnFailure];
                 }
 
-                if (endTask != null && endTask.Length != 0) {
-                    Execute(endTask);
+                // TO-DO : remove this after release of NAnt 0.8.4 or so
+                string deprecatedFailureTarget = Properties["nant.failure"];
+                if (deprecatedFailureTarget != null && deprecatedFailureTarget.Length != 0) {
+                    Log(Level.Warning, "The 'nant.failure' property has been deprecated.  You should use '{0}' to designate the target that should be executed when the build fails.\n", Project.NAntPropertyOnFailure);
+                    if (error != null) {
+                        Execute(deprecatedFailureTarget);
+                    }
                 }
 
-                // output total build time to build log
-                TimeSpan buildTime = DateTime.Now - startTime;
-                Log(Level.Info, "Total time: {0} seconds.", (int) buildTime.TotalSeconds);
+                if (endTarget != null && endTarget.Length != 0) {
+                    Execute(endTarget);
+                }
 
                 // fire BuildFinished event with details of build outcome
                 BuildEventArgs buildFinishedArgs = new BuildEventArgs(this);
@@ -1023,10 +1062,10 @@ namespace NAnt.Core {
         /// Updates dependent properties when the <see cref="DefaultFramework" /> 
         /// is set.
         /// </summary>
-        private void UpdateDefaultFrameworkProperties() {      
+        private void UpdateDefaultFrameworkProperties() {
             Properties["nant.settings.defaultframework"] = DefaultFramework.Name;    
             Properties["nant.settings.defaultframework.version"] = DefaultFramework.Version;
-            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;             
+            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;
             Properties["nant.settings.defaultframework.frameworkdirectory"] = DefaultFramework.FrameworkDirectory.FullName; 
             if (DefaultFramework.SdkDirectory != null) {
                 Properties["nant.settings.defaultframework.sdkdirectory"] = DefaultFramework.SdkDirectory.FullName; 
@@ -1034,12 +1073,6 @@ namespace NAnt.Core {
                 Properties["nant.settings.defaultframework.sdkdirectory"] = null;
             }
             Properties["nant.settings.defaultframework.frameworkassemblydirectory"] = DefaultFramework.FrameworkAssemblyDirectory.FullName; 
-            Properties["nant.settings.defaultframework.basiccompiler"] = DefaultFramework.BasicCompilerName; 
-            Properties["nant.settings.defaultframework.jsharpcompiler"] = DefaultFramework.JSharpCompilerName; 
-            Properties["nant.settings.defaultframework.jscriptcompiler"] = DefaultFramework.JScriptCompilerName; 
-            Properties["nant.settings.defaultframework.csharpcompiler"] = DefaultFramework.CSharpCompilerName; 
-            Properties["nant.settings.defaultframework.resgentool"] = DefaultFramework.ResGenToolName;         
-            Properties["nant.settings.defaultframework.description"] = DefaultFramework.Description;     
             if (DefaultFramework.RuntimeEngine != null) {
                 Properties["nant.settings.defaultframework.runtimeengine"] = DefaultFramework.RuntimeEngine.Name; 
             } else {
@@ -1051,23 +1084,17 @@ namespace NAnt.Core {
         /// Updates dependent properties when the <see cref="CurrentFramework" /> 
         /// is set.
         /// </summary>
-        private void UpdateCurrentFrameworkProperties(){
+        private void UpdateCurrentFrameworkProperties() {
             Properties["nant.settings.currentframework"] = CurrentFramework.Name;
             Properties["nant.settings.currentframework.version"] = CurrentFramework.Version;
-            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
-            Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName; 
+            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description;
+            Properties["nant.settings.currentframework.frameworkdirectory"] = CurrentFramework.FrameworkDirectory.FullName;
             if (CurrentFramework.SdkDirectory != null) {
                 Properties["nant.settings.currentframework.sdkdirectory"] = CurrentFramework.SdkDirectory.FullName; 
             } else {
-                Properties["nant.settings.currentframework.sdkdirectory"] = null; 
+                Properties["nant.settings.currentframework.sdkdirectory"] = null;
             }
-            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName; 
-            Properties["nant.settings.currentframework.csharpcompiler"] = CurrentFramework.CSharpCompilerName; 
-            Properties["nant.settings.currentframework.basiccompiler"] = CurrentFramework.BasicCompilerName; 
-            Properties["nant.settings.currentframework.jsharpcompiler"] = CurrentFramework.JSharpCompilerName; 
-            Properties["nant.settings.currentframework.jscriptcompiler"] = CurrentFramework.JScriptCompilerName; 
-            Properties["nant.settings.currentframework.resgentool"] = CurrentFramework.ResGenToolName;             
-            Properties["nant.settings.currentframework.description"] = CurrentFramework.Description; 
+            Properties["nant.settings.currentframework.frameworkassemblydirectory"] = CurrentFramework.FrameworkAssemblyDirectory.FullName;
             if (CurrentFramework.RuntimeEngine != null) {
                 Properties["nant.settings.currentframework.runtimeengine"] = CurrentFramework.RuntimeEngine.Name; 
             } else {
@@ -1080,109 +1107,136 @@ namespace NAnt.Core {
         #region Settings file Load routines
         
         /// <summary>
-        /// Reads the list of global properties specified in the settings file.
+        /// Reads the list of global properties specified in the NAnt configuration
+        /// file.
         /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNode" /> containing childnodes representing global properties.</param>
+        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing global properties.</param>
         private void ProcessGlobalProperties(XmlNodeList propertyNodes) {
-            foreach( XmlNode propertyNode in propertyNodes ){
-                string propName = propertyNode.Attributes["name"].Value;
-                string propValue= propertyNode.Attributes["value"].Value;
+            foreach (XmlNode propertyNode in propertyNodes) {
+                string propertyName = GetXmlAttributeValue(propertyNode, "name");
+                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
 
-                XmlNode readonlyNode = propertyNode.Attributes["readonly"];
-                if (readonlyNode != null && readonlyNode.Value == "true" ) {
-                    Properties.AddReadOnly(propName, propValue);
-                }     
-                else {
-                    Properties[propName] =  propValue;
+                string propertyReadonly = GetXmlAttributeValue(propertyNode, "readonly");
+                if (propertyReadonly != null && propertyReadonly == "true") {
+                    Properties.AddReadOnly(propertyName, propertyValue);
+                } else {
+                    Properties[propertyName] = propertyValue;
                 }
             }
         }
 
         /// <summary>
-        /// Processes the framework info.
+        /// Reads the list of framework-neutral properties defined in the 
+        /// NAnt configuration file.
         /// </summary>
-        /// <param name="frameworkInfoNodes">An <see cref="XmlNode" /> containing childnodes representing supported frameworks.</param>
-        private void ProcessFrameworkInfo(XmlNodeList frameworkInfoNodes) {
-            foreach (XmlNode frameworkNode in frameworkInfoNodes) {
-                // load the runtimInfo stuff
-                XmlNode sdkDirectoryNode = frameworkNode.SelectSingleNode("sdkdirectory");
-                XmlNode frameworkDirectoryNode = frameworkNode.SelectSingleNode("frameworkdirectory");
-                XmlNode frameworkAssemDirectoryNode = frameworkNode.SelectSingleNode("frameworkassemblydirectory");
-
-                string name = GetXmlAttributeValue(frameworkNode, "name");
-                string description =  GetXmlAttributeValue(frameworkNode, "description");
-                string version = GetXmlAttributeValue(frameworkNode, "version");
-                string csharpCompilerName = GetXmlAttributeValue(frameworkNode, "csharpcompilername");
-                string basicCompilerName = GetXmlAttributeValue(frameworkNode, "basiccompilername");
-                string jsharpCompilerName = GetXmlAttributeValue(frameworkNode, "jsharpcompilername");
-                string jscriptCompilerName = GetXmlAttributeValue(frameworkNode, "jscriptcompilername");
-                string resgenToolName = GetXmlAttributeValue(frameworkNode, "resgenname");
-                string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
-
-                string sdkDirectory = null;
-                string frameworkDirectory = null;
-                string frameworkAssemblyDirectory = null;
-
-                // Do some validation here on null or not null fields
-                if (GetXmlAttributeValue(sdkDirectoryNode, "useregistry") == "true") {
-                    string regKey = GetXmlAttributeValue(sdkDirectoryNode, "regkey");
-                    string regValue = GetXmlAttributeValue(sdkDirectoryNode, "regvalue");
-                    RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
-
-                    if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
-                        sdkDirectory = sdkKey.GetValue(regValue).ToString() + Path.DirectorySeparatorChar + "bin";
-                    }
-                } else {
-                    sdkDirectory = GetXmlAttributeValue(sdkDirectoryNode, "dir");
-                }
-
-                if (GetXmlAttributeValue(frameworkDirectoryNode, "useregistry") == "true" ) {
-                    string regKey = GetXmlAttributeValue(frameworkDirectoryNode, "regkey");
-                    string regValue = GetXmlAttributeValue(frameworkDirectoryNode, "regvalue");
-                    RegistryKey frameworkKey = Registry.LocalMachine.OpenSubKey(regKey);
-                    
-                    if (frameworkKey != null && frameworkKey.GetValue(regValue) != null) {
-                        frameworkDirectory = frameworkKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
-                    }
-                } else {
-                    frameworkDirectory = GetXmlAttributeValue(frameworkDirectoryNode, "dir");
-                }
+        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework-neutral properties.</param>
+        private void ProcessFrameworkNeutralProperties(XmlNodeList propertyNodes) {
+            foreach (XmlNode propertyNode in propertyNodes){
+                string propertyName = GetXmlAttributeValue(propertyNode, "name");
+                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
                 
-                if (GetXmlAttributeValue(frameworkAssemDirectoryNode, "useregistry") == "true") {
-                    string regKey = GetXmlAttributeValue(frameworkAssemDirectoryNode, "regkey");
-                    string regValue = GetXmlAttributeValue(frameworkAssemDirectoryNode, "regvalue");
-                    RegistryKey frameworkAssemKey = Registry.LocalMachine.OpenSubKey(regKey);
-                    
-                    if (frameworkAssemKey != null && frameworkAssemKey.GetValue(regValue) != null) {
-                        frameworkAssemblyDirectory = frameworkAssemKey.GetValue(regValue).ToString() + "v" + version + Path.DirectorySeparatorChar;
-                    }
-                } else {
-                    frameworkAssemblyDirectory = GetXmlAttributeValue(frameworkAssemDirectoryNode, "dir");
+                if (propertyName == null) {
+                    Console.WriteLine(propertyNode.OuterXml);
+                    throw new ArgumentException("A framework-neutral property should at least have a name.");
                 }
 
-                FrameworkInfo info = null;
+                if (propertyValue != null) {
+                    // expand properties in property value
+                    propertyValue = FrameworkNeutralProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
+
+                    // add read-only property to collection of framework-neutral properties
+                    FrameworkNeutralProperties.AddReadOnly(propertyName, propertyValue);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processes the framework nodes.
+        /// </summary>
+        /// <param name="frameworkNodes">An <see cref="XmlNodeList" /> representing supported frameworks.</param>
+        private void ProcessFrameworks(XmlNodeList frameworkNodes) {
+            foreach (XmlNode frameworkNode in frameworkNodes) {
+                PropertyDictionary frameworkProperties = null;
+                string name = null;
+
                 try {
-                    info = new FrameworkInfo( name, 
-                        description, 
-                        version, 
-                        frameworkDirectory, 
-                        sdkDirectory, 
-                        frameworkAssemblyDirectory, 
-                        csharpCompilerName, 
-                        basicCompilerName,
-                        jsharpCompilerName,
-                        jscriptCompilerName,
-                        resgenToolName,
-                        runtimeEngine );
-                } catch (Exception e ) {
-                    string msg = string.Format(CultureInfo.InvariantCulture, "settings warning: frameworkinfo {0} is invalid and has not been loaded: ", name ); 
-                    Log(Level.Verbose, msg + e.Message);
+                    // initialize framework-specific properties
+                    frameworkProperties = new PropertyDictionary();
+
+                    // inject framework-neutral properties
+                    frameworkProperties.Inherit(FrameworkNeutralProperties, (StringCollection) null);
+
+                    // get framework attributes
+                    name = GetXmlAttributeValue(frameworkNode, "name");
+                    string description =  GetXmlAttributeValue(frameworkNode, "description");
+                    string version = GetXmlAttributeValue(frameworkNode, "version");
+                    string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
+                    string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
+                    string frameworkAssemblyDir = GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory");
+                    string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
+
+                    // get framework-specific properties
+                    XmlNodeList propertyNodes = frameworkNode.SelectNodes("properties/property");
+                    foreach (XmlNode propertyNode in propertyNodes) {
+                        string propertyName = GetXmlAttributeValue(propertyNode, "name");
+                        string propertyValue = null;
+                
+                        if (propertyName == null) {
+                            throw new ArgumentException("A framework property should at least have a name.");
+                        }
+
+                        if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
+                            string regKey = GetXmlAttributeValue(propertyNode, "regkey");
+                            if (regKey == null) {
+                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
+                            } else {
+                                // expand properties in regkey
+                                regKey = frameworkProperties.ExpandProperties(regKey, Location.UnknownLocation);
+                            }
+
+                            string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
+                            if (regValue == null) {
+                                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
+                            } else {
+                                // expand properties in regvalue
+                                regValue = frameworkProperties.ExpandProperties(regValue, Location.UnknownLocation);
+                            }
+
+                            RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
+                            if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
+                                propertyValue = sdkKey.GetValue(regValue).ToString();
+                            }
+                        } else {
+                            propertyValue = GetXmlAttributeValue(propertyNode, "value");
+                        }
+
+                        if (propertyValue != null) {
+                            // expand properties in property value
+                            propertyValue = frameworkProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
+
+                            // add read-only property to collection of framework properties
+                            frameworkProperties.AddReadOnly(propertyName, propertyValue);
+                        }
+                    }
+
+                    // create new FrameworkInfo instance, this will throw an
+                    // an exception if the framework is not valid
+                    FrameworkInfo info = new FrameworkInfo(name, 
+                        description,
+                        version,
+                        frameworkDir, 
+                        sdkDir, 
+                        frameworkAssemblyDir, 
+                        runtimeEngine,
+                        frameworkProperties);
+
+                    // framework is valid, so add it for framework dictionary
+                    FrameworkInfoDictionary.Add(info.Name, info);
+                } catch (Exception e) {
+                    string msg = string.Format(CultureInfo.InvariantCulture, "Framework {0} is invalid and has not been loaded : {1}", name, e.Message); 
+                    Log(Level.Verbose, msg);
                     logger.Info(msg, e);
                 } 
-                // just ignore frameworks that don't validate
-                if (info != null ) {
-                    _frameworkInfoDictionary.Add(info.Name, info);
-                }
             }
         }
 
@@ -1216,55 +1270,52 @@ namespace NAnt.Core {
         /// <see cref="Assembly" />.
         /// </summary>
         private void ProcessSettings(){
-            XmlDocument confdoc = new XmlDocument();
-            _frameworkInfoDictionary = new FrameworkInfoDictionary();
-            
-            object testobj = ConfigurationSettings.GetConfig("nantsettings");
-            XmlNode node = testobj as XmlNode;
+            XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+
             logger.Debug(string.Format(CultureInfo.InvariantCulture, "[{0}].ConfigFile '{1}'",AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
 
-            if (node == null) { 
+            if (nantNode == null) { 
                 // todo pull a settings file out of the assembly resource and copy to that location
-                Log(Level.Warning, "Framework settings not found. Defaulting to no known framework.");
-                logger.Info("Framework settings not found. Defaulting to no known framework.");
+                Log(Level.Warning, "NAnt settings not found. Defaulting to no known framework.");
+                logger.Info("NAnt settings not found. Defaulting to no known framework.");
                 return;
             }
 
-            logger.Debug("Current Config:\n" + node.OuterXml);
-            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
-            //If a default namespace is specified this will fail.
-            XmlNodeList frameworkInfoNodes = node.SelectNodes("frameworks/frameworkinfo");
-            ProcessFrameworkInfo(frameworkInfoNodes);
-            
-            string taskPath = GetXmlAttributeValue(node, "taskpath");
-            if (taskPath != null && ScannedTaskPath == false ){
-                string[] paths = taskPath.Split(';');
-                foreach ( string path in paths ){
-                    string fullpath = path;
-                    if (! Directory.Exists( path )) {
-                        // try relative path
-                        fullpath = Path.GetFullPath(Path.Combine( Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path));
-                    }
-                    TypeFactory.ScanDir( fullpath );
-                }
-                ScannedTaskPath = true; // so we only load tasks once
-            }
-          
-            string defaultFramework = GetXmlAttributeValue(node, "defaultframework");
-            if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey( defaultFramework ) ) {
-                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework );
-                Properties.Add("nant.settings.currentframework", defaultFramework );
+            // process the framework-neutral properties
+            ProcessFrameworkNeutralProperties(nantNode.SelectNodes("frameworks/properties/property"));
+
+            // process the defined frameworks
+            ProcessFrameworks(nantNode.SelectNodes("frameworks/framework"));
+
+            // get taskpath setting to load external tasks and types from
+            string taskPath = GetXmlAttributeValue(nantNode, "taskpath"); 
+            if (taskPath != null && ScannedTaskPath == false) { 
+                string[] paths = taskPath.Split(';'); 
+                foreach (string path in paths) { 
+                    string fullpath = path; 
+                    if (!Directory.Exists(path)) { 
+                        // try relative path 
+                        fullpath = Path.GetFullPath(Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), path)); 
+                    } 
+                    TypeFactory.ScanDir(fullpath); 
+                } 
+                ScannedTaskPath = true; // so we only load tasks once 
+            } 
+
+            // determine default framework
+            string defaultFramework = GetXmlAttributeValue(nantNode.SelectSingleNode("frameworks"), "default");
+            if (defaultFramework != null && _frameworkInfoDictionary.ContainsKey(defaultFramework)) {
+                Properties.AddReadOnly("nant.settings.defaultframework", defaultFramework);
+                Properties.Add("nant.settings.currentframework", defaultFramework);
                 
                 DefaultFramework = _frameworkInfoDictionary[defaultFramework];
                 CurrentFramework = _defaultFramework;
             } else {
-                Log(Level.Warning, "Framework {0} does not exist or is not specified in the config. Defaulting to no known framework.", defaultFramework);
+                Log(Level.Warning, "Framework {0} does not exist or is not specified in the NAnt configuration file. Defaulting to no known framework.", defaultFramework);
             }
 
-            //TODO: Replace XPath Expressions. (Or use namespace/prefix'd element names)
-            // now load the default property set
-            XmlNodeList propertyNodes = node.SelectNodes("properties/property");
-            ProcessGlobalProperties(propertyNodes);
+            // process global properties
+            ProcessGlobalProperties(nantNode.SelectNodes("properties/property"));
         }
 
         #endregion Settings file Load routines
