@@ -103,13 +103,13 @@ namespace NAnt.Core {
         /// <param name="source">Property list to inherit</param>
         /// <param name="excludes">The list of properties to exclude during inheritance</param>
         public virtual void Inherit(PropertyDictionary source, StringCollection excludes) {
-            foreach ( DictionaryEntry entry in source.Dictionary ) {
-                if (excludes != null && excludes.Contains((string)entry.Key)) {
+            foreach (DictionaryEntry entry in source.Dictionary) {
+                if (excludes != null && excludes.Contains((string) entry.Key)) {
                     continue;
                 }
 
                 Dictionary[entry.Key] = entry.Value;
-                if ( source.IsReadOnlyProperty((string)entry.Key) ) {
+                if (source.IsReadOnlyProperty((string)entry.Key)) {
                     _readOnlyProperties.Add((string)entry.Key);
                 }
             }
