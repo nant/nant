@@ -32,7 +32,7 @@ namespace NAnt.Core.Util {
 
         #region private fields
 
-        private static volatile ResourceManager resourceManagera;
+        private static volatile ResourceManager _resourceManager;
 
         #endregion private fields
 
@@ -70,21 +70,22 @@ namespace NAnt.Core.Util {
         /// string resource localized for the specified culture.
         /// </returns>
         public static string GetString(string name, CultureInfo culture) {
-            if (resourceManager == null) {
+            if (_resourceManager == null) {
                 //
                 // prevent more than one instance of the ResourceManager class
                 // to be initialized
                 //
                 lock (typeof(ResourceUtils)) {
-                    if (resourceManager == null) {
+                    if (_resourceManager == null) {
                         Assembly assembly = Assembly.GetCallingAssembly();
-                        resourceManager = new ResourceManager(
+                        _resourceManager = new ResourceManager(
                             assembly.GetName().Name, assembly);
                     }
                 }
             }
-            return resourceManager.GetString(name, culture);
+            return _resourceManager.GetString(name, culture);
         }
+
         #endregion public methods
     }
 }
