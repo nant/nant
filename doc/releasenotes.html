@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <title>NAnt Release Notes</title>
@@ -72,11 +72,19 @@
                 </li>
             </ul>
             <h5>
+                <a class="heading" href="help/tasks/mail.html">&lt;mail&gt;</a></h5>
+            <ul>
+                <li>
+                    Names containing comma's are not supported (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=961627&group_id=31650&atid=402868">
+                        #961627</a>).
+                </li>
+            </ul>
+            <h5>
                 <a class="heading" href="help/tasks/midl.html">&lt;midl&gt;</a></h5>
             <ul>
                 <li>
                     <code><a href="help/tasks/midl.html">&lt;midl&gt;</a></code> fails on second 
-                    run if "header" or "iid" attributes are not specified (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1078558&amp;group_id=31650&amp;atid=402868">
+                    run if "header" or "iid" attributes are not specified (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1078558&amp;group_id=31650&amp;atid=402868">
                         #1078558</a>).
                 </li>
             </ul>
@@ -94,7 +102,7 @@
                 </li>
                 <li>
                     Users should be warned about possible issues with resx files when building a 
-                    project for a down-level target framework (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1077254&amp;group_id=31650&amp;atid=402868">
+                    project for a down-level target framework (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1077254&amp;group_id=31650&amp;atid=402868">
                         #1077254</a>).
                 </li>
                 <li>
@@ -102,7 +110,7 @@
                     projects.
                 </li>
                 <li>
-                    Win32 resources in Visual C++ projects are not compiled (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1077712&amp;group_id=31650&amp;atid=402868">
+                    Win32 resources in Visual C++ projects are not compiled (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1077712&amp;group_id=31650&amp;atid=402868">
                         #1077712</a>).
                 </li>
                 <li>
@@ -184,12 +192,23 @@
                     Added "debug" and "pdbfile" attributes.
                 </li>
                 <li>
-                    Added &lt;modules&gt; child element to link modules in 
-                    the assembly.
+                    Added &lt;modules&gt; child element to link modules in the assembly.
                 </li>
                 <li>
-                    Added &lt;embeddedresources&gt; child element to embed 
-                    resources in the assembly.
+                    Added &lt;embeddedresources&gt; child element to embed resources in the 
+                    assembly.
+                </li>
+            </ul>
+            <h5>
+                <a class="heading" href="help/tasks/mail.html">&lt;mail&gt;</a></h5>
+            <ul>
+                <li>
+                    &quot;tolist&quot; is no longer a required attribute.
+                </li>
+                <li>
+                    The &quot;tolist&quot;, &quot;cclist&quot; and &quot;bcclist&quot;
+                    attributes are now semicolon-separated lists. The comma is no 
+                    longer considered a separator character.
                 </li>
             </ul>
             <h5>

@@ -98,52 +98,30 @@ namespace NAnt.Core.Tasks {
         }
         
         /// <summary>
-        /// Comma- or semicolon-separated list of recipient email addresses.
+        /// Semicolon-separated list of recipient email addresses.
         /// </summary>
-        [TaskAttribute("tolist", Required=true)]
-        [StringValidator(AllowEmpty=false)]
+        [TaskAttribute("tolist")]
         public string ToList {
             get { return _toList; }
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    // convert to semicolon delimited
-                    _toList = value.Replace("," , ";"); 
-                } else {
-                    _toList = null;
-                }
-            }
+            set { _toList = value; }
         }
 
         /// <summary>
-        /// Comma- or semicolon-separated list of CC: recipient email addresses.
+        /// Semicolon-separated list of CC: recipient email addresses.
         /// </summary>
         [TaskAttribute("cclist")]
         public string CcList { 
             get { return _ccList; }
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    // convert to semicolon delimited
-                    _ccList = value.Replace("," , ";");
-                } else {
-                    _ccList = null;
-                }
-            }
+            set { _ccList = value; }
         }
 
         /// <summary>
-        /// Comma- or semicolon-separated list of BCC: recipient email addresses.
+        /// Semicolon-separated list of BCC: recipient email addresses.
         /// </summary>
         [TaskAttribute("bcclist")]
         public string BccList { 
-            get { return _bccList; } 
-            set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    // convert to semicolon delimited
-                    _bccList = value.Replace("," , ";"); 
-                } else {
-                    _bccList = null;
-                }
-            }
+            get { return _bccList; }
+            set { _bccList = value; }
         }
 
         /// <summary>
@@ -193,8 +171,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [BuildElement("files")]
         public FileSet Files { 
-            get { return _files; } 
-            set { _files = value; } 
+            get { return _files; }
+            set { _files = value; }
         }
 
         /// <summary>
@@ -202,8 +180,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         [BuildElement("attachments")]
         public FileSet Attachments { 
-            get { return _attachments; } 
-            set { _attachments = value; } 
+            get { return _attachments; }
+            set { _attachments = value; }
         }
 
         #endregion Public Instance Properties
@@ -216,9 +194,9 @@ namespace NAnt.Core.Tasks {
         /// <param name="taskNode">Xml node used to define this task instance.</param>
         protected override void InitializeTask(System.Xml.XmlNode taskNode) {
             if (StringUtils.IsNullOrEmpty(ToList) && StringUtils.IsNullOrEmpty(CcList) && StringUtils.IsNullOrEmpty(BccList)) {
-                throw new BuildException("At least one of the following attributes" +
-                    " of the <mail> task should be specified : \"tolist\", \"cclist\"" +
-                    " or \"bcclist\".", Location);
+                throw new BuildException("There must be at least one name in" 
+                    + " the \"tolist\", \"cclist\" or \"bcclist\" attributes"
+                    + " of the <mail> task.", Location);
             }
         }
 
