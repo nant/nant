@@ -165,7 +165,7 @@ namespace NAnt.NUnit2.Tasks {
                 FormatterElements.Add(defaultFormatter);
 
                 Log(Level.Warning, "No <formatter .../> element was specified." +
-                    " A plain-text formatter was added to prevent loosing output of the" +
+                    " A plain-text formatter was added to prevent losing output of the" +
                     " test results.");
 
                 Log(Level.Warning, "Add a <formatter .../> element to the" +
