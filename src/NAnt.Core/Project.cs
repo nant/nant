@@ -699,30 +699,30 @@ namespace NAnt.Core {
         /// No top level error handling is done. Any <see cref="BuildException" /> 
         /// will be passed onto the caller.
         /// </remarks>
-		public virtual void Execute() {
-			if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
-				BuildTargets.Add(DefaultTargetName);
-			}			
+        public virtual void Execute() {
+            if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
+                BuildTargets.Add(DefaultTargetName);
+            }            
 
-			//log the targets specified, or the default target if specified.
-			StringBuilder sb = new StringBuilder();
-			if (BuildTargets != null) {
-				foreach(string target in BuildTargets) {
-					sb.Append(target);
-					sb.Append(" ");
-				}
-			}
+            //log the targets specified, or the default target if specified.
+            StringBuilder sb = new StringBuilder();
+            if (BuildTargets != null) {
+                foreach(string target in BuildTargets) {
+                    sb.Append(target);
+                    sb.Append(" ");
+                }
+            }
 
             if(sb.Length > 0) {
                 Log(Level.Info, "Target(s) specified: " + sb.ToString());
             }
             
-			// initialize the list of Targets, and execute any global tasks.
-			InitializeProjectDocument(Document);
+            // initialize the list of Targets, and execute any global tasks.
+            InitializeProjectDocument(Document);
 
-			if (BuildTargets.Count == 0) {
-				//It is okay if there are no targets defined in a build file. 
-				//It just means we have all global tasks. -- skot
+            if (BuildTargets.Count == 0) {
+                //It is okay if there are no targets defined in a build file. 
+                //It just means we have all global tasks. -- skot
                 //throw new BuildException("No Target Specified");
             } else {
                 foreach (string targetName in BuildTargets) {
@@ -1091,7 +1091,7 @@ namespace NAnt.Core {
             // load settings out of settings file
             XmlNode nantNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
             ProjectSettingsLoader psl = new ProjectSettingsLoader(this);
-			psl.ProcessSettings(nantNode);
+            psl.ProcessSettings(nantNode);
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -1134,8 +1134,8 @@ namespace NAnt.Core {
 
             // initialize targets first
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-				//skip non-nant namespace elements and special elements like comments, pis, text, etc.                
-				if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.                
+                if (childNode.LocalName.Equals(TargetXml) && childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)) {
                     Target target = new Target();
 
                     target.Project = this;
@@ -1147,31 +1147,35 @@ namespace NAnt.Core {
 
             // initialize datatypes and execute global tasks
             foreach (XmlNode childNode in doc.DocumentElement.ChildNodes) {
-				//skip targets that were handled above.
-				//skip non-nant namespace elements and special elements like comments, pis, text, etc.
-				if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)|| childNode.LocalName.Equals(TargetXml)) {
-					continue;
-				}
+                //skip targets that were handled above.
+                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(doc.DocumentElement.NamespaceURI)|| childNode.LocalName.Equals(TargetXml)) {
+                    continue;
+                }
 
-				if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
-					// create task instance
-					Task task = CreateTask(childNode);
+                if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                    // create task instance
+                    Task task = CreateTask(childNode);
 
-					task.Parent = this;
+                    task.Parent = this;
 
-					// execute task
-					task.Execute();
-				} else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
-					// we are an datatype declaration
-					DataTypeBase dataType = CreateDataTypeBase(childNode);
+                    // execute task
+                    task.Execute();
+                } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
+                    // we are an datatype declaration
+                    DataTypeBase dataType = CreateDataTypeBase(childNode);
 
-					Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-					DataTypeReferences.Add(dataType.ID, dataType);
-				} else {
-					throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-						"Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
-						LocationMap.GetLocation(childNode));
-				}
+                    Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);                    
+                    if ( ! DataTypeReferences.Contains(dataType.ID ) ) {
+                        DataTypeReferences.Add(dataType.ID, dataType);
+                    } else {
+                        DataTypeReferences[dataType.ID] = dataType; // overwrite with the new reference.
+                    }
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Invalid element <{0}>. Unknown task or datatype.", childNode.Name), 
+                        LocationMap.GetLocation(childNode));
+                }
             }
         }
 
