@@ -71,22 +71,26 @@ a:hover {
 }
 
 div.table {
-    text-align: center;
+    margin-left: 40px;
     font-family: Verdana, Arial, Helvetica, Geneva, SunSans-Regular, sans-serif;
     font-size: 80%;
 }
 
-div.nested-element
-{
-	left: 20px;
+div.nested-element {
+	margin-left: 40px;
 	position: relative;
-	background-color: #f1f1f1;
+}
+
+div.nested-element table {
+    font-size: 100%;
+    border-collapse: collapse;
+    width: 710px;
 }
 
 .table table {
     font-size: 100%;
     border-collapse: collapse;
-    width: 93%;
+    width: 750px;
 }
 
 .table th {
@@ -141,9 +145,8 @@ span.code {
 }
 
 tr.required {
-	
 }
-td.required
-{
+
+td.required {
 	font-weight: bolder;
 }
