@@ -150,7 +150,6 @@ namespace NAnt.Core.Tasks {
                 if (_compareFiles == null) {
                     _compareFiles = new FileSet();                    _compareFiles.Parent = this;                    _compareFiles.Project = this.Project;                }
                 _compareFiles.Includes.Add(value); 
-
             }
         }
 
@@ -261,16 +260,14 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of TaskContainer
-    
-		protected override void InitializeTask(System.Xml.XmlNode taskNode) {
-			base.InitializeTask (taskNode);
-			
-			//check that we have something to do.
-			if(_primaryFile == null && _propNameExists == null && _propNameTrue == null && _targetName == null) {
-				throw new BuildException(LogPrefix + " atleast one if condition must be set (propertytrue, targetexists, etc...):");	
-			}
-		}
-	}
+
+        #region Override implementation of Task
+
+        protected override void InitializeTask(System.Xml.XmlNode taskNode) {            base.InitializeTask (taskNode);
+            //check that we have something to do.            if(PrimaryFile == null && PropertyNameExists == null && PropertyNameTrue == null && TargetNameExists == null) {                throw new BuildException(LogPrefix + " at least one if condition" +                    " must be set (propertytrue, targetexists, etc...):", Location);            }        }
+
+        #endregion Override implementation of Task
+    }
 
     /// <summary>
     /// The opposite of the <c>if</c> task.
