@@ -75,7 +75,7 @@
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnitCore.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
-                <absolute file="Microsoft.JScript.dll"/>
+                <includes name="Microsoft.JScript.dll" asis="true"/>
             </references>
             <arg value="/nowarn:1591"/>
         </csc>
