@@ -23,6 +23,10 @@ namespace SourceForge.NAnt.Attributes {
     /// <summary>
     /// Indicates that property should be treated as a xml arrayList for the task.
     /// </summary>
+    /// <remarks>
+    /// Should only be applied to properties exposing strongly typed arrays or 
+    /// strongly typed collections.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
     public sealed class BuildElementArrayAttribute : BuildElementAttribute {
         #region Public Instance Constructors
