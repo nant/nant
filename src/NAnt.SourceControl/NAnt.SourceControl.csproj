@@ -134,6 +134,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\CvsPass.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\CvsTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
