@@ -37,6 +37,10 @@
                         <attribute name="exename">monoresgen</attribute>
                         <attribute name="useruntimeengine">true</attribute>
                     </task>
+                    <task name="delay-sign">
+                        <attribute name="exename">monosn</attribute>
+                        <attribute name="useruntimeengine">true</attribute>
+                    </task>
                 </tasks>
             </framework>
             <!-- Framework-neutral properties -->
