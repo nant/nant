@@ -42,7 +42,7 @@ namespace NAnt.Core {
         private readonly DirectoryInfo _sdkDirectory;
         private readonly DirectoryInfo _frameworkAssemblyDirectory;
         private readonly FileInfo _runtimeEngine;
-        private readonly PropertyDictionary _properties;
+        private readonly Project _project;
         private EnvironmentVariableCollection _environmentVariables;
         private FileSet _taskAssemblies;
 
@@ -64,10 +64,10 @@ namespace NAnt.Core {
         /// <param name="sdkDir">The directory containing the SDK tools for the framework, if available.</param>
         /// <param name="frameworkAssemblyDir">The directory containing the system assemblies for the framework.</param>
         /// <param name="runtimeEngine">The name of the runtime engine, if required.</param>
-        /// <param name="properties">Collection of framework specific properties.</param>
+        /// <param name="project">The <see cref="Project" /> used to initialized the framework.</param>
         public FrameworkInfo(string name, string family, string description, string version, 
             string clrVersion, string frameworkDir, string sdkDir, string frameworkAssemblyDir, 
-            string runtimeEngine, PropertyDictionary properties) {
+            string runtimeEngine, Project project) {
 
             _taskAssemblies = new FileSet();
             _taskAssemblies.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
@@ -99,12 +99,11 @@ namespace NAnt.Core {
                     CultureInfo.InvariantCulture, "Framework assembly directory not configured for framework '{0}'.", name));
             }
 
-            if (properties == null) {
-                throw new ArgumentNullException("properties", string.Format(
-                    CultureInfo.InvariantCulture, "Framework properties not configured for framework '{0}'.", name));
-            } else {
-                _properties = properties;
+            if (project == null) {
+                throw new ArgumentNullException("project");
             }
+
+            _project = project;
 
             // ensure the framework directory exists
             if (Directory.Exists(frameworkDir)) {
@@ -138,12 +137,11 @@ namespace NAnt.Core {
 
             // if runtime engine is blank assume we aren't using one
             if (!StringUtils.IsNullOrEmpty(runtimeEngine)) {
-                string runtimeEnginePath = _frameworkDirectory.FullName + Path.DirectorySeparatorChar + runtimeEngine;
-                if (File.Exists(runtimeEnginePath)) {
-                    _runtimeEngine = new FileInfo(runtimeEnginePath);
+                if (File.Exists(runtimeEngine)) {
+                    _runtimeEngine = new FileInfo(runtimeEngine);
                 } else {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "Runtime engine '{0}' does not exist.", runtimeEnginePath));
+                        CultureInfo.InvariantCulture, "Runtime engine '{0}' does not exist.", runtimeEngine));
                 }
             }
         }
@@ -244,19 +242,13 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets the properties defined for this framework.
+        /// Gets the <see cref="Project" /> used to initialize this framework.
         /// </summary>
         /// <value>
-        /// The properties defined for this framework.
+        /// The <see cref="Project" /> used to initialize this framework.
         /// </value>
-        /// <remarks>
-        /// <para>
-        /// This is the collection of properties for this framework in the 
-        /// NAnt configuration file.
-        /// </para>
-        /// </remarks>
-        public PropertyDictionary Properties {
-            get { return _properties; }
+        public Project Project {
+            get { return _project; }
         }
 
         /// <summary>

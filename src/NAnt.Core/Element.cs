@@ -299,7 +299,7 @@ namespace NAnt.Core {
         /// configuration node.
         /// </summary>
         /// <param name="attributeName">The name of attribute for which the XML configuration node should be located.</param>
-        /// <param name="framework">The framework to use to obtain framework specific information.</param>
+        /// <param name="framework">The framework to use to obtain framework specific information, or <see langword="null" /> if no framework specific information should be used.</param>
         /// <returns>
         /// The XML configuration node for the specified attribute, or 
         /// <see langword="null" /> if no corresponding XML node could be 
@@ -493,7 +493,6 @@ namespace NAnt.Core {
                 // * Next process all the nested elements, same idea, look at what is supposed to
                 //   be there from the attributes on the class/properties and then get
                 //   the values from the XML node to set the instance properties.
-            
                 //* Removed the inheritance walking as it isn't necessary for extraction of public properties
                 Element.XmlNode = elementNode;
 
@@ -544,7 +543,8 @@ namespace NAnt.Core {
                             if (frameworkAttribute.ExpandProperties && framework != null) {
                                 try {
                                     // expand attribute properties
-                                    attributeValue = framework.Properties.ExpandProperties(attributeValue, Location);
+                                    attributeValue = framework.Project.Properties.ExpandProperties(
+                                        attributeValue, Location);
                                 } catch (BuildException ex) {
                                     // throw BuildException if required
                                     if (frameworkAttribute.Required) {

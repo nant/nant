@@ -119,14 +119,47 @@ namespace NAnt.Core {
         /// of the configuration file.
         /// </summary>
         public void ProcessSettings() {
-            // process the framework-neutral properties
-            ProcessFrameworkNeutralProperties(Project.ConfigurationNode.SelectNodes(
-                "nant:frameworks/nant:properties/nant:property", NamespaceManager));
+            if (Project.ConfigurationNode == null) {
+                return;
+            }
 
-            // process the framework nodes of the current platform
-            ProcessFrameworks(Project.ConfigurationNode.SelectSingleNode(
+            // process platform configuration
+            ProcessPlatform(Project.ConfigurationNode.SelectSingleNode(
                 "nant:frameworks/nant:platform[@name='" + Project.PlatformName + "']",
                 NamespaceManager));
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private void ProcessPlatform(XmlNode platformNode) {
+            // process platform task assemblies
+            FileSet platformTaskAssemblies = new FileSet();
+            platformTaskAssemblies.BaseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            platformTaskAssemblies.Project = Project;
+            platformTaskAssemblies.NamespaceManager = NamespaceManager;
+            platformTaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
+            platformTaskAssemblies.ID = "platform-task-assemblies"; // avoid warnings by assigning an id
+            XmlNode taskAssembliesNode = platformNode.SelectSingleNode(
+                "nant:task-assemblies", NamespaceManager);
+            if (taskAssembliesNode != null) {
+                platformTaskAssemblies.Initialize(taskAssembliesNode, 
+                    Project.Properties, null);
+            }
+
+            if (!ScannedTasks) {
+                foreach (string taskAssembly in platformTaskAssemblies.FileNames) {
+                    TypeFactory.ScanAssembly(taskAssembly);
+                }
+
+                foreach (string taskDir in platformTaskAssemblies.DirectoryNames) {
+                    TypeFactory.ScanDir(taskDir);
+                }
+            }
+
+            // process the framework nodes of the current platform
+            ProcessFrameworks(platformNode);
 
             // only scan the task assemblies for the runtime framework once
             if (!ScannedTasks) {
@@ -159,72 +192,6 @@ namespace NAnt.Core {
                 // runtime framework again
                 ScannedTasks = true;
             }
-
-            // TO-DO : should we rename the <loadtasks> task to <load-extensions>
-            // and have it scan not only for tasks but also for types and functions ?
-
-            // process global properties
-            ProcessGlobalProperties(Project.ConfigurationNode.SelectNodes(
-                "nant:properties/nant:property", NamespaceManager));
-        }
-
-        #endregion Public Instance Methods
-
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Reads the list of global properties specified in the NAnt configuration
-        /// file.
-        /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing global properties.</param>
-        private void ProcessGlobalProperties(XmlNodeList propertyNodes) {
-            //deals with xml info from the config file, not build document.
-            foreach (XmlNode propertyNode in propertyNodes) {
-                //skip special elements like comments, pis, text, etc.
-                if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;
-                }
-
-                string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                string propertyReadonly = GetXmlAttributeValue(propertyNode, "readonly");
-
-                if (propertyReadonly != null && propertyReadonly == "true") {
-                    Properties.AddReadOnly(propertyName, propertyValue);
-                } else {
-                    Properties[propertyName] = propertyValue;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Reads the list of framework-neutral properties defined in the 
-        /// NAnt configuration file.
-        /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework-neutral properties.</param>
-        private void ProcessFrameworkNeutralProperties(XmlNodeList propertyNodes) {
-            //deals with xml info from the config file, not build document.
-            foreach (XmlNode propertyNode in propertyNodes) {
-                //skip elements like comments, pis, text, etc.
-                if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;
-                }
-
-                string propertyName = GetXmlAttributeValue(propertyNode, "name");
-                string propertyValue = GetXmlAttributeValue(propertyNode, "value");
-
-                if (propertyName == null) {
-                    throw new ArgumentException("A framework-neutral property should at least have a name.");
-                }
-
-                if (propertyValue != null) {
-                    // expand properties in property value
-                    propertyValue = Project.FrameworkNeutralProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
-
-                    // add read-only property to collection of framework-neutral properties
-                    Project.FrameworkNeutralProperties.AddReadOnly(propertyName, propertyValue);
-                }
-            }
         }
 
         /// <summary>
@@ -253,41 +220,75 @@ namespace NAnt.Core {
                     // get framework attributes
                     name = GetXmlAttributeValue(frameworkNode, "name");
 
-                    string description = GetXmlAttributeValue(frameworkNode, "description");
                     string family = GetXmlAttributeValue(frameworkNode, "family");
-                    string version = GetXmlAttributeValue(frameworkNode, "version");
                     string clrVersion = GetXmlAttributeValue(frameworkNode, "clrversion");
-                    string runtimeEngine = GetXmlAttributeValue(frameworkNode, "runtimeengine");
-                    string frameworkDir = GetXmlAttributeValue(frameworkNode, "frameworkdirectory");
-                    string frameworkAssemblyDir = GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory");
-                    string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
-
-                    // get framework-specific property nodes
-                    XmlNodeList propertyNodes = frameworkNode.SelectNodes("nant:properties/nant:property", 
-                        NamespaceManager);
-
-                    // process framework property nodes
-                    PropertyDictionary frameworkProperties = ProcessFrameworkProperties(propertyNodes);
-
-                    // expanded properties in framework attribute values
-                    name = frameworkProperties.ExpandProperties(name, Location.UnknownLocation);
-                    description = frameworkProperties.ExpandProperties(description, Location.UnknownLocation);
-                    version = frameworkProperties.ExpandProperties(version, Location.UnknownLocation);
-                    clrVersion = frameworkProperties.ExpandProperties(clrVersion, Location.UnknownLocation);
-                    frameworkDir = frameworkProperties.ExpandProperties(frameworkDir, Location.UnknownLocation);
-                    frameworkAssemblyDir = frameworkProperties.ExpandProperties(frameworkAssemblyDir, Location.UnknownLocation);
-
-                    try {
-                        sdkDir = frameworkProperties.ExpandProperties(sdkDir, Location.UnknownLocation);
-                    } catch (BuildException) {
-                        // do nothing with this exception as a framework is still
-                        // considered valid if the sdk directory is not available
-                        // or not configured correctly
-                    }
 
                     // check if we're processing the current runtime framework
                     if (family == frameworkFamily && clrVersion == frameworkClrVersion) {
                         isRuntimeFramework = true;
+                    }
+
+                    // get framework-specific project node
+                    XmlNode projectNode = frameworkNode.SelectSingleNode("nant:project", 
+                        NamespaceManager);
+
+                    if (projectNode == null) {
+                        throw new BuildException("<project> node has not been defined.");
+                    }
+
+                    string tempBuildFile = Path.GetTempFileName();
+                    XmlTextWriter writer = null;
+                    Project frameworkProject = null;
+
+                    try {
+                        writer = new XmlTextWriter(tempBuildFile, Encoding.UTF8);
+                        writer.WriteStartDocument(true);
+                        writer.WriteRaw(projectNode.OuterXml);
+                        writer.Flush();
+                        writer.Close();
+
+                        using (StreamReader sr = new StreamReader(new FileStream(tempBuildFile, FileMode.Open, FileAccess.Read, FileShare.Write), Encoding.UTF8)) {
+                            XmlDocument projectDoc = new XmlDocument();
+                            projectDoc.Load(sr);
+
+                            frameworkProject = new Project(projectDoc, Level.None, 0, (XmlNode) null);
+                            frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                            frameworkProject.Execute();
+                        }
+                    } finally {
+                        if (writer != null) {
+                            writer.Close();
+                        }
+
+                        if (File.Exists(tempBuildFile)) {
+                            File.Delete(tempBuildFile);
+                        }
+                    }
+
+                    string description = frameworkProject.ExpandProperties(
+                        GetXmlAttributeValue(frameworkNode, "description"),
+                        Location.UnknownLocation);
+                    string version = frameworkProject.ExpandProperties(
+                        GetXmlAttributeValue(frameworkNode, "version"),
+                        Location.UnknownLocation);
+                    string runtimeEngine = frameworkProject.ExpandProperties(
+                        GetXmlAttributeValue(frameworkNode, "runtimeengine"),
+                        Location.UnknownLocation);
+                    string frameworkDir = frameworkProject.ExpandProperties(
+                        GetXmlAttributeValue(frameworkNode, "frameworkdirectory"),
+                        Location.UnknownLocation);
+                    string frameworkAssemblyDir = frameworkProject.ExpandProperties(
+                        GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory"),
+                        Location.UnknownLocation);
+                    string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
+
+                    try {
+                        sdkDir = frameworkProject.ExpandProperties(sdkDir, 
+                            Location.UnknownLocation);
+                    } catch (BuildException) {
+                        // do nothing with this exception as a framework is still
+                        // considered valid if the sdk directory is not available
+                        // or not configured correctly
                     }
 
                     // create new FrameworkInfo instance, this will throw an
@@ -301,7 +302,7 @@ namespace NAnt.Core {
                         sdkDir, 
                         frameworkAssemblyDir, 
                         runtimeEngine, 
-                        frameworkProperties);
+                        frameworkProject);
 
                     // get framework-specific environment nodes
                     XmlNodeList environmentNodes = frameworkNode.SelectNodes("nant:environment/nant:env", 
@@ -312,15 +313,15 @@ namespace NAnt.Core {
                         environmentNodes, info);
 
                     // process framework task assemblies
-                    info.TaskAssemblies.Project = Project;
+                    info.TaskAssemblies.Project = frameworkProject;
                     info.TaskAssemblies.NamespaceManager = NamespaceManager;
-                    info.TaskAssemblies.Parent = Project; // avoid warnings by setting the parent of the fileset
+                    info.TaskAssemblies.Parent = frameworkProject; // avoid warnings by setting the parent of the fileset
                     info.TaskAssemblies.ID = "internal-task-assemblies"; // avoid warnings by assigning an id
                     XmlNode taskAssembliesNode = frameworkNode.SelectSingleNode(
                         "nant:task-assemblies", NamespaceManager);
                     if (taskAssembliesNode != null) {
                         info.TaskAssemblies.Initialize(taskAssembliesNode, 
-                            info.Properties, info);
+                            frameworkProject.Properties, info);
                     }
 
                     // framework is valid, so add it to framework dictionary
@@ -342,11 +343,13 @@ namespace NAnt.Core {
                     } else {
                         if (name != null && name == defaultTargetFramework) {
                             Project.Log(Level.Warning, "The default targetframework" +
-                                " '{0}' is invalid and has not been loaded : {1}", 
+                                " '{0}' is invalid and has not been loaded :", 
                                 name, ex.Message);
+                            Project.Log(Level.Debug, ex.ToString());
                         } else {
                             Project.Log(Level.Verbose, "Framework '{0}' is invalid" 
                                 + " and has not been loaded : {1}", name, ex.Message);
+                            Project.Log(Level.Debug, ex.ToString());
                         }
                     }
                 }
@@ -373,74 +376,6 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Processes the framework properties.
-        /// </summary>
-        /// <param name="propertyNodes">An <see cref="XmlNodeList" /> representing framework properties.</param>
-        private PropertyDictionary ProcessFrameworkProperties(XmlNodeList propertyNodes) {
-            PropertyDictionary frameworkProperties = null;
-
-            // initialize framework-specific properties
-            frameworkProperties = new PropertyDictionary(Project);
-
-            // inject framework-neutral properties
-            frameworkProperties.Inherit(Project.FrameworkNeutralProperties, (StringCollection)null);
-
-            foreach (XmlNode propertyNode in propertyNodes) {
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(propertyNode.NodeType == XmlNodeType.Element)) {
-                    continue;
-                }
-
-                string propertyName = GetXmlAttributeValue(propertyNode, "name");
-
-                // make sure property has atleast a name
-                if (propertyName == null) {
-                    throw new ArgumentException("A framework property should at least have a name.");
-                }
-
-                string propertyValue = null;
-
-                if (GetXmlAttributeValue(propertyNode, "useregistry") == "true") {
-                    string regKey = GetXmlAttributeValue(propertyNode, "regkey");
-
-                    if (regKey == null) {
-                        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regkey attribute set.", propertyName));
-                    } else {
-                        // expand properties in regkey
-                        regKey = frameworkProperties.ExpandProperties(regKey, Location.UnknownLocation);
-                    }
-
-                    string regValue = GetXmlAttributeValue(propertyNode, "regvalue");
-
-                    if (regValue == null) {
-                        throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Framework property {0} is configured to be read from the registry but has no regvalue attribute set.", propertyName));
-                    } else {
-                        // expand properties in regvalue
-                        regValue = frameworkProperties.ExpandProperties(regValue, Location.UnknownLocation);
-                    }
-
-                    RegistryKey sdkKey = Registry.LocalMachine.OpenSubKey(regKey);
-
-                    if (sdkKey != null && sdkKey.GetValue(regValue) != null) {
-                        propertyValue = sdkKey.GetValue(regValue).ToString();
-                    }
-                } else {
-                    propertyValue = GetXmlAttributeValue(propertyNode, "value");
-                }
-
-                if (propertyValue != null) {
-                    // expand properties in property value
-                    propertyValue = frameworkProperties.ExpandProperties(propertyValue, Location.UnknownLocation);
-
-                    // add read-only property to collection of framework properties
-                    frameworkProperties.AddReadOnly(propertyName, propertyValue);
-                }
-            }
-
-            return frameworkProperties;
-        }
-
-        /// <summary>
         /// Processes the framework environment variables.
         /// </summary>
         /// <param name="environmentNodes">An <see cref="XmlNodeList" /> representing framework environment variables.</param>
@@ -452,18 +387,19 @@ namespace NAnt.Core {
             frameworkEnvironment = new EnvironmentVariableCollection();
 
             foreach (XmlNode environmentNode in environmentNodes) {
-                //skip non-nant namespace elements and special elements like comments, pis, text, etc.
+                // skip non-nant namespace elements and special elements like comments, pis, text, etc.
                 if (!(environmentNode.NodeType == XmlNodeType.Element)) {
                     continue;
                 }
 
                 // initialize element
                 EnvironmentVariable environmentVariable = new EnvironmentVariable();
-                environmentVariable.Project = Project;
+                environmentVariable.Project = framework.Project;
                 environmentVariable.NamespaceManager = NamespaceManager;
 
                 // configure using xml node
-                environmentVariable.Initialize(environmentNode, framework.Properties, framework);
+                environmentVariable.Initialize(environmentNode, framework.Project.Properties, 
+                    framework);
 
                 // add to collection of environment variables
                 frameworkEnvironment.Add(environmentVariable);

@@ -168,6 +168,10 @@ namespace NAnt.Core {
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
         public Project(XmlDocument doc, Level threshold, int indentLevel) {
+            // use NAnt settings from application configuration file for loading 
+            // internal configuration settings
+            _configurationNode = GetConfigurationNode();
+
             // initialize project
             CtorHelper(doc, threshold, indentLevel);
         }
@@ -182,16 +186,11 @@ namespace NAnt.Core {
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
         /// <param name="configurationNode">The <see cref="XmlNode" /> NAnt should use to initialize configuration settings.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="configurationNode" /> is <see langword="null" />.</exception>
         /// <remarks>
         /// This constructor is useful for developers using NAnt as a class
         /// library.
         /// </remarks>
         public Project(XmlDocument doc, Level threshold, int indentLevel, XmlNode configurationNode) {
-            if (configurationNode == null) {
-                throw new ArgumentNullException("configurationNode");
-            }
-
             // set configuration node to use for loading internal configuration 
             // settings
             _configurationNode = configurationNode;
@@ -231,6 +230,10 @@ namespace NAnt.Core {
                     path = uriOrFilePath;
                 }
             }
+
+            // use NAnt settings from application configuration file for loading 
+            // internal configuration settings
+            _configurationNode = GetConfigurationNode();
 
             // initialize project
             CtorHelper(LoadBuildFile(path), threshold, indentLevel);
@@ -335,13 +338,10 @@ namespace NAnt.Core {
         /// <value>
         /// The base directory used for relative references.
         /// </value>
+        /// <exception cref="BuildException">The directory is not rooted.</exception>
         /// <remarks>
         /// <para>
-        /// The directory must be rooted. (must start with drive letter, unc, 
-        /// etc.)
-        /// </para>
-        /// <para>
-        /// The <see cref="BaseDirectory" /> sets and gets the special property 
+        /// The <see cref="BaseDirectory" /> gets and sets the special property 
         /// named "nant.project.basedir".
         /// </para>
         /// </remarks>
@@ -525,30 +525,8 @@ namespace NAnt.Core {
         /// The <see cref="XmlNode" /> NAnt should use to initialize 
         /// configuration settings.
         /// </value>
-        /// <exception cref="BuildException">
-        /// No explicit configuration node is set and <c>nant</c> section is 
-        /// not available in configuration file of current <see cref="AppDomain" />.
-        /// </exception>
-        /// <remarks>
-        /// By default, NAnt will use the <c>nant</c> section of the configuration 
-        /// file of the <see cref="AppDomain" /> in which NAnt is running.
-        /// </remarks>
         public XmlNode ConfigurationNode {
-            get { 
-                if (_configurationNode == null) {
-                    _configurationNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
-
-                    if (_configurationNode == null) { 
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "The NAnt configuration settings in file '{0}' could" 
-                            + " not be loaded.  Please ensure this file is available"
-                            + " and contains a 'nant' settings node.", 
-                            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
-                    }
-
-                }
-                return _configurationNode; 
-            }
+            get { return _configurationNode; }
         }
 
         /// <remarks>
@@ -1429,6 +1407,18 @@ namespace NAnt.Core {
             } else {
                 Properties["nant.settings.currentframework.runtimeengine"] = null;
             }
+        }
+
+        private XmlNode GetConfigurationNode() {
+            XmlNode configurationNode = ConfigurationSettings.GetConfig("nant") as XmlNode;
+            if (configurationNode == null) { 
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                    "The NAnt configuration settings in file '{0}' could" 
+                    + " not be loaded.  Please ensure this file is available"
+                    + " and contains a 'nant' settings node.", 
+                    AppDomain.CurrentDomain.SetupInformation.ConfigurationFile));
+            }
+            return configurationNode;
         }
 
         #endregion Private Instance Methods
