@@ -51,6 +51,14 @@ namespace NAnt.Core {
 
         #endregion Public Instance Constructors
 
+        #region Public Instance Properties
+
+        public Project Project {
+            get { return _project; }
+        }
+
+        #endregion Public Instance Properties
+
         #region Override implementation of ExpressionEvalBase
 
         protected override object EvaluateProperty(string propertyName) {
@@ -58,7 +66,7 @@ namespace NAnt.Core {
         }
 
         protected override ParameterInfo[] GetFunctionParameters(string functionName) {
-            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName);
+            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
             if (methodInfo == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "Unknown function '{0}'.", functionName));
@@ -67,7 +75,7 @@ namespace NAnt.Core {
         }
 
         protected override object EvaluateFunction(string functionName, object[] args) {
-            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName);
+            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
             if (methodInfo == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Unknown function '{0}'.", functionName));

@@ -249,14 +249,43 @@ namespace NAnt.Core {
         /// <summary>
         /// Looks up a function by name.
         /// </summary>
-        /// <param name="methodName">The name of the function to lookup.</param>
+        /// <param name="methodName">The name of the function to lookup, including namespace prefix.</param>
+        /// <param name="project">The <see cref="Project" /> in which the function is invoked.</param>
         /// <returns>
         /// A <see cref="MethodInfo" /> representing the function, or 
         /// <see langword="null" /> if a function with the given name does not
         /// exist.
         /// </returns>
-        public static MethodInfo LookupFunction(string methodName){
-            return (MethodInfo) _methodInfoCollection[methodName];
+        public static MethodInfo LookupFunction(string methodName, Project project) {
+            MethodInfo function = (MethodInfo) _methodInfoCollection[methodName];
+            if (function != null) {
+                // check whether the function is deprecated
+                ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
+                    Attribute.GetCustomAttribute(function, 
+                    typeof(ObsoleteAttribute), true);
+
+                    Console.WriteLine(function.DeclaringType.FullName);
+
+                // if function itself is not deprecated, check if its declaring
+                // type is deprecated
+                if (obsoleteAttribute == null) {
+                    obsoleteAttribute = (ObsoleteAttribute) 
+                        Attribute.GetCustomAttribute(function.DeclaringType, 
+                        typeof(ObsoleteAttribute), true);
+                }
+
+                if (obsoleteAttribute != null) {
+                    string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                        "Function {0} is deprecated.  {1}", methodName, 
+                        obsoleteAttribute.Message);
+                    if (obsoleteAttribute.IsError) {
+                        throw new BuildException(obsoleteMessage, Location.UnknownLocation);
+                    } else {
+                        project.Log(Level.Warning, "{0}", obsoleteMessage);
+                    }
+                }
+            }
+            return function;
         }
 
         /// <summary> 
