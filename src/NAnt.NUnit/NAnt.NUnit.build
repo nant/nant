@@ -27,7 +27,7 @@
                 <warning number="0618" if="${framework::get-family(framework::get-target-framework()) == 'mono'}" />
             </nowarn>
             <sources>
-                <include name="NUnit1/*.cs"/>
+                <include name="NUnit1/**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
@@ -46,7 +46,7 @@
                 <warning number="0618" />
             </nowarn>
             <sources>
-                <include name="NUnit2/*.cs"/>
+                <include name="NUnit2/**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
