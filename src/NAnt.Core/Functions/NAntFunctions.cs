@@ -391,6 +391,17 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Gets the identifier of the runtime framework.
+        /// </summary>
+        /// <returns>
+        /// The identifier of the runtime framework.
+        /// </returns>
+        [Function("get-runtime-framework")]
+        public string GetRuntimeFramework() {
+            return Project.RuntimeFramework.Name;
+        }
+
+        /// <summary>
         /// Gets the family of the specified framework.
         /// </summary>
         /// <param name="framework">The framework of which the family should be returned.</param>
@@ -587,18 +598,6 @@ namespace NAnt.Core.Functions {
             return PlatformHelper.IsUnix;
         }
         
-        /// <summary>
-        /// Checks whether NAnt is running on mono.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true" /> if NAnt is running on mono;
-        /// otherwise, <see langword="false" />.
-        /// </returns>
-        [Function("is-mono")]
-        public static bool IsMono() {
-            return PlatformHelper.IsMono;
-        }
-
         #endregion Public Static Methods
     }
 
