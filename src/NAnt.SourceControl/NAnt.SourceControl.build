@@ -18,7 +18,6 @@
                 <includes name="ICSharpCode.SharpCvsLib.dll"/>
                 <includes name="log4net.dll"/>
             </references>
-            <arg value="/nowarn:1591"/>
         </csc>
     </target>
 </project>
