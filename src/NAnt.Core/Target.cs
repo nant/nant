@@ -36,7 +36,6 @@ namespace NAnt.Core {
         private string _description = null;
         private string _ifCondition = null;
         private string _unlessCondition = null;
-        private bool _hasExecuted = false;
         private StringCollection _dependencies = new StringCollection();
 
         #endregion Private Instance Fields
@@ -59,7 +58,6 @@ namespace NAnt.Core {
             this._dependencies = t._dependencies;
             this._ifCondition = t._ifCondition;
             this._unlessCondition = t._unlessCondition;
-            this._hasExecuted = false;
         }
 
         #endregion Private Instance Constructors
@@ -186,16 +184,6 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets a value indicating if the target has been executed.
-        /// </summary>
-        /// <remarks>
-        /// Targets that have been executed will not execute a second time.
-        /// </remarks>
-        public bool HasExecuted {
-            get { return _hasExecuted; }
-        }
-
-        /// <summary>
         /// A collection of target names that must be executed before this 
         /// target.
         /// </summary>
@@ -207,19 +195,7 @@ namespace NAnt.Core {
         /// Executes dependent targets first, then the target.
         /// </summary>
         public void Execute() {
-            if (!HasExecuted && IfDefined && !UnlessDefined) {
-                // set right at the start or a <call> task could start an infinite loop
-                _hasExecuted = true;
-                foreach (string targetName in Dependencies) {
-                    Target target = Project.Targets.Find(targetName);
-                    if (target == null) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Unknown dependent target '{0}' of target '{1}'.", 
-                            targetName, Name), Location);
-                    }
-                    target.Execute();
-                }
-
+            if (IfDefined && !UnlessDefined) {
                 try {
                     Project.OnTargetStarted(this, new BuildEventArgs(this));
                 
@@ -237,7 +213,7 @@ namespace NAnt.Core {
                         } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
                             DataTypeBase dataType = Project.CreateDataTypeBase(childNode);
                             Project.Log(Level.Verbose, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                            Project.DataTypeReferences.Add(dataType.ID, dataType);                     
+                            Project.DataTypeReferences.Add(dataType.ID, dataType);
                         } else {
                             string message = string.Format(CultureInfo.InvariantCulture,"invalid element <{0}>. Unknown task or datatype.", childNode.Name ); 
                             throw new BuildException(message, Project.LocationMap.GetLocation(childNode) );
