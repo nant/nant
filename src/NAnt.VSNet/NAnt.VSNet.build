@@ -20,6 +20,10 @@
             </sources>
             <references basedir="${build.dir}/bin">
                 <include name="NAnt.Core.dll" />
+                <!-- workaround for mono bug - TODO: report this issue -->
+                <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
+                <include name="${lib.framework.dir}/NDoc.Core.dll" />
+                <!-- end workaround -->
                 <include name="NAnt.DotNetTasks.dll" />
                 <include name="NAnt.VisualCppTasks.dll"/>
                 <include name="NAnt.Win32Tasks.dll"/>
