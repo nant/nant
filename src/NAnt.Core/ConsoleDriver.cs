@@ -230,6 +230,7 @@ namespace NAnt.Core {
                 Console.WriteLine();
                 // instruct users to report this problem
                 Console.WriteLine("Please send bug report to nant-developers@lists.sourceforge.net");
+                // signal fatal error
                 return 2;
             } finally {
                 if (project != null) {
