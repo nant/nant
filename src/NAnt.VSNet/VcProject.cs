@@ -918,25 +918,25 @@ namespace NAnt.VSNet {
 
             string proxyFileName = fileConfig.GetToolSetting(compilerTool, "ProxyFileName");
             if (proxyFileName != null) {
-                midlTask.Proxy = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+                midlTask.Proxy = new FileInfo(Path.Combine(outputDirectory, 
                     proxyFileName));
             }
 
             string interfaceIdentifierFileName = fileConfig.GetToolSetting(compilerTool, "InterfaceIdentifierFileName");
             if (interfaceIdentifierFileName != null) {
-                midlTask.Iid = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+                midlTask.Iid = new FileInfo(Path.Combine(outputDirectory, 
                     interfaceIdentifierFileName));
             }
 
             string dllDataFileName = fileConfig.GetToolSetting(compilerTool, "DLLDataFileName");
             if (dllDataFileName != null) {
-                midlTask.DllData = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+                midlTask.DllData = new FileInfo(Path.Combine(outputDirectory, 
                     dllDataFileName));
             }
 
             string headerFileName = fileConfig.GetToolSetting(compilerTool, "HeaderFileName");
             if (headerFileName != null) {
-                midlTask.Header = new FileInfo(Path.Combine(fileConfig.ProjectDir.FullName, 
+                midlTask.Header = new FileInfo(Path.Combine(outputDirectory, 
                     headerFileName));
             }
 
