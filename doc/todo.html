@@ -32,6 +32,12 @@
 		<li>get MailTest added to test suite</li>
 		<li>create two test suites - one that gets run during each build and one that runs the internet based tasks which should only run during intergration</li>
 		<li>think about how SlingShot can work with nant</li>
+		<li>autoload *.Tasks.dll assemblies that are in the same folder as the Nant.Core.dll</li>
+		<li>think about changing the offical name from NAnt to Nant.<br />Reason:  Easier to type, no need to steal the popularity of Ant's name, nant has a name of its own.</li>
+		<li>think about moving all the code from the src/NAnt folder to a src/Nant/Core folder.<br />Reason: currently the source folder does not map the files being created.  Both nant.exe and nant.core.dll come from the same folder!</li>
+		<li>think about droping the SourceForge from the namespace identifier.<br />Reason: most projects seem to be going that way and SourceForge really isn't the compnay that wrote it.</li>
+		<li>think about renaming FileSet xml elements: includes => include, excludes => exclude, name => pattern.<br />Reason: name is vague in its purpose, includes and excludes are misleading as they should be singular</li>
+		<li>think about adompting camelCase for all Xml elements in the build file, eg, basedir would become baseDir.<br />Reason: All .NET xml files are camelCase.</li>
 	</ul>
 
 	<h3>1.0</h3>

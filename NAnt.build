@@ -83,9 +83,9 @@
                 <includes name="${build.dir}/NDoc.Documenter.Msdn.dll"/>
                 <includes name="${build.dir}/NUnit.Core.dll"/>
                 <includes name="${build.dir}/NZipLib.dll"/>
+				<absolute file="Microsoft.JScript.dll"/>
             </references>
             <arg value="/nowarn:1591"/>
-            <arg value="/reference:Microsoft.JScript.dll"/>
         </csc>
 
         <!-- compile NAnt.exe -->

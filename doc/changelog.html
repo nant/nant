@@ -21,10 +21,11 @@
 		<li>-find option added, causes nant to search up the directory tree looking for the buildfile.  Use in conjunction with -buildfile:foo.* to find the first foo.* file up the directory tree.</li>
 		<li>-projecthelp option added, callable targets should now include a description attribute to describe briefly what they do.</li>
 		<li>CompilerBase tasks now check for changed resources and recompile if out of date.</li>
-		<li>compiler tasks report what caused the rebuild when verbose is on, try 'nant -verbose'</li>
-		<li>improved Log class</li>
+		<li>Compiler tasks report what caused the rebuild when verbose is on, try 'nant -verbose'</li>
+		<li>Improved Log class</li>
 		<li>PlainText NUnit formatter, see nant's build file for example</li>
 		<li>nant.onsuccess and nant.onfailure properties can now name a target to get executed at the end of a build.</li>
+		<li>File sets now have an absolute element.  Items inside the an absolute element will always be included in the file set.  This is useful for references that are in the system path.  See the HelloWindowsForms build file for an example.</li>
 	</ul>
 
 	<h3>0.7.749 January 19, 2002</h3>

@@ -37,34 +37,14 @@
             <sources>
                 <includes name="*.vb"/>
             </sources>
-
-			<arg value="/main:HelloWindowsForms.MainForm"/>
-            <!-- 
-				Due to a limitation in the fileset scanning code of nant
-				file set includes must be based off of a directory.
-				For this reason the only practical way to reference
-				assemblies outside of the project is to use the
-				<arg value="Assembly.Name.dll"/> method.
-
-				The following commeted xml is ideally how it should be 
-				but currently does not work.
-
-				In the future this limitation will be fixed and - I hope
-				Gerry Shaw, February 1, 2002
-				
             <references>
-                <includes name="System.dll"/>
-                <includes name="System.Data.dll"/>
-                <includes name="System.Drawing.dll"/>
-                <includes name="System.Windows.Forms.dll"/>
-                <includes name="System.XML.dll"/>
+                <absolute file="System.dll"/>
+                <absolute file="System.Data.dll"/>
+                <absolute file="System.Drawing.dll"/>
+                <absolute file="System.Windows.Forms.dll"/>
+                <absolute file="System.XML.dll"/>
             </references>
-            -->
-            <arg value="/reference:System.dll"/>
-            <arg value="/reference:System.Data.dll"/>
-            <arg value="/reference:System.Drawing.dll"/>
-            <arg value="/reference:System.Windows.Forms.dll"/>
-            <arg value="/reference:System.XML.dll"/>
+			<arg value="/main:HelloWindowsForms.MainForm"/>
         </vbc>
     </target>
 
