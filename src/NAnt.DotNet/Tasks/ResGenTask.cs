@@ -273,7 +273,7 @@ namespace NAnt.DotNet.Tasks {
                     outputFile = new FileInfo(outputFile.FullName.Replace(
                         file.Name, prefix + "." + file.Name));
                 }
-                outputFile = new FileInfo(Path.ChangeExtension(outputFile.Extension, TargetExt));
+                outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, TargetExt));
             } else {
                 outputFile = OutputFile;
             }
