@@ -62,6 +62,21 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Properties
 
+        #region Private Instance Properties
+
+        /// <summary>
+        /// Gets a value indicating if this is a web project.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if this is a web project; otherwise,
+        /// <see langword="false" />.
+        /// </value>
+        private bool IsWebProject {
+            get { return ProjectFactory.IsUrl(_projectPath); }
+        }
+
+        #endregion Private Instance Properties
+
         #region Override implementation of ProjectBase
 
         /// <summary>
@@ -131,7 +146,8 @@ namespace NAnt.VSNet {
             }
 
             _projectPath = projectPath;
-            if (!_isWebProject) {
+
+            if (!IsWebProject) {
                 _projectDirectory = new FileInfo(projectPath).Directory;
             } else {
                 string projectDirectory = projectPath.Replace(":", "_");
@@ -151,25 +167,20 @@ namespace NAnt.VSNet {
 
             _projectSettings = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), this);
 
-            _isWebProject = ProjectFactory.IsUrl(projectPath);
-            _webProjectBaseUrl = string.Empty;
-
-            XmlNodeList nlConfigurations, nlReferences, nlFiles, nlImports;
-
-            nlConfigurations = doc.SelectNodes("//Config");
+            XmlNodeList nlConfigurations = doc.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
                 ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, OutputDir);
                 ProjectConfigurations[elemConfig.Attributes["Name"].Value] = cs;
             }
 
-            nlReferences = doc.SelectNodes("//References/Reference");
+            XmlNodeList nlReferences = doc.SelectNodes("//References/Reference");
             foreach (XmlElement elemReference in nlReferences) {
                 Reference reference = new Reference(sln, _projectSettings, elemReference, GacCache, ReferencesResolver, this, OutputDir);
                 _htReferences[elemReference.Attributes["Name"].Value] = reference;
             }
 
             if (_projectSettings.Type == ProjectType.VBNet) {
-                nlImports = doc.SelectNodes("//Imports/Import");
+                XmlNodeList nlImports = doc.SelectNodes("//Imports/Import");
                 foreach (XmlElement elemReference in nlImports) {
                     _imports += elemReference.Attributes["Namespace"].Value.ToString(CultureInfo.InvariantCulture) + ",";
                 }
@@ -178,7 +189,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            nlFiles = doc.SelectNodes("//Files/Include/File");
+            XmlNodeList nlFiles = doc.SelectNodes("//Files/Include/File");
             foreach (XmlElement elemFile in nlFiles) {
                 string buildAction = elemFile.Attributes["BuildAction"].Value;
                 string sourceFile;
@@ -191,7 +202,7 @@ namespace NAnt.VSNet {
                         ProjectDirectory.FullName, elemFile.GetAttribute("RelPath")));
                 }
 
-                if (_isWebProject) {
+                if (IsWebProject) {
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     wdc.DownloadFile(sourceFile, elemFile.Attributes["RelPath"].Value);
 
@@ -528,7 +539,7 @@ namespace NAnt.VSNet {
                     #region Deploy project-level output files
 
                     // copy primary project output (and related files)
-                    if (_isWebProject) {
+                    if (IsWebProject) {
                         Hashtable primaryOutputFiles = Reference.GetRelatedFiles(
                             cs.OutputPath);
 
@@ -549,7 +560,7 @@ namespace NAnt.VSNet {
                     // copy any extra project-level output files
                     foreach (DictionaryEntry de in ExtraOutputFiles) {
                         FileInfo sourceFile = new FileInfo((string) de.Key);
-                        if (_isWebProject) {
+                        if (IsWebProject) {
                             WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                             wdc.UploadFile(sourceFile.FullName, Path.Combine(cs.RelativeOutputDir, 
                                 (string) de.Value).Replace(@"\", "/"));
@@ -573,7 +584,7 @@ namespace NAnt.VSNet {
                     // copy any extra configuration-specific output files
                     foreach (DictionaryEntry de in cs.ExtraOutputFiles) {
                         FileInfo sourceFile = new FileInfo((string) de.Key);
-                        if (_isWebProject) {
+                        if (IsWebProject) {
                             WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                             wdc.UploadFile(sourceFile.FullName, cs.RelativeOutputDir.Replace(@"\", "/") 
                                 + (string) de.Value);
@@ -886,7 +897,6 @@ namespace NAnt.VSNet {
         private Hashtable _htAssemblies;
 
         private string _imports;
-        private bool _isWebProject;
         private string _projectPath;
         private DirectoryInfo _projectDirectory;
         private string _webProjectBaseUrl;
