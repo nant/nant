@@ -74,18 +74,44 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Properties
 
+        #region Private Instance Properties
+
+        private string LogPrefix {
+            get { 
+                if (_solutionTask != null) {
+                    return _solutionTask.LogPrefix;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        #endregion Private Instance Properties
+
         #region Public Static Methods
 
         public static bool IsEnterpriseTemplateProject(string fileName) {
-            XmlDocument doc = LoadXmlDocument(fileName);
-            return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
+                return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error checking whether '{0}' is an enterprise template project.",
+                    fileName), Location.UnknownLocation, ex);
+            }
         }
 
         public static string LoadGUID(string fileName, TempFileCollection tfc) {
-            XmlDocument doc = LoadXmlDocument(fileName);
+            try {
+                XmlDocument doc = LoadXmlDocument(fileName);
 
-            ProjectSettings ps = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), tfc);
-            return ps.GUID;
+                ProjectSettings ps = new ProjectSettings(doc.DocumentElement, (XmlElement) doc.SelectSingleNode("//Build/Settings"), tfc);
+                return ps.GUID;
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading GUID of project '{0}'.", fileName), 
+                    Location.UnknownLocation, ex);
+            }
         }
 
         #endregion Public Static Methods
@@ -192,7 +218,7 @@ namespace NAnt.VSNet {
                         string resourceFilename = Path.Combine(_projectSettings.RootDirectory, elemFile.GetAttribute("RelPath"));
                         string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? Path.Combine(new FileInfo(resourceFilename).DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
                         Resource r = new Resource(this, resourceFilename, elemFile.Attributes["RelPath"].Value, dependentOn, _solutionTask);
-                        _htResources[ r.InputFile ] = r;
+                        _htResources[r.InputFile ] = r;
                     }
                 }
             }
@@ -203,18 +229,18 @@ namespace NAnt.VSNet {
 
             ConfigurationSettings cs = (ConfigurationSettings) _htConfigurations[configuration];
             if (cs == null) {
-                Log(Level.Info, _solutionTask.LogPrefix + "Configuration {0} does not exist, skipping.", configuration);
+                Log(Level.Info, LogPrefix + "Configuration {0} does not exist. Skipping.", configuration);
                 return true;
             }
 
-            Log(Level.Info, _solutionTask.LogPrefix + "Building {0} [{1}]...", Name, configuration);
+            Log(Level.Info, LogPrefix + "Building {0} [{1}]...", Name, configuration);
             Directory.CreateDirectory(cs.OutputPath);
 
             string strTempFile = Path.Combine(_tfc.BasePath, Project.CommandFile);
 
             using (StreamWriter sw = File.CreateText(strTempFile)) {
                 if (CheckUpToDate(cs)) {
-                    Log(Level.Verbose, _solutionTask.LogPrefix + "Project is up-to-date");
+                    Log(Level.Verbose, LogPrefix + "Project is up-to-date.");
                     return true;
                 }
 
@@ -234,7 +260,7 @@ namespace NAnt.VSNet {
                     sw.WriteLine(_imports);
                 }
 
-                Log(Level.Verbose, _solutionTask.LogPrefix + "Copying references:");
+                Log(Level.Verbose, LogPrefix + "Copying references:");
                 foreach (Reference reference in _htReferences.Values) {
                     Log(Level.Verbose, _solutionTask.LogPrefix + " - " + reference.Name);
 
@@ -243,7 +269,7 @@ namespace NAnt.VSNet {
                             string program, commandLine;
                             reference.GetCreationCommand(cs, out program, out commandLine);
 
-                            Log(Level.Verbose, _solutionTask.LogPrefix + program + " " + commandLine);
+                            Log(Level.Verbose, LogPrefix + program + " " + commandLine);
                             ProcessStartInfo psiRef = new ProcessStartInfo(program, commandLine);
                             psiRef.UseShellExecute = false;
                             psiRef.WorkingDirectory = cs.OutputPath;
@@ -273,9 +299,9 @@ namespace NAnt.VSNet {
                     sw.WriteLine(reference.Setting);
                 }
 
-                Log(Level.Verbose, _solutionTask.LogPrefix + "Compiling resources:");
+                Log(Level.Verbose, LogPrefix + "Compiling resources:");
                 foreach (Resource resource in _htResources.Values) {
-                    Log(Level.Verbose, _solutionTask.LogPrefix + " - {0}", resource.InputFile);
+                    Log(Level.Verbose, LogPrefix + " - {0}", resource.InputFile);
                     resource.Compile(cs, bShowCommands);
                     sw.WriteLine(resource.Setting);
                 }
@@ -293,7 +319,7 @@ namespace NAnt.VSNet {
                 }
             }
 
-            Log(Level.Verbose, _solutionTask.LogPrefix + "Starting compiler...");
+            Log(Level.Verbose, LogPrefix + "Starting compiler...");
             ProcessStartInfo psi = null;
             if (_projectSettings.Type == ProjectType.CSharp) {
                 psi = new ProcessStartInfo(Path.Combine(_solutionTask.Project.CurrentFramework.FrameworkDirectory.FullName, "csc.exe"), "@" + strTempFile);
@@ -336,13 +362,13 @@ namespace NAnt.VSNet {
             p.WaitForExit();
 
             int exitCode = p.ExitCode;
-            Log(Level.Verbose, _solutionTask.LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
+            Log(Level.Verbose, LogPrefix + "{0}! (exit code = {1})", (exitCode == 0) ? "Success" : "Failure", exitCode);
 
             if (exitCode > 0) {
                 bSuccess = false;
             } else {
                 if (_isWebProject) {
-                    Log(Level.Info, _solutionTask.LogPrefix + "Uploading output files");
+                    Log(Level.Info, LogPrefix + "Uploading output files...");
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     //wdc.DeleteFile( cs.FullOutputFile, cs.RelOutputPath + "/" + _ps.OutputFile );
                     wdc.UploadFile(cs.FullOutputFile, cs.RelativeOutputPath + "/" + _projectSettings.OutputFile);
