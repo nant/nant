@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001 Gerry Shaw
+// Copyright (C) 2001-2003 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace SourceForge.NAnt {
     /// <summary>
@@ -71,12 +72,12 @@ namespace SourceForge.NAnt {
         }
 
         /// <summary>
-        /// Constructs an exception with the given descriptive message, the
-        /// location in the build file and an instance of the Exception that
-        /// is the cause of the current Exception.
+        /// Initializes a new instance of the <see cref="BuildException" /> class
+        /// with a descriptive message, the location in the build file and an 
+        /// instance of the exception that is the cause of the current exception.
         /// </summary>
-        /// <param name="message">The error message that explains the reason for the exception.</param>
-        /// <param name="location">Location in the build file where the exception occured.</param>
+        /// <param name="message">A descriptive message to include with the exception.</param>
+        /// <param name="location">The location in the build file where the exception occured.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
         public BuildException(String message, Location location, Exception innerException) : base(message, innerException) {
             _location = location;
@@ -105,6 +106,7 @@ namespace SourceForge.NAnt {
         /// </summary>
         /// <param name="info">The <see cref="SerializationInfo" /> to populate with data.</param>
         /// <param name="context">The destination for this serialization.</param>
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter=true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             base.GetObjectData(info, context);
             info.AddValue("Location", _location);      
