@@ -120,7 +120,15 @@ namespace NAnt.VSNet {
         }
 
         public override void Load(Solution sln, string projectPath) {
-            XmlDocument doc = LoadXmlDocument(projectPath);
+            XmlDocument doc = null;
+
+            try {
+                doc = LoadXmlDocument(projectPath);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading project '{0}'.", projectPath), 
+                    Location.UnknownLocation, ex);
+            }
 
             _projectPath = projectPath;
             if (!_isWebProject) {
