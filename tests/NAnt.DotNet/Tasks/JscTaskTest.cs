@@ -42,6 +42,9 @@ namespace Tests.NAnt.DotNet.Tasks {
                     <sources basedir='{1}'>
                         <include name='{0}'/>
                     </sources>
+                    <resources basedir='{1}'>
+                        <include name='**/*.resx' />
+                    </resources>
                 </jsc>
             </project>";
 
