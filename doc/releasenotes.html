@@ -134,7 +134,7 @@
                 </h5>
             <ul>
                 <li>
-                    Added a cascase attribute to allow the calling a single task ( without cascading all the dependencies ). (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1077323&group_id=31650&atid=402868">
+                    Added a &quot;cascade&quot; attribute to allow calling a single task without cascading all the dependencies. (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1077323&group_id=31650&atid=402868">
                         #1077323 </a>).
                 </li>
             </ul>
@@ -210,6 +210,13 @@
                     NAnt now supports the use of a response file. Passing @&lt;file&gt; on the 
                     command line will cause the contents of &lt;file&gt; to be read as part of the 
                     command line. Multiple @&lt;file&gt; arguments may be used.
+                </li>
+            </ul>
+            <h5>MailLogger</h5>
+            <ul>
+                <li>
+                    Added &quot;MailLogger.body.encoding&quot; property to allow the encoding of the body
+                    of the message to be set.
                 </li>
             </ul>
         </div>

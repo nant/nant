@@ -786,6 +786,10 @@ namespace NAnt.Core {
     ///         <term>MailLogger.success.subject</term>
     ///         <description>The subject of build success messages. [default: "Build Success"]</description>
     ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.body.encoding</term>
+    ///         <description>The encoding type of the body of the e-mail message. [default: system's ANSI code page]</description>
+    ///     </item>
     /// </list>
     /// </remarks>
     [Serializable()]
@@ -838,6 +842,7 @@ namespace NAnt.Core {
                 return;
             }
 
+            Encoding bodyEncoding = null;
             Project project = e.Project;
             PropertyDictionary properties = project.Properties;
 
@@ -855,17 +860,39 @@ namespace NAnt.Core {
                     notify = true;
                 }
 
+                propertyValue = GetPropertyValue(properties, "body.encoding", "");
+
+                try {
+                    if (propertyValue != null && propertyValue.Length > 0) {
+                        bodyEncoding = Encoding.GetEncoding(propertyValue);
+                    }
+                } catch {
+                    // ignore invalid encoding
+                }
+
                 if (!notify) {
                     return;
                 }
 
-                string mailhost = GetPropertyValue(properties, "mailhost", "localhost");
                 string from = GetPropertyValue(properties, "from", null);
                 string toList = GetPropertyValue(properties, prefix + ".to", null);
                 string subject = GetPropertyValue(properties, prefix + ".subject",
                     (success) ? "Build Success" : "Build Failure");
 
-                SendMail(mailhost, from, toList, subject, _buffer.ToString());
+                MailMessage mailMessage = new MailMessage();
+                mailMessage.From = GetPropertyValue(properties, "from", null);
+                mailMessage.To = GetPropertyValue(properties, prefix + ".to", null);
+                mailMessage.Subject = GetPropertyValue(properties, prefix + ".subject",
+                    (success) ? "Build Success" : "Build Failure");
+                mailMessage.Body = _buffer.ToString();
+
+                if (bodyEncoding != null) {
+                    mailMessage.BodyEncoding = bodyEncoding;
+                }
+
+                // send the message
+                SmtpMail.SmtpServer = GetPropertyValue(properties, "mailhost", "localhost");
+                SmtpMail.Send(mailMessage);
             } catch (Exception ex) {
                 Console.WriteLine("MailLogger failed to send e-mail!");
                 Console.WriteLine(ex.ToString());
