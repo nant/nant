@@ -63,7 +63,17 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void AppendReferencedModulesLocatedInGivenDirectory(string moduleDirectory, string moduleName, ref Hashtable allReferences, ref Hashtable unresolvedReferences) {
-            Assembly module = Assembly.LoadFrom(moduleName);
+            Assembly module = null;
+
+            try {
+                module = Assembly.LoadFrom(moduleName);
+            } catch (FileLoadException) {
+                // for now ignore assemblies that cannot be loaded. A better
+                // solution might be to disable signature verification and try
+                // again, that way we can load assemblies that are delay-signed
+                return;
+            }
+
             AssemblyName[] referencedAssemblies = module.GetReferencedAssemblies();
 
             foreach (AssemblyName referencedAssemblyName in referencedAssemblies) {
