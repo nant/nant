@@ -85,23 +85,45 @@ namespace NAnt.Core {
             _unscannedNames.Clear();
         }
 
+        /// <summary>
+        /// Scans all direcetories in the PATH environment variable for files.
+        /// </summary>
+        /// <returns>
+        /// List of matching files found in the PATH.
+        /// </returns>
         public StringCollection Scan() {
+            return Scan("PATH");
+        }
+
+        /// <summary>
+        /// Scans all directories in the given environment variable for files.
+        /// </summary>
+        /// <returns>
+        /// List of matching files found in the directory of the given 
+        /// environment variable.
+        /// </returns>
+        public StringCollection Scan(string name) {
             // clear any files we might've found previously
             _scannedNames.Clear();
 
+            string envValue = Environment.GetEnvironmentVariable(name);
+            if (envValue == null) {
+                return _scannedNames;
+            }
+
             // break apart the PATH
-            string[] paths = Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
+            string[] paths = envValue.Split(Path.PathSeparator);
 
             // walk the names list
-            foreach(string name in _unscannedNames) {
+            foreach (string fileName in _unscannedNames) {
                 // walk the paths, and see if the given file is on the path
-                foreach(string path in paths) {
+                foreach (string path in paths) {
                     //do not scan inaccessible directories.
                     if (!Directory.Exists(path)) {
                         continue;
                     }
 
-                    string[] found = Directory.GetFiles(path, name);
+                    string[] found = Directory.GetFiles(path, fileName);
 
                     if (found.Length > 0) {
                         _scannedNames.Add(found[0]);
@@ -113,6 +135,7 @@ namespace NAnt.Core {
             // return an enumerator to the scanned (& found) files
             return _scannedNames;
         }
+
 
         #endregion Public Instance Methods
 
