@@ -30,6 +30,10 @@ namespace NAnt.Core.Tasks {
     /// Writes a message to the build log.
     /// </summary>
     /// <remarks>
+    ///   <para>
+    ///   The message can be specified using the <see cref="Message" /> attribute 
+    ///   or as inline content.
+    ///   </para>
     ///   <para>Macros in the message will be expanded.</para>
     /// </remarks>
     /// <example>
@@ -39,22 +43,20 @@ namespace NAnt.Core.Tasks {
     /// <echo message="Hello, World!" level="Debug" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Writes a message with expanded macro to the build log.</para>
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Base build directory = ${nant.project.basedir}" />
     ///     ]]>
     ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Functionally equivalent to the previous example.</para>
     ///   <code>
     ///     <![CDATA[
     /// <echo>Base build directory = ${nant.project.basedir}</echo>
-    ///     ]]>
-    ///   </code>
-    ///   <para>Triggers a <see cref="ValidationException" />.</para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <echo message="Hello, World!">Hello, World</echo>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -79,7 +81,7 @@ namespace NAnt.Core.Tasks {
             set {
                 if (!StringUtils.IsNullOrEmpty(value)) {
                     if (!StringUtils.IsNullOrEmpty(Contents)) {
-                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <echo> task.", Location);
                     } else {
                         _message = value;
                     }
@@ -101,7 +103,7 @@ namespace NAnt.Core.Tasks {
             set { 
                 if (!StringUtils.IsNullOrEmpty(value)) {
                     if (!StringUtils.IsNullOrEmpty(Message)) {
-                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the echo task.", Location);
+                        throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <echo> task.", Location);
                     } else {
                         _contents = value;
                     }
