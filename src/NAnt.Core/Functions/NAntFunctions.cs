@@ -37,6 +37,120 @@ using NAnt.Core.Attributes;
 // 
 
 namespace NAnt.Core.Functions {
+    [FunctionSet("nant", "NAnt")]
+    public class NAntFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public NAntFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Gets the full path to the NAnt assembly.
+        /// </summary>
+        /// <returns>
+        /// The full path to the NAnt assembly.
+        /// </returns>
+        [Function("get-file-name")]
+        public string GetFileName() {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.CodeBase;
+        }
+
+        /// <summary>
+        /// Gets the base directory of the NAnt assembly.
+        /// </summary>
+        /// <returns>
+        /// The base directory of the NAnt assembly.
+        /// </returns>
+        [Function("get-base-directory")]
+        public string GetBaseDirectory() {
+            return AppDomain.CurrentDomain.BaseDirectory;
+        }
+
+        /// <summary>
+        /// Gets the version of NAnt.
+        /// </summary>
+        /// <returns>
+        /// The version of NAnt.
+        /// </returns>
+        [Function("get-version")]
+        public string GetVersion() {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetName().Version.ToString();
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    [FunctionSet("project", "NAnt")]
+    public class ProjectFunctions : FunctionSetBase {
+        #region Public Instance Constructors
+
+        public ProjectFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Methods
+
+        /// <summary>
+        /// Gets the name of the current project.
+        /// </summary>
+        /// <returns>
+        /// The name of the current project.
+        /// </returns>
+        [Function("get-name")]
+        public string GetName() {
+            return Project.ProjectName;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Uri" /> form of the build file.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Uri" /> form of the build file, or 
+        /// <see langword="null" /> if the project is not file backed.
+        /// </returns>
+        [Function("get-buildfile-uri")]
+        public string GetBuildFileUri() {
+            if (Project.BuildFileUri != null) {
+                return Project.BuildFileUri.ToString();
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the local path to the build file.
+        /// </summary>
+        /// <returns>
+        /// The local path of the build file, or <see langword="null" /> if the 
+        /// project is not file backed.
+        /// </returns>
+        [Function("get-buildfile-path")]
+        public string GetBuildFilePath() {
+            return Project.BuildFileLocalName;
+        }
+
+        /// <summary>
+        /// Gets the name of the target that will be executed when no other 
+        /// build targets are specified.
+        /// </summary>
+        /// <returns>
+        /// The name of the target that will be executed when no other build
+        /// targets are specified.
+        /// </returns>
+        [Function("get-default-target")]
+        public string GetDefaultTarget() {
+            return Project.DefaultTargetName;
+        }
+
+        #endregion Public Instance Methods
+    }
+
     [FunctionSet("target", "NAnt")]
     public class TargetFunctions : FunctionSetBase {
         #region Public Instance Constructors
