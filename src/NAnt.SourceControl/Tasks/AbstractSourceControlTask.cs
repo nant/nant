@@ -456,22 +456,23 @@ namespace NAnt.SourceControl.Tasks {
 			return null;
 		}
 
-		/// <summary>
-		/// Append the files specified in the fileset to the command line argument.
-		/// </summary>
-		protected void AppendFiles () {
-			foreach (string pathname in this.VcsFileSet.FileNames) {
-                string relativePath = pathname.Replace(this.DestinationDirectory.FullName, "").Replace("\\", "/");
-                if (relativePath.IndexOf('/') == 0) {
+        /// <summary>
+        /// Append the files specified in the fileset to the command line argument.
+        /// </summary>
+        protected void AppendFiles () {
+            foreach (string pathname in this.VcsFileSet.FileNames) {
+                string relativePath = pathname;
+                if (relativePath.IndexOf('/') == 0 || relativePath.IndexOf('\\') == 0) {
                     relativePath = relativePath.Substring(1, relativePath.Length - 1);
                 }
+                relativePath = pathname.Replace(this.DestinationDirectory.FullName, "").Replace("\\", "/");
                 try {
                     Arguments.Add(new Argument(relativePath));
                 } catch (Exception e) {
                     System.Console.WriteLine("Unable to parse file: " + e.Message);
                 }
-			}
-		}
+            }
+        }
 
 		/// <summary>
 		/// Derive the location of the version control system from the environment

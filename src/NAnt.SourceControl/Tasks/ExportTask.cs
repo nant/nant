@@ -50,6 +50,9 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>
     ///   Export NAnt revision named <c>your_favorite_revision_here</c> to the 
     ///   folder <c>c:\src\nant\replacement_for_module_directory_name</c>.
+    ///   
+    ///   <warn>**NOTE**</warn>: filesets names for the export task must be 
+    ///   prefixed with the module name.  This is different than other tasks.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -60,8 +63,10 @@ namespace NAnt.SourceControl.Tasks {
     ///     revision="your_favorite_revision_here"
     ///     overridedir="replacement_for_module_directory_name"
     ///     recursive="false">
-    ///     <exportfile value="dir/file1.cs"/>
-    ///     <exportfile value="dir/file2.cs"/>
+    ///     <fileset>
+    ///         <includes name="nant/bin/NAnt.exe"/>
+    ///         <includes name="nant/bin/NAnt.exe.config"/>
+    ///     </fileset>
     /// </cvs-export>
     ///     ]]>
     ///   </code>
@@ -192,55 +197,6 @@ namespace NAnt.SourceControl.Tasks {
         public string OverrideDir {
             get {return ((Option)this.CommandOptions["overridedir"]).Value;}
             set {this.SetCommandOption("overridedir", String.Format("-d{0}", value), true);}
-        }
-
-        /// <summary>
-        /// The list of files that will be exported from the repository.  If this
-        /// is null then all files are exported.  This value is the relative path
-        /// of the file on the server, below the module directory
-        /// </summary>
-        /// <value>
-        /// To export the file names:
-        ///     <ul>
-        ///         <li>NAnt.exe</li>
-        ///         <li>NAnt.exe.config</li>
-        ///     </ul>
-        /// From the nant project use:
-        /// <code>
-        ///     &lt;exportfile value="your_file"/&gt;
-        /// </code>
-        /// </value>
-        [BuildElementArray("exportfile")]
-        public ArgumentCollection ExportFiles {
-            get { return _exportFiles; }
-            set { _exportFiles = value; }
-        }
-
-
-
-        /// <summary>
-        /// Build up the command line arguments, determine which executable is being
-        ///		used and find the path to that executable and set the working 
-        ///		directory.
-        /// </summary>
-        /// <param name="process">The process to prepare.</param>
-        protected override void PrepareProcess (Process process) {
-            if (null == this.Revision && !this.HasDate) {
-                throw new BuildException("Must specify a tag or a date.");
-            }
-            base.PrepareProcess(process);
-            this.AppendExportFiles();
-            process.StartInfo.Arguments = this.CommandLine;
-        }
-
-        private void AppendExportFiles () {
-            foreach (Argument arg in this.ExportFiles) {
-                if (arg.IfDefined && !arg.UnlessDefined) {
-                    string remotePath = Path.Combine(this.Module, arg.Value);
-                    remotePath = remotePath.Replace("\\", "/");
-                    this.AddArg(remotePath);
-                }
-            }
         }
 
 		#endregion
