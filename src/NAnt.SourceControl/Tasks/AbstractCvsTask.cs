@@ -410,7 +410,6 @@ namespace NAnt.SourceControl.Tasks {
                 (null == Properties || null == Properties[UseSharpCvsLibProp])) {
                 // if not set and the global property is null then use the default
                 _useSharpCvsLib = UseSharpCvsLib;
-                UseRuntimeEngine = true;
             } else if (!_isUseSharpCvsLibSet &&
                 null != Properties[UseSharpCvsLibProp]){
                 try {
@@ -424,6 +423,10 @@ namespace NAnt.SourceControl.Tasks {
             Logger.Debug("number of arguments: " + Arguments.Count);
             if (IsCvsRootNeeded) {
                 Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
+            }
+
+            if (this.UseSharpCvsLib) {
+                UseRuntimeEngine = true;
             }
 
             // Set verbose logging on the #cvslib client if used.
