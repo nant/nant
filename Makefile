@@ -39,7 +39,7 @@ clean:
 	rm -fR build bootstrap
 
 install: build-bootstrap
-	$(NANT) -f:NAnt.build install -D:install.prefix=$(prefix)
+	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
 
 	
 bootstrap/NAnt.exe:
