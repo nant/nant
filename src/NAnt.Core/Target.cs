@@ -29,16 +29,26 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core {
     public sealed class Target : Element, ICloneable {
-        string _name = null;
-        string _desc = null;
-        bool _hasExecuted = false;
-        bool _ifDefined = true;
-        bool _unlessDefined = false;
-        StringCollection _dependencies = new StringCollection();
+        #region Private Instance Fields
+
+        private string _name = null;
+        private string _desc = null;
+        private bool _hasExecuted = false;
+        private bool _ifDefined = true;
+        private bool _unlessDefined = false;
+        private StringCollection _dependencies = new StringCollection();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
 
         /// <summary> Public Constructor </summary>
         public Target() {
         }
+
+        #endregion Public Instance Constructors
+
+        #region Private Instance Constructors
 
         private Target(Target t) : base((Element)t) {
             this._name = t._name;
@@ -49,9 +59,13 @@ namespace NAnt.Core {
             this._hasExecuted = false;
         }
 
-        /// <summary>The name of the target.</summary>
+        #endregion Private Instance Constructors
+
+        /// <summary>
+        /// The name of the target.
+        /// </summary>
         /// <remarks>
-        ///   <para>Hides <see cref="Element.Name"/> to have <c>Target</c> return the name of target, not the name of Xml element - which would always be <c>target</c>.</para>
+        ///   <para>Hides <see cref="Element.Name"/> to have <see cref="Target" /> return the name of target, not the name of Xml element - which would always be <c>target</c>.</para>
         ///   <para>Note: Properties are not allowed in the name.</para>
         /// </remarks>
         ///
@@ -61,7 +75,10 @@ namespace NAnt.Core {
             set { _name = value; }
         }
 
-        /// <summary>If true then the target will be executed; otherwise skipped. Default is "true".</summary>
+        /// <summary>
+        /// If <c>true</c> then the target will be executed; otherwise skipped. 
+        /// Default is <c>true</c>.
+        /// </summary>
         [TaskAttribute("if")]
         [BooleanValidator()]
         public bool IfDefined {
@@ -69,7 +86,10 @@ namespace NAnt.Core {
             set { _ifDefined = value; }
         }
 
-        /// <summary>Opposite of if.  If false then the target will be executed; otherwise skipped. Default is "false".</summary>
+        /// <summary>
+        /// Opposite of if. If <c>false</c> then the target will be executed; 
+        /// otherwise skipped. Default is <c>false</c>.
+        /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]
         public bool UnlessDefined {
@@ -77,14 +97,18 @@ namespace NAnt.Core {
             set { _unlessDefined = value; }
         }
 
-        /// <summary> The Target Description </summary>
+        /// <summary>
+        /// The description of the target.
+        /// </summary>
         [TaskAttribute("description")]
         public string Desc {
             set { _desc = value;}
             get { return _desc; }
         }
 
-        /// <summary> The space sep list of targets that this target depends on.</summary>
+        /// <summary>
+        /// Space separated list of targets that this target depends on.
+        /// </summary>
         [TaskAttribute("depends")]
         public string DependsListString {
             set {
@@ -97,22 +121,28 @@ namespace NAnt.Core {
             }
         }
 
-        /// <summary>Indicates if the target has been executed.</summary>
+        /// <summary>
+        /// Gets a value indicating if the target has been executed.
+        /// </summary>
         /// <remarks>
-        ///   <para>Targets that have been executed will not execute a second time.</para>
+        /// Targets that have been executed will not execute a second time.
         /// </remarks>
         public bool HasExecuted {
             get { return _hasExecuted; }
         }
 
-        /// <summary>A collection of target names that must be executed before this target.</summary>
+        /// <summary>
+        /// A collection of target names that must be executed before this 
+        /// target.
+        /// </summary>
         public StringCollection Dependencies {
             get { return _dependencies; }
         }
 
-        /// <summary>Executes dependent targets first, then the target.</summary>
+        /// <summary>
+        /// Executes dependent targets first, then the target.
+        /// </summary>
         public void Execute() {
-
             if (!HasExecuted && IfDefined && !UnlessDefined) {
                 // set right at the start or a <call> task could start an infinite loop
                 _hasExecuted = true;
@@ -152,20 +182,28 @@ namespace NAnt.Core {
             }
         }
 
+        #region Implementation of ICloneable
+
         /// <summary>
-        /// Creates a deep copy by calling Copy().
+        /// Creates a deep copy of the <see cref="Target" />.
         /// </summary>
         /// <returns></returns>
         object ICloneable.Clone() {
-            return (object) Copy();
+            return Clone();
         }
 
         /// <summary>
-        /// Creates a new (deep) copy.
+        /// Creates a deep copy of the <see cref="Target" />.
         /// </summary>
-        /// <returns>A copy with the _hasExecuted set to false. This allows the new Target to be Executed.</returns>
-        public Target Copy() {
+        /// <returns>
+        /// A copy of the <see cref="Target" /> with <see cref="HasExecuted" /> 
+        /// set to <c>false</c>. This allows the new <see cref="Target" /> to be 
+        /// executed.
+        /// </returns>
+        public Target Clone() {
             return new Target(this);
         }
+
+        #endregion Implementation of ICloneable
     }
 }
