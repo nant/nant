@@ -18,8 +18,6 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 
@@ -68,22 +66,22 @@ namespace NAnt.VisualCpp.Tasks {
         #region Private Instance Fields
 
         private string _responseFileName;
-        private string _acf = null;
-        private string _align = null;
-        private bool _appConfig = false;
-        private string _char = null;
-        private string _client = null;
-        private string _cstub = null;
+        private string _acf;
+        private string _align;
+        private bool _appConfig;
+        private string _char;
+        private string _client;
+        private string _cstub;
         // TODO: /D!!!!!
-        private string _dlldata = null;
+        private string _dlldata;
         private string _env = "win32";
         // TODO: /error
-        private string _header = null;
-        private string _iid = null;
-        private string _Oi = null;
-        private string _proxy = null;
-        private string _tlb = null;
-        private string _filename = null;
+        private string _Oi;
+        private FileInfo _header;
+        private FileInfo _iid;
+        private FileInfo _proxy;
+        private FileInfo _tlb;
+        private FileInfo _filename;
         private OptionCollection _options = new OptionCollection();
         private OptionCollection _defines = new OptionCollection();
 
@@ -214,7 +212,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// compiler.
         /// </summary>
         [TaskAttribute("tlb", Required=true)]
-        public string Tlb {
+        public FileInfo Tlb {
             get { return _tlb; }
             set { _tlb = value; }
         }
@@ -223,7 +221,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Specifies the name of the header file.
         /// </summary>
         [TaskAttribute("header")]
-        public string Header {
+        public FileInfo Header {
             get { return _header; }
             set { _header = value; }
         }
@@ -234,7 +232,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// to the IDL file name.
         /// </summary>
         [TaskAttribute("iid")]
-        public string Iid {
+        public FileInfo Iid {
             get { return _iid; }
             set { _iid = value; }
         }
@@ -243,7 +241,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Specifies the name of the interface proxy file for a COM interface.
         /// </summary>
         [TaskAttribute("proxy")]
-        public string Proxy {
+        public FileInfo Proxy {
             get { return _proxy; }
             set { _proxy = value; }
         }
@@ -252,7 +250,7 @@ namespace NAnt.VisualCpp.Tasks {
         /// Name of .IDL file to process.
         /// </summary>
         [TaskAttribute("filename", Required=true)]
-        public string Filename {
+        public FileInfo Filename {
             get { return _filename; }
             set { _filename = value; }
         }
@@ -339,11 +337,11 @@ namespace NAnt.VisualCpp.Tasks {
             // we should check out against all four
             // output file
             //
-            if (NeedsCompiling(_tlb)) {
+            if (NeedsCompiling(Tlb)) {
                 return true;
-            } else if (NeedsCompiling(_header)) {
+            } else if (Header != null && NeedsCompiling(Header)) {
                 return true;
-            } else if (NeedsCompiling(_iid)) {
+            } else if (Iid != null && NeedsCompiling(Iid)) {
                 return true;
             }
             /*
@@ -360,18 +358,14 @@ namespace NAnt.VisualCpp.Tasks {
         /// <see langword="true" /> if a rebuild is needed; otherwise, 
         /// <see langword="false" />.
         /// </returns>
-        private bool NeedsCompiling(string outputFile) {
-            string fullpath = Path.GetFullPath(Path.Combine(
-                BaseDirectory.FullName, outputFile));
-            FileInfo outputFileInfo = new FileInfo(fullpath);
-            if (!outputFileInfo.Exists) {
+        private bool NeedsCompiling(FileInfo outputFile) {
+            if (!outputFile.Exists) {
                 Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
-                    outputFileInfo.FullName);
+                    outputFile.FullName);
                 return true;
             }
-            StringCollection sources = new StringCollection();
-            sources.Add(Path.GetFullPath(Path.Combine(BaseDirectory.FullName, Filename )));
-            string fileName = FileSet.FindMoreRecentLastWriteTime(sources, outputFileInfo.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Filename.FullName, 
+                outputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, "'{0}' is out of date, recompiling.", fileName);
                 return true;
@@ -388,31 +382,31 @@ namespace NAnt.VisualCpp.Tasks {
 
             writer.WriteLine("/env " + _env);
 
-            if ( _acf != null )
+            if (_acf != null)
                 writer.WriteLine("/acf {0}", _acf);
-            if ( _align != null )
+            if (_align != null)
                 writer.WriteLine("/align {0}", _align);
-            if ( _appConfig )
+            if (_appConfig)
                 writer.WriteLine("/app_config");
-            if ( _char != null )
+            if (_char != null)
                 writer.WriteLine("/char {0}", _char);
-            if ( _client != null )
+            if (_client != null)
                 writer.WriteLine("/client {0}", _client);
-            if ( _cstub != null )
+            if (_cstub != null)
                 writer.WriteLine("/cstub {0}", _cstub);
-            if ( _dlldata != null )
+            if (_dlldata != null)
                 writer.WriteLine("/dlldata \"{0}\"", DllData );
 
-            if ( _Oi != null )
+            if (_Oi != null)
                 writer.WriteLine("/Oi" + _Oi);
-            if ( _tlb != null )
-                writer.WriteLine("/tlb \"{0}\"", Tlb);
-            if ( _header != null )
-                writer.WriteLine("/header  \"{0}\"", Header);
-            if ( _iid != null )
-                writer.WriteLine("/iid " + _iid);
-            if ( _proxy != null )
-                writer.WriteLine("/proxy \"{0}\"", Proxy);
+            if (Tlb != null)
+                writer.WriteLine("/tlb \"{0}\"", Tlb.FullName);
+            if (_header != null)
+                writer.WriteLine("/header \"{0}\"", Header.FullName);
+            if (Iid != null)
+                writer.WriteLine("/iid \"{0}\"", Iid.FullName);
+            if (Proxy != null)
+                writer.WriteLine("/proxy \"{0}\"", Proxy.FullName);
 
             foreach (Option define in _defines) {
                 if (IfDefined && !UnlessDefined) {
@@ -434,7 +428,7 @@ namespace NAnt.VisualCpp.Tasks {
                 }
             }
 
-            writer.WriteLine("\"{0}\"", Filename);
+            writer.WriteLine("\"{0}\"", Filename.FullName);
         }
 
         #endregion Private Instance Methods
