@@ -62,8 +62,7 @@ namespace Tests.NAnt.Core.Util {
                 Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc//def"), "#9");
                 Assert.AreEqual(Directory.GetCurrentDirectory().Substring(0,2) + @"\abc\def", FileUtils.GetFullPath("/abc/def"), "#10");
                 Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath("//abc/def"), "#11");
-
-                int currentDirLength = Directory.GetCurrentDirectory().Length;
+               
 
                 StringBuilder sb = new StringBuilder();
                 while (sb.Length < 260) {
