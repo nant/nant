@@ -361,6 +361,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\LoadTasks.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\LoopTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

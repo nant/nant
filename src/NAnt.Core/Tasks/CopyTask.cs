@@ -188,9 +188,14 @@ namespace SourceForge.NAnt.Tasks {
                     FileInfo srcInfo = new FileInfo(pathname);
                     if (srcInfo.Exists) {
                         // Gets the relative path and file info from the full source filepath
-                        // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1
-                        string dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
-
+                        // pathname = C:\f2\f3\file1, srcBaseInfo=C:\f2, then dstRelFilePath=f3\file1`
+                        string dstRelFilePath = "";
+                        if (srcInfo.FullName.IndexOf( "", 0) != -1 ) {
+                            dstRelFilePath = srcInfo.FullName.Substring(srcBaseInfo.FullName.Length);
+                        } else {
+                            dstRelFilePath = srcInfo.Name;
+                        }
+                        
                         if( dstRelFilePath[0] == Path.DirectorySeparatorChar ) {
                             dstRelFilePath = dstRelFilePath.Substring(1);
                         }

@@ -49,7 +49,7 @@ namespace SourceForge.NAnt {
 
         /// <summary>Scans the path for any Tasks assemblies and adds them.</summary>
         /// <param name="path">The directory to scan in.</param>
-        protected static void ScanDir(string path) {
+        public static void ScanDir(string path) {
             // Don't do anything if we don't have a valid directory path
             if(path == null || path == string.Empty) {
                 return;
