@@ -728,13 +728,14 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Determines if a file has a more recent last write time than the 
-        /// given time.
+        /// given time, or no longer exists.
         /// </summary>
         /// <param name="fileName">A file to check the last write time against.</param>
         /// <param name="targetLastWriteTime">The datetime to compare against.</param>
         /// <returns>
         /// The name of the file that has a last write time greater than 
-        /// <paramref name="targetLastWriteTime" />; otherwise, null.
+        /// <paramref name="targetLastWriteTime" /> or that no longer exists; 
+        /// otherwise, <see langword="null" />.
         /// </returns>
         public static string FindMoreRecentLastWriteTime(string fileName, DateTime targetLastWriteTime) {
             StringCollection fileNames = new StringCollection();
@@ -744,7 +745,8 @@ namespace NAnt.Core.Types {
 
         /// <summary>
         /// Determines if one of the given files has a more recent last write 
-        /// time than the given time.
+        /// time than the given time. If one of the given files no longer exists,
+        /// the target will be considered out-of-date.
         /// </summary>
         /// <param name="fileNames">A collection of filenames to check the last write time against.</param>
         /// <param name="targetLastWriteTime">The datetime to compare against.</param>
@@ -758,8 +760,8 @@ namespace NAnt.Core.Types {
                 if (Path.IsPathRooted(fileName)) {
                     FileInfo fileInfo = new FileInfo(fileName);
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is therefor not newer than {1})", fileName, targetLastWriteTime));
-                        continue;
+                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' no longer exist (so the target might need to be updated)", fileName, targetLastWriteTime));
+                        return fileName;
                     }
                     if (fileInfo.LastWriteTime > targetLastWriteTime) {
                         logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, targetLastWriteTime));
