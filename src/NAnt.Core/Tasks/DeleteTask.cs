@@ -103,17 +103,12 @@ namespace SourceForge.NAnt.Tasks {
                 }
                 if (!Directory.Exists(path))
                 {
-                    if (FailOnError)
-                        throw new DirectoryNotFoundException();
                     string msg = String.Format(CultureInfo.InvariantCulture, "Cannot delete directory {0}.", path);
-
-                    Log.WriteLineIf(Verbose, LogPrefix + msg);
+                    throw new BuildException(msg, Location);
                 }
-		else
-                {
-                    Log.WriteLine( LogPrefix + "Deleting directory {0}.", path);
-                    RecursiveDeleteDirectory(path);
-                }
+                
+                Log.WriteLine( LogPrefix + "Deleting directory {0}.", path);
+                RecursiveDeleteDirectory(path);
             } else {
                 // delete files in fileset
                 if ( DeleteFileSet.DirectoryNames.Count == 0 )
