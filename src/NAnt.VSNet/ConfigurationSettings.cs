@@ -22,6 +22,7 @@ using System.Collections;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -31,7 +32,7 @@ namespace NAnt.VSNet {
         public ConfigurationSettings(ProjectSettings projectSettings, XmlElement elemConfig, SolutionTask solutionTask, string outputDir) {
             _settings = new ArrayList();
             _solutionTask = solutionTask;
-            if (outputDir == null || outputDir.Trim().Length == 0) {
+            if (StringUtils.IsNullOrEmpty(outputDir)) {
                 _relativeOutputPath = elemConfig.Attributes["OutputPath"].Value;
                 _outputPath = new DirectoryInfo(projectSettings.RootDirectory + @"\" + elemConfig.Attributes["OutputPath"].Value).FullName;
             } else {
@@ -43,16 +44,15 @@ namespace NAnt.VSNet {
             }
 
             _projectSettings = projectSettings;
-            _name = elemConfig.GetAttribute("Name").ToLower();
+            _name = elemConfig.GetAttribute("Name").ToLower(CultureInfo.InvariantCulture);
             _docFilename = null;
 
-            if ((elemConfig.Attributes["DocumentationFile"] != null) &&
-                (elemConfig.Attributes["DocumentationFile"].Value.Length > 0)) {
-                if (outputDir == null || outputDir.Trim().Length == 0) {
+            if (!StringUtils.IsNullOrEmpty(elemConfig.GetAttribute("DocumentationFile"))) {
+                if (StringUtils.IsNullOrEmpty(outputDir)) {
                     FileInfo fiDocumentation = new FileInfo(projectSettings.RootDirectory + @"/" + elemConfig.Attributes["DocumentationFile"].Value);
                     _docFilename = fiDocumentation.FullName;
                 } else {
-                    _docFilename = Path.GetFullPath(Path.Combine(outputDir, elemConfig.Attributes["DocumentationFile"].Value));
+                    _docFilename = Path.GetFullPath(Path.Combine(outputDir, elemConfig.GetAttribute("DocumentationFile")));
                 }
                 _settings.Add(@"/doc:""" + _docFilename + @"""");
                 Directory.CreateDirectory(Path.GetDirectoryName(_docFilename));
@@ -82,14 +82,14 @@ namespace NAnt.VSNet {
 
             foreach (DictionaryEntry de in htStringSettings) {
                 string value = elemConfig.GetAttribute(de.Key.ToString());
-                if (value != null && value.Trim().Length > 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     _settings.Add(string.Format(CultureInfo.InvariantCulture, de.Value.ToString(), value));
                 }
             }
 
             foreach (DictionaryEntry de in htBooleanSettings) {
                 string value = elemConfig.GetAttribute(de.Key.ToString());
-                if (value != null && value.Trim().Length > 0) {
+                if (!StringUtils.IsNullOrEmpty(value)) {
                     if (value == "true") {
                         _settings.Add(de.Value.ToString() + "+");
                     } else if (value == "false") {
@@ -124,7 +124,7 @@ namespace NAnt.VSNet {
         }
 
         public string FullOutputFile {
-            get { return Path.Combine(_outputPath, _projectSettings.OutputFile); }
+            get { return Path.Combine(OutputPath, _projectSettings.OutputFile); }
         }
 
         public string[] Settings {
