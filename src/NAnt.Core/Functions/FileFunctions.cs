@@ -19,10 +19,11 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
 using System.Collections;
-using System.Reflection;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Types;
@@ -95,6 +96,32 @@ namespace NAnt.Core.Functions {
             }
 
             return File.GetLastAccessTime(filePath);
+        }
+
+        /// <summary>
+        /// Gets the file version of the given file.
+        /// </summary>
+        /// <param name="fileName">The file to get file version info for.</param>
+        /// <returns>
+        /// The file version of the given file.
+        /// </returns>
+        [Function("get-file-version")]
+        public static string GetFileVersion(string fileName) {
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fileName);
+            return fileVersionInfo.FileVersion;
+        }
+
+        /// <summary>
+        /// Gets the product version of the given file.
+        /// </summary>
+        /// <param name="fileName">The file to get product version info for.</param>
+        /// <returns>
+        /// The product version of the given file.
+        /// </returns>
+        [Function("get-product-version")]
+        public static string GetProductVersion(string fileName) {
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(fileName);
+            return fileVersionInfo.ProductVersion;
         }
 
         /// <summary>
