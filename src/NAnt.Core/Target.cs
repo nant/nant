@@ -30,7 +30,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core {
     [Serializable()]
-    public sealed class Target : Element {
+    public sealed class Target : Element, ICloneable {
         #region Private Instance Fields
 
         private string _name = null;
@@ -195,7 +195,42 @@ namespace NAnt.Core {
 
         #endregion Public Instance Properties
 
+        #region Implementation of ICloneable
+
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="Target" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="Target" />.
+        /// </returns>
+        object ICloneable.Clone() {
+            return Clone();
+        }
+
+        #endregion
+
         #region Public Instance Methods
+
+        /// <summary>
+        /// Creates a shallow copy of the <see cref="Target" />.
+        /// </summary>
+        /// <returns>
+        /// A shallow copy of the <see cref="Target" />.
+        /// </returns>
+        public Target Clone() {
+            Target clone = new Target();
+            clone._dependencies = _dependencies;
+            clone._description = _description;
+            clone._executed = _executed;
+            clone._ifCondition = _ifCondition;
+            clone._name = _name;
+            clone._unlessCondition = _unlessCondition;
+            clone.Project = Project;
+            clone.XmlNode = XmlNode;
+            clone.Location = Location;
+            clone.Parent = Parent;
+            return clone;
+        }
 
         /// <summary>
         /// Executes dependent targets first, then the target.

@@ -78,6 +78,7 @@ namespace NAnt.Core {
         private const string ProjectDefaultAttribte = "default";
         private const string ProjectBaseDirAttribute = "basedir";
         private const string TargetXml = "target";
+        private const string WildTarget = "*";
 
         /// <summary>
         /// Constant for the "visiting" state, used when traversing a DFS of 
@@ -132,15 +133,17 @@ namespace NAnt.Core {
         private StringCollection _buildTargets = new StringCollection();
         private TargetCollection _targets = new TargetCollection();
         private LocationMap _locationMap = new LocationMap();
-        private PropertyDictionary _properties = null;
-        private PropertyDictionary _frameworkNeutralProperties = null;
-        private XmlNode _configurationNode;
+        private PropertyDictionary _properties;
+        private PropertyDictionary _frameworkNeutralProperties;
+        private Target _currentTarget;
 
         // info about frameworks
         private FrameworkInfoDictionary _frameworks = new FrameworkInfoDictionary();
         private FrameworkInfo _runtimeFramework;
         private FrameworkInfo _targetFramework;
 
+        [NonSerialized()]
+        private XmlNode _configurationNode;
         [NonSerialized()]
         private XmlDocument _doc = null; // set in ctorHelper
         [NonSerialized()]
@@ -460,6 +463,17 @@ namespace NAnt.Core {
                         (int) Environment.OSVersion.Platform));
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the current target.
+        /// </summary>
+        /// <value>
+        /// The current target, or <see langword="null" /> if no target is
+        /// executing.
+        /// </value>
+        public Target CurrentTarget {
+            get { return _currentTarget; }
         }
 
         /// <summary>
@@ -854,8 +868,13 @@ namespace NAnt.Core {
 
             do {
                 currentTarget = (Target) sortedTargets[currentIndex++];
-                //only execute targets that have not been executed already, if we are not forcing.
-                if(forceDependencies || !currentTarget.Executed) {
+
+                // store target that will be executed
+                _currentTarget = currentTarget;
+
+                // only execute targets that have not been executed already, if 
+                // we are not forcing.
+                if (forceDependencies || !currentTarget.Executed) {
                     currentTarget.Execute();
                 }
             } while (!currentTarget.Name.Equals(targetName));
@@ -876,8 +895,8 @@ namespace NAnt.Core {
                 OnBuildStarted(this, new BuildEventArgs(this));
                 Log(Level.Info, "Buildfile: {0}", BuildFileUri);
 
-                // Write verbose project information after Initialize to make sure
-                // properties are correctly initialized.
+                // write verbose project information after Initialize to make 
+                // sure properties are correctly initialized
                 Log(Level.Verbose, "Base Directory: {0}.", BaseDirectory);
 
                 // execute the project
@@ -1479,22 +1498,34 @@ namespace NAnt.Core {
 
             Target target = (Target) targets.Find(root);
 
+            if (target == null) {
+            }
+
             // Make sure the target exists
             if (target == null) {
-                StringBuilder sb = new StringBuilder("Target '");
-                sb.Append(root);
-                sb.Append("' does not exist in this project.");
+                // check if there's a wildcard target defined
+                target = (Target) targets.Find(WildTarget);
+                if (target != null) {
+                    // if a wildcard target exists, then treat the wildcard
+                    // target as the requested target
+                    target = target.Clone();
+                    target.Name = root;
+                } else {
+                    StringBuilder sb = new StringBuilder("Target '");
+                    sb.Append(root);
+                    sb.Append("' does not exist in this project.");
 
-                visiting.Pop();
-                if (visiting.Count > 0) {
-                    string parent = (string) visiting.Peek();
-                    sb.Append(" ");
-                    sb.Append("It is used from target '");
-                    sb.Append(parent);
-                    sb.Append("'.");
+                    visiting.Pop();
+                    if (visiting.Count > 0) {
+                        string parent = (string) visiting.Peek();
+                        sb.Append(" ");
+                        sb.Append("It is used from target '");
+                        sb.Append(parent);
+                        sb.Append("'.");
+                    }
+
+                    throw new BuildException(sb.ToString());
                 }
-
-                throw new BuildException(sb.ToString());
             }
 
             foreach (string dependency in target.Dependencies) {
