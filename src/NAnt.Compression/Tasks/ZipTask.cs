@@ -62,6 +62,7 @@ namespace NAnt.Zip.Tasks {
         private string _comment = null;
         private bool _includeEmptyDirs = false;
         private Hashtable _addedDirs = new Hashtable();
+        private string _prefixDir = null;
 
         #endregion Private Instance Fields
 
@@ -84,6 +85,18 @@ namespace NAnt.Zip.Tasks {
             get { return _comment; }
             set { _comment = StringUtils.ConvertEmptyToNull(value); }
         }
+
+        /// <summary>
+        /// The top level directory prefix. If set all file paths in the zip will
+        /// have this value prepended. Can be a single directory name or a / 
+        /// seperated path 
+        /// </summary>
+        [TaskAttribute("prefix", Required=false)]
+        public string PrefixDir {
+            get { return _prefixDir; }
+            set { _prefixDir = StringUtils.ConvertEmptyToNull(value); }
+        }
+        
 
         /// <summary>
         /// An optional date/time stamp for the files.
@@ -189,6 +202,11 @@ namespace NAnt.Zip.Tasks {
                         } else {
                             // flatten directory structure
                             entryName = Path.GetFileName(file);
+                        }
+                        
+                        // add directory prefix if specified
+                        if (PrefixDir!= null ) {
+                            entryName = PrefixDir + "/" + entryName;
                         }
 
                         // create zip entry
