@@ -1,2 +1,3 @@
 NAnt.DotNetTasks
 NAnt.ZipTasks
+NAnt.VisualCppTasks
