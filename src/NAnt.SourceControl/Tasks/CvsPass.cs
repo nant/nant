@@ -39,7 +39,7 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>Update .cvspass file to include the NAnt anonymous login.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvs cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    /// <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///      password="anonymous"
     ///      passfile="C:\.cvspass" />
     ///     ]]>
@@ -47,23 +47,14 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-pass")]
     public class CvsPass : AbstractCvsTask {
-
         #region Private Instance Fields
-        private static readonly log4net.ILog Logger = 
-            log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private FileInfo _passwordfile;
+        private FileInfo _passwordFile;
         private string _password;
-        #endregion
+
+        #endregion Private Instance Fields
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// The cvs command to execute.
-        /// </summary>
-        public override string CommandName {
-            get {return "login";}
-        }
 
         /// <summary>
         /// Password to append or update to the .cvspass file.
@@ -75,13 +66,24 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Full path to the .cvspass file.  
+        /// The full path to the .cvspass file.  The default is ~/.cvspass.
         /// </summary>
-        /// <value>Defaults to ~/.cvspass.</value>
+        /// <value></value>
         [TaskAttribute("passfile", Required=false)]
-        public FileInfo Passwordfile {
-            get { return this._passwordfile; }
-            set { this._passwordfile = value; }
+        public FileInfo PasswordFile {
+            get { return this._passwordFile; }
+            set { this._passwordFile = value; }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of AbstractCvsTask
+
+        /// <summary>
+        /// The cvs command to execute.
+        /// </summary>
+        public override string CommandName {
+            get { return "login"; }
         }
 
         /// <summary>
@@ -91,6 +93,10 @@ namespace NAnt.SourceControl.Tasks {
             get { return false; }
         }
 
+        #endregion Override implementation of AbstractCvsTask
+
+        #region Override implementation of Task
+
         /// <summary>
         /// Update the .cvspass file with the given password.
         /// </summary>
@@ -98,11 +104,11 @@ namespace NAnt.SourceControl.Tasks {
             ICSharpCode.SharpCvsLib.FileSystem.Manager manager = 
                 new ICSharpCode.SharpCvsLib.FileSystem.Manager(this.DestinationDirectory);
 
-            Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.Passwordfile.FullName);
+            Log(Level.Verbose, "Updating .cvspass file '{0}'.", this.PasswordFile.FullName);
             manager.UpdatePassFile(this.Password, 
                 new ICSharpCode.SharpCvsLib.Misc.CvsRoot(this.Root));
         }
 
-        #endregion
+        #endregion Override implementation of Task
     }
 }
