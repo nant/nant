@@ -272,29 +272,34 @@
         <p>Expressions can access, pass and return values of the following types:</p>
         <div class="table">
             <table>
-                <th>Type</th>
-                <th>Allowed values</th>
-            </thead>
-            <tr>
-                <td>int</td>
-                <td>32-bit signed integer value</td>
-            </tr>
-            <tr>
-                <td>double</td>
-                <td>64-bit signed double precision floating point value</td>
-            </tr>
-            <tr>
-                <td>boolean</td>
-                <td><code>true</code> or <code>false</code></td>
-            </tr>
-            <tr>
-                <td>string</td>
-                <td>strings of characters of any length.</td>
-            </tr>
-            <tr>
-                <td>datetime</td>
-                <td>values represeting date &amp; time (range is from 00:00:00, January 1, 1 AD to 23:59:59, December 31, 9999 AD)</td>
-            </tr>
+                <tr></tr>
+                    <th>Type</th>
+                    <th>Allowed values</th>
+                </tr>
+                <tr>
+                    <td>int</td>
+                    <td>32-bit signed integer value</td>
+                </tr>
+                <tr>
+                    <td>double</td>
+                    <td>64-bit signed double precision floating point value</td>
+                </tr>
+                <tr>
+                    <td>boolean</td>
+                    <td><code>true</code> or <code>false</code></td>
+                </tr>
+                <tr>
+                    <td>string</td>
+                    <td>strings of characters of any length.</td>
+                </tr>
+                <tr>
+                    <td>datetime</td>
+                    <td>values represeting date &amp; time (range is from 00:00:00, January 1, 1 AD to 23:59:59, December 31, 9999 AD)</td>
+                </tr>
+                <tr>
+                    <td>timespan</td>
+                    <td>represents a time interval.</td>
+                </tr>
             </table>
         </div>
         <p>In addition, the expression evaluation engine allows you to return and pass values of any CLI type through the use of <a href="functions.html#custom">custom functions</a>. Note that there's no support for implicit type conversions.</p>
