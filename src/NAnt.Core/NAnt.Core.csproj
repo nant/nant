@@ -116,6 +116,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "DataTypeBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataTypeBaseBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DataTypeBaseBuilderCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "DirectoryListScanner.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
