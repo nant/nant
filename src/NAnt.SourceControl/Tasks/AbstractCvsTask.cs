@@ -425,6 +425,12 @@ namespace NAnt.SourceControl.Tasks {
             if (IsCvsRootNeeded) {
                 Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
             }
+
+            // Set verbose logging on the #cvslib client if used.
+            if (this.UseSharpCvsLib && this.Verbose) {
+                SetGlobalOption("verbose", String.Format("-verbose"), true);
+            }
+
             AppendGlobalOptions();
             Arguments.Add(new Argument(CommandName));
 
