@@ -63,6 +63,7 @@ namespace NAnt.Core.Tasks {
         /// NAnt target to call.
         /// </summary>
         [TaskAttribute("target", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string TargetName {
             get { return _target; }
             set { _target = StringUtils.ConvertEmptyToNull(value); }

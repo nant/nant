@@ -38,16 +38,17 @@ namespace NAnt.Core.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// Name of this property
+        /// Name of the option.
         /// </summary>
         [TaskAttribute("name", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string OptionName {
             get { return _name; }
             set { _name = value; }
         }
 
         /// <summary>
-        /// Value of this property. Default is null;
+        /// Value of the option. The default is <see langword="null" />.
         /// </summary>
         [TaskAttribute("value")]
         public string Value {

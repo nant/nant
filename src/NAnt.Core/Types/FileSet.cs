@@ -337,6 +337,7 @@ namespace NAnt.Core.Types {
             /// The pattern or file name to include.
             /// </summary>
             [TaskAttribute("name", Required=true)]
+            [StringValidator(AllowEmpty=false)]
             public string Pattern {
                 get { return _pattern; }
                 set { _pattern= value; }

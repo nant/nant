@@ -80,6 +80,7 @@ namespace NAnt.Core.Tasks {
         /// not contain any punctuation and cannot begin with a number.
         /// </remarks>
         [TaskAttribute("pattern", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Pattern {
             get { return _pattern;}
             set { _pattern = value; }
@@ -89,9 +90,10 @@ namespace NAnt.Core.Tasks {
         /// Represents the input for the regular expression.
         /// </summary>
         /// <value>
-        /// Represents the input for the regular expression.
+        /// The input for the regular expression.
         /// </value>
         [TaskAttribute("input", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Input {
             get { return _input;}
             set { _input = value; }

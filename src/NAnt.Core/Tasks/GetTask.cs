@@ -66,6 +66,7 @@ namespace NAnt.Core.Tasks {
         /// The URL from which to retrieve a file.
         /// </summary>
         [TaskAttribute("src", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Source {
             get { return _src; }
             set { _src = value; }
@@ -75,6 +76,7 @@ namespace NAnt.Core.Tasks {
         /// The file where to store the retrieved file.
         /// </summary>
         [TaskAttribute("dest", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Destination {
             get { return _dest; }
             set { _dest = value; }

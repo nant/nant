@@ -78,6 +78,7 @@ namespace NAnt.Core {
         ///   </para>
         /// </remarks>
         [TaskAttribute("name", Required=true, ExpandProperties=false)]
+        [StringValidator(AllowEmpty=false)]
         public new string Name {
             get { return _name; }
             set { _name = value; }

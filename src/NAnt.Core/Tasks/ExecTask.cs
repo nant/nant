@@ -58,6 +58,7 @@ namespace NAnt.Core.Tasks {
         /// The program to execute without command arguments.
         /// </summary>
         [TaskAttribute("program", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string FileName {
             get { return _program; }
             set { _program = StringUtils.ConvertEmptyToNull(value); }

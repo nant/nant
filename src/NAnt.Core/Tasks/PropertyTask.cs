@@ -72,18 +72,20 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The name of the property to set.
+        /// The name of the NAnt property to set.
         /// </summary>
         [TaskAttribute("name", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string PropertyName {
             get { return _name; }
             set { _name = value; }
         }
 
         /// <summary>
-        /// The value to assign to the property.
+        /// The value to assign to the NAnt property.
         /// </summary>
         [TaskAttribute("value", Required=true)]
+        [StringValidator(AllowEmpty=true)]
         public string Value {
             get { return _value; }
             set { _value = value; }

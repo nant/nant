@@ -82,6 +82,7 @@ namespace NAnt.Core.Tasks {
         /// Email address of sender.
         /// </summary>
         [TaskAttribute("from", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string From {
             get { return _from; }
             set { _from = StringUtils.ConvertEmptyToNull(value); }
@@ -91,6 +92,7 @@ namespace NAnt.Core.Tasks {
         /// Comma- or semicolon-separated list of recipient email addresses.
         /// </summary>
         [TaskAttribute("tolist", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string ToList {
             get { return _toList.Replace("," , ";"); }
             set { 

@@ -134,6 +134,7 @@ namespace NAnt.Core.Tasks {
         /// basedir or as an absolute path.
         /// </summary>
         [TaskAttribute("style", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string StyleSheet {
             get { return _xsltFile; }
             set { _xsltFile = value; }

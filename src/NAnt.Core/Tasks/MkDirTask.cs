@@ -57,6 +57,7 @@ namespace NAnt.Core.Tasks {
         /// The directory to create.
         /// </summary>
         [TaskAttribute("dir", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Dir {
             get { return (_dir != null) ? Project.GetFullPath(_dir) : null; }
             set { _dir = StringUtils.ConvertEmptyToNull(value); }

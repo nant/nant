@@ -68,8 +68,11 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// The name of the namespace to import.
         /// </summary>
-        /// <value>The name of the namespace to import.</value>
+        /// <value>
+        /// The name of the namespace to import.
+        /// </value>
         [TaskAttribute("name", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Namespace {
             get { return _namespace; }
             set { _namespace = value; }

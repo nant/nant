@@ -71,6 +71,7 @@ namespace NAnt.Core.Tasks {
         /// The name of the output file to which the XSD should be written.
         /// </summary>
         [TaskAttribute("output", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public virtual string OutputFile {
             get { return (_outputFile != null) ? Project.GetFullPath(_outputFile) : null; }
             set { _outputFile = StringUtils.ConvertEmptyToNull(value); }

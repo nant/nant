@@ -32,9 +32,10 @@ namespace NAnt.Core.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// The property to set.
+        /// The name of the NAnt property to set.
         /// </summary>
         [TaskAttribute("property", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Property {
             get { return _property; }
             set { _property= value; }
@@ -44,6 +45,7 @@ namespace NAnt.Core.Types {
         /// The string pattern to use to format the property.
         /// </summary>       
         [TaskAttribute("pattern", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Pattern {
             get { return _pattern; }
             set { _pattern= value; }

@@ -82,6 +82,7 @@ namespace NAnt.Core.Tasks {
         /// The registry key to read (without a leading slash).
         /// </summary>
         [TaskAttribute("key", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public virtual string RegistryKey {
             get { return _regKey; }
             set {

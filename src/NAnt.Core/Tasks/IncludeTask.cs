@@ -83,8 +83,11 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
-        /// <summary>Build file to include.</summary>
+        /// <summary>
+        /// Build file to include.
+        /// </summary>
         [TaskAttribute("buildfile", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string BuildFileName {
             get { return _buildFileName; }
             set { _buildFileName = value; }

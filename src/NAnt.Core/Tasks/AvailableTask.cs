@@ -109,6 +109,7 @@ namespace NAnt.Core.Tasks {
         /// The resource which must be available.
         /// </summary>
         [TaskAttribute("resource", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Resource {
             get { return _resource; }
             set { _resource = StringUtils.ConvertEmptyToNull(value); }
@@ -135,6 +136,7 @@ namespace NAnt.Core.Tasks {
         /// The property that must be set if the resource is available.
         /// </summary>
         [TaskAttribute("property", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string PropertyName {
             get { return _propertyName; }
             set { _propertyName = StringUtils.ConvertEmptyToNull(value); }

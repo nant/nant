@@ -148,6 +148,7 @@ namespace NAnt.Core.Tasks {
         /// If specifying multiple properties, separate them with a comma.
         /// </remarks>
         [TaskAttribute("property", Required=true)]
+        [StringValidator(AllowEmpty=false)]
         public string Property {
             get { return _prop; }
             set {
