@@ -15,7 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-
 // Scott Hernandez(ScottHernandez@hotmail.com)
 
 using System;
@@ -26,10 +25,11 @@ using System.Globalization;
 
 namespace SourceForge.NAnt {
     /// <summary>
-    /// Stub used to created AppDamain and launch real ConsoleDriver class in Core assembly.
+    /// Stub used to created <see cref="AppDomain" /> and launch real <c>ConsoleDriver</c> 
+    /// class in Core assembly.
     /// </summary>
     public class ConsoleStub {
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #region Public Static Methods
 
         /// <summary>
         /// Entry point for executable
@@ -49,16 +49,15 @@ namespace SourceForge.NAnt {
                 nantShadowCopyFilesSetting, 
                 nantCleanupShadowCopyFilesSetting));
 
-            if(nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
-
+            if (nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
                 System.AppDomainSetup myDomainSetup = new System.AppDomainSetup();
 
                 myDomainSetup.PrivateBinPath = myDomainSetup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
 
                 logger.Debug(string.Format(
-                                CultureInfo.InvariantCulture,
-                                "NAntDomain.PrivateBinPath={0}", 
-                                myDomainSetup.PrivateBinPath));
+                    CultureInfo.InvariantCulture,
+                    "NAntDomain.PrivateBinPath={0}", 
+                    myDomainSetup.PrivateBinPath));
 
                 myDomainSetup.ApplicationName = "NAnt";
                 
@@ -84,15 +83,15 @@ namespace SourceForge.NAnt {
                 //try to cache in .\cache folder, if that fails, let the system figure it out.
                 string cachePath = Path.Combine(myDomainSetup.ApplicationBase, "cache");
                 DirectoryInfo cachePathInfo = null;
-                try{
-                   cachePathInfo = Directory.CreateDirectory(cachePath);
-                }
-                catch(Exception e){
+
+                try {
+                    cachePathInfo = Directory.CreateDirectory(cachePath);
+                } catch (Exception e) {
                     Console.WriteLine("Failed to create: {0}. Using default CachePath." + e.ToString(), cachePath);
-                }
-                finally{
-                    if(cachePathInfo != null)
+                } finally {
+                    if(cachePathInfo != null) {
                         myDomainSetup.CachePath = cachePathInfo.FullName;
+                    }
 
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
@@ -115,20 +114,11 @@ namespace SourceForge.NAnt {
                 "Creating HelperArgs({0})", 
                 args.ToString()));
             
-            helperArgs helper = new helperArgs(args);
+            HelperArguments helper = new HelperArguments(args);
             executionAD.DoCallBack(new CrossAppDomainDelegate(helper.CallConsoleRunner));
 
             //unload if remote/new appdomain
-            if(!cd.Equals(executionAD)) {
-                
-                /*
-                Console.WriteLine();
-                Console.WriteLine("> Unloading AppDomain and Assemblies");
-                foreach(Assembly ass in executionAD.GetAssemblies()){
-                    Console.WriteLine("> {0}", ass.Location, ass.CodeBase);
-                }
-                */
-
+            if (!cd.Equals(executionAD)) {
                 string cachePath = executionAD.SetupInformation.CachePath;
 
                 logger.Debug(string.Format(
@@ -137,7 +127,8 @@ namespace SourceForge.NAnt {
                     executionAD.FriendlyName));
 
                 AppDomain.Unload(executionAD);
-                if(nantCleanupShadowCopyFilesSetting != null && bool.Parse(nantCleanupShadowCopyFilesSetting) == true) {
+
+                if (nantCleanupShadowCopyFilesSetting != null && bool.Parse(nantCleanupShadowCopyFilesSetting) == true) {
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
                         "Unloading '{0}' AppDomain", 
@@ -147,22 +138,16 @@ namespace SourceForge.NAnt {
                             CultureInfo.InvariantCulture,
                             "Cleaning up CacheFiles in '{0}'", 
                             cachePath));
-
                         Directory.Delete(cachePath, true);
-                    }
-                    catch (FileNotFoundException fnf){
-                        logger.Debug(string.Format(
-                            CultureInfo.InvariantCulture,
-                            "Files not found...?: {0}", 
-                            fnf));
-                    }
-                    catch (Exception e) {
-                        Console.WriteLine("Unable to delete cache({1}).\n {0}", e.ToString(), cachePath);
+                    } catch (FileNotFoundException ex) {
+                        logger.Error("Files not found.", ex);
+                    } catch (Exception ex) {
+                        Console.WriteLine("Unable to delete cache({1}).\n {0}.", ex.ToString(), cachePath);
                     }
                 }
             }
 
-            if(helper == null || helper.Return == -1) {
+            if (helper == null || helper.ExitCode == -1) {
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
                     "Return Code null or -1"));
@@ -171,20 +156,58 @@ namespace SourceForge.NAnt {
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
                     "Return Code = {0}", 
-                    helper.Return));
-                return helper.Return;
+                    helper.ExitCode));
+                return helper.ExitCode;
             }
         }
 
-        [Serializable]
-        public class helperArgs : MarshalByRefObject {
-            private string[] args = null;
-            private int ret = -1;
+        #endregion Public Static Methods
 
-            private helperArgs(){}
-            public helperArgs(string[] args0) {this.args = args0;}
+        #region Private Static Fields
 
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        #endregion Private Static Fields
+
+        /// <summary>
+        /// Helper class for invoking the application entry point in NAnt.Core
+        /// and passing the command-line arguments.
+        /// </summary>
+        [Serializable()]
+        private class HelperArguments : MarshalByRefObject {
+            #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="HelperArguments" />
+            /// class with the specified command-line arguments.
+            /// </summary>
+            /// <param name="args"></param>
+            public HelperArguments(string[] args) {
+                _args = args;
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Properties
+
+            /// <summary>
+            /// Gets the status that the build process returned when it exited.
+            /// </summary>
+            /// <value>
+            /// The code that the build process specified when it terminated.
+            /// </value>
+            public int ExitCode {
+                get { return _exitCode; }
+            }
+
+            #endregion Public Instance Properties
+
+            #region Public Instance Methods
+
+            /// <summary>
+            /// Invokes the application entry point in NAnt.Core.
+            /// </summary>
             public void CallConsoleRunner() {
+                MethodInfo mainMethodInfo = null;
 
                 //load the core by name!
                 Assembly nantCore = AppDomain.CurrentDomain.Load("NAnt.Core");
@@ -196,20 +219,32 @@ namespace SourceForge.NAnt {
 
                 //get the ConsoleDriver by name
                 Type consoleDriverType = nantCore.GetType("SourceForge.NAnt.ConsoleDriver", true, true);
-                MethodInfo mainMethodInfo = null;
+
                 //find the Main Method, this method is less than optimal, but other methods failed.
-                foreach(MethodInfo meth in consoleDriverType.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
-                    if(meth.Name.Equals("Main"))
-                        mainMethodInfo = meth;
+                foreach (MethodInfo methodInfo in consoleDriverType.GetMethods(BindingFlags.Static | BindingFlags.Public)) {
+                    if (methodInfo.Name.Equals("Main")) {
+                        mainMethodInfo = methodInfo;
+                        break;
+                    }
                 }
-                ret = (int) mainMethodInfo.Invoke(null, new Object[] {args});
+
+                // invoke the Main method and pass the command-line arguments as parameter.
+                _exitCode = (int) mainMethodInfo.Invoke(null, new object[] {_args});
 
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
                     "'{0}' returned {1}", 
-                    mainMethodInfo.ToString(), ret));
+                    mainMethodInfo.ToString(), ExitCode));
             }
-            public int Return { get { return ret;}}
+
+            #endregion Public Instance Methods
+
+            #region Private Instance Fields
+
+            private string[] _args = null;
+            private int _exitCode = -1;
+
+            #endregion Private Instance Fields
         }
     }
 }
