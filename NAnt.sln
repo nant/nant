@@ -1,89 +1,56 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 7.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Console", "src\Nant.Console\NAnt.Console.csproj", "{859696F8-F405-4018-A155-D34561498A3E}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Tests", "tests\NAnt.Tests.csproj", "{F77EA08E-9473-436A-BBA3-880139A341B1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-		{B50A1067-785B-4686-8FFC-5AF424BEF163} = {B50A1067-785B-4686-8FFC-5AF424BEF163}
-		{A154DB17-7263-44E3-838E-1E4C4946B7D8} = {A154DB17-7263-44E3-838E-1E4C4946B7D8}
-		{8F80C098-94A4-44DB-A25D-C9E455FC3120} = {8F80C098-94A4-44DB-A25D-C9E455FC3120}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.DotNet", "src\NAnt.DotNet\NAnt.DotNet.csproj", "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VisualCpp", "src\NAnt.VisualCpp\NAnt.VisualCpp.csproj", "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Compression", "src\NAnt.Compression\NAnt.Compression.csproj", "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDoc.Documenter.NAnt", "src\NDoc.Documenter.NAnt\NDoc.Documenter.NAnt.csproj", "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Core", "src\NAnt.Core\NAnt.Core.csproj", "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit", "src\NAnt.NUnit\NAnt.NUnit.csproj", "{00F5C075-9874-4BCE-909A-99C1F600E047}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit2", "src\NAnt.NUnit\NUnit2\NAnt.NUnit2.csproj", "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-		{00F5C075-9874-4BCE-909A-99C1F600E047} = {00F5C075-9874-4BCE-909A-99C1F600E047}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.NUnit1", "src\NAnt.NUnit\NUnit1\NAnt.NUnit1.csproj", "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-		{00F5C075-9874-4BCE-909A-99C1F600E047} = {00F5C075-9874-4BCE-909A-99C1F600E047}
-	EndProjectSection
 EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Resources", "src\NAnt.Resources\NAnt.Resources.csproj", "{5B612A85-0BCF-4115-846B-B9F4B838052B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
-EndProject
-
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.SourceControl", "src\NAnt.SourceControl\NAnt.SourceControl.csproj", "{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.Win32", "src\NAnt.Win32\NAnt.Win32.csproj", "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F5F8375-4097-4952-B860-784EB9961ABE} = {8F5F8375-4097-4952-B860-784EB9961ABE}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.MSNet", "src\NAnt.MSNet\NAnt.MSNet.csproj", "{ED13C268-36DE-49CE-B347-C2BE03F814B9}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VSNet", "src\NAnt.VSNet\NAnt.VSNet.csproj", "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Debug Main NAnt BuildFile = Debug Main NAnt BuildFile
-		Debug NAnt Tests = Debug NAnt Tests
-		Release = Release
-		Test = Test
+		ConfigName.0 = Debug
+		ConfigName.1 = Debug Main NAnt BuildFile
+		ConfigName.2 = Debug NAnt Tests
+		ConfigName.3 = Release
+		ConfigName.4 = Test
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.0 = {8F80C098-94A4-44DB-A25D-C9E455FC3120}
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.1 = {A154DB17-7263-44E3-838E-1E4C4946B7D8}
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.2 = {B50A1067-785B-4686-8FFC-5AF424BEF163}
+		{F77EA08E-9473-436A-BBA3-880139A341B1}.3 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{B50A1067-785B-4686-8FFC-5AF424BEF163}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{A154DB17-7263-44E3-838E-1E4C4946B7D8}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{8F80C098-94A4-44DB-A25D-C9E455FC3120}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{841FAEBA-4527-410A-B765-E2EDA47ABDCE}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{00F5C075-9874-4BCE-909A-99C1F600E047}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}.0 = {00F5C075-9874-4BCE-909A-99C1F600E047}
+		{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}.1 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}.0 = {00F5C075-9874-4BCE-909A-99C1F600E047}
+		{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}.1 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
+		{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}.0 = {8F5F8375-4097-4952-B860-784EB9961ABE}
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{859696F8-F405-4018-A155-D34561498A3E}.Debug.ActiveCfg = Debug|.NET
@@ -198,8 +165,8 @@ Global
 		{DD434690-B4DF-4BF9-91FE-F139A41E2474}.Test.ActiveCfg = Debug Main NAnt BuildFile|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
-		Makefile = Makefile
-		NAnt.build = NAnt.build
+		Item:1 = Makefile
+		Item:2 = NAnt.build
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
