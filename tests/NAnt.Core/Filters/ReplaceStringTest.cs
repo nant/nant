@@ -91,8 +91,7 @@ namespace Tests.NAnt.Core.Filters {
         /// Test for ignorecase
         /// </summary>
         [Test]
-        public void ComplexTestCase() 
-        {
+        public void ComplexTestCase() {
             string prologueXml = null;
 
             string filterXml = @"<" + _tagName + @" from=""CAT"" to=""UPPER CAT"" ignorecase=""true""/>";
@@ -135,8 +134,7 @@ namespace Tests.NAnt.Core.Filters {
         /// Single character replacement
         /// </summary>
         [Test]
-        public void ComplexTestSingleChar() 
-        {
+        public void ComplexTestSingleChar() {
             string prologueXml = null;
 
             string filterXml = @"<" + _tagName + @" from=""c"" to=""b""/>";
@@ -179,8 +177,7 @@ namespace Tests.NAnt.Core.Filters {
         /// Test repeating replacement chars
         /// </summary>
         [Test]
-        public void ComplexTestRepeating() 
-        {
+        public void ComplexTestRepeating() {
             string prologueXml = null;
 
             string filterXml = @"<" + _tagName + @" from=""cat"" to=""frog""/>";
@@ -191,20 +188,19 @@ namespace Tests.NAnt.Core.Filters {
             base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
 
-		/// <summary>
-		/// Test replacing with null
-		/// </summary>
-		[Test]
-		public void ComplexTestNull() 
-		{
-			string prologueXml = null;
+        /// <summary>
+        /// Test replacing with null
+        /// </summary>
+        [Test]
+        public void ComplexTestNull() {
+            string prologueXml = null;
 
-			string filterXml = @"<" + _tagName + @" from=""cat"" to=""""/>";
+            string filterXml = @"<" + _tagName + @" from=""cat"" to=""""/>";
 
-			string input = @"catcatsuccesscatcatcat";
-			string expectedOutput = @"success";
+            string input = @"catcatsuccesscatcatcat";
+            string expectedOutput = @"success";
 
-			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
-		}
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
     }
 }

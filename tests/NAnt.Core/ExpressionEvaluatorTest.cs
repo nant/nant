@@ -290,38 +290,38 @@ namespace Tests.NAnt.Core {
 
         [Test]
         public void TestConversionFunctions() {
-			// string to bool
-			AssertExpression("bool::parse('True')", true);
-			AssertExpression("bool::parse('true')", true);
-			AssertExpression("bool::parse('False')", false);
-			AssertExpression("bool::parse('false')", false);
-			AssertFailure("bool::parse('aaafalse')");
+            // string to bool
+            AssertExpression("bool::parse('True')", true);
+            AssertExpression("bool::parse('true')", true);
+            AssertExpression("bool::parse('False')", false);
+            AssertExpression("bool::parse('false')", false);
+            AssertFailure("bool::parse('aaafalse')");
 
-			// bool to string
-			AssertExpression("bool::to-string(false)", bool.FalseString);
-			AssertExpression("bool::to-string(true)", bool.TrueString);
-			AssertFailure("bool::to-string('aaafalse')");
-			AssertFailure("bool::to-string(1)");
+            // bool to string
+            AssertExpression("bool::to-string(false)", bool.FalseString);
+            AssertExpression("bool::to-string(true)", bool.TrueString);
+            AssertFailure("bool::to-string('aaafalse')");
+            AssertFailure("bool::to-string(1)");
 
-			// string to int
-			AssertExpression("int::parse('123' + '45')", 12345);
-			AssertFailure("int::parse('12345.66666')");
+            // string to int
+            AssertExpression("int::parse('123' + '45')", 12345);
+            AssertFailure("int::parse('12345.66666')");
 
-			// int to string
-			AssertExpression("int::to-string(12345)", "12345");
+            // int to string
+            AssertExpression("int::to-string(12345)", "12345");
 
-			// string to double
-			AssertExpression("double::parse('5') / (2 + 8)", 0.5);
-			AssertExpression("double::parse('1') / 2 + 3", 3.5);
-			AssertFailure("double::parse('aaaaaaaaa')");
+            // string to double
+            AssertExpression("double::parse('5') / (2 + 8)", 0.5);
+            AssertExpression("double::parse('1') / 2 + 3", 3.5);
+            AssertFailure("double::parse('aaaaaaaaa')");
 
-			// double to string
-			AssertExpression("double::to-string(5.56)", "5.56");
-			AssertExpression("double::to-string(5.0)", "5");
-			AssertFailure("double::to-string(5#0)");
+            // double to string
+            AssertExpression("double::to-string(5.56)", "5.56");
+            AssertExpression("double::to-string(5.0)", "5");
+            AssertFailure("double::to-string(5#0)");
 
-			// string to datetime
-			AssertExpression("datetime::parse('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
+            // string to datetime
+            AssertExpression("datetime::parse('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
             AssertFailure("datetime::parse('1')");
         }
 
@@ -404,10 +404,10 @@ namespace Tests.NAnt.Core {
         public void TestStandaloneEvaluator() {
             ExpressionEvaluator eval = 
                 new ExpressionEvaluator(_project, 
-                        _project.Properties, 
-                        Location.UnknownLocation, 
-                        new Hashtable(), 
-                        new Stack());
+                _project.Properties, 
+                Location.UnknownLocation, 
+                new Hashtable(), 
+                new Stack());
             
             Assert.AreEqual(eval.Evaluate("1 + 2 * 3"), 7);
             eval.CheckSyntax("1 + 2 * 3");
@@ -417,10 +417,10 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorFailure() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                    _project.Properties, 
-                    Location.UnknownLocation, 
-                    new Hashtable(), 
-                    new Stack());
+                _project.Properties, 
+                Location.UnknownLocation, 
+                new Hashtable(), 
+                new Stack());
 
             eval.Evaluate("1 + 2 * datetime::now(");
         }
@@ -429,10 +429,10 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorFailure2() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                    _project.Properties, 
-                    Location.UnknownLocation, 
-                    new Hashtable(), 
-                    new Stack());
+                _project.Properties, 
+                Location.UnknownLocation, 
+                new Hashtable(), 
+                new Stack());
 
             eval.Evaluate("1 1");
         }
@@ -441,10 +441,10 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorSyntaxCheckFailure() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                    _project.Properties, 
-                    Location.UnknownLocation, 
-                    new Hashtable(), 
-                    new Stack());
+                _project.Properties, 
+                Location.UnknownLocation, 
+                new Hashtable(), 
+                new Stack());
 
             eval.CheckSyntax("1 + 2 * 3 1");
         }

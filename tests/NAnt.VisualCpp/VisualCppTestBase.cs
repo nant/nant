@@ -41,7 +41,7 @@ namespace Tests.NAnt.VisualCpp {
         protected static bool CompilerPresent {
             get { return _compilerPresent; }
         }
-	    
+
         /// <summary>
         /// Gets a value indicating whether the VC++ libs are present in the 
         /// LIB environment variable.
@@ -65,7 +65,7 @@ namespace Tests.NAnt.VisualCpp {
         protected static bool HeaderFilesPresent {
             get { return _headerFilesPresent; }
         }
-	    
+
         /// <summary>
         /// Combined property which allows to check if you can compile and link.
         /// </summary>

@@ -32,7 +32,7 @@ namespace Tests.NAnt.Core.Filters {
             <project>
                 {0}
                 <copy todir=""" + _destDirName + @""" verbose=""true"">
-                    <filterchain>{1}</filterchain>		
+                    <filterchain>{1}</filterchain>
                     <fileset basedir=""."">
                         <include name=""" + _testFileName + @""" />
                     </fileset>

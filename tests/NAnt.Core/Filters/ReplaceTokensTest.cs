@@ -257,20 +257,21 @@ namespace Tests.NAnt.Core.Filters {
 
             base.FilterTest(filterXml, input, expectedOutput, prologueXml);
         }
-		/// <summary>
-		/// Test ignoring case
-		/// </summary>
-		[Test]
-		public void ComplexTestCase() {
-			string prologueXml = @"<property name=""DATE"" value=""13 May 2004"" />";
 
-			string filterXml = @"<" + _tagName + @" endtoken=""^"" ignorecase=""false"">
+        /// <summary>
+        /// Test ignoring case
+        /// </summary>
+        [Test]
+        public void ComplexTestCase() {
+            string prologueXml = @"<property name=""DATE"" value=""13 May 2004"" />";
+
+            string filterXml = @"<" + _tagName + @" endtoken=""^"" ignorecase=""false"">
                                <token key=""DATE"" value=""${DATE}""/>
                                <token key=""INNER_TEST"" value=""--$$--""/>
                                <token key=""EOF"" value=""End of file..""/>
                                </" + _tagName + @">";
 
-			string input = @"public class ProjectName {
+            string input = @"public class ProjectName {
     static void Main() {
                             /*
                             
@@ -299,7 +300,7 @@ namespace Tests.NAnt.Core.Filters {
                             System.Console.WriteLine(""Hello World using C# ~@INNER_@GOO@@~ "");
                         }
                     }//@EOF@";
-			string expectedOutput = @"public class ProjectName {
+            string expectedOutput = @"public class ProjectName {
     static void Main() {
                             /*
                             
@@ -329,10 +330,8 @@ namespace Tests.NAnt.Core.Filters {
                         }
                     }//@EOF@";
 
-			base.FilterTest(filterXml, input, expectedOutput, prologueXml);
-		}
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
     
-	}
-
+    }
 }
-
