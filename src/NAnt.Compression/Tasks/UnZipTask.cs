@@ -84,16 +84,43 @@ namespace NAnt.Zip.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             ZipInputStream s = new ZipInputStream(ZipFile.OpenRead());
+
             Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
                 ZipFile.FullName, ToDirectory.FullName, s.Length);
 
             ZipEntry theEntry;
-            while ((theEntry = s.GetNextEntry()) != null) {                string directoryName = Path.GetDirectoryName(theEntry.Name);                string fileName = Path.GetFileName(theEntry.Name);
-                Log(Level.Verbose, "Extracting '{0}' to '{1}'.", theEntry.Name,                     ToDirectory.FullName);
-                // create directory                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(                    ToDirectory.FullName, directoryName));
-                if (!StringUtils.IsNullOrEmpty(fileName)) {                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));                    FileStream streamWriter = fi.Create();                    int size = 2048;                    byte[] data = new byte[2048];
-                    while (true) {                        size = s.Read(data, 0, data.Length);                        if (size > 0) {                            streamWriter.Write(data, 0, size);                        } else {                            break;                        }                    }
-                    streamWriter.Close();                    fi.LastWriteTime = theEntry.DateTime;                }            }            s.Close();
+
+            while ((theEntry = s.GetNextEntry()) != null) {
+                string directoryName = Path.GetDirectoryName(theEntry.Name);
+                string fileName = Path.GetFileName(theEntry.Name);
+
+                Log(Level.Verbose, "Extracting '{0}' to '{1}'.", theEntry.Name, 
+                    ToDirectory.FullName);
+
+                // create directory
+                DirectoryInfo currDir = Directory.CreateDirectory(Path.Combine(
+                    ToDirectory.FullName, directoryName));
+
+                if (!StringUtils.IsNullOrEmpty(fileName)) {
+                    FileInfo fi = new FileInfo(Path.Combine(currDir.FullName, fileName));
+                    FileStream streamWriter = fi.Create();
+                    int size = 2048;
+                    byte[] data = new byte[2048];
+
+                    while (true) {
+                        size = s.Read(data, 0, data.Length);
+                        if (size > 0) {
+                            streamWriter.Write(data, 0, size);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    streamWriter.Close();
+                    fi.LastWriteTime = theEntry.DateTime;
+                }
+            }
+            s.Close();
         }
 
         #endregion Override implementation of Task
