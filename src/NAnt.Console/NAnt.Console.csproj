@@ -90,6 +90,11 @@
                     Name = "System.XML"
                     AssemblyName = "System.Xml"
                 />
+                <Reference
+                    Name = "log4net"
+                    AssemblyName = "log4net"
+                    HintPath = "..\..\bin\log4net.dll"
+                />
             </References>
         </Build>
         <Files>
