@@ -880,7 +880,7 @@ namespace NAnt.VSNet {
             midlTask.Arguments.Add(new Argument(outputDirectory));
 
             string typeLibraryName = fileConfig.GetToolSetting(compilerTool, "TypeLibraryName");
-            if (typeLibraryName != null)) {
+            if (typeLibraryName != null) {
                 midlTask.Tlb = new FileInfo(Path.Combine(outputDirectory, typeLibraryName));
             } else {
                 // if typeLibraryName is not supplied in the configuration, 
