@@ -861,16 +861,21 @@ namespace NAnt.Core {
         /// Global tasks are not executed.
         /// </remarks>
         public void Execute(string targetName, bool forceDependencies) {
-            // Sort the dependency tree, and run everything from the
+            // sort the dependency tree, and run everything from the
             // beginning until we hit our targetName.
-            // Sorting checks if all the targets (and dependencies)
+            // 
+            // sorting checks if all the targets (and dependencies)
             // exist, and if there is any cycle in the dependency
             // graph.
             TargetCollection sortedTargets = TopologicalTargetSort(targetName, Targets);
             int currentIndex = 0;
             Target currentTarget;
 
+            // store calling target
+            Target callingTarget = _currentTarget;
+
             do {
+                // determine target that should be executed
                 currentTarget = (Target) sortedTargets[currentIndex++];
 
                 // store target that will be executed
@@ -882,7 +887,14 @@ namespace NAnt.Core {
                     currentTarget.Execute();
                 }
             } while (!currentTarget.Name.Equals(targetName));
+
+            // restore calling target, as a <call> task might have caused the 
+            // current target to be executed and when finished executing this 
+            // target, the target that contained the <call> task should be 
+            // considered the current target again
+            _currentTarget = callingTarget;
         }
+
         /// <summary>
         /// Executes the default target and wraps in error handling and time 
         /// stamping.
