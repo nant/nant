@@ -88,8 +88,9 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Opposite of if. If <see langword="false" /> then the task will be 
-        /// executed; otherwise, skipped. The default is <see langword="false" />.
+        /// Opposite of <see cref="IfDefined" />. If <see langword="false" /> 
+        /// then the task will be executed; otherwise, skipped. The default is 
+        /// <see langword="false" />.
         /// </summary>
         [TaskAttribute("unless")]
         [BooleanValidator()]
