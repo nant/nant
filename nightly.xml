@@ -1,7 +1,5 @@
 <?xml version="1.0" ?>
 <project name="nant" default="nightly">
-    <!-- set project.version to current date/time in yyyyMMdd format -->
-    <tstamp property="project.version" pattern="yyyyMMdd" />
     <property name="sf.net.ssh.server" value="shell1.sf.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- retrieve system information and environment variables -->
@@ -17,6 +15,8 @@
     <!-- copy the zipped nighly build to sourceforge -->
     <target name="deploy-zip-sf" depends="set-net-1.0-runtime-configuration, package">
         <regex input="${project.zip-path}" pattern="^(?'execpath'.*(\\|/)|(/|\\))(?'execfilename'.*)$" />
+        <tstamp property="build.date" pattern="yyyyMMdd" />
+        <property name="deploy.zip.file" value="${project.name}-${project.version}-${build.date}.zip" />
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -25,18 +25,18 @@
         <!-- copy the build to sourceforge -->
         <exec workingdir="${execpath}" program="scp">
             <arg value="${execfilename}" />
-            <arg value="${serverpart}/nightly/builds/${execfilename}" />
+            <arg value="${serverpart}/nightly/builds/${deploy.zip.file}" />
         </exec>
         <echo message="Copied nightly build over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${execfilename}" />
+            <arg value="chmod 775 ${sf.net.web.path}/nightly/builds/${deploy.zip.file}" />
         </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${execfilename}" />
+            <arg value="chgrp nant ${sf.net.web.path}/nightly/builds/${deploy.zip.file}" />
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
