@@ -26,7 +26,7 @@ using System.Text;
 
 namespace NAnt.Core {
     [Serializable()]
-    internal class PlatformHelper {
+    public class PlatformHelper {
         public static readonly bool IsMono;
         public static readonly bool IsWindows;
         public static readonly bool IsUnix;
