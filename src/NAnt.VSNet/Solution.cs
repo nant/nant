@@ -56,12 +56,12 @@ namespace NAnt.VSNet {
                 fileContents = sr.ReadToEnd();
             }
 
-            Regex re = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""");
-            MatchCollection mc = re.Matches(fileContents);
+            Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
+            MatchCollection projectMatches = reProjects.Matches(fileContents);
 
-            foreach (Match m in mc) {
-                string project = m.Groups["project"].Value;
-                string guid = m.Groups["guid"].Value;
+            foreach (Match projectMatch in projectMatches) {
+                string project = projectMatch.Groups["project"].Value;
+                string guid = projectMatch.Groups["guid"].Value;
                 string fullPath;
 
                 // only C#, VB.NET and C++ projects are supported at this moment
@@ -106,15 +106,15 @@ namespace NAnt.VSNet {
                 } else {
                     _htProjectFiles[guid] = fullPath;
                 }
-            }
 
-            Regex reDependencies = new Regex(@"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\}).\d+\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline);
-            mc = reDependencies.Matches(fileContents);
+                // set-up project dependencies
+                Regex reDependencies = new Regex(@"^\s+(?<guid>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})\s+=\s+(?<dep>\{[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\})", RegexOptions.Multiline);
+                MatchCollection dependencyMatches = reDependencies.Matches(projectMatch.Value);
 
-            foreach (Match m in mc) {
-                string guid = m.Groups["guid"].Value;
-                string dependency = m.Groups["dep"].Value;
-                AddProjectDependency(guid, dependency);
+                foreach (Match dependencyMatch in dependencyMatches) {
+                    string dependency = dependencyMatch.Groups["dep"].Value;
+                    AddProjectDependency(guid, dependency);
+                }
             }
 
             LoadProjectGuids(additionalProjects, false);
