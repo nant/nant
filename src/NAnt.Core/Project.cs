@@ -905,7 +905,6 @@ namespace NAnt.Core {
         /// </returns>
         public bool Run() {
             Exception error = null;
-            DateTime startTime = DateTime.Now;
 
             try {
                 OnBuildStarted(this, new BuildEventArgs(this));

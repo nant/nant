@@ -79,7 +79,6 @@ namespace NAnt.Core {
         private object ParseBooleanOr() {
             ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseBooleanAnd();
-            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
             EvalMode oldEvalMode = _evalMode;
             try {
                 while (_tokenizer.IsKeyword("or")) {
@@ -113,9 +112,7 @@ namespace NAnt.Core {
         private object ParseBooleanAnd() {
             ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseRelationalExpression();
-            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
             EvalMode oldEvalMode = _evalMode;
-
             try {
                 while (_tokenizer.IsKeyword("and")) {
                     bool v1 = true;
@@ -168,7 +165,6 @@ namespace NAnt.Core {
                 ExpressionTokenizer.TokenType op = _tokenizer.CurrentToken;
                 _tokenizer.GetNextToken();
                 
-                ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
                 object o2 = ParseAddSubtract();
                 ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
 
@@ -387,12 +383,10 @@ namespace NAnt.Core {
         private object ParseAddSubtract() {
             ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseMulDiv();
-            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
 
             while (true) {
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Plus) {
                     _tokenizer.GetNextToken();
-                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseMulDiv();
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
@@ -431,7 +425,6 @@ namespace NAnt.Core {
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus) {
                     _tokenizer.GetNextToken();
 
-                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseMulDiv();
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 
@@ -477,13 +470,11 @@ namespace NAnt.Core {
         private object ParseMulDiv() {
             ExpressionTokenizer.Position p0 = _tokenizer.CurrentPosition;
             object o = ParseValue();
-            ExpressionTokenizer.Position p1 = _tokenizer.CurrentPosition;
 
             while (true) {
                 if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Mul) {
                     _tokenizer.GetNextToken();
                     
-                    ExpressionTokenizer.Position p2 = _tokenizer.CurrentPosition;
                     object o2 = ParseValue();
                     ExpressionTokenizer.Position p3 = _tokenizer.CurrentPosition;
 

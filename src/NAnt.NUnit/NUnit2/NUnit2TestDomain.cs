@@ -73,7 +73,7 @@ namespace NAnt.NUnit2.Tasks {
             probePaths.Add(AppDomain.CurrentDomain.BaseDirectory);
 
             // create an instance of our custom Assembly Resolver in the target domain.
-            ObjectHandle oh = _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
+            _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
                     typeof(AssemblyResolveHandler).FullName,
                     false, 
                     BindingFlags.Public | BindingFlags.Instance,

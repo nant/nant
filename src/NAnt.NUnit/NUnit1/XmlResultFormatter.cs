@@ -152,7 +152,6 @@ namespace NAnt.NUnit1.Types {
             }
             nested.SetAttribute(AttributeType, t.GetType().FullName);
 
-            string trace = t.StackTrace;
             XmlText traceElement = _document.CreateTextNode(t.StackTrace);
             nested.AppendChild(traceElement);
         }

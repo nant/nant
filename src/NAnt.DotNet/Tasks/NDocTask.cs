@@ -228,7 +228,7 @@ namespace NAnt.DotNet.Tasks {
                 }
                 
                 string documenterName = node.Attributes["name"].Value;
-                IDocumenter documenter = CheckAndGetDocumenter(project, documenterName);
+                CheckAndGetDocumenter(project, documenterName);
             }
 
             // write documenter project settings to temp file

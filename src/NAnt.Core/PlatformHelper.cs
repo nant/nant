@@ -68,8 +68,7 @@ namespace NAnt.Core {
             }
         }
 
-        public static bool IsVolumeCaseSensitive(string path) {
-            PlatformID platformID = System.Environment.OSVersion.Platform;
+        public static bool IsVolumeCaseSensitive(string path) {  
             
             if (PInvokeOK) {
                 StringBuilder VolLabel = new StringBuilder(256);    // Label
@@ -78,7 +77,7 @@ namespace NAnt.Core {
                 UInt32 SerNum = 0;
                 UInt32 MaxCompLen = 0;
 
-                long Ret = PInvokeHelper.GetVolumeInformationWrapper(path, 
+                PInvokeHelper.GetVolumeInformationWrapper(path, 
                     VolLabel, 
                     (UInt32) VolLabel.Capacity, 
                     ref SerNum, 
