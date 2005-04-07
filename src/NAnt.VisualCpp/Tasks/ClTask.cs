@@ -581,6 +581,9 @@ namespace NAnt.VisualCpp.Tasks {
             // quick and dirty code to check whether includes have been modified
             // after the source was last modified
 
+            Log(Level.Debug, "Checking whether includes of \"{0}\" have been"
+                + " updated.", srcFileName);
+
             // holds the line we're parsing
             string line;
 
@@ -594,11 +597,15 @@ namespace NAnt.VisualCpp.Tasks {
 
                     string includeFile = match.Groups["includefile"].Value;
 
+                    Log(Level.Debug, "Checking include \"{0}\"...", includeFile);
+
                     string resolvedInclude = _resolvedIncludes[includeFile] as string;
                     if (resolvedInclude == null) {
                         foreach (string includeDir in IncludeDirs.DirectoryNames) {
                             string foundIncludeFile = FileUtils.CombinePaths(includeDir, includeFile);
                             if (File.Exists(foundIncludeFile)) {
+                                Log(Level.Debug, "Found include \"{0}\" in"
+                                    + " includedirs.", includeFile);
                                 resolvedInclude = foundIncludeFile;
                                 break;
                             }
@@ -612,6 +619,8 @@ namespace NAnt.VisualCpp.Tasks {
                             pathScanner.Add(includeFile);
                             StringCollection includes = pathScanner.Scan("INCLUDE");
                             if (includes.Count > 0) {
+                                Log(Level.Debug, "Found include \"{0}\" in"
+                                    + " INCLUDE.", includeFile);
                                 resolvedInclude = includes[0];
                             }
                         }
@@ -623,6 +632,8 @@ namespace NAnt.VisualCpp.Tasks {
                             string foundIncludeFile = FileUtils.CombinePaths(
                                 BaseDirectory.FullName, includeFile);
                             if (File.Exists(foundIncludeFile)) {
+                                Log(Level.Debug, "Found include \"{0}\" in"
+                                    + " working directory.", includeFile);
                                 resolvedInclude = foundIncludeFile;
                             }
                         }
@@ -636,11 +647,13 @@ namespace NAnt.VisualCpp.Tasks {
                         if (File.GetLastWriteTime(resolvedInclude) > objLastWriteTime) {
                             return resolvedInclude;
                         }
+                    } else {
+                        // TODO: what do we do if the include cannot be located ?
+                        //
+                        // for now we'll consider the obj file to be up-to-date
+                        Log(Level.Debug, "Include \"{0}\" could not be located.", 
+                            includeFile);
                     }
-
-                    // TODO: what do we do if the include cannot be located ?
-                    //
-                    // for now we'll consider the obj file to be up-to-date
                 }
             }
 
