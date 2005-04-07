@@ -376,14 +376,6 @@ namespace NAnt.VSNet {
         ///     </item>
         ///     <item>
         ///       <term>Input</term>
-        ///       <description>Ignore Specific Library (/NODEFAULTLIB:[name, name, ...])</description>
-        ///     </item>
-        ///     <item>
-        ///       <term>Input</term>
-        ///       <description>Force Symbol References (/INCLUDE:[symbol])</description>
-        ///     </item>
-        ///     <item>
-        ///       <term>Input</term>
         ///       <description>Delay Loaded DLLs (/DELAYLOAD:[dll_name])</description>
         ///     </item>
         ///     <item>

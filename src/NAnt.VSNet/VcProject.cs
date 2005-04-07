@@ -35,6 +35,7 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Tasks;
+using NAnt.VisualCpp.Types;
 
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
@@ -1258,14 +1259,25 @@ namespace NAnt.VSNet {
                 libTask.Options = "/NODEFAULTLIB";
             }
 
-            // Ignore Specific Library
-            // TODO
+            // Ignore Specific Libraries
+            string ignoreDefaultLibraries = projectConfig.GetToolSetting(libTool, "IgnoreDefaultLibraryNames");
+            if (!StringUtils.IsNullOrEmpty(ignoreDefaultLibraries)) {
+                foreach (string ignoreLibrary in ignoreDefaultLibraries.Split(';')) {
+                    libTask.IgnoreLibraries.Add(new Library(ignoreLibrary));
+                }
+            }
 
             // Export Named Functions
             // TODO
 
-            // Force Symbol References
-            // TODO
+            // Forced Symbol References
+            string symbolReferences = projectConfig.GetToolSetting(libTool,
+                "ForceSymbolReferences");
+            if (!StringUtils.IsNullOrEmpty(symbolReferences)) {
+                foreach (string symbol in symbolReferences.Split(';')) {
+                    libTask.Symbols.Add(new Symbol(symbol));
+                }
+            }
 
             // execute the task
             ExecuteInProjectDirectory(libTask);
@@ -1273,6 +1285,7 @@ namespace NAnt.VSNet {
 
         private void RunLinker(string solutionConfiguration) {
             const string linkerTool = "VCLinkerTool";
+            const string noinherit = "$(noinherit)";
 
             // check if linking needs to be performed
             if (_objFiles.Count == 0) {
@@ -1327,21 +1340,26 @@ namespace NAnt.VSNet {
 
             string addDeps = projectConfig.GetToolSetting(linkerTool, "AdditionalDependencies");
             if (!StringUtils.IsNullOrEmpty(addDeps)) {
+                // only include default libraries if noinherit is not set
+                if (addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
+                    foreach (string defaultLib in _defaultLibraries) {
+                        linkTask.Sources.FileNames.Add(defaultLib);
+                    }
+                } else {
+                    addDeps = addDeps.Remove(addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+                }
                 int insertedDeps = 0;
                 foreach (string addDep in addDeps.Split(' ')) {
                     if (Path.GetExtension(addDep) == ".obj") {
                         _objFiles.Insert(insertedDeps++, addDep);
+                    } else {
+                        linkTask.Sources.FileNames.Add(addDep);
                     }
-                    linkTask.Sources.FileNames.Add(addDep);
                 }
             }
 
             foreach (string objFile in _objFiles) {
                 linkTask.Sources.FileNames.Add(objFile);
-            }
-
-            foreach (string defaultLib in _defaultLibraries) {
-                linkTask.Sources.FileNames.Add(defaultLib);
             }
 
             string extension = null;
@@ -1414,6 +1432,24 @@ namespace NAnt.VSNet {
                     importLibrary);
                 linkTask.Arguments.Add(importLibraryArg);
             }
+
+            // Ignore Specific Libraries
+            string ignoreDefaultLibraries = projectConfig.GetToolSetting(linkerTool, 
+                "IgnoreDefaultLibraryNames");
+            if (!StringUtils.IsNullOrEmpty(ignoreDefaultLibraries)) {
+                foreach (string ignoreLibrary in ignoreDefaultLibraries.Split(';')) {
+                    linkTask.IgnoreLibraries.Add(new Library(ignoreLibrary));
+                }
+            }
+
+            // Forced Symbol References
+	        string symbolReferences = projectConfig.GetToolSetting(linkerTool,
+                "ForceSymbolReferences");
+            if (!StringUtils.IsNullOrEmpty(symbolReferences)) {
+		        foreach (string symbol in symbolReferences.Split(';')) {
+			        linkTask.Symbols.Add(new Symbol(symbol));
+		        }
+	        }
 
             // generation of map file during linking
             bool generateMapFile = bool.Parse(projectConfig.GetToolSetting(linkerTool, "GenerateMapFile", "FALSE"));
@@ -1577,9 +1613,13 @@ namespace NAnt.VSNet {
             string settingValue = fileConfig.GetToolSetting(tool, setting);
             if (settingValue != null) {
                 if (settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) == -1) {
-                    string baseSettingValue = projectConfig.GetToolSetting(tool, setting);
-                    if (!StringUtils.IsNullOrEmpty(baseSettingValue)) {
-                        settingValue += ";" + baseSettingValue;
+                    // only add project-level setting to value if noherit if 
+                    // "fileConfig" is not actually the project config
+                    if (!object.ReferenceEquals(projectConfig, fileConfig)) {
+                        string baseSettingValue = projectConfig.GetToolSetting(tool, setting);
+                        if (!StringUtils.IsNullOrEmpty(baseSettingValue)) {
+                            settingValue += ";" + baseSettingValue;
+                        }
                     }
                 } else {
                     settingValue = settingValue.Remove(settingValue.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
