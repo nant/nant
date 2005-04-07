@@ -18,7 +18,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Giuseppe Greco (giuseppe.greco@agamura.com)
-// Ian MacLean ( imaclean@gmail.com )
+// Ian MacLean (imaclean@gmail.com)
 
 using System.Reflection;
 using System.Resources;
@@ -37,21 +37,21 @@ namespace NAnt.Core.Util {
 
         private static ResourceManager _sharedResourceManager;
         private static Hashtable _resourceManagerDictionary = new Hashtable();
-        
+
         #endregion private fields
-        
+
         #region private constructors
-        
+
         /// <summary>
         /// Prevents the <see cref="NAnt.Core.Util.ResourceUtils" /> class
         /// from being instantiated explicitly.
         /// </summary>
         private ResourceUtils() {}
-        
+
         #endregion private constructors
 
         #region public methods
-        
+
         /// <summary>
         /// Registers the assembly to be used as the fallback if resources
         /// aren't found in the local satellite assembly.
@@ -73,7 +73,7 @@ namespace NAnt.Core.Util {
         public static void RegisterSharedAssembly(Assembly assembly) {
             _sharedResourceManager = new ResourceManager(assembly.GetName().Name, assembly); 
         }
-        
+
         /// <summary>
         /// Returns the value of the specified string resource.
         /// </summary>
@@ -106,7 +106,7 @@ namespace NAnt.Core.Util {
             Assembly assembly = Assembly.GetCallingAssembly();
             return GetString(name, null, assembly);
         }        
-        
+
         /// <summary>
         /// Returns the value of the specified string resource localized for
         /// the specified culture.
@@ -174,26 +174,25 @@ namespace NAnt.Core.Util {
         /// </code>
         /// </example>
         public static string GetString(string name, CultureInfo culture, Assembly assembly) {
-            string localizedString = null;
-            
             if (!_resourceManagerDictionary.Contains(assembly.GetName().Name)) {
                 RegisterAssembly(assembly);
             }
 
-            // get the specific resource manager
-            ResourceManager resourceManager = _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
-            localizedString = resourceManager.GetString(name, culture);
-            
-            // try the shared resource manager if we didn't find it
-            // in the specific resource manager
+            // try to get the required string from the given assembly
+            ResourceManager resourceManager =
+                _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
+            string localizedString = resourceManager.GetString(name, culture);
+
+            // if the given assembly does not contain the required string, then
+            // try to get it from the shared satellite assembly, if registered
             if (localizedString == null && _sharedResourceManager != null) {
                 return _sharedResourceManager.GetString(name, culture);
             }
             return localizedString;
         }
-        
+
         #endregion public methods
-        
+
         #region private methods
 
         /// <summary>
