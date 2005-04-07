@@ -31,6 +31,7 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.VisualCpp.Types;
 using NAnt.VisualCpp.Util;
 
 namespace NAnt.VisualCpp.Tasks {
@@ -66,7 +67,9 @@ namespace NAnt.VisualCpp.Tasks {
         private FileSet _libdirs = new FileSet();
         private FileSet _modules = new FileSet();
         private FileSet _embeddedResources = new FileSet();
-        private string _options = null;
+        private SymbolCollection _symbols = new SymbolCollection();
+        private LibraryCollection _ignoreLibraries = new LibraryCollection();
+        private string _options;
 
         #endregion Private Instance Fields
 
@@ -151,6 +154,25 @@ namespace NAnt.VisualCpp.Tasks {
             set { _embeddedResources = value; }
         }
 
+        /// <summary>
+        /// Symbols to add to the symbol table.
+        /// </summary>
+        [BuildElementCollection("symbols", "symbol")]
+        public SymbolCollection Symbols {
+            get { return _symbols; }
+            set { _symbols = value; }
+        }
+
+        /// <summary>
+        /// Names of libraries that you want the linker to ignore when it 
+        /// resolves external references.
+        /// </summary>
+        [BuildElementCollection("ignorelibraries", "library")]
+        public LibraryCollection IgnoreLibraries {
+            get { return _ignoreLibraries; }
+            set { _ignoreLibraries = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
@@ -227,6 +249,22 @@ namespace NAnt.VisualCpp.Tasks {
                     // write each of the embedded resources
                     foreach (string resource in EmbeddedResources.FileNames) {
                         writer.WriteLine("/ASSEMBLYRESOURCE:{0}", QuoteArgumentValue(resource));
+                    }
+
+                    // write symbols
+                    foreach (Symbol symbol in Symbols) {
+                        if (symbol.IfDefined && !symbol.UnlessDefined) {
+                            writer.WriteLine("/INCLUDE:{0}", QuoteArgumentValue(
+                                symbol.SymbolName));
+                        }
+                    }
+
+                    // names of default libraries to ignore
+                    foreach (Library ignoreLibrary in IgnoreLibraries) {
+                        if (ignoreLibrary.IfDefined && !ignoreLibrary.UnlessDefined) {
+                            writer.WriteLine("/NODEFAULTLIB:{0}", QuoteArgumentValue(
+                                ignoreLibrary.LibraryName));
+                        }
                     }
 
                     if (Debug) {

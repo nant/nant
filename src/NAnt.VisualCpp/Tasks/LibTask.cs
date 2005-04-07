@@ -30,6 +30,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 
+using NAnt.VisualCpp.Types;
 using NAnt.VisualCpp.Util;
 
 namespace NAnt.VisualCpp.Tasks {
@@ -56,8 +57,10 @@ namespace NAnt.VisualCpp.Tasks {
         private FileInfo _outputFile;
         private FileInfo _moduleDefinitionFile;
         private FileSet _sources = new FileSet();
+        private SymbolCollection _symbols = new SymbolCollection();
+        private LibraryCollection _ignoreLibraries = new LibraryCollection();
         private FileSet _libdirs = new FileSet();
-        private string _options = null;
+        private string _options;
 
         #endregion Private Instance Fields
 
@@ -97,6 +100,24 @@ namespace NAnt.VisualCpp.Tasks {
         public FileSet Sources {
             get { return _sources; }
             set { _sources = value; }
+        }
+
+        /// <summary>
+        /// Symbols to add to the symbol table.
+        /// </summary>
+        [BuildElementCollection("symbols", "symbol")]
+        public SymbolCollection Symbols {
+            get { return _symbols; }
+            set { _symbols = value; }
+        }
+
+        /// <summary>
+        /// Names of default libraries to ignore.
+        /// </summary>
+        [BuildElementCollection("ignorelibraries", "library")]
+        public LibraryCollection IgnoreLibraries {
+            get { return _ignoreLibraries; }
+            set { _ignoreLibraries = value; }
         }
 
         /// <summary>
@@ -167,6 +188,22 @@ namespace NAnt.VisualCpp.Tasks {
                 foreach (string filename in Sources.FileNames) {
                     writer.WriteLine(ArgumentUtils.QuoteArgumentValue(filename, 
                         BackslashProcessingMethod.None));
+                }
+
+                // write symbols
+                foreach (Symbol symbol in Symbols) {
+                    if (symbol.IfDefined && !symbol.UnlessDefined) {
+                        writer.WriteLine("/INCLUDE:{0}", ArgumentUtils.QuoteArgumentValue(
+                            symbol.SymbolName, BackslashProcessingMethod.Duplicate));
+                    }
+                }
+
+                // names of default libraries to ignore
+                foreach (Library ignoreLibrary in IgnoreLibraries) {
+                    if (ignoreLibrary.IfDefined && !ignoreLibrary.UnlessDefined) {
+                        writer.WriteLine("/NODEFAULTLIB:{0}", ArgumentUtils.QuoteArgumentValue(
+                            ignoreLibrary.LibraryName, BackslashProcessingMethod.Duplicate));
+                    }
                 }
 
                 // write each of the libdirs

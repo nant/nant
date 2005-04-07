@@ -125,6 +125,26 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\Library.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\LibraryCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\Symbol.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\SymbolCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Util\ArgumentUtils.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
