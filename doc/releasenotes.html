@@ -159,6 +159,11 @@
                     directory or the intermediate output directory.
                 </li>
                 <li>
+                    Check for existance of specified solution file is performed 
+                    even if task is not to be executed (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1178810&amp;group_id=31650&amp;atid=402868">#1178810</a>).
+                </li>
+
+                <li>
                     Project configurations with names that do not match the solution
                     configuration are skipped (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=947214&amp;group_id=31650&amp;atid=402868">#947214</a>).
                 </li>
@@ -200,6 +205,9 @@
                             <li>
                                 References to Static Library projects are ignored when linking, and 
                                 passed to the compiler as Forced Using assemblies.
+                            </li>
+                            <li>
+                                "Inherit project defaults" setting is ignored for Additional Dependencies of Linker (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1178007&amp;group_id=31650">#1178007</a>).
                             </li>
                             <li>
                                 Additional project-level include directories are not merged with file-level 

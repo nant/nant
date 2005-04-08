@@ -76,6 +76,26 @@ namespace Tests.NAnt.VSNet.Tasks {
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Checks whether solution task fails if solution file does not exist.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void TestSolutionFileDoesNotExist() {
+            string build = FormatBuildFile(SolutionProject, new object[]{"doesnotexist.sln", "Debug", ""});
+            RunBuild(build, Level.Info);
+        }
+
+        /// <summary>
+        /// Checks whether no failure is reported if solution file does not exist,
+        /// but task is not executed.
+        /// </summary>
+        [Test]
+        public void TestSolutionFileDoesNotExistNotExecuted() {
+            string build = FormatBuildFile(SolutionProject, new object[] {"doesnotexist.sln", "Debug", "if=\"${true==false}\""});
+            RunBuild(build, Level.Info);
+        }
+
         [Test]
         [Ignore("Relies on cvs, and solution fails to build during nightly build.")]
         public void TestSharpscheduleBuild () {
@@ -90,7 +110,7 @@ namespace Tests.NAnt.VSNet.Tasks {
             }
 
             string gentlePath = Path.Combine(destination.FullName, SharpSchedule);
-            object[] args = {Path.Combine(gentlePath, "schedule.sln"), "release"};
+            object[] args = {Path.Combine(gentlePath, "schedule.sln"), "release", ""};
 
             string build = FormatBuildFile(SolutionProject, args);
             RunBuild(build, Level.Info);

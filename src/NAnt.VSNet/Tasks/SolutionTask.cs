@@ -360,6 +360,14 @@ namespace NAnt.VSNet.Tasks {
         protected override void ExecuteTask() {
             Log(Level.Info, "Starting solution build.");
 
+            if (SolutionFile != null) {
+                if (!SolutionFile.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Couldn't find solution file '{0}'.", SolutionFile.FullName), 
+                        Location);
+                }
+            }
+
             if (Projects.FileNames.Count > 0) {
                 Log(Level.Verbose, "Included projects:" );
                 foreach (string projectFile in Projects.FileNames) {
@@ -421,18 +429,6 @@ namespace NAnt.VSNet.Tasks {
                     deleteTask.Execute();
                 }
             }
-        }
-
-        protected override void InitializeTask(XmlNode taskNode) {
-            if (SolutionFile != null) {
-                if (!SolutionFile.Exists) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Couldn't find solution file '{0}'.", SolutionFile.FullName), 
-                        Location);
-                }
-            }
-
-            base.InitializeTask(taskNode);
         }
 
         #endregion Override implementation of Task

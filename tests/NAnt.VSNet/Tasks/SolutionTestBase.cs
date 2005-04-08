@@ -93,7 +93,7 @@ namespace Tests.NAnt.VSNet.Tasks {
             @"<?xml version='1.0'?>
                 <project default='solution'>
                     <target name='solution' description='Build the project using the solution file.'>
-                        <solution solutionfile='{0}' configuration='{1}' verbose='true' />
+                        <solution solutionfile='{0}' configuration='{1}' {2} verbose='true' />
                     </target>
                 </project>";
 
