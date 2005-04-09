@@ -31,7 +31,7 @@
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
                     Optimize = "false"
-                    OutputPath = "..\..\build.VS.NET\NAnt.Tests\"
+                    OutputPath = "..\build.VS.NET\NAnt.Tests\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
                     TreatWarningsAsErrors = "false"
