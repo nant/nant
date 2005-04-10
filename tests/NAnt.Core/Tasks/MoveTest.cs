@@ -97,5 +97,39 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.Fail("Unexpected Exception.");
             }     
         }
+
+        /// <summary>
+        /// When multiple source files match the same destination file, then 
+        /// only the last updated file should actually be moved.
+        /// </summary>
+        [Test]
+        public void Test_Move_Files_Flatten() {
+            const string buildXml = @"
+                <project>
+                    <mkdir dir='dest' />
+                    <mkdir dir='src/dir1' />
+                    <mkdir dir='src/dir2' />
+                    <mkdir dir='src/dir3' />
+                    <touch file='dest/uptodate.txt' datetime='02/01/2000' />
+                    <touch file='src/uptodate.txt' datetime='03/01/2000' />
+                    <touch file='src/dir1/uptodate.txt' datetime='05/01/2000' />
+                    <touch file='src/dir2/uptodate.txt' datetime='03/01/2000' />
+                    <touch file='src/dir3/uptodate.txt' datetime='04/01/2000' />
+                    <move todir='dest' flatten='true' overwrite='true'>
+                        <fileset>
+                            <include name='src/**' />
+                        </fileset>
+                    </move>
+                    <fail unless=""${datetime::get-day(file::get-last-write-time('dest/uptodate.txt')) == 1}"">#1</fail>
+                    <fail unless=""${datetime::get-month(file::get-last-write-time('dest/uptodate.txt')) == 5}"">#2</fail>
+                    <fail unless=""${datetime::get-year(file::get-last-write-time('dest/uptodate.txt')) == 2000}"">#3</fail>
+                    <fail unless=""${file::exists('src/uptodate.txt')}"">#4</fail>
+                    <fail if=""${file::exists('src/dir1/uptodate.txt')}"">#5</fail>
+                    <fail unless=""${file::exists('src/dir2/uptodate.txt')}"">#6</fail>
+                    <fail unless=""${file::exists('src/dir3/uptodate.txt')}"">#7</fail>
+                </project>";
+
+            RunBuild(buildXml);
+        }
     }
 }

@@ -293,7 +293,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// are not created and up-to-date checking compares the flattened files.
         /// </summary>
         [Test]
-        public void Test_Copy_Files_Flatten() {            
+        public void Test_Copy_Files_Flatten() {
             string dest = CreateTempDir("a.f");
             
             RunBuild(string.Format(CultureInfo.InvariantCulture, 
@@ -318,6 +318,35 @@ namespace Tests.NAnt.Core.Tasks {
             // if up-to-date check works, build should not have failed and 
             // read-only file should still be read-only
             Assert.IsTrue((File.GetAttributes(GetPath(dest, tempFile1)) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly);
+        }
+
+        /// <summary>
+        /// When multiple source files match the same destination file, then 
+        /// only the last updated file should actually be copied.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Files_Flatten_UpToDate() {
+            const string buildXml = @"
+                <project>
+                    <mkdir dir='dest' />
+                    <mkdir dir='src/dir1' />
+                    <mkdir dir='src/dir2' />
+                    <mkdir dir='src/dir3' />
+                    <touch file='dest/uptodate.txt' datetime='02/01/2000' />
+                    <touch file='src/dir1/uptodate.txt' datetime='05/01/2000' />
+                    <touch file='src/dir2/uptodate.txt' datetime='03/01/2000' />
+                    <touch file='src/dir3/uptodate.txt' datetime='04/01/2000' />
+                    <copy todir='dest' flatten='true'>
+                        <fileset>
+                            <include name='src/**' />
+                        </fileset>
+                    </copy>
+                    <fail unless=""${datetime::get-day(file::get-last-write-time('dest/uptodate.txt')) == 1}"">#1</fail>
+                    <fail unless=""${datetime::get-month(file::get-last-write-time('dest/uptodate.txt')) == 5}"">#2</fail>
+                    <fail unless=""${datetime::get-year(file::get-last-write-time('dest/uptodate.txt')) == 2000}"">#3</fail>
+                </project>";
+
+            RunBuild(buildXml);
         }
 
         /// <summary>

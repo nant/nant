@@ -19,6 +19,7 @@
 // Ian MacLean (ian_maclean@another.com)
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 
@@ -173,12 +174,10 @@ namespace NAnt.Core.Tasks {
         protected override void DoFileOperations() {
             if (FileCopyMap.Count > 0) {
                 // loop thru our file list
-                foreach (string sourcePath in FileCopyMap.Keys) {
-                    string destinationPath = (string) FileCopyMap[sourcePath];
-                    if (Flatten) {
-                        destinationPath = Path.Combine(ToDirectory.FullName,
-                            Path.GetFileName(destinationPath));
-                    }
+                foreach (DictionaryEntry fileEntry in FileCopyMap) {
+                    string destinationPath = (string) fileEntry.Key;
+                    string sourcePath = ((FileDateInfo) fileEntry.Value).Path;
+
                     if (sourcePath == destinationPath) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
@@ -212,7 +211,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            ResourceUtils.GetString("NA1138"), sourcePath, destinationPath),
+                            "Failed to move {0} to {1}.", sourcePath, destinationPath),
                             Location, ex);
                     }
                 }
