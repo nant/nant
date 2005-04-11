@@ -1356,6 +1356,12 @@ namespace NAnt.VSNet {
                         linkTask.Sources.FileNames.Add(addDep);
                     }
                 }
+            } else {
+                // always include default libraries if no additional dependencies
+                // are specified
+                foreach (string defaultLib in _defaultLibraries) {
+                    linkTask.Sources.FileNames.Add(defaultLib);
+                }
             }
 
             foreach (string objFile in _objFiles) {
