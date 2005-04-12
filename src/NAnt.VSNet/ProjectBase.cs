@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Xml;
 
 using Microsoft.Win32;
@@ -333,16 +334,48 @@ namespace NAnt.VSNet {
 
             foreach (ReferenceBase reference in References) {
                 StringCollection references = reference.GetAssemblyReferences(solutionConfiguration);
-                foreach (string assemblyReference in references) {
-                    if (!uniqueReferences.ContainsKey(assemblyReference)) {
-                        uniqueReferences.Add(assemblyReference, null);
+
+                // avoid ambiguous references when the same assembly is 
+                // referenced multiple times
+                //
+                // this should only be possible for VB.NET project, as they
+                // also include the assemblies referenced by referenced projects
+                //
+                // Project A references
+                //      Assembly 1
+                //      Assembly 2
+                // Project B references
+                //      Assembly 3
+                //      Project A
+                //
+                // then to compile Project B, VB.NET will use the following 
+                // assembly references:
+                //
+                //      Assembly 1
+                //      Assembly 2
+                //      Assembly 3
+                //      Project Output of Project A
+                //
+                // see bug #1178862
+                foreach (string assemblyFile in references) {
+                    try {
+                        // try to obtain AssemblyName of referenced assembly
+                        AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+
+                        if (!uniqueReferences.ContainsKey(assemblyName.FullName)) {
+                            uniqueReferences.Add(assemblyName.FullName, assemblyFile);
+                        }
+                    } catch (Exception ex) {
+                        // ignore assemblies that cannot be found or loaded
+                        Log(Level.Warning, "Referenced assembly \"{0}\" could not"
+                            + " be loaded: ", assemblyFile, ex.Message);
                     }
                 }
             }
 
             StringCollection assemblyReferences = new StringCollection();
-            foreach (string assemblyReference in uniqueReferences.Keys) {
-                assemblyReferences.Add(assemblyReference);
+            foreach (DictionaryEntry entry in uniqueReferences) {
+                assemblyReferences.Add((string) entry.Value);
             }
             return assemblyReferences;
         }
