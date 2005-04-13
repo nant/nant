@@ -116,7 +116,7 @@ namespace NAnt.SourceControl.Tasks
         }
 
         /// <summary>
-        /// Indicates whether the tag specified in <see cref="Tag" /> should
+        /// Indicates whether the tag specified in <see cref="TagTask.Tag" /> should
         /// be removed or not. 
         /// </summary>
         /// <value>
@@ -131,7 +131,7 @@ namespace NAnt.SourceControl.Tasks
         }
 
         /// <summary>
-        /// Indicates whether the tag specified in <see cref="Tag" /> should
+        /// Indicates whether the tag specified in <see cref="TagTask.Tag" /> should
         /// be moved to the current file revision.  If the tag does not exist
         /// then it is created. 
         /// </summary>
@@ -165,7 +165,7 @@ namespace NAnt.SourceControl.Tasks
         }
 
         /// <summary>
-        /// Indicates the repository <see cref="Tag" /> that is acted on
+        /// Indicates the repository <see cref="TagTask.Tag" /> that is acted on
         /// for the tag command.  Note if <see cref="MoveIfExists"/> is 
         /// <see langword="true"/> then the tag specified is moved to the revision
         /// of the file on the HEAD of the branch specified.
