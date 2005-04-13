@@ -121,11 +121,6 @@ namespace NAnt.Core {
 
         private const int NAMESIZE = 80;
         private const int MAX_PATH = 256;
-        private const int FILE_ATTRIBUTE_NORMAL = 128;
-        private const int SHGFI_USEFILEATTRIBUTES = 16;
-        private const int SHGFI_ICON = 256;
-        private const int SHGFI_LARGEICON = 0;
-        private const int SHGFI_SMALLICON = 1;
 
         #endregion Private Static Fields
 

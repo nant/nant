@@ -39,12 +39,6 @@ namespace NAnt.Core {
     /// Main entry point to NAnt that is called by the ConsoleStub.
     /// </summary>
     public class ConsoleDriver {
-        #region Private Static Fields
-
-        private static log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    
-        #endregion Private Static Fields
-
         #region Public Static Methods
                 
         /// <summary>

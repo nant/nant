@@ -53,7 +53,6 @@ namespace NAnt.Core.Types {
     public class PathSet : DataTypeBase {
         #region Private Instance Fields
 
-        private Project _project;
         private ArrayList _elements = new ArrayList();
         private StringCollection _translatedElements = new StringCollection();
 
@@ -80,7 +79,7 @@ namespace NAnt.Core.Types {
         /// <param name="project">The <see cref="Project" /> to be used to resolve relative paths.</param>
         /// <param name="path">The string representing a path.</param>
         public PathSet(Project project, string path) {
-            _project = project;
+            base.Project = project;
             _translatedElements = PathSet.TranslatePath(project, path);
         }
 

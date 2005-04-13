@@ -162,21 +162,6 @@ namespace NAnt.Core.Util {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
-        /// <remarks>
-        /// The actual logging is delegated to the <see cref="Task" /> in which 
-        /// the <see cref="AssemblyResolver" /> is executing 
-        /// </remarks>
-        private void Log(Level messageLevel, string message) {
-            if (_task != null) {
-                _task.Log(messageLevel, message);
-            }
-        }
-
-        /// <summary>
-        /// Logs a message with the given priority.
-        /// </summary>
-        /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
         /// <param name="message">The message to log, containing zero or more format items.</param>
         /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
         /// <remarks>

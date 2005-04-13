@@ -62,8 +62,6 @@ namespace NAnt.Core {
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static Hashtable AttributeSetters = new Hashtable();
-
         #endregion Private Static Fields
 
         #region Protected Instance Constructors

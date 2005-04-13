@@ -56,9 +56,8 @@ namespace NAnt.Core.Filters {
         private int _tabLength = 8;
         private int _spacesRemaining = 0;
 
-        //Methods used for Read and Peek
+        //Method used for Read
         private AcquireCharDelegate ReadChar = null;
-        private AcquireCharDelegate PeekChar = null;
 
         #endregion Private Instance Fields
 
@@ -87,7 +86,6 @@ namespace NAnt.Core.Filters {
         public override void Chain(ChainableReader chainedReader) {
             base.Chain(chainedReader);
             ReadChar = new AcquireCharDelegate(base.Read);
-            PeekChar = new AcquireCharDelegate(base.Peek);
         }
 
         /// <summary>
@@ -98,7 +96,6 @@ namespace NAnt.Core.Filters {
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
             throw new ApplicationException("Peek currently is not supported.");
-            //return GetNextCharacter(PeekChar)
         }
 
         /// <summary>

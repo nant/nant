@@ -480,9 +480,8 @@ namespace Tests.NAnt.Core {
         public void TestStandaloneEvaluator() {
             ExpressionEvaluator eval = 
                 new ExpressionEvaluator(_project, 
-                _project.Properties, 
-                Location.UnknownLocation, 
-                new Hashtable(), 
+                _project.Properties,
+                new Hashtable(),
                 new Stack());
             
             Assert.AreEqual(eval.Evaluate("1 + 2 * 3"), 7);
@@ -493,8 +492,7 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorFailure() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                _project.Properties, 
-                Location.UnknownLocation, 
+                _project.Properties,
                 new Hashtable(), 
                 new Stack());
 
@@ -505,9 +503,8 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorFailure2() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                _project.Properties, 
-                Location.UnknownLocation, 
-                new Hashtable(), 
+                _project.Properties,
+                new Hashtable(),
                 new Stack());
 
             eval.Evaluate("1 1");
@@ -517,9 +514,8 @@ namespace Tests.NAnt.Core {
         [ExpectedException(typeof(ExpressionParseException))]
         public void TestStandaloneEvaluatorSyntaxCheckFailure() {
             ExpressionEvaluator eval = new ExpressionEvaluator(_project, 
-                _project.Properties, 
-                Location.UnknownLocation, 
-                new Hashtable(), 
+                _project.Properties,
+                new Hashtable(),
                 new Stack());
 
             eval.CheckSyntax("1 + 2 * 3 1");

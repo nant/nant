@@ -320,7 +320,7 @@ namespace NAnt.Core {
                 StringBuilder output = new StringBuilder(input.Length);
 
                 ExpressionTokenizer tokenizer = new ExpressionTokenizer();
-                ExpressionEvaluator eval = new ExpressionEvaluator(Project, this, location, state, visiting);
+                ExpressionEvaluator eval = new ExpressionEvaluator(Project, this, state, visiting);
 
                 tokenizer.IgnoreWhitespace = false;
                 tokenizer.SingleCharacterMode = true;

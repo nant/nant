@@ -222,7 +222,6 @@ namespace NAnt.Core.Tasks {
             private IDictionary _nantComplexTypes;
             private XmlSchemaComplexType _targetCT;
             private XmlSchema _nantSchema = new XmlSchema();
-            private string _namespaceURI = string.Empty;
 
             #endregion Private Instance Fields
 
@@ -242,7 +241,6 @@ namespace NAnt.Core.Tasks {
                 if (targetNS != null) {
                     _nantSchema.TargetNamespace = targetNS;
                     _nantSchema.Namespaces.Add("nant", _nantSchema.TargetNamespace);
-                    _namespaceURI = targetNS;
                 }
 
                 // add XSD namespace so that all xsd elements are prefix'd

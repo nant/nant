@@ -33,7 +33,6 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private PropertyDictionary _properties;
-        private Location _location;
         private Hashtable _state;
         private Stack _visiting;
         private Project _project;
@@ -42,10 +41,9 @@ namespace NAnt.Core {
 
         #region Public Instance Constructors
 
-        public ExpressionEvaluator(Project project, PropertyDictionary properties, Location location, Hashtable state, Stack visiting) {
+        public ExpressionEvaluator(Project project, PropertyDictionary properties, Hashtable state, Stack visiting) {
             _project = project;
             _properties = properties;
-            _location = location;
             _state = state;
             _visiting = visiting;
         }

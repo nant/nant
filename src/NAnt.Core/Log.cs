@@ -932,19 +932,6 @@ namespace NAnt.Core {
             return value;
         }
 
-        /// <summary>
-        /// Sends the e-mail.
-        /// </summary>
-        /// <param name="mailhost">The SMTP relay mail server to use to send e-mail messages.</param>
-        /// <param name="from">The address of the e-mail sender.</param>
-        /// <param name="toList">The address(es) of the e-mail recipient(s).</param>
-        /// <param name="subject">The subject line of the e-mail message.</param>
-        /// <param name="message">The body of the e-mail message.</param>
-        private void SendMail(string mailhost, string from, string toList, string subject, string message) {
-            SmtpMail.SmtpServer = mailhost;
-            SmtpMail.Send(from, toList, subject, message);
-        }
-
         #endregion Private Instance Methods
 
         #region Private Instance Fields

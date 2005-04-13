@@ -53,11 +53,6 @@ namespace NAnt.Core {
         /// </summary>
         private static bool ScannedTasks = false;
 
-        /// <summary>
-        /// Holds the logger instance for this class.
-        /// </summary>
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         #endregion Private Static Fields
 
         #region Internal Instance Constructor
