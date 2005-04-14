@@ -213,10 +213,6 @@ namespace NAnt.VSNet {
         protected internal override string ExpandMacro(string macro) {
             // perform case-insensitive expansion of macros 
             switch (macro.ToLower(CultureInfo.InvariantCulture)) {
-                case "outdir":
-                    // for Visual C++ project the outdir is the absolute path
-                    // while for other project types its a relative path
-                    return OutputDir.FullName;
                 case "noinherit":
                     return "$(noinherit)";
                 case "intdir":
