@@ -825,6 +825,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Util\DateTimeProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Util\DefaultCommandLineArgumentAttribute.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -846,6 +851,11 @@
                 />
                 <File
                     RelPath = "Util\ResourceUtils.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Util\StopWatchStack.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

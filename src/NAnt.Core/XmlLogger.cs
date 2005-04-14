@@ -26,7 +26,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -35,11 +34,14 @@ namespace NAnt.Core {
     /// </summary>
     [Serializable()]
     public class XmlLogger : IBuildLogger, ISerializable {
+        private readonly StopWatchStack _stopWatchStack;
+
         #region Private Instance Fields
 
         private TextWriter _outputWriter;
         private StringWriter _buffer = new StringWriter();
         private Level _threshold = Level.Info;
+
         [NonSerialized()]
         private XmlTextWriter _xmlWriter;
 
@@ -55,8 +57,11 @@ namespace NAnt.Core {
         /// <summary>
         /// Initializes a new instance of the <see cref="XmlLogger" /> class.
         /// </summary>
-        public XmlLogger() {
+        public XmlLogger() : this(new StopWatchStack(new DateTimeProvider())) {}
+
+        public XmlLogger(StopWatchStack stopWatchStack) {
             _xmlWriter = new XmlTextWriter(_buffer);
+            _stopWatchStack = stopWatchStack;
         }
 
         #endregion Public Instance Constructors
@@ -70,11 +75,11 @@ namespace NAnt.Core {
         /// <param name="info">The <see cref="SerializationInfo" /> that holds the serialized object data.</param>
         /// <param name="context">The <see cref="StreamingContext" /> that contains contextual information about the source or destination.</param>
         protected XmlLogger(SerializationInfo info, StreamingContext context) {
-            _outputWriter = info.GetValue("OutputWriter", typeof(TextWriter)) as TextWriter;
-            _buffer = info.GetValue("Buffer", typeof(StringWriter)) as StringWriter;
-            _threshold = (Level) info.GetValue("Threshold", typeof(Level));
+            _outputWriter = info.GetValue("OutputWriter", typeof (TextWriter)) as TextWriter;
+            _buffer = info.GetValue("Buffer", typeof (StringWriter)) as StringWriter;
+            _threshold = (Level) info.GetValue("Threshold", typeof (Level));
             _xmlWriter = new XmlTextWriter(_buffer);
-            _projectStack = (Stack) info.GetValue("ProjectStack", typeof(Stack));
+            _projectStack = (Stack) info.GetValue("ProjectStack", typeof (Stack));
         }
 
         #endregion Protected Instance Constructors
@@ -119,6 +124,7 @@ namespace NAnt.Core {
         /// </remarks>
         public void BuildStarted(object sender, BuildEventArgs e) {
             lock (_xmlWriter) {
+                _stopWatchStack.PushStart();
                 _xmlWriter.WriteStartElement(Elements.BuildResults);
                 _xmlWriter.WriteAttributeString(Attributes.Project, e.Project.ProjectName);
             }
@@ -142,11 +148,14 @@ namespace NAnt.Core {
                     _xmlWriter.WriteEndElement();
                 }
 
+                // output total build duration
+                WriteDuration();
+
                 // close buildresults node
                 _xmlWriter.WriteEndElement();
                 _xmlWriter.Flush();
             }
-            
+
             // remove an item from the project stack
             _projectStack.Pop();
 
@@ -162,7 +171,8 @@ namespace NAnt.Core {
                 if (OutputWriter != null) {
                     OutputWriter.Write(_buffer.ToString());
                     OutputWriter.Flush();
-                } else { // Xmlogger is used as BuildListener
+                }
+                else { // Xmlogger is used as BuildListener
                     string outFileName = e.Project.Properties["XmlLogger.file"];
                     if (outFileName == null) {
                         outFileName = "log.xml";
@@ -174,7 +184,8 @@ namespace NAnt.Core {
                         writer.Write(_buffer.ToString());
                     }
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 throw new BuildException("Unable to write to log file.", ex);
             }
         }
@@ -186,6 +197,7 @@ namespace NAnt.Core {
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public void TargetStarted(object sender, BuildEventArgs e) {
             lock (_xmlWriter) {
+                _stopWatchStack.PushStart();
                 _xmlWriter.WriteStartElement(Elements.Target);
                 WriteNameAttribute(e.Target.Name);
                 _xmlWriter.Flush();
@@ -202,6 +214,9 @@ namespace NAnt.Core {
         /// </remarks>
         public void TargetFinished(object sender, BuildEventArgs e) {
             lock (_xmlWriter) {
+                // output total target duration
+                WriteDuration();
+                // close target element
                 _xmlWriter.WriteEndElement();
                 _xmlWriter.Flush();
             }
@@ -214,6 +229,7 @@ namespace NAnt.Core {
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public void TaskStarted(object sender, BuildEventArgs e) {
             lock (_xmlWriter) {
+                _stopWatchStack.PushStart();
                 _xmlWriter.WriteStartElement(Elements.Task);
                 WriteNameAttribute(e.Task.Name);
                 _xmlWriter.Flush();
@@ -230,9 +246,16 @@ namespace NAnt.Core {
         /// </remarks>
         public void TaskFinished(object sender, BuildEventArgs e) {
             lock (_xmlWriter) {
+                // output total target duration
+                WriteDuration();
+                // close task element
                 _xmlWriter.WriteEndElement();
                 _xmlWriter.Flush();
             }
+        }
+
+        private void WriteDuration() {
+            _xmlWriter.WriteElementString("duration", XmlConvert.ToString(_stopWatchStack.PopStop().TotalMilliseconds));
         }
 
         /// <summary>
@@ -250,17 +273,18 @@ namespace NAnt.Core {
                 if (IsJustWhiteSpace(rawMessage)) {
                     return;
                 }
-                
+
                 lock (_xmlWriter) {
                     _xmlWriter.WriteStartElement(Elements.Message);
 
                     // write message level as attribute
                     _xmlWriter.WriteAttributeString(Attributes.MessageLevel, e.MessageLevel.ToString(CultureInfo.InvariantCulture));
-                
+
                     if (IsValidXml(rawMessage)) {
                         rawMessage = Regex.Replace(rawMessage, @"<\?.*\?>", string.Empty);
                         _xmlWriter.WriteRaw(rawMessage);
-                    } else {
+                    }
+                    else {
                         _xmlWriter.WriteCData(StripCData(rawMessage));
                     }
                     _xmlWriter.WriteEndElement();
@@ -298,7 +322,7 @@ namespace NAnt.Core {
         /// </value>
         public virtual bool EmacsMode {
             get { return false; }
-            set { }
+            set {}
         }
 
         /// <summary>
@@ -337,7 +361,8 @@ namespace NAnt.Core {
                 strippedMessage = m.Groups[1].Captures[0].Value;
                 strippedMessage = strippedMessage.Replace("\0", string.Empty);
                 strippedMessage = strippedMessage.Trim();
-            } else {
+            }
+            else {
                 strippedMessage = message.Replace("\0", string.Empty);
             }
 
@@ -359,17 +384,19 @@ namespace NAnt.Core {
             if (exception == null) {
                 // build success
                 return;
-            } else {
+            }
+            else {
                 BuildException buildException = null;
 
-                if (typeof(BuildException).IsAssignableFrom(exception.GetType())) {
+                if (typeof (BuildException).IsAssignableFrom(exception.GetType())) {
                     buildException = (BuildException) exception;
                 }
 
                 if (buildException != null) {
                     // start build error node
                     _xmlWriter.WriteStartElement("builderror");
-                } else {
+                }
+                else {
                     // start build error node
                     _xmlWriter.WriteStartElement("internalerror");
                 }
@@ -390,14 +417,15 @@ namespace NAnt.Core {
                         if (!StringUtils.IsNullOrEmpty(buildException.Location.ToString())) {
                             _xmlWriter.WriteStartElement("location");
                             _xmlWriter.WriteElementString("filename", buildException.Location.FileName);
-                            _xmlWriter.WriteElementString("linenumber", 
+                            _xmlWriter.WriteElementString("linenumber",
                                 buildException.Location.LineNumber.ToString(CultureInfo.InvariantCulture));
-                            _xmlWriter.WriteElementString("columnnumber", 
+                            _xmlWriter.WriteElementString("columnnumber",
                                 buildException.Location.ColumnNumber.ToString(CultureInfo.InvariantCulture));
                             _xmlWriter.WriteEndElement();
                         }
                     }
-                } else {
+                }
+                else {
                     // write exception message
                     if (exception.Message != null) {
                         _xmlWriter.WriteStartElement("message");
@@ -422,7 +450,7 @@ namespace NAnt.Core {
         private bool IsValidXml(string message) {
             if (Regex.Match(message, @"^<.*>").Success) {
                 XmlNodeType type = XmlNodeType.Element;
-                
+
                 // if we have an xml decl then parse as a document node type 
                 // works around mono incompatibility bug #61274
                 if (Regex.Match(message, @"^<\?xml\sversion.*\?>").Success) {
@@ -431,19 +459,18 @@ namespace NAnt.Core {
                 // validate xml
                 XmlValidatingReader reader = new XmlValidatingReader(message, type, null);
 
-                try { 
-                    while (reader.Read()) {
-                    } 
-                } catch { 
-                    return false; 
-                } finally { 
-                    reader.Close(); 
+                try {
+                    while (reader.Read()) {}
+                } catch {
+                    return false;
+                } finally {
+                    reader.Close();
                 }
                 return true;
             }
             return false;
         }
-        
+
         private string StripCData(string message) {
             string strippedMessage = Regex.Replace(message, @"<!\[CDATA\[", string.Empty);
             return Regex.Replace(strippedMessage, @"\]\]>", string.Empty);
