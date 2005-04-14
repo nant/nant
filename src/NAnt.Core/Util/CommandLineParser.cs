@@ -231,8 +231,8 @@ namespace NAnt.Core.Util {
                 }
                 if (_supportsResponseFile) {
                     helpText.AppendFormat(CultureInfo.InvariantCulture, "  {0,-31}{1}",
-                                          "@<file>",
-                                          "Insert command-line settings from a text file.");
+                        "@<file>",
+                        "Insert command-line settings from a text file.");
                     helpText.Append(Environment.NewLine);
                 }
 
@@ -340,14 +340,14 @@ namespace NAnt.Core.Util {
          
             // throw excaption if file doesn't exist
             StringCollection argsCol = new StringCollection();
-			char[] whitespaceChars = new char[]{' ', '\t'};
+            char[] whitespaceChars = new char[]{' ', '\t'};
             using (StreamReader sr = new StreamReader(file)) {
                 String line;
                 // Read and concat lines from the file until the end of 
                 // the file is reached.
                 while ((line = sr.ReadLine()) != null) {
                     line = line.Trim(whitespaceChars);
-					if ( ! line.StartsWith("#")) {
+                    if ( ! line.StartsWith("#")) {
                         argsCol.AddRange( SplitStringNoNulls(line, whitespaceChars ));
                     }
                 }
@@ -384,7 +384,7 @@ namespace NAnt.Core.Util {
                                 CommandLineArgument arg = _argumentCollection[option];
                                 if (arg == null) {
                                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                        "Unknown argument '{0}'", argument));
+                                        "Unknown argument '{0}'", argument));
                                 } else {
                                     // check if argument is obsolete
                                     Attribute[] attribs = (Attribute[]) arg.Property.GetCustomAttributes(
@@ -405,8 +405,8 @@ namespace NAnt.Core.Util {
 
                                     if (arg.IsExclusive && args.Length > 1) {
                                         throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                        "Commandline argument '-{0}' cannot be combined with other arguments.",
-                                                        arg.LongName));
+                                            "Commandline argument '-{0}' cannot be combined with other arguments.",
+                                            arg.LongName));
                                     } else {
                                         arg.SetValue(optionArgument);
                                     }
@@ -430,7 +430,7 @@ namespace NAnt.Core.Util {
                                     _defaultArgument.SetValue(argument);
                                 } else {
                                     throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                                        "Unknown argument '{0}'", argument));
+                                        "Unknown argument '{0}'", argument));
                                 }
                                 break;
                         }

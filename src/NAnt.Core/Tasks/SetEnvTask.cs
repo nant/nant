@@ -34,11 +34,11 @@ using NAnt.Core.Util;
     /// </summary>
     /// <remarks>
     ///   <note>
-    ///	  Variables will be set for the current NAnt process and all child 
-    ///	  processes that NAnt spawns (compilers, shell tools, etc). If the 
-    ///	  intention is to only set a variable for a single child process, then
-    ///	  using the <see cref="ExecTask" /> and its nested <see cref="ExecTask.EnvironmentSet" /> 
-    ///	  element might be a better option. 
+    ///   Variables will be set for the current NAnt process and all child 
+    ///   processes that NAnt spawns (compilers, shell tools, etc). If the 
+    ///   intention is to only set a variable for a single child process, then
+    ///   using the <see cref="ExecTask" /> and its nested <see cref="ExecTask.EnvironmentSet" /> 
+    ///   element might be a better option. 
     ///   </note>
     ///   <note>
     ///   Expansion of inline environment variables is performed using the syntax 
