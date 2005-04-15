@@ -50,7 +50,7 @@ namespace NAnt.DotNet.Tasks {
     ///   distribution available to the <see cref="NDocTask" />, copy the 
     ///   documenter assembly (and possible dependencies) to the &quot;lib&quot; 
     ///   directory corresponding with the CLR you're running NAnt on 
-    ///   (eg. &lt;nant root&gt;/lib/net/1.1).
+    ///   (eg. &lt;nant root&gt;/bin/lib/net/1.1).
     ///   </note>
     /// </remarks>
     /// <example>
