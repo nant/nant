@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliantAttribute(true)]
 [assembly: AssemblyTitleAttribute("NAnt")]
 [assembly: AssemblyDescriptionAttribute("A .NET Build Tool")]
-[assembly: AssemblyConfigurationAttribute("rc3")]
+[assembly: AssemblyConfigurationAttribute("dev")]
 [assembly: AssemblyCompanyAttribute("http://nant.sourceforge.net")]
 [assembly: AssemblyProductAttribute("NAnt")]
 [assembly: AssemblyCopyrightAttribute("Copyright (C) 2001-2005 Gerry Shaw")]
