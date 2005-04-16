@@ -66,7 +66,7 @@ namespace NAnt.VSNet.Everett {
                 }
 
                 // set-up project configuration 
-                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<solutionConfiguration>[0-9a-zA-Z\s_]+)\.Build\.0\s*=\s*(?<projectConfiguration>[0-9a-zA-Z\s_]+)\|\s*\S*", RegexOptions.Multiline);
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<solutionConfiguration>[^|]+)\.Build\.0\s*=\s*(?<projectConfiguration>[^|]+)\|\s*\S*", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
                 // initialize hashtable that will hold the project build configurations
