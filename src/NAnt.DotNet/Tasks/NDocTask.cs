@@ -340,7 +340,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingProgress(object sender, ProgressArgs e) {
-            Log(Level.Verbose, e.Progress + "% complete");
+            Log(Level.Verbose, e.Progress + ResourceUtils.GetString("String_PercentageComplete"));
         }
 
         /// <summary>
