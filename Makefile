@@ -66,9 +66,10 @@ bootstrap/NAnt.Core.dll:
 		-r:System.Web.dll -recurse:src${DIRSEP}NAnt.Core${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.DotNetTasks.dll:
+	$(RESGEN)  src/NAnt.DotNet/Resources/Strings.resx bootstrap/DotNet.Strings.resources
 	$(MCS) -target:library -warn:0 -define:MONO -out:bootstrap/NAnt.DotNetTasks.dll -r:./bootstrap/NAnt.Core.dll \
 		-r:bootstrap/lib/${FRAMEWORK_DIR}/1.0/NDoc.Core.dll -recurse:src${DIRSEP}NAnt.DotNet${DIRSEP}*.cs \
-		src${DIRSEP}CommonAssemblyInfo.cs
+		-resource:bootstrap/DotNet.Strings.resources,Strings.resources src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.CompressionTasks.dll:
 	$(MCS) -target:library -warn:0 -define:MONO -out:bootstrap/NAnt.CompressionTasks.dll -r:./bootstrap/NAnt.Core.dll \
