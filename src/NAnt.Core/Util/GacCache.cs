@@ -25,6 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Lifetime;
 
 using NAnt.Core;
@@ -243,8 +244,19 @@ namespace NAnt.Core.Util {
                     if (assemblyName.GetPublicKeyToken() == null) {
                         return false;
                     }
+
+                    // load assembly
                     Assembly assembly = Assembly.Load(assemblyName);
-                    return assembly.GlobalAssemblyCache;
+
+                    // tests whether the specified assembly is loaded in the 
+                    // global assembly cache
+                    if (PlatformHelper.IsMono) {
+                        // TODO: remove mono specific code when FromGlobalAccessCache
+                        // is implemented
+                        return assembly.GlobalAssemblyCache;
+                    } else {
+                        return RuntimeEnvironment.FromGlobalAccessCache(assembly);
+                    }
                 } catch {
                     return false;
                 }
