@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+// Giuseppe Greco <giuseppe.greco@agamura.com>
+// Copyright (C) 2005 Agamura, Inc.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Giuseppe Greco (giuseppe.greco@agamura.com)
+-->
+<root>
+    <resheader name="ResMimeType">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="Version">
+        <value>1.0</value>
+    </resheader>
+    <resheader name="Reader">
+        <value>System.Resources.ResXResourceReader</value>
+    </resheader>
+    <resheader name="Writer">
+        <value>System.Resources.ResXResourceWriter</value>
+    </resheader>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ResourceInfoTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\RegSvcsTask.cs-->
+    <data name="NA2001">
+        <value>Assembly attribute with type '{0}' could not be loaded.</value>
+        <comment>Assembly attribute with type '{0}' could not be loaded.</comment>
+    </data>
+    <data name="NA2002">
+        <value>An invalid type {0} was specified.</value>
+        <comment>An invalid type {0} was specified.</comment>
+    </data>
+    <data name="NA2003">
+        <value>Value of assembly attribute '{0}' cannot be set as it has no constructor accepting a primitive type or string.</value>
+        <comment>Value of assembly attribute '{0}' cannot be set as it has no constructor accepting a primitive type or string.</comment>
+    </data>
+    <data name="NA2004">
+        <value>AssemblyInfo file '{0}' could not be generated.</value>
+        <comment>AssemblyInfo file '{0}' could not be generated.</comment>
+    </data>
+    <data name="NA2005">
+        <value>Assembly attribute '{0}' has no default public constructor.</value>
+        <comment>Assembly attribute '{0}' has no default public constructor.</comment>
+    </data>
+    <data name="NA2006">
+        <value>Value '{0}' cannot be converted to type '{1}' of assembly attribute {2}.</value>
+        <comment>Value '{0}' cannot be converted to type '{1}' of assembly attribute {2}.</comment>
+    </data>
+    <data name="NA2007">
+        <value>The specified code language is not supported.</value>
+        <comment>The specified code language is not supported.</comment>
+    </data>
+    <data name="NA2008">
+        <value>Generating a JSCript AssemblyInfo file is not supported at this moment.</value>
+        <comment>Generating a JSCript AssemblyInfo file is not supported at this moment.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
+    <data name="NA2009">
+        <value>Resource '{0}' does not exist.</value>
+        <comment>Resource '{0}' does not exist.</comment>
+    </data>
+    <data name="NA2010">
+        <value>The manifest resource name for '{0}' could not be determined.</value>
+        <comment>The manifest resource name for '{0}' could not be determined.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\CscTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\VbcTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\JscTask.cs-->
+    <data name="NA2011">
+        <value>Invalid value "{0}" for attribute "debug".</value>
+        <comment>Invalid value "{0}" for attribute "debug".</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\DelaySignTask.cs-->
+    <data name="NA2012">
+        <value>Either 'keyfile' or 'keycontainer' must be specified.</value>
+        <comment>Either 'keyfile' or 'keycontainer' must be specified.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\LicenseTask.cs-->
+    <data name="NA2013">
+        <value>'target' is a required attribute of &lt;{0} ... /&gt;.</value>
+        <comment>'target' is a required attribute of &lt;{0} ... /&gt;.</comment>
+    </data>
+    <data name="NA2014">
+        <value>Input file '{0}' does not exist.</value>
+        <comment>Input file '{0}' does not exist.</comment>
+    </data>
+    <data name="NA2015">
+        <value>Could not determine output file from target '{0}'.</value>
+        <comment>Could not determine output file from target '{0}'.</comment>
+    </data>
+    <data name="NA2016">
+        <value>Failed to locate type {0}.</value>
+        <comment>Failed to locate type {0}.</comment>
+    </data>
+    <data name="NA2017">
+        <value>Type {0} is not a licensed component.</value>
+        <comment>Type {0} is not a licensed component.</comment>
+    </data>
+    <data name="NA2018">
+        <value>Failed to create license for type '{0}'.</value>
+        <comment>Failed to create license for type '{0}'.</comment>
+    </data>
+    <data name="NA2019">
+        <value>Failed to create license file for '{0}'.</value>
+        <comment>Failed to create license file for '{0}'.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\NDocTask.cs-->
+    <data name="NA2020">
+        <value>There must be at least one included assembly.</value>
+        <comment>There must be at least one included assembly.</comment>
+    </data>
+    <data name="NA2021">
+        <value>Could not create NDoc Project.</value>
+        <comment>Could not create NDoc Project.</comment>
+    </data>
+    <data name="NA2022">
+        <value>Failed to read ndoc namespace summary file '{0}'.</value>
+        <comment>Failed to read ndoc namespace summary file '{0}'.</comment>
+    </data>
+    <data name="NA2023">
+        <value>Error building documentation.</value>
+        <comment>Error building documentation.</comment>
+    </data>
+    <data name="NA2024">
+        <value>Error loading documenter '{0}'. There are no NDoc documenters available.</value>
+        <comment>Error loading documenter '{0}'. There are no NDoc documenters available.</comment>
+    </data>
+    <data name="NA2025">
+        <value>Error loading documenter '{0}' from available documenters ({1}). Is the NDoc documenter assembly available?</value>
+        <comment>Error loading documenter '{0}' from available documenters ({1}). Is the NDoc documenter assembly available?</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ResGenTask.cs-->
+    <data name="NA2026">
+        <value>'output' attribute is incompatible with fileset use.</value>
+        <comment>'output' attribute is incompatible with fileset use.</comment>
+    </data>
+    <data name="NA2027">
+        <value>Resource generator needs either an input attribute, or a non-empty fileset.</value>
+        <comment>Resource generator needs either an input attribute, or a non-empty fileset.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ScriptTask.cs-->
+    <data name="NA2028">
+        <value>Error loading assembly '{0}'.</value>
+        <comment>Error loading assembly '{0}'.</comment>
+    </data>
+    <data name="NA2029">
+        <value>Compilation failed:</value>
+        <comment>Compilation failed:</comment>
+    </data>
+    <data name="NA2030">
+        <value>Invalid main class '{0}'.</value>
+        <comment>Invalid main class '{0}'.</comment>
+    </data>
+    <data name="NA2031">
+        <value>Missing entry point.</value>
+        <comment>Missing entry point.</comment>
+    </data>
+    <data name="NA2032">
+        <value>Invalid entry point declaration (should be static).</value>
+        <comment>Invalid entry point declaration (should be static).</comment>
+    </data>
+    <data name="NA2033">
+        <value>Invalid entry point declaration (wrong number of parameters).</value>
+        <comment>Invalid entry point declaration (wrong number of parameters).</comment>
+    </data>
+    <data name="NA2034">
+        <value>Invalid entry point declaration (invalid parameter type '{0}', '{1}' expected).</value>
+        <comment>Invalid entry point declaration (invalid parameter type '{0}', '{1}' expected).</comment>
+    </data>
+    <data name="NA2035">
+        <value>Failure executing script.</value>
+        <comment>Failure executing script.</comment>
+    </data>
+    <data name="NA2036">
+        <value>CodeDomProvider for '{0}' could not be created.</value>
+        <comment>CodeDomProvider for '{0}' could not be created.</comment>
+    </data>
+    <data name="NA2037">
+        <value>Assembly '{0}' could not be loaded with partial name.</value>
+        <comment>Assembly '{0}' could not be loaded with partial name.</comment>
+    </data>
+    <data name="NA2038">
+        <value>Type '{0}' is not a valid CodeDomProvider.</value>
+        <comment>Type '{0}' is not a valid CodeDomProvider.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ResourceInfoTask.cs-->
+    <data name="String_GeneratedFile">
+        <value>Generated file '{0}'.</value>
+        <comment>Generated file '{0}'.</comment>
+    </data>
+    <data name="String_FileUpToDate">
+        <value>File '{0}' is up-to-date.</value>
+        <comment>File '{0}' is up-to-date.</comment>
+    </data>
+    <data name="String_OutputFileNotUpToDate">
+        <value>Output file '{0}' is not up-to-date, rebuilding.</value>
+        <comment>Output file '{0}' is not up-to-date, rebuilding.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ResourceInfoTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\AssemblyLinkerTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\IlAsmTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\LicenseTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\ResGenTask.cs-->
+    <data name="String_OutputFileDoesNotExist">
+        <value>Output file '{0}' does not exist, rebuilding.</value>
+        <comment>Output file '{0}' does not exist, rebuilding.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\AssemblyLinkerTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\IlAsmTask.cs-->
+    <data name="String_CompilingFiles">
+        <value>Compiling {0} files to '{1}'."</value>
+        <comment>Compiling {0} files to '{1}'."</comment>
+    </data>
+    <data name="String_ContentsOf">
+        <value>Contents of {0}.</value>
+        <comment>Contents of {0}.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\AssemblyLinkerTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\IlAsmTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\LicenseTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\ResGenTask.cs-->
+    <data name="String_FileHasBeenUpdated">
+        <value>'{0}' has been updated, recompiling.</value>
+        <comment>'{0}' has been updated, recompiling.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\IlAsmTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\JscTask.cs-->
+    <data name="String_CompilerDoesNotSupportPackageReferences">
+        <value>The compiler for {0} does not support package references.</value>
+        <comment>The compiler for {0} does not support package references.</comment>
+    </data>
+    <data name="String_CompilerDoesNotSupportWarningsAsErrors">
+        <value>The compiler for {0} does not support a command line option to specify a list of warnings to treat as errors.</value>
+        <comment>The compiler for {0} does not support a command line option to specify a list of warnings to treat as errors.</comment>
+    </data>
+    <data name="String_CompilerDoesNotSupportWarningsToSuppress">
+        <value>The compiler for {0} does not support a command line option to specify a list of warnings to suppress.</value>
+        <comment>The compiler for {0} does not support a command line option to specify a list of warnings to suppress.</comment>
+    </data>
+    <data name="String_RebuildAttributeSetToTrue">
+        <value>'rebuild' attribute set to true, recompiling.</value>
+        <comment>'rebuild' attribute set to true, recompiling.</comment>
+    </data>
+    <data name="String_DependentFileNotFound">
+        <value>Did not find dependent file {0}.</value>
+        <comment>Did not find dependent file {0}.</comment>
+    </data>
+    <data name="String_FoundResourceLinkageInDependentFile">
+        <value>Found resource linkage '{0}' in dependent file '{1}'.</value>
+        <comment>Found resource linkage '{0}' in dependent file '{1}'.</comment>
+    </data>
+    <data name="String_ResourceLinkageInDependentFileNotFound">
+        <value>Could not find any resource linkage in dependent file '{0}'.</value>
+        <comment>Could not find any resource linkage in dependent file '{0}'.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\CscTask.cs-->
+    <!--Message from:\NAnt.DotNet\Tasks\VbcTask.cs-->
+    <data name="String_CompilerDoesNotSupportXmlDoc">
+        <value>The compiler for "{0}" does not support generation of XML Documentation file.</value>
+        <comment>The compiler for "{0}" does not support generation of XML Documentation file.</comment>
+    </data>
+    <data name="String_DocFileDoesNotExist">
+        <value>Doc file '{0}' does not exist, recompiling.</value>
+        <comment>Doc file '{0}' does not exist, recompiling.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\DelaySignTask.cs-->
+    <data name="String_DelaySigningAssemblies">
+        <value>Delay-signing {0} assemblies.</value>
+        <comment>Delay-signing {0} assemblies.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\LicenseTask.cs-->
+    <data name="String_CompilingLicenseUsingTarget">
+        <value>"Compiling license file '{0}' to '{1}' using target '{2}'.</value>
+        <comment>"Compiling license file '{0}' to '{1}' using target '{2}'.</comment>
+    </data>
+    <data name="String_LoadingAssemblies">
+        <value>Loading assemblies ...</value>
+        <comment>Loading assemblies ...</comment>
+    </data>
+    <data name="String_AssemblyLoaded">
+        <value>{0} (loaded)</value>
+        <comment>{0} (loaded)</comment>
+    </data>
+    <data name="String_CreatingLicenses">
+        <value>Creating licenses ...</value>
+        <comment>Creating licenses ...</comment>
+    </data>
+    <data name="String_CreatedNewLicense">
+        <value>Created new license file {0}.</value>
+        <comment>Created new license file {0}.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\NDocTask.cs-->
+    <data name="String_WritingProjectSettings">
+        <value>Writing project settings to '{0}'.</value>
+        <comment>Writing project settings to '{0}'.</comment>
+    </data>
+    <data name="String_NDocProjectFile">
+        <value>NDoc project file: file://{0}"</value>
+        <comment>NDoc project file: file://{0}"</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\RegSvcsTask.cs-->
+    <data name="String_CreatingCOM+Application">
+        <value>Creating COM+ application '{0}'.</value>
+        <comment>Creating COM+ application '{0}'.</comment>
+    </data>
+    <data name="String_FindingCOM+Application">
+        <value>Finding or creating COM+ application '{0}'.</value>
+        <comment>Finding or creating COM+ application '{0}'.</comment>
+    </data>
+    <data name="String_UninstallingCOM+Application">
+        <value>Uninstalling COM+ application '{0}'."</value>
+        <comment>Uninstalling COM+ application '{0}'."</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ResGenTask.cs-->
+    <data name="String_ResourceCompilerDoesNotSupportExternalReferences">
+        <value>The resource compiler for {0} does not support external file references.</value>
+        <comment>The resource compiler for {0} does not support external file references.</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\ScriptTask.cs-->
+    <data name="String_GeneratedCodeLooksLike">
+        <value>Generated code for the script looks like:</value>
+        <comment>Generated code for the script looks like:</comment>
+    </data>
+
+    <!--Message from:\NAnt.DotNet\Tasks\JscTask.cs-->
+    <data name="String_JscDoesNotSupportLinkingModules">
+        <value>The JScript.NET compiler does not support linking modules.</value>
+        <comment>The JScript.NET compiler does not support linking modules.</comment>
+    </data>
+</root>
