@@ -331,6 +331,10 @@
         <value>NDoc project file: file://{0}"</value>
         <comment>NDoc project file: file://{0}"</comment>
     </data>
+    <data name="String_PercentageComplete">
+        <value>% complete</value>
+        <comment>% complete</comment>
+    </data>
 
     <!--Message from:\NAnt.DotNet\Tasks\RegSvcsTask.cs-->
     <data name="String_CreatingCOM+Application">
