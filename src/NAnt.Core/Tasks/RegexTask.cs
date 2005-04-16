@@ -157,7 +157,7 @@ namespace NAnt.Core.Tasks {
 
             Match match = regex.Match(Input);
 
-            if (match.Groups.Count == 0) {
+            if (match == Match.Empty) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1144"), Pattern, 
                     Input), Location);
