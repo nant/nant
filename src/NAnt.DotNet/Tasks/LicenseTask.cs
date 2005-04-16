@@ -18,6 +18,7 @@
 // Matthew Mastracci (mmastrac@canada.com)
 // Sascha Andres (sa@programmers-world.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections;
@@ -114,7 +115,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("licensetarget", Required=false)]
         [StringValidator(AllowEmpty=false)]
-        [Obsolete("Use \"target\" attribute instead.", false)]
+        [Obsolete("Use the <target> attribute instead.", false)]
         public string LicenseTarget {
             get { return Target; }
             set { Target = value; }
@@ -175,14 +176,13 @@ namespace NAnt.DotNet.Tasks {
             //       by setting Required to "true"
             if (Target == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "'target' is a required attribute of <{0} ... />.", 
-                    Name), Location);
+                    ResourceUtils.GetString("NA2013"), Name), Location);
             }
 
             // check if input file exists
             if (!InputFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Input file '{0}' does not exist.", InputFile.FullName), 
+                    ResourceUtils.GetString("NA2014"), InputFile.FullName), 
                     Location);
             }
         }
@@ -357,8 +357,7 @@ namespace NAnt.DotNet.Tasks {
                     licensesFile = new FileInfo(Project.GetFullPath(Target + ".licenses"));
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not determine output file from target '{0}'.", 
-                        Target), Location, ex);
+                        ResourceUtils.GetString("NA2015"), Target), Location, ex);
                 }
             } else {
                 licensesFile = OutputFile;
@@ -374,9 +373,8 @@ namespace NAnt.DotNet.Tasks {
                 return;
             }
 
-            Log(Level.Verbose, "Compiling license file '{0}' to '{1}'" 
-                + " using target '{2}'.", InputFile.FullName, licensesFile.FullName, 
-                Target);
+            Log(Level.Verbose, ResourceUtils.GetString("String_CompilingLicenseUsingTarget"),
+                InputFile.FullName, licensesFile.FullName, Target);
 
             if (HasCommandLineCompiler) {
                 // the command line compiler does not allow us to specify the 
@@ -456,7 +454,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         private bool NeedsCompiling(FileInfo licensesFile) {
             if (!licensesFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"),
                     licensesFile.FullName);
                 return true;
             }
@@ -464,7 +462,7 @@ namespace NAnt.DotNet.Tasks {
             // check if assembly references were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, licensesFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                     fileName);
                 return true;
             }
@@ -473,7 +471,7 @@ namespace NAnt.DotNet.Tasks {
             if (InputFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(InputFile.FullName, licensesFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                         fileName);
                     return true;
                 }
@@ -528,7 +526,7 @@ namespace NAnt.DotNet.Tasks {
                 // attach assembly resolver to the current domain
                 assemblyResolver.Attach();
 
-                licenseTask.Log(Level.Verbose, "Loading assemblies ...");
+                licenseTask.Log(Level.Verbose, ResourceUtils.GetString("String_LoadingAssemblies"));
 
                 try {
                     // first, load all the assemblies so that we can search for the 
@@ -537,7 +535,7 @@ namespace NAnt.DotNet.Tasks {
                         Assembly assembly = Assembly.LoadFrom(assemblyFileName);
                         if (assembly != null) {
                             // output assembly filename to build log
-                            licenseTask.Log(Level.Verbose, "{0} (loaded)", 
+                            licenseTask.Log(Level.Verbose, ResourceUtils.GetString("String_AssemblyLoaded"), 
                                 assemblyFileName);
                             // add assembly to list of loaded assemblies
                             assemblies.Add(assembly);
@@ -551,7 +549,7 @@ namespace NAnt.DotNet.Tasks {
                     using (StreamReader sr = new StreamReader(licenseTask.InputFile.FullName)) {
                         Hashtable licenseTypes = new Hashtable();
 
-                        licenseTask.Log(Level.Verbose, "Creating licenses ...");
+                        licenseTask.Log(Level.Verbose, ResourceUtils.GetString("String_CreatingLicenses"));
 
                         while (true) {
                             string line = sr.ReadLine();
@@ -603,7 +601,7 @@ namespace NAnt.DotNet.Tasks {
 
                             if (tp == null) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,  
-                                    "Failed to locate type {0}.", typeName), licenseTask.Location);
+                                    ResourceUtils.GetString("NA2016"), typeName), licenseTask.Location);
                             } else {
                                 // add license type to list of processed license types
                                 licenseTypes[line] = tp;
@@ -612,7 +610,7 @@ namespace NAnt.DotNet.Tasks {
                             // ensure that we've got a licensed component
                             if (tp.GetCustomAttributes(typeof(LicenseProviderAttribute), true).Length == 0) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,  
-                                    "Type {0} is not a licensed component.", tp.FullName), 
+                                    ResourceUtils.GetString("NA2017"), tp.FullName), 
                                     licenseTask.Location);
                             }
 
@@ -621,7 +619,7 @@ namespace NAnt.DotNet.Tasks {
                             } catch (Exception ex) {
                                 if (IsSerializable(ex)) {
                                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        "Failed to create license for type '{0}'.", tp.FullName), 
+                                        ResourceUtils.GetString("NA2018"), tp.FullName), 
                                         licenseTask.Location, ex);
                                 }
 
@@ -631,7 +629,7 @@ namespace NAnt.DotNet.Tasks {
                                 // exception with message set to message of 
                                 // original exception
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    "Failed to create license for type '{0}'.", tp.FullName), 
+                                    ResourceUtils.GetString("NA2018"), tp.FullName), 
                                     licenseTask.Location, new Exception(ex.Message));
                             }
                         }
@@ -648,7 +646,7 @@ namespace NAnt.DotNet.Tasks {
                     // this .license file will only be valid for this exe/dll
                     using (FileStream fs = new FileStream(licensesFile, FileMode.Create)) {
                         DesigntimeLicenseContextSerializer.Serialize(fs, licenseTask.Target, dlc);
-                        licenseTask.Log(Level.Verbose, "Created new license file {0}.", 
+                        licenseTask.Log(Level.Verbose, ResourceUtils.GetString("String_CreatedNewLicense"),
                             licensesFile);
                     }
 
@@ -659,7 +657,7 @@ namespace NAnt.DotNet.Tasks {
                 } catch (Exception ex) {
                     if (IsSerializable(ex)) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Failed to create license file for '{0}'.", licenseTask.InputFile.FullName), 
+                            ResourceUtils.GetString("NA2019"), licenseTask.InputFile.FullName), 
                             licenseTask.Location, ex);
                     } else {
                         // do not directly pass the exception as inner exception to 
@@ -668,7 +666,7 @@ namespace NAnt.DotNet.Tasks {
                         // new exception with message set to message of
                         // original exception
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Failed to create license file for '{0}'.", licenseTask.InputFile.FullName), 
+                            ResourceUtils.GetString("NA2019"), licenseTask.InputFile.FullName), 
                             licenseTask.Location, new Exception(ex.Message));
                     }
                 } finally {

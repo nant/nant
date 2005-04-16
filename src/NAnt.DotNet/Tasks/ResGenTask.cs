@@ -20,6 +20,7 @@
 // Klemen Zagar (klemen@zagar.ws)
 // Ian MacLean (ian_maclean@another.com)
 // Gert Driesen (drieseng@ardatis.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections.Specialized;
@@ -375,7 +376,7 @@ namespace NAnt.DotNet.Tasks {
             _arguments = "";
             if (Resources.FileNames.Count > 0) {
                 if (OutputFile != null) {
-                    throw new BuildException("'output' attribute is incompatible with fileset use.", Location);
+                    throw new BuildException(ResourceUtils.GetString("NA2026"), Location);
                 }
                 foreach (string filename in Resources.FileNames) {
                     FileInfo outputFile = GetOutputFile(new FileInfo(Path.Combine(
@@ -403,8 +404,8 @@ namespace NAnt.DotNet.Tasks {
                                 if (SupportsExternalFileReferences) {
                                     cmdLineArg = " /usesourcepath";
                                 } else {
-                                    Log(Level.Warning, "The resource compiler for {0}"
-                                        + " does not support external file references.", 
+                                    Log(Level.Warning, ResourceUtils.GetString(
+                                        "String_ResourceCompilerDoesNotSupportExternalReferences"), 
                                         Project.TargetFramework.Description);
                                 }
                             }
@@ -449,7 +450,7 @@ namespace NAnt.DotNet.Tasks {
             } else {
                 // Single file situation
                 if (InputFile == null) {
-                    throw new BuildException("Resource generator needs either an input attribute, or a non-empty fileset.", Location);
+                    throw new BuildException(ResourceUtils.GetString("NA2027"), Location);
                 }
 
                 FileInfo outputFile = GetOutputFile(InputFile);
@@ -464,8 +465,8 @@ namespace NAnt.DotNet.Tasks {
                         if (SupportsExternalFileReferences) {
                             AppendArgument("/usesourcepath");
                         } else {
-                            Log(Level.Warning, "The resource compiler for {0}"
-                                + " does not support external file references.", 
+                            Log(Level.Warning, ResourceUtils.GetString(
+                                "String_ResourceCompilerDoesNotSupportExternalReferences"), 
                                 Project.TargetFramework.Description);
                         }
                     }
@@ -535,7 +536,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling(FileInfo inputFile, FileInfo outputFile) {
             if (!outputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.",
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"),
                     outputFile.FullName);
                 return true;
             }
@@ -543,14 +544,16 @@ namespace NAnt.DotNet.Tasks {
             // check if input file was updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(inputFile.FullName, outputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
             // check if reference assemblies were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(Assemblies.FileNames, outputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
@@ -560,7 +563,8 @@ namespace NAnt.DotNet.Tasks {
                 if (externalFileReferences != null) {
                     fileName = FileSet.FindMoreRecentLastWriteTime(externalFileReferences, outputFile.LastWriteTime);
                     if (fileName != null) {
-                        Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                        Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                            fileName);
                         return true;
                     }
                 }

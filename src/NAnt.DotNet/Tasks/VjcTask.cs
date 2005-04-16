@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Tom Jordan (tdjordan@users.sourceforge.net)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System.Globalization;
 using System.IO;
@@ -306,8 +307,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected override void WriteModuleReferences(TextWriter writer) {
             if (Modules.FileNames.Count > 0) {
-                Log(Level.Warning, "The Visual J# compiler does not" 
-                    + " support linking modules.");
+                Log(Level.Warning, ResourceUtils.GetString("String_JscDoesNotSupportLinkingModules"));
             }
         }
 
@@ -363,8 +363,7 @@ namespace NAnt.DotNet.Tasks {
                     break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Invalid value \"{0}\" for attribute \"debug\".", 
-                        DebugOutput), Location);
+                        ResourceUtils.GetString("NA2011"), DebugOutput), Location);
             }
 
             if (WarningLevel != null) {

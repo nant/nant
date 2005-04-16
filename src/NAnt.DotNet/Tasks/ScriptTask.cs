@@ -17,7 +17,8 @@
 //
 // Sergey Chaban (serge@wildwestsoftware.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Ian MacLean ( ian at maclean.ms )
+// Ian MacLean (ian at maclean.ms)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.CodeDom;
@@ -314,8 +315,7 @@ namespace NAnt.DotNet.Tasks {
                     options.ReferencedAssemblies.Add(assemblyFile);
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Error loading assembly '{0}'.", assemblyFile), Location,
-                        ex);
+                        ResourceUtils.GetString("NA2028"), assemblyFile), Location, ex);
                 }
             }
             
@@ -336,13 +336,13 @@ namespace NAnt.DotNet.Tasks {
             compilerInfo.CodeGen.GenerateCodeFromCompileUnit(compileUnit, sw, null);
             string code = sw.ToString();
             
-            Log(Level.Debug, "Generated code for the script looks like :\n{0}", code);
+            Log(Level.Debug, ResourceUtils.GetString("String_GeneratedCodeLooksLike") + "\n{0}", code);
 
             CompilerResults results = compiler.CompileAssemblyFromDom(options, compileUnit);
 
             Assembly compiled = null;
             if (results.Errors.Count > 0) {
-                string errors = "Compilation failed:" + Environment.NewLine;
+                string errors = ResourceUtils.GetString("NA2029") + Environment.NewLine;
                 foreach (CompilerError err in results.Errors) {
                     errors += err.ToString() + Environment.NewLine;
                 }
@@ -364,33 +364,32 @@ namespace NAnt.DotNet.Tasks {
             Type mainType = compiled.GetType(mainClass);
             if (mainType == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Invalid main class '{0}'.", mainClass), Location);
+                    ResourceUtils.GetString("NA2030"), mainClass), Location);
             }
 
             MethodInfo entry = mainType.GetMethod("ScriptMain");
             // check for task or function definitions.
             if (entry == null) {
                 if (!extensionAssembly) {
-                    throw new BuildException("Missing entry point.", Location);
+                    throw new BuildException(ResourceUtils.GetString("NA2031"), Location);
                 } else {
                     return; // no entry point so nothing to do here beyond loading task and function defs
                 }
             }
             
             if (!entry.IsStatic) {
-                throw new BuildException("Invalid entry point declaration (should be static).", Location);
+                throw new BuildException(ResourceUtils.GetString("NA2032"), Location);
             }
 
             ParameterInfo[] entryParams = entry.GetParameters();
 
             if (entryParams.Length != 1) {
-                throw new BuildException("Invalid entry point declaration (wrong number of parameters).", Location);
+                throw new BuildException(ResourceUtils.GetString("NA2033"), Location);
             }
 
             if (entryParams[0].ParameterType.FullName != typeof(Project).FullName) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Invalid entry point declaration (invalid parameter type '{0}'"
-                    + ", '{1}' expected).", entryParams[0].ParameterType.FullName,
+                    ResourceUtils.GetString("NA2034"), entryParams[0].ParameterType.FullName,
                     typeof(Project).FullName), Location);
             }
               
@@ -401,7 +400,7 @@ namespace NAnt.DotNet.Tasks {
                 // this exception is not likely to tell us much, BUT the 
                 // InnerException normally contains the runtime exception
                 // thrown by the executed script code.
-                throw new BuildException("Failure executing script.", Location, 
+                throw new BuildException(ResourceUtils.GetString("NA2035"), Location, 
                     ex.InnerException);
             }
         }
@@ -459,8 +458,7 @@ namespace NAnt.DotNet.Tasks {
                 return new CompilerInfo(languageId, provider);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "CodeDomProvider for '{0}' could not be created.", language),
-                    Location, ex);
+                    ResourceUtils.GetString("NA2036"), language), Location, ex);
             }
         }
 
@@ -472,8 +470,7 @@ namespace NAnt.DotNet.Tasks {
             Assembly providerAssembly = Assembly.LoadWithPartialName(assemblyName);
             if (providerAssembly == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Assembly '{0}' could not be loaded with partial name.",
-                    assemblyName));
+                    ResourceUtils.GetString("NA2037"), assemblyName));
             }
 
             Type providerType = providerAssembly.GetType(typeName, true, true);
@@ -489,8 +486,7 @@ namespace NAnt.DotNet.Tasks {
             object provider = Activator.CreateInstance(providerType);
             if (!(provider is CodeDomProvider)) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "Type '{0}' is not a valid CodeDomProvider.", 
-                    providerType.FullName));
+                    ResourceUtils.GetString("NA2038"), providerType.FullName));
             }
             return (CodeDomProvider) provider;
         }

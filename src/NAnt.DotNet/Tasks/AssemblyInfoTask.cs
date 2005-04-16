@@ -18,6 +18,7 @@
 // Gordon Weakliem (gweakliem@oddpost.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 // Ian MacLean (ian_maclean@another.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.CodeDom;
@@ -132,8 +133,8 @@ namespace NAnt.DotNet.Tasks {
             set { 
                 if (!Enum.IsDefined(typeof(CodeLanguage), value)) {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, 
-                        "An invalid type {0} was specified.", value)); 
+                        CultureInfo.InvariantCulture,
+                        ResourceUtils.GetString("NA2002"), value)); 
                 } else {
                     _language = value;
                 }
@@ -227,16 +228,17 @@ namespace NAnt.DotNet.Tasks {
                             generatedAsmInfoStream.Close();
                         }
 
-                        Log(Level.Info, "Generated file '{0}'.", Output.FullName);
+                        Log(Level.Info, ResourceUtils.GetString("String_GeneratedFile"),
+                            Output.FullName);
                     } else {
-                        Log(Level.Verbose, "File '{0}' is up-to-date.", Output.FullName);
+                        Log(Level.Verbose, ResourceUtils.GetString("String_FileUpToDate"),
+                            Output.FullName);
                     }
                 }
             } catch (Exception ex) {
                 throw new BuildException(string.Format(
                     CultureInfo.InvariantCulture,
-                    "AssemblyInfo file '{0}' could not be generated.",
-                    Output.FullName), Location, ex);
+                    ResourceUtils.GetString("NA2004"), Output.FullName), Location, ex);
             }
         }
 
@@ -257,7 +259,7 @@ namespace NAnt.DotNet.Tasks {
             // if output file doesn't exist, the stream will always need to be
             // persisted to the filesystem.
             if (!Output.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, rebuilding.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"),
                     Output.FullName);
                 return true;
             }
@@ -281,7 +283,7 @@ namespace NAnt.DotNet.Tasks {
 
             //compare hash of generated source with of existing source
             if (Convert.ToBase64String(generatedAssemblyInfoHash) != Convert.ToBase64String(existingAssemblyInfoHash)) {
-                Log(Level.Verbose, "Output file '{0}' is not up-to-date, rebuilding.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileNotUpToDate"), 
                     Output.FullName);
                 return true;
             } else {
@@ -341,12 +343,12 @@ namespace NAnt.DotNet.Tasks {
                         provider = new Microsoft.CSharp.CSharpCodeProvider();
                         break;
                     case CodeLanguage.JScript:
-                        throw new NotSupportedException("Generating a JSCript AssemblyInfo file is not supported at this moment.");
+                        throw new NotSupportedException(ResourceUtils.GetString("NA2008"));
                     case CodeLanguage.VB:
                         provider = new Microsoft.VisualBasic.VBCodeProvider();
                         break;
                     default:
-                        throw new NotSupportedException("The specified code language is not supported.");
+                        throw new NotSupportedException(ResourceUtils.GetString("NA2007"));
                 }
 
                 _generator = provider.CreateGenerator();
@@ -565,9 +567,8 @@ namespace NAnt.DotNet.Tasks {
                                 new Type[0], new ParameterModifier[0]);
                             if (defaultConstructor != null) {
                                 throw new BuildException(string.Format(
-                                    CultureInfo.InvariantCulture, 
-                                    "Assembly attribute '{0}' has no default public constructor.",
-                                    type.FullName), Location.UnknownLocation);
+                                    CultureInfo.InvariantCulture,
+                                    ResourceUtils.GetString("NA2005"), type.FullName), Location.UnknownLocation);
                             }
                             typedValue = null;
                         } else {
@@ -582,8 +583,7 @@ namespace NAnt.DotNet.Tasks {
                                             break;
                                         } catch (Exception ex) {
                                             throw new BuildException(string.Format(
-                                                CultureInfo.InvariantCulture, 
-                                                "Value '{0}' cannot be converted to type '{1}' of assembly attribute {2}.",
+                                                CultureInfo.InvariantCulture, ResourceUtils.GetString("NA2006"),
                                                 value, parameters[0].ParameterType.FullName, type.FullName), 
                                                 Location.UnknownLocation, ex);
                                         }
@@ -593,18 +593,16 @@ namespace NAnt.DotNet.Tasks {
 
                             if (typedValue == null) {
                                 throw new BuildException(string.Format(
-                                    CultureInfo.InvariantCulture, 
-                                    "Value of assembly attribute '{0}' cannot be set as it has no constructor accepting a primitive type or string.",
-                                    typename), Location.UnknownLocation);
+                                    CultureInfo.InvariantCulture,
+                                    ResourceUtils.GetString("NA2003"), typename), Location.UnknownLocation);
                             }
                         }
 
                         return typedValue;
                     } else {
                         throw new BuildException(string.Format(
-                            CultureInfo.InvariantCulture, 
-                            "Assembly attribute with type '{0}' could not be loaded.",
-                            typename), Location.UnknownLocation);
+                            CultureInfo.InvariantCulture,
+                            ResourceUtils.GetString("NA2001"),typename), Location.UnknownLocation);
                     }
                 } finally {
                     // detach assembly resolver from the current domain

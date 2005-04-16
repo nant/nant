@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian_maclean@another.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections;
@@ -195,8 +196,7 @@ namespace NAnt.DotNet.Tasks {
             // be done in the InitializeTask() method because the files might
             // not have been built at startup time.
             if (Assemblies.FileNames.Count == 0) {
-                throw new BuildException("There must be at least one included"
-                    + " assembly.", Location);
+                throw new BuildException(ResourceUtils.GetString("NA2020"), Location);
             }
 
             // create NDoc Project
@@ -205,7 +205,7 @@ namespace NAnt.DotNet.Tasks {
             try {
                 project = new NDoc.Core.Project();
             } catch (Exception ex) {
-                throw new BuildException("Could not create NDoc Project.", Location, ex);
+                throw new BuildException(ResourceUtils.GetString("NA2021"), Location, ex);
             }
 
             // set-up probe path, meaning list of directories where NDoc searches
@@ -234,7 +234,7 @@ namespace NAnt.DotNet.Tasks {
 
             // write documenter project settings to temp file
             string projectFileName = Path.GetTempFileName();
-            Log(Level.Verbose, "Writing project settings to '{0}'.", projectFileName);
+            Log(Level.Verbose, ResourceUtils.GetString("String_WritingProjectSettings"), projectFileName);
 
             XmlTextWriter writer = new XmlTextWriter(projectFileName, Encoding.UTF8);
             writer.Formatting = Formatting.Indented;
@@ -265,8 +265,7 @@ namespace NAnt.DotNet.Tasks {
                     tr.Close();
                 } catch (IOException ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Failed to read ndoc namespace summary file '{0}'.", 
-                        summaryPath), Location, ex);
+                        ResourceUtils.GetString("NA2022"), summaryPath), Location, ex);
                 }
             }
             writer.WriteRaw(sb.ToString());
@@ -288,7 +287,8 @@ namespace NAnt.DotNet.Tasks {
 
             try {
                 // read NDoc project file
-                Log(Level.Verbose, "NDoc project file: file://{0}", Path.GetFullPath(projectFileName));
+                Log(Level.Verbose, ResourceUtils.GetString("String_NDocProjectFile"),
+                    Path.GetFullPath(projectFileName));
                 project.Read(projectFileName);
 
                 // add additional directories to search for referenced assemblies
@@ -315,7 +315,7 @@ namespace NAnt.DotNet.Tasks {
                     documenter.Build(project);
                 }
             } catch (Exception ex) {
-                throw new BuildException("Error building documentation.", Location, ex);
+                throw new BuildException(ResourceUtils.GetString("NA2023"), Location, ex);
             }
         }
 
@@ -343,7 +343,16 @@ namespace NAnt.DotNet.Tasks {
             Log(Level.Verbose, e.Progress + "% complete");
         }
 
-        /// <summary>        /// Returns the documenter for the given project.        /// </summary>        /// <exception cref="BuildException">Documenter <paramref name="documenterName" /> is not found.</exception>        /// <exception cref="ArgumentNullException"><paramref name="project" /> is <see langword="null" />.</exception>        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
+        /// <summary>
+        /// Returns the documenter for the given project.
+        /// </summary>
+        /// <exception cref="BuildException">
+        /// Documenter <paramref name="documenterName" /> is not found.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="project" /> is <see langword="null" />.
+        /// </exception>
+        private IDocumenter CheckAndGetDocumenter(NDoc.Core.Project project, string documenterName){
             IDocumenter documenter = null;
 
             if (project == null) {
@@ -365,11 +374,10 @@ namespace NAnt.DotNet.Tasks {
             if (documenter == null) {
                 if (documenters.Count == 0) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Error loading documenter '{0}'.  There are no NDoc documenters available.", documenterName), Location);
+                        ResourceUtils.GetString("NA2024"), documenterName), Location);
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Error loading documenter '{0}' from available documenters ({1})." +
-                        " Is the NDoc documenter assembly available?", documenterName, 
+                        ResourceUtils.GetString("NA2025"), documenterName, 
                         StringUtils.Join(", ", documenters)), Location);
                 }
             }

@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 // Arjen Poutsma (poutsma@yahoo.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Globalization;
@@ -151,7 +152,7 @@ namespace NAnt.DotNet.Tasks {
             set { 
                 if (!Enum.IsDefined(typeof(ActionType), value)) {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "An invalid action {0} was specified.", 
+                        CultureInfo.InvariantCulture, ResourceUtils.GetString("NA2002"), 
                         value)); 
                 } else {
                     this._action = value;
@@ -271,15 +272,18 @@ namespace NAnt.DotNet.Tasks {
             switch (Action) {
                 case ActionType.Create:
                     _argumentBuilder.Append("/c ");
-                    Log(Level.Info, "Creating COM+ application '{0}'.", AssemblyFile.FullName);
+                    Log(Level.Info, ResourceUtils.GetString("String_CreatingCOM+Application"),
+                        AssemblyFile.FullName);
                     break;
                 case ActionType.FindOrCreate:
                     _argumentBuilder.Append("/fc ");
-                    Log(Level.Info, "Finding or creating COM+ application '{0}'.", AssemblyFile.FullName);
+                    Log(Level.Info, ResourceUtils.GetString("String_FindingCOM+Application"),
+                        AssemblyFile.FullName);
                     break;
                 case ActionType.Uninstall:
                     _argumentBuilder.Append("/u ");
-                    Log(Level.Info,"Uninstalling COM+ application '{0}'.", AssemblyFile.FullName);
+                    Log(Level.Info, ResourceUtils.GetString("String_UninstallingCOM+Application"),
+                        AssemblyFile.FullName);
                     break;
             }
 

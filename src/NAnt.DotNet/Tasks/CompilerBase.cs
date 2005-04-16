@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 // Ian MacLean (ian_maclean@another.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections;
@@ -457,7 +458,7 @@ namespace NAnt.DotNet.Tasks {
                     References.Scan();
                     Modules.Scan();
                     
-                    Log(Level.Info, "Compiling {0} files to '{1}'.",
+                    Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
                         Sources.FileNames.Count, OutputFile.FullName);
 
                     // specific compiler options
@@ -579,7 +580,7 @@ namespace NAnt.DotNet.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log(Level.Info, "Contents of {0}.", _responseFileName);
+                        Log(Level.Info, ResourceUtils.GetString("String_ContentsOf"), _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
                         Log(Level.Info, reader.ReadToEnd());
                         reader.Close();
@@ -646,7 +647,7 @@ namespace NAnt.DotNet.Tasks {
             // make sure the resource file exists
             if (!File.Exists(resourcePhysicalFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Resource '{0}' does not exist.", resourcePhysicalFile), 
+                    ResourceUtils.GetString("NA2009"), resourcePhysicalFile), 
                     Location);
             }
 
@@ -707,8 +708,7 @@ namespace NAnt.DotNet.Tasks {
                         } else {
                             // we should actually never get here, but just in case ...
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "The manifest resource name for '{0}' could not be determined.",
-                                resourcePhysicalFile), Location);
+                                ResourceUtils.GetString("NA2010"), resourcePhysicalFile), Location);
                         }
                     }
 
@@ -777,7 +777,7 @@ namespace NAnt.DotNet.Tasks {
             // make sure the resource file exists
             if (!File.Exists(resourceFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Resource '{0}' does not exist.", resourceFile), Location);
+                    ResourceUtils.GetString("NA2009"), resourceFile), Location);
             }
 
             // determine the resource type
@@ -880,8 +880,8 @@ namespace NAnt.DotNet.Tasks {
                 // write package references to the TextWriter
                 WriteOption(writer, "pkg", StringUtils.Join(",", packages));
             } else {
-                Log(Level.Warning, "The compiler for {0} does not support"
-                    + " package references.", Project.TargetFramework.Description);
+                Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportPackageReferences"),
+                    Project.TargetFramework.Description);
             }
         }
 
@@ -919,9 +919,8 @@ namespace NAnt.DotNet.Tasks {
                     writer.WriteLine("/warnaserror+:" + StringUtils.Join(",", 
                         warnings));
                 } else {
-                    Log(Level.Warning, "The compiler for {0} does not support"
-                        + " a command line option to specify a list of warnings"
-                        + " to treat as errors.", Project.TargetFramework.Description);
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportWarningsAsErrors"),
+                        Project.TargetFramework.Description);
                 }
             }
 
@@ -944,9 +943,8 @@ namespace NAnt.DotNet.Tasks {
                     writer.WriteLine("/warnaserror-:" + StringUtils.Join(",", 
                         warnings));
                 } else {
-                    Log(Level.Warning, "The compiler for {0} does not support"
-                        + " a command line option to specify a list of warnings"
-                        + " not to treat as errors.", Project.TargetFramework.Description);
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportWarningsAsErrors"),
+                        Project.TargetFramework.Description);
                 }
             }
 
@@ -979,9 +977,8 @@ namespace NAnt.DotNet.Tasks {
                     writer.WriteLine("/nowarn:" + StringUtils.Join(",", 
                         warnings));
                 } else {
-                    Log(Level.Warning, "The compiler for {0} does not support"
-                        + " a command line option to specify a list of warnings"
-                        + " to suppress.", Project.TargetFramework.Description);
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportWarningsToSuppress"),
+                        Project.TargetFramework.Description);
                 }
             }
         }
@@ -1030,12 +1027,12 @@ namespace NAnt.DotNet.Tasks {
         protected virtual bool NeedsCompiling() {
             // return true as soon as we know we need to compile
             if (ForceRebuild) {
-                Log(Level.Verbose, "'rebuild' attribute set to true, recompiling.");
+                Log(Level.Verbose, ResourceUtils.GetString("String_RebuildAttributeSetToTrue"));
                 return true;
             }
 
             if (!OutputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"), 
                     OutputFile.FullName);
                 return true;
             }
@@ -1043,21 +1040,24 @@ namespace NAnt.DotNet.Tasks {
             // check if sources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
             // check if reference assemblies were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(References.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
             // check if modules were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
@@ -1065,7 +1065,8 @@ namespace NAnt.DotNet.Tasks {
             foreach (ResourceFileSet resources in ResourcesList) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(resources.FileNames, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -1074,7 +1075,8 @@ namespace NAnt.DotNet.Tasks {
             if (Win32Icon != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -1102,7 +1104,8 @@ namespace NAnt.DotNet.Tasks {
 
             fileName = FileSet.FindMoreRecentLastWriteTime(resourceFileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
@@ -1141,7 +1144,8 @@ namespace NAnt.DotNet.Tasks {
                 // set resource culture
                 resourceLinkage.Culture = resourceCulture;
             } catch (FileNotFoundException) { // if no matching file, dump out
-                Log(Level.Debug, "Did not find dependent file {0}.", dependentFile);
+                Log(Level.Debug, ResourceUtils.GetString("String_DependentFileNotFound"),
+                    dependentFile);
                 return null;
             } finally {
                 if (sr != null) {
@@ -1151,9 +1155,11 @@ namespace NAnt.DotNet.Tasks {
 
             // output some debug information about resource linkage found...
             if (resourceLinkage.IsValid) {
-                Log(Level.Debug, "Found resource linkage '{0}' in dependent file '{1}'.", resourceLinkage.ToString(), dependentFile);
+                Log(Level.Debug, ResourceUtils.GetString("String_FoundResourceLinkageInDependentFile"),
+                    resourceLinkage.ToString(), dependentFile);
             } else {
-                Log(Level.Debug, "Could not find any resource linkage in dependent file '{0}'.", dependentFile);
+                Log(Level.Debug, ResourceUtils.GetString("String_ResourceLinkageInDependentFileNotFound"),
+                    dependentFile);
             }
 
             return resourceLinkage;

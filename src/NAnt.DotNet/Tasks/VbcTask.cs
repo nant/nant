@@ -18,6 +18,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
 // Aaron A. Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Globalization;
@@ -98,7 +99,7 @@ namespace NAnt.DotNet.Tasks {
         private bool _supportsDocGeneration;
 
         #endregion Private Instance Fields
-        
+
         #region Private Static Fields
 
         private static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.]+|Class\s+(?<class>\w+)|(?<keyword>\w+))*");
@@ -349,8 +350,7 @@ namespace NAnt.DotNet.Tasks {
                 if (SupportsDocGeneration) {
                     WriteOption(writer, "doc", DocFile.FullName);
                 } else {
-                    Log(Level.Warning, "The compiler for \"{0}\" does not support"
-                        + " generation of XML Documentation file.", 
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportXmlDoc"),
                         Project.TargetFramework.Description);
                 }
             }
@@ -372,8 +372,7 @@ namespace NAnt.DotNet.Tasks {
                     break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Invalid value \"{0}\" for attribute \"debug\".", 
-                        DebugOutput), Location);
+                        ResourceUtils.GetString("NA2011"), DebugOutput), Location);
             }
 
             string imports = Imports.ToString();
@@ -418,7 +417,7 @@ namespace NAnt.DotNet.Tasks {
         protected override bool NeedsCompiling() {
             if (DocFile != null && SupportsDocGeneration) {
                 if (!DocFile.Exists) {
-                    Log(Level.Verbose, "Doc file '{0}' does not exist, recompiling.", 
+                    Log(Level.Verbose, ResourceUtils.GetString("String_DocFileDoesNotExist"),
                         DocFile.FullName);
                     return true;
                 }

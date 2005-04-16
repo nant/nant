@@ -19,6 +19,7 @@
 // Mike Krueger (mike@icsharpcode.net)
 // Gert Driesen (gert.driesen@ardatis.com)
 // Ian MacLean (ian_maclean@another.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Globalization;
@@ -322,8 +323,7 @@ namespace NAnt.DotNet.Tasks {
                 if (SupportsDocGeneration) {
                     WriteOption(writer, "doc", DocFile.FullName);
                 } else {
-                    Log(Level.Warning, "The compiler for \"{0}\" does not support"
-                        + " generation of XML Documentation file.", 
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportXmlDoc"),
                         Project.TargetFramework.Description);
                 }
             }
@@ -345,8 +345,7 @@ namespace NAnt.DotNet.Tasks {
                     break;
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Invalid value \"{0}\" for attribute \"debug\".", 
-                        DebugOutput), Location);
+                        ResourceUtils.GetString("NA2011"), DebugOutput), Location);
             }
 
             if (FileAlign > 0) {
@@ -388,7 +387,7 @@ namespace NAnt.DotNet.Tasks {
         protected override bool NeedsCompiling() {
             if (DocFile != null && SupportsDocGeneration) {
                 if (!DocFile.Exists) {
-                    Log(Level.Verbose, "Doc file '{0}' does not exist, recompiling.", 
+                    Log(Level.Verbose, ResourceUtils.GetString("String_DocFileDoesNotExist"),
                         DocFile.FullName);
                     return true;
                 }

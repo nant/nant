@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.IO;
@@ -53,7 +54,7 @@ namespace NAnt.DotNet.Tasks {
         private string _codepage;
 
         #endregion Private Instance Fields
-        
+
         #region Private Static Fields
 
         private static Regex _classNameRegex = new Regex(@"^((?<comment>/\*.*?(\*/|$))|[\s\.\{]+|class\s+(?<class>\w+)|(?<keyword>\w+))*");
@@ -156,8 +157,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="writer">The <see cref="TextWriter" /> to which the module references should be written.</param>
         protected override void WriteModuleReferences(TextWriter writer) {
             if (Modules.FileNames.Count > 0) {
-                Log(Level.Warning, "The JScript.NET compiler does not"
-                    + " support linking modules.");
+                Log(Level.Warning, ResourceUtils.GetString("String_JscDoesNotSupportLinkingModules"));
             }
         }
 

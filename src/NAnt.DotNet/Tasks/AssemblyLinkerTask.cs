@@ -18,6 +18,7 @@
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections.Specialized;
@@ -448,7 +449,8 @@ namespace NAnt.DotNet.Tasks {
                 StreamWriter writer = new StreamWriter(_responseFileName);
 
                 try {
-                    Log(Level.Info, "Compiling {0} files to '{1}'.", Resources.FileNames.Count, OutputFile.FullName);
+                    Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
+                        Resources.FileNames.Count, OutputFile.FullName);
 
                     // write output target
                     writer.WriteLine("/target:\"{0}\"", OutputTarget);
@@ -575,7 +577,7 @@ namespace NAnt.DotNet.Tasks {
 
                     if (Verbose) {
                         // display response file contents
-                        Log(Level.Verbose, "Contents of {0}.", _responseFileName);
+                        Log(Level.Verbose, ResourceUtils.GetString("String_ContentsOf"), _responseFileName);
                         StreamReader reader = File.OpenText(_responseFileName);
                         Log(Level.Verbose, reader.ReadToEnd());
                         reader.Close();
@@ -608,7 +610,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         protected virtual bool NeedsCompiling() {
             if (!OutputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, recompiling.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"), 
                     OutputFile.FullName);
                 return true;
             }
@@ -616,7 +618,8 @@ namespace NAnt.DotNet.Tasks {
             // check if (embedded)resources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
@@ -624,7 +627,8 @@ namespace NAnt.DotNet.Tasks {
             if (EvidenceFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(EvidenceFile.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -633,7 +637,8 @@ namespace NAnt.DotNet.Tasks {
             if (TemplateFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(TemplateFile.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -642,7 +647,8 @@ namespace NAnt.DotNet.Tasks {
             if (KeyFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -651,7 +657,8 @@ namespace NAnt.DotNet.Tasks {
             if (Win32Icon != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -660,7 +667,8 @@ namespace NAnt.DotNet.Tasks {
             if (Win32Res != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Res.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
@@ -695,7 +703,8 @@ namespace NAnt.DotNet.Tasks {
             // check if embedded resources passed as arguments were updated
             fileName = FileSet.FindMoreRecentLastWriteTime(embeddedResourceFiles, OutputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, recompiling.", fileName);
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
                 return true;
             }
 
