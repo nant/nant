@@ -349,7 +349,7 @@ namespace NAnt.VSNet {
 
                 // check whether project should be excluded from build
                 foreach (string excludedProjectFile in excludes.FileNames) {
-                    if (string.Compare(excludedProjectFile, projectPath, caseSensitive, CultureInfo.InvariantCulture) == 0) {
+                    if (string.Compare(excludedProjectFile, projectPath, !caseSensitive, CultureInfo.InvariantCulture) == 0) {
                         Log(Level.Verbose, "Excluding project '{0}'.", 
                             projectPath);
                         // do not load project
