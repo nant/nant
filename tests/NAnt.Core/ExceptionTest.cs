@@ -130,21 +130,6 @@ namespace Tests.NAnt.Core {
             Assert.IsTrue(ci.IsFamily, t.Name + description + " is not protected, must be protected.");
         }
 
-        private void CheckPublicOrProtectedConstructor(Type t, string description, params Type[] parameters) {
-            // locate constructor
-            ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
-            // fail if constructor does not exist
-            Assert.IsNotNull(ci, t.Name + description + " is a required constructor.");
-            // fail if constructor is private
-            Assert.IsFalse(ci.IsPrivate, t.Name + description + " is private, must be public or protected.");
-            // fail if constructor is internal
-            Assert.IsFalse(ci.IsAssembly, t.Name + description + " is internal, must be public or protected.");
-            // fail if constructor is protected internal
-            Assert.IsFalse(ci.IsFamilyOrAssembly, t.Name + description + " is protected internal, must be public or protected.");
-            // sainty check to make sure the constructor is protected or public
-            Assert.IsTrue(ci.IsPublic || ci.IsFamily, t.Name + description + " is not public or protected, must be public or protected.");
-        }
-
         private void CheckPrivateConstructor(Type t, string description, params Type[] parameters) {
             // locate constructor
             ConstructorInfo ci = t.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, parameters, null);
