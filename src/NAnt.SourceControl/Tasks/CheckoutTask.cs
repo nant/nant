@@ -77,13 +77,14 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
-        #region Public Constants
+        #region Internal Static Fields
+
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string CvsCommandName = "checkout";
+        internal const string CvsCommandName = "checkout";
 
-        #endregion
+        #endregion Internal Static Fields
 
         #region Public Instance Constructors
 
@@ -98,21 +99,14 @@ namespace NAnt.SourceControl.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The name of the cvs command that is going to be executed.
-        /// </summary>
-        public override string CommandName {
-            get {return CvsCommandName;}
-        }
-
-        /// <summary>
         /// Specify the revision to checkout.  This corresponds to the "sticky-tag"
         /// of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
-            get {return ((Option)CommandOptions["revision"]).Value;}
-             set {SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture, "-r {0}", value), true);}
+            get { return ((Option)CommandOptions["revision"]).Value; }
+            set { SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture, "-r {0}", value), true); }
         }
 
         /// <summary>
@@ -120,8 +114,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("sticky-tag", Required=false)]
         public string StickyTag {
-            get {return Revision;}
-            set {Revision = value;}
+            get { return Revision; }
+            set { Revision = value; }
         }
 
         /// <summary>
@@ -132,8 +126,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
         public DateTime Date {
-            get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
-            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
+            get { return Convert.ToDateTime(((Option)CommandOptions["date"]).Value); }
+            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
         }
 
         /// <summary>
@@ -143,8 +137,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("overridedir", Required=false)]
         [StringValidator(AllowEmpty=false)]
         public string OverrideDir {
-            get {return ((Option)CommandOptions["overridedir"]).Value;}
-            set {SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true);}
+            get { return ((Option)CommandOptions["overridedir"]).Value; }
+            set { SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true); }
         }
 
         /// <summary>
@@ -153,10 +147,21 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("override-directory", Required=false)]
         public string OverrideDirectory {
-            get {return OverrideDir;}
-            set {OverrideDir = value;}
+            get { return OverrideDir; }
+            set { OverrideDir = value; }
         }
 
         #endregion
+
+        #region Override implementation of AbstractCvsTask
+
+        /// <summary>
+        /// The name of the cvs command that is going to be executed.
+        /// </summary>
+        public override string CommandName {
+            get { return CvsCommandName; }
+        }
+
+        #endregion Override implementation of AbstractCvsTask
     }
 }

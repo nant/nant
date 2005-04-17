@@ -76,20 +76,18 @@ namespace NAnt.SourceControl.Tasks {
     public class ExportTask : AbstractCvsTask {
         #region Private Instance Fields
 
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private ArgumentCollection _exportFiles = new ArgumentCollection();
 
-        #endregion
+        #endregion Private Instance Fields
 
-        #region Public Constants
+        #region Private Static Fields
 
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string CvsCommandName = "export";
+        private const string CvsCommandName = "export";
 
-        #endregion
+        #endregion Private Static Fields
 
         #region Public Instance Constructors
 
@@ -105,16 +103,10 @@ namespace NAnt.SourceControl.Tasks {
         public ExportTask() {
             Recursive = true;
         }
-        #endregion
+
+        #endregion Public Instance Constructors
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// The export command name for the cvs client.
-        /// </summary>
-        public override string CommandName {
-            get {return CvsCommandName;}
-        }
 
         /// <summary>
         /// No shortening.  Do not shorten module paths if -d specified.
@@ -122,8 +114,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("no-shortening", Required=false)]
         [BooleanValidator()]
         public bool NoShortening {
-            get {return ((Option)CommandOptions["no-shortening"]).IfDefined;}
-            set {SetCommandOption("no-shortening", "-N", value);}
+            get { return ((Option)CommandOptions["no-shortening"]).IfDefined; }
+            set { SetCommandOption("no-shortening", "-N", value); }
         }
 
         /// <summary>
@@ -138,8 +130,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("force-head", Required=false)]
         [BooleanValidator()]
         public bool ForceHead {
-            get {return ((Option)CommandOptions["force-head"]).IfDefined;}
-            set {SetCommandOption("force-head", "-f", value);}
+            get { return ((Option)CommandOptions["force-head"]).IfDefined; }
+            set { SetCommandOption("force-head", "-f", value); }
         }
 
         /// <summary>
@@ -153,7 +145,7 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get {return ((Option)CommandOptions["recursive"]).IfDefined;}
+            get { return ((Option)CommandOptions["recursive"]).IfDefined; }
             set {
                 SetCommandOption("recursive", "-R", value);
                 SetCommandOption("local-only", "-l", !value);
@@ -172,7 +164,7 @@ namespace NAnt.SourceControl.Tasks {
                     return null;
                 }
                 return ((Option)CommandOptions["revision"]).Value;}
-            set {SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true);}
+            set { SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true); }
         }
 
         /// <summary>
@@ -186,12 +178,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("date", Required=false)]
         [DateTimeValidator()]
         public DateTime Date {
-            get {return Convert.ToDateTime(((Option)CommandOptions["date"]).Value);}
-            set {SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"\"-D {0}\"", DateParser.GetCvsDateString(value)), true);}
-        }
-
-        private bool HasDate {
-            get {return !(null == CommandOptions["date"]);}
+            get { return Convert.ToDateTime(((Option)CommandOptions["date"]).Value); }
+            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"\"-D {0}\"", DateParser.GetCvsDateString(value)), true); }
         }
 
         /// <summary>
@@ -201,10 +189,21 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("overridedir", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string OverrideDir {
-            get {return ((Option)CommandOptions["overridedir"]).Value;}
-            set {SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true);}
+            get { return ((Option)CommandOptions["overridedir"]).Value; }
+            set { SetCommandOption("overridedir", String.Format(CultureInfo.InvariantCulture,"-d{0}", value), true); }
         }
 
-        #endregion
+        #endregion Public Instance Properties
+
+        #region Override implementation of AbstractCvsTask
+
+        /// <summary>
+        /// The export command name for the cvs client.
+        /// </summary>
+        public override string CommandName {
+            get { return CvsCommandName; }
+        }
+
+        #endregion Override implementation of AbstractCvsTask
     }
 }

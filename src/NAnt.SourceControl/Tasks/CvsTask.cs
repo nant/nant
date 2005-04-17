@@ -17,18 +17,7 @@
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
-using System;
-using System.Text;
-using System.IO;
-using System.Diagnostics;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Tasks;
-using NAnt.Core.Types;
-using NAnt.Core.Util;
-
-using ICSharpCode.SharpCvsLib.Commands;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -48,22 +37,21 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs")]
     public class CvsTask : AbstractCvsTask {
-
         #region Private Instance Fields
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private string _commandName;
-        #endregion
 
-        #region Public Instance Properties
+        #endregion Private Instance Fields
+
+        #region Override implementation of AbstractCvsTask
 
         /// <summary>
         /// The cvs command to execute.
         /// </summary>
         [TaskAttribute("command", Required=true)]
         public override string CommandName {
-            get {return _commandName;}
-            set {_commandName = value;}
+            get { return _commandName; }
+            set { _commandName = value; }
         }
 
         /// <summary>
@@ -93,6 +81,6 @@ namespace NAnt.SourceControl.Tasks {
             }
         }
 
-        #endregion
+        #endregion Override implementation of AbstractCvsTask
     }
 }

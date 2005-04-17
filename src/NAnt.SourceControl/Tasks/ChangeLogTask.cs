@@ -54,37 +54,16 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-changelog")]
     public class ChangeLogTask : AbstractCvsTask {
-        #region Public Constants
+        #region Private Static Fields
 
         /// <summary>
         /// The command being executed.
         /// </summary>
-        public const string CvsCommandName = "xml";
-
-        #endregion Public Constants
-
-        #region Private Static Fields
-
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private const string CvsCommandName = "xml";
 
         #endregion Private Static Fields
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// The cvs command to execute.
-        /// </summary>
-        public override string CommandName {
-            get {return CvsCommandName;}
-        }
-
-        /// <summary>
-        /// Override use of sharpcvslib, needs to be true.
-        /// </summary>
-        public override bool UseSharpCvsLib {
-            get {return true;}
-            set {/* can only use sharpcvslib for changelog */}
-        }
 
         /// <summary>
         /// Name of the xml file that will contain the cvs log information.
@@ -113,8 +92,8 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("start", Required=true)]
         [DateTimeValidator()]
         public DateTime StartDate {
-            get {return Convert.ToDateTime(((Option)CommandOptions["start"]).Value);}
-            set {SetCommandOption("start", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
+            get { return Convert.ToDateTime(((Option)CommandOptions["start"]).Value); }
+            set { SetCommandOption("start", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
         }
 
         /// <summary>
@@ -123,8 +102,27 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("end", Required=true)]
         [DateTimeValidator()]
         public DateTime EndDate {
-            get {return Convert.ToDateTime(((Option)CommandOptions["end"]).Value);}
-            set {SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true);}
+            get { return Convert.ToDateTime(((Option)CommandOptions["end"]).Value); }
+            set { SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Override implementation of AbstractCvsTask
+
+        /// <summary>
+        /// The cvs command to execute.
+        /// </summary>
+        public override string CommandName {
+            get { return CvsCommandName; }
+        }
+
+        /// <summary>
+        /// Override use of sharpcvslib, needs to be true.
+        /// </summary>
+        public override bool UseSharpCvsLib {
+            get { return true; }
+            set { /* can only use sharpcvslib for changelog */ }
         }
 
         /// <summary>
@@ -168,11 +166,9 @@ namespace NAnt.SourceControl.Tasks {
                 }
                 return base.Root;
             }
-            set {
-                base.Root = value;
-            }
+            set { base.Root = value; }
         }
 
-        #endregion Public Instance Properties
+        #endregion Override implementation of AbstractCvsTask
     }
 }
