@@ -74,12 +74,6 @@ namespace NAnt.SourceControl.Tasks {
     /// </example>
     [TaskName("cvs-export")]
     public class ExportTask : AbstractCvsTask {
-        #region Private Instance Fields
-
-        private ArgumentCollection _exportFiles = new ArgumentCollection();
-
-        #endregion Private Instance Fields
-
         #region Private Static Fields
 
         /// <summary>

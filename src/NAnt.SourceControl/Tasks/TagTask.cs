@@ -71,36 +71,33 @@ namespace NAnt.SourceControl.Tasks
     /// </example>
     [TaskName("cvs-tag")]
     public class TagTask : AbstractCvsTask {
+        #region Private Instance Fields
+
+        private string _tag;
+
+        #endregion Private Instance Fields
+
+        #region Internal Static Fields
+
         /// <summary>
         /// Cvs command to be executed.
         /// </summary>
-        public const string CvsCommandName = "tag";
+        internal const string CvsCommandName = "tag";
 
-        private string _tag;
+        #endregion Internal Static Fields
+
+        #region Public Instance Constructors
+
         /// <summary>
-        /// The name of the cvs command that is going to be executed.
+        /// Initializes a new instance of the <see cref="TagTask" /> 
+        /// class.
         /// </summary>
-        public override string CommandName {
-            get {return CvsCommandName;}
+        public TagTask() {
         }
 
-
-        #region Private Static Fields
-
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        #endregion Private Static Fields
+        #endregion Public Instance Constructors
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// Not used
-        /// </summary>
-        public override string Module {
-            get { return null; }
-            set { /* module not used for cvs-tag */ }
-        }
-
 
         /// <summary>
         /// The name of the tag to assign or remove.
@@ -111,8 +108,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("tag", Required=true)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Tag {
-            get {return this._tag;}
-            set {this._tag = value;}
+            get { return this._tag; }
+            set { this._tag = value; }
         }
 
         /// <summary>
@@ -126,8 +123,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("remove", Required=false)]
         [BooleanValidator()]
         public bool Remove {
-            get {return ((Option)CommandOptions["remove"]).IfDefined;}
-            set {SetCommandOption("remove", "-d", value);}
+            get { return ((Option)CommandOptions["remove"]).IfDefined; }
+            set { SetCommandOption("remove", "-d", value); }
         }
 
         /// <summary>
@@ -142,8 +139,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("move-if-exists", Required=false)]
         [BooleanValidator()]
         public bool MoveIfExists {
-            get {return ((Option)CommandOptions["move-if-exists"]).IfDefined;}
-            set {SetCommandOption("move-if-exists", "-F", value);}
+            get { return ((Option)CommandOptions["move-if-exists"]).IfDefined; }
+            set { SetCommandOption("move-if-exists", "-F", value); }
         }
 
         /// <summary>
@@ -157,7 +154,7 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get {return ((Option)CommandOptions["recursive"]).IfDefined;}
+            get { return ((Option)CommandOptions["recursive"]).IfDefined; }
             set {
                 SetCommandOption("recursive", "-R", value);
                 SetCommandOption("local-only", "-l", !value);
@@ -176,8 +173,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("act-on-tag", Required=false)]
         [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string ActOnTag {
-            get {return ((Option)CommandOptions["act-on-tag"]).Value;}
-            set {SetCommandOption("act-on-tag", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true);}
+            get { return ((Option)CommandOptions["act-on-tag"]).Value; }
+            set { SetCommandOption("act-on-tag", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true); }
         }
 
         /// <summary>
@@ -191,8 +188,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("act-on-date", Required=false)]
         [DateTimeValidator()]
         public DateTime ActOnDate {
-            get {return Convert.ToDateTime(((Option)CommandOptions["act-on-date"]).Value);}
-            set {SetCommandOption("act-on-date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true);}
+            get { return Convert.ToDateTime(((Option)CommandOptions["act-on-date"]).Value); }
+            set { SetCommandOption("act-on-date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true); }
         }
 
         /// <summary>
@@ -207,8 +204,8 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("force-head", Required=false)]
         [BooleanValidator()]
         public bool ForceHead {
-            get {return ((Option)CommandOptions["force-head"]).IfDefined;}
-            set {SetCommandOption("force-head", "-f", value);}
+            get { return ((Option)CommandOptions["force-head"]).IfDefined; }
+            set { SetCommandOption("force-head", "-f", value); }
         }
 
         /// <summary>
@@ -223,24 +220,29 @@ namespace NAnt.SourceControl.Tasks
         [TaskAttribute("fail-if-modified", Required=false)]
         [BooleanValidator()]
         public bool FailIfModified {
-            get {return ((Option)CommandOptions["fail-if-modified"]).IfDefined;}
-            set {SetCommandOption("fail-if-modified", "-c", value);}
+            get { return ((Option)CommandOptions["fail-if-modified"]).IfDefined; }
+            set { SetCommandOption("fail-if-modified", "-c", value); }
         }
 
         #endregion Public Instance Properties
 
-        #region Public Instance Constructors
+        #region Override implementation of AbstractCvsTask
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TagTask" /> 
-        /// class.
+        /// The name of the cvs command that is going to be executed.
         /// </summary>
-        public TagTask() {
+        public override string CommandName {
+            get { return CvsCommandName; }
         }
 
-        #endregion Public Instance Constructors
+        /// <summary>
+        /// Not used
+        /// </summary>
+        public override string Module {
+            get { return null; }
+            set { /* module not used for cvs-tag */ }
+        }
 
-        #region Protected Instance Methods
         /// <summary>
         /// Append the tag information to the commandline.
         /// </summary>
@@ -260,7 +262,6 @@ namespace NAnt.SourceControl.Tasks
             get { return false; }
         }
 
-        #endregion Protected Instance Methods
-
+        #endregion Override implementation of AbstractCvsTask
     }
 }
