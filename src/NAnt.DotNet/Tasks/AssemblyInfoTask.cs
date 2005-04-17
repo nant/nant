@@ -321,9 +321,8 @@ namespace NAnt.DotNet.Tasks {
         internal class CodeProvider {
             #region Private Instance Fields
 
-            private CodeLanguage _language;
+            private readonly CodeLanguage _language;
             private readonly ICodeGenerator _generator;
-            private readonly AssemblyInfoTask _assemblyInfoTask;
 
             #endregion Private Instance Fields
 
@@ -353,7 +352,6 @@ namespace NAnt.DotNet.Tasks {
 
                 _generator = provider.CreateGenerator();
                 _language = codeLanguage;
-                _assemblyInfoTask = assemblyInfoTask;
             }
 
             #endregion Public Instance Constructors

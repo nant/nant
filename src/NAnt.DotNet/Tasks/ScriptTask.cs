@@ -411,14 +411,12 @@ namespace NAnt.DotNet.Tasks {
 
         private CompilerInfo CreateCompilerInfo(string language) {
             CodeDomProvider provider = null;
-            LanguageId languageId;
 
             try {
                 switch (language) {
                     case "vb":
                     case "VB":
                     case "VISUALBASIC":
-                        languageId = LanguageId.VisualBasic;
                         provider = CreateCodeDomProvider(
                             "Microsoft.VisualBasic.VBCodeProvider",
                             "System, Culture=neutral");
@@ -426,7 +424,6 @@ namespace NAnt.DotNet.Tasks {
                     case "c#":
                     case "C#":
                     case "CSHARP":
-                        languageId = LanguageId.CSharp;
                         provider = CreateCodeDomProvider(
                             "Microsoft.CSharp.CSharpCodeProvider",
                             "System, Culture=neutral");
@@ -434,7 +431,6 @@ namespace NAnt.DotNet.Tasks {
                     case "js":
                     case "JS":
                     case "JSCRIPT":
-                        languageId = LanguageId.JScript;
                         provider = CreateCodeDomProvider(
                             "Microsoft.JScript.JScriptCodeProvider",
                             "Microsoft.JScript, Culture=neutral");
@@ -442,7 +438,6 @@ namespace NAnt.DotNet.Tasks {
                     case "vjs":
                     case "VJS":
                     case "JSHARP":
-                        languageId = LanguageId.JSharp;
                         provider = CreateCodeDomProvider(
                             "Microsoft.VJSharp.VJSharpCodeProvider",
                             "VJSharpCodeProvider, Culture=neutral");
@@ -450,12 +445,11 @@ namespace NAnt.DotNet.Tasks {
                     default:
                         // if its not one of the above then it must be a fully 
                         // qualified provider class name
-                        languageId = LanguageId.Other;
                         provider = CreateCodeDomProvider(language);
                         break;
                 }
 
-                return new CompilerInfo(languageId, provider);
+                return new CompilerInfo(provider);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA2036"), language), Location, ex);
@@ -493,26 +487,14 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Private Static Methods
 
-        internal enum LanguageId : int {
-            CSharp      = 1,
-            VisualBasic = 2,
-            JScript     = 3,
-            JSharp      = 4,
-            Other       = 5
-        }
-
         internal class CompilerInfo {
-            private LanguageId _lang;
             public readonly ICodeCompiler Compiler;
             public readonly ICodeGenerator CodeGen;
 
-            public CompilerInfo(LanguageId languageId, CodeDomProvider provider) {
-                _lang = languageId;
-
+            public CompilerInfo(CodeDomProvider provider) {
                 Compiler = provider.CreateCompiler();
                 CodeGen = provider.CreateGenerator();
             }
-
 
             public CodeCompileUnit GenerateCode(string typeName, string codeBody,
                                        StringCollection imports,
@@ -561,7 +543,6 @@ namespace NAnt.DotNet.Tasks {
                 compileUnit.Namespaces.Add( nspace );
                 nspace.Types.Add(typeDecl);
     
-                
                 return compileUnit;
             }
         }
