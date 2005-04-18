@@ -27,6 +27,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 
@@ -78,7 +79,7 @@ namespace NAnt.DotNet.Tasks {
     public class ResGenTask : ExternalProgramBase {
         #region Private Instance Fields
 
-        private string _arguments;
+        private StringBuilder _arguments = new StringBuilder();
         private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _inputFile; 
         private FileInfo _outputFile;
@@ -242,7 +243,7 @@ namespace NAnt.DotNet.Tasks {
         /// The command line arguments for the external program.
         /// </value>
         public override string ProgramArguments { 
-            get { return _arguments; } 
+            get { return _arguments.ToString(); } 
         }
 
         /// <summary>
@@ -351,8 +352,8 @@ namespace NAnt.DotNet.Tasks {
                     Path.GetFileName(base.ProgramFileName));
             } else {
                 foreach (string assembly in Assemblies.FileNames) {
-                    AppendArgument(string.Format(CultureInfo.InvariantCulture,
-                        " /r:\"{0}\"", assembly));
+                    _arguments.Insert(0, string.Format(CultureInfo.InvariantCulture,
+                        " /r:\"{0}\" ", assembly));
                 }
             }
 
@@ -373,7 +374,9 @@ namespace NAnt.DotNet.Tasks {
                 Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            _arguments = "";
+            // clear buffer
+            _arguments.Length = 0;
+
             if (Resources.FileNames.Count > 0) {
                 if (OutputFile != null) {
                     throw new BuildException(ResourceUtils.GetString("NA2026"), Location);
@@ -399,18 +402,20 @@ namespace NAnt.DotNet.Tasks {
                         // if this is the first resx that we're compiling, or the
                         // first one of the next execution of the resgen tool, then
                         // add options to command line
-                        if (StringUtils.IsNullOrEmpty(_arguments) || maxCmdLineExceeded) {
+                        if (_arguments.Length == 0 || maxCmdLineExceeded) {
                             if (UseSourcePath) {
                                 if (SupportsExternalFileReferences) {
-                                    cmdLineArg = " /usesourcepath";
+                                    cmdLineArg = " /useSourcePath /compile" + cmdLineArg;
                                 } else {
+                                    cmdLineArg = " /compile" + cmdLineArg;
+
                                     Log(Level.Warning, ResourceUtils.GetString(
                                         "String_ResourceCompilerDoesNotSupportExternalReferences"), 
                                         Project.TargetFramework.Description);
                                 }
+                            } else {
+                                cmdLineArg = "/compile" + cmdLineArg;
                             }
-
-                            cmdLineArg = "/compile" + cmdLineArg;
                         }
 
                         // if maximum length would have been exceeded by compiling
@@ -439,12 +444,12 @@ namespace NAnt.DotNet.Tasks {
                             }
 
                             // reset command line arguments as we've processed them
-                            _arguments = string.Empty;
+                            _arguments.Length = 0;
                         }
 
                         // append command line arguments to compile current resx
                         // file to the total command line
-                        AppendArgument(cmdLineArg);
+                        _arguments.Append(cmdLineArg);
                     }
                 }
             } else {
@@ -463,7 +468,7 @@ namespace NAnt.DotNet.Tasks {
 
                     if (UseSourcePath) {
                         if (SupportsExternalFileReferences) {
-                            AppendArgument("/usesourcepath");
+                            _arguments.Append("/useSourcePath");
                         } else {
                             Log(Level.Warning, ResourceUtils.GetString(
                                 "String_ResourceCompilerDoesNotSupportExternalReferences"), 
@@ -471,12 +476,12 @@ namespace NAnt.DotNet.Tasks {
                         }
                     }
 
-                    AppendArgument(string.Format(CultureInfo.InvariantCulture, 
+                    _arguments.Append(string.Format(CultureInfo.InvariantCulture, 
                         " \"{0}\" \"{1}\"", InputFile.FullName, outputFile.FullName));
                 }
             }
 
-            if (!StringUtils.IsNullOrEmpty(_arguments)) {
+            if (_arguments.Length != 0) {
                 try {
                     // call base class to do the work
                     base.ExecuteTask();
@@ -574,15 +579,6 @@ namespace NAnt.DotNet.Tasks {
             return false;
         }
 
-        /// <summary>
-        /// Adds a command line argument to the command line for the external
-        /// program that is used to convert the resource files.
-        /// </summary>
-        /// <param name="s">The argument that should be added to the command line.</param>
-        protected void AppendArgument(string s) {
-            _arguments += s;
-        }
-        
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
