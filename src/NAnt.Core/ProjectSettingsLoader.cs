@@ -316,7 +316,18 @@ namespace NAnt.Core {
                             frameworkProject.Properties, info);
                     }
 
-                    // framework is valid, so add it to framework dictionary
+                    // check if framework with this identifier already exists
+                    // and remove it if current framework has higher CLR version
+                    // or if the current framework is the runtime framework
+                    if (Project.Frameworks.ContainsKey(info.Name)) {
+                        FrameworkInfo existingFramework = Project.Frameworks[info.Name];
+                        if (info.ClrVersion > existingFramework.ClrVersion || isRuntimeFramework) {
+                            Project.Frameworks.Remove(info.Name);
+                        } else {
+                            continue;
+                        }
+                    }
+
                     Project.Frameworks.Add(info.Name, info);
 
                     if (isRuntimeFramework) {
