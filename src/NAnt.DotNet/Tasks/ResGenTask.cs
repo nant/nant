@@ -23,6 +23,7 @@
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
@@ -89,6 +90,7 @@ namespace NAnt.DotNet.Tasks {
         private DirectoryInfo _toDir;
         private DirectoryInfo _workingDirectory;
         private bool _useSourcePath;
+        private ArrayList _qualifiedResources = new ArrayList();
 
         // framework configuration settings
         private bool _supportsAssemblyReferences;
@@ -101,7 +103,6 @@ namespace NAnt.DotNet.Tasks {
         private const int _maxCmdLineLength = 30000;
 
         #endregion Private Static Fields
-
 
         #region Public Instance Properties
 
@@ -195,15 +196,28 @@ namespace NAnt.DotNet.Tasks {
             set { _supportsExternalFileReferences = value; }
         }
 
+        /// <summary>
+        /// For internal use only !
+        /// </summary>
+        public ArrayList QualifiedResources {
+            get { return _qualifiedResources; }
+        }
+
         #endregion Public Instance Properties
 
         #region Private Instance Properties
 
         private bool RequiresAssemblyReferences {
             get {
-                if (Resources.FileNames.Count > 0) {
+                if (Resources.FileNames.Count > 0 || QualifiedResources.Count > 0) {
                     foreach (string resourceFile in Resources.FileNames) {
                         if (ReferencesThirdPartyAssemblies(resourceFile)) {
+                            return true;
+                        }
+                    }
+
+                    foreach (QualifiedResource resource in QualifiedResources) {
+                        if (ReferencesThirdPartyAssemblies(resource.Input.FullName)) {
                             return true;
                         }
                     }
@@ -377,80 +391,21 @@ namespace NAnt.DotNet.Tasks {
             // clear buffer
             _arguments.Length = 0;
 
-            if (Resources.FileNames.Count > 0) {
+            if (Resources.FileNames.Count > 0 || QualifiedResources.Count > 0) {
                 if (OutputFile != null) {
                     throw new BuildException(ResourceUtils.GetString("NA2026"), Location);
                 }
-                foreach (string filename in Resources.FileNames) {
+
+                foreach (string fileName in Resources.FileNames) {
+                    FileInfo inputFile = new FileInfo(fileName);
                     FileInfo outputFile = GetOutputFile(new FileInfo(Path.Combine(
-                        Path.GetDirectoryName(filename), Resources.GetManifestResourceName(filename))));
+                        inputFile.DirectoryName, Resources.GetManifestResourceName(fileName))));
+                    WriteCommandLineOptions(inputFile, outputFile);
+                }
 
-                    if (NeedsCompiling(new FileInfo(filename), outputFile)) {
-                        // ensure output directory exists
-                        if (!outputFile.Directory.Exists) {
-                            outputFile.Directory.Create();
-                        }
-
-                        string cmdLineArg = string.Format(CultureInfo.InvariantCulture, 
-                            " \"{0},{1}\"", filename, outputFile.FullName);
-
-                        // check if adding arguments to compile current resx to 
-                        // total command line would cause it to exceed maximum
-                        // length
-                        bool maxCmdLineExceeded = (_arguments.Length + cmdLineArg.Length > _maxCmdLineLength);
-
-                        // if this is the first resx that we're compiling, or the
-                        // first one of the next execution of the resgen tool, then
-                        // add options to command line
-                        if (_arguments.Length == 0 || maxCmdLineExceeded) {
-                            if (UseSourcePath) {
-                                if (SupportsExternalFileReferences) {
-                                    cmdLineArg = " /useSourcePath /compile" + cmdLineArg;
-                                } else {
-                                    cmdLineArg = " /compile" + cmdLineArg;
-
-                                    Log(Level.Warning, ResourceUtils.GetString(
-                                        "String_ResourceCompilerDoesNotSupportExternalReferences"), 
-                                        Project.TargetFramework.Description);
-                                }
-                            } else {
-                                cmdLineArg = "/compile" + cmdLineArg;
-                            }
-                        }
-
-                        // if maximum length would have been exceeded by compiling
-                        // the current resx file, then first execute the resgen
-                        // tool
-                        if (maxCmdLineExceeded) {
-                            try {
-                                // call base class to do the work
-                                base.ExecuteTask();
-                            } catch {
-                                // we only need to remove temporary directory when 
-                                // an error occurred and if it was actually created
-                                if (_workingDirectory != null) {
-                                    // delete temporary directory and all files in it
-                                    DeleteTask deleteTask = new DeleteTask();
-                                    deleteTask.Project = Project;
-                                    deleteTask.Parent = this;
-                                    deleteTask.InitializeTaskConfiguration();
-                                    deleteTask.Directory = _workingDirectory;
-                                    deleteTask.Threshold = Level.None; // no output in build log
-                                    deleteTask.Execute();
-                                }
-
-                                // rethrow exception
-                                throw;
-                            }
-
-                            // reset command line arguments as we've processed them
-                            _arguments.Length = 0;
-                        }
-
-                        // append command line arguments to compile current resx
-                        // file to the total command line
-                        _arguments.Append(cmdLineArg);
-                    }
+                // used by <solution> task
+                foreach (QualifiedResource resource in QualifiedResources) {
+                    WriteCommandLineOptions(resource.Input, resource.Output);
                 }
             } else {
                 // Single file situation
@@ -516,6 +471,10 @@ namespace NAnt.DotNet.Tasks {
                 if (filename != outputFile.FullName) {
                     outputFile.Delete();
                 }
+            }
+
+            foreach (QualifiedResource resource in QualifiedResources) {
+                resource.Output.Delete();
             }
 
             if (InputFile != null) {
@@ -702,6 +661,126 @@ namespace NAnt.DotNet.Tasks {
             }
         }
 
+        private void WriteCommandLineOptions(FileInfo inputFile, FileInfo outputFile) {
+            if (NeedsCompiling(inputFile, outputFile)) {
+                // ensure output directory exists
+                if (!outputFile.Directory.Exists) {
+                    outputFile.Directory.Create();
+                }
+
+                string cmdLineArg = string.Format(CultureInfo.InvariantCulture, 
+                    " \"{0},{1}\"", inputFile, outputFile.FullName);
+
+                // check if adding arguments to compile current resx to 
+                // total command line would cause it to exceed maximum
+                // length
+                bool maxCmdLineExceeded = (_arguments.Length + cmdLineArg.Length > _maxCmdLineLength);
+
+                // if this is the first resx that we're compiling, or the
+                // first one of the next execution of the resgen tool, then
+                // add options to command line
+                if (_arguments.Length == 0 || maxCmdLineExceeded) {
+                    if (UseSourcePath) {
+                        if (SupportsExternalFileReferences) {
+                            cmdLineArg = " /useSourcePath /compile" + cmdLineArg;
+                        } else {
+                            cmdLineArg = " /compile" + cmdLineArg;
+
+                            Log(Level.Warning, ResourceUtils.GetString(
+                                "String_ResourceCompilerDoesNotSupportExternalReferences"), 
+                                Project.TargetFramework.Description);
+                        }
+                    } else {
+                        cmdLineArg = "/compile" + cmdLineArg;
+                    }
+                }
+
+                // if maximum length would have been exceeded by compiling
+                // the current resx file, then first execute the resgen
+                // tool
+                if (maxCmdLineExceeded) {
+                    try {
+                        // call base class to do the work
+                        base.ExecuteTask();
+                    } catch {
+                        // we only need to remove temporary directory when 
+                        // an error occurred and if it was actually created
+                        if (_workingDirectory != null) {
+                            // delete temporary directory and all files in it
+                            DeleteTask deleteTask = new DeleteTask();
+                            deleteTask.Project = Project;
+                            deleteTask.Parent = this;
+                            deleteTask.InitializeTaskConfiguration();
+                            deleteTask.Directory = _workingDirectory;
+                            deleteTask.Threshold = Level.None; // no output in build log
+                            deleteTask.Execute();
+                        }
+
+                        // rethrow exception
+                        throw;
+                    }
+
+                    // reset command line arguments as we've processed them
+                    _arguments.Length = 0;
+                }
+
+                // append command line arguments to compile current resx
+                // file to the total command line
+                _arguments.Append(cmdLineArg);
+            }
+        }
+
         #endregion Private Instance Methods
+    }
+
+    /// <summary>
+    /// For internal use only !
+    /// </summary>
+    public class QualifiedResource {
+        #region Private Instance Fields
+
+        private FileInfo _inputFile;
+        private FileInfo _outputFile;
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QualifiedResource" />
+        /// class for a given input and output file.
+        /// </summary>
+        /// <param name="input">The resource to compile.</param>
+        /// <param name="output">The compiled resource.</param>
+        public QualifiedResource(FileInfo input, FileInfo output) {
+            _inputFile = input;
+            _outputFile = output;
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets the resource file to compile.
+        /// </summary>
+        /// <value>
+        /// The resource file to compile.
+        /// </value>
+        public FileInfo Input {
+            get { return _inputFile; }
+        }
+
+        /// <summary>
+        /// Gets the compiled resource file.
+        /// </summary>
+        /// <value>
+        /// The compiled resource file.
+        /// </value>
+        public FileInfo Output {
+            get { return _outputFile; }
+        }
+
+        #endregion Public Instance Properties
     }
 }
