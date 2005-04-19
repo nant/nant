@@ -408,13 +408,22 @@ namespace NAnt.VSNet {
                     al.Culture = culture;
                     al.TemplateFile = new FileInfo(cs.BuildPath);
                     foreach (Resource resource in resFiles) {
-                        // compile resource
-                        FileInfo compiledResourceFile = resource.Compile(solutionConfiguration);
+                        FileInfo compiledResourceFile = null;
+
+                        if (resource.IsResX) {
+                            // localized resx files have already been compiled
+                            compiledResourceFile = resource.GetCompiledResourceFile(
+                                solutionConfiguration);
+                        } else {
+                            // compile resource
+                            compiledResourceFile = resource.Compile(solutionConfiguration);
+                        }
+
                         // add resources to embed 
                         Argument arg = new Argument();
                         arg.Value = string.Format(CultureInfo.InvariantCulture, 
                             "/embed:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
-                            resource.ManifestResourceName);
+                            resource.GetManifestResourceName(solutionConfiguration));
                         al.Arguments.Add(arg);
                     }
 
@@ -546,40 +555,135 @@ namespace NAnt.VSNet {
             }
 
             if (_resources.Count > 0) {
-                Log(Level.Verbose, "Compiling resources:");
-                foreach (Resource resource in _resources) {
-                    if (resource.Culture != null) {
-                        // ignore resource files associated with a culture
-                        continue;
-                    }
-
-                    Log(Level.Verbose, " - {0}", resource.InputFile);
-
-                    // compile resource
-                    FileInfo compileResourceFile = resource.Compile(solutionConfiguration);
-
-                    sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                        "/res:\"{0}\",\"{1}\"", compileResourceFile.FullName, 
-                        resource.ManifestResourceName)); 
-                }
+                WriteResourceOptions(sw, solutionConfiguration);
             }
 
             // before writing files to response file, allow project specific
             // options to be written (eg. VB specific options)
-            WriteProjectOptions(sw, config);
+            WriteProjectOptions(sw);
 
             // add the files to compile
             foreach (string file in _sourceFiles.Keys) {
                 sw.WriteLine(@"""" + file + @"""");
             }
         }
-    
-        protected virtual void WriteProjectOptions(StreamWriter sw, ConfigurationSettings config) {
+
+        protected virtual void WriteProjectOptions(StreamWriter sw) {
         }
 
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
+
+        private void WriteResourceOptions(StreamWriter sw, string solutionConfiguration) {
+            Log(Level.Verbose, "Compiling resources:");
+
+            Hashtable resxResources = new Hashtable();
+
+            foreach (Resource resource in _resources) {
+                Log(Level.Verbose, " - {0}", resource.InputFile);
+
+                if (resource.IsResX) {
+                    // determine filename of output file
+                    FileInfo compiledResxFile = resource.GetCompiledResourceFile(solutionConfiguration);
+                    // add to list of resx files to compile
+                    resxResources.Add(resource, compiledResxFile);
+                } else if (resource.Culture == null) { // only compile non-localized non-resx files here
+                    // compile resource
+                    FileInfo compiledResourceFile = resource.Compile(
+                        solutionConfiguration);
+                    // write option to response file
+                    sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                        "/res:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
+                        resource.GetManifestResourceName(solutionConfiguration)));
+                }
+            }
+
+            // no further processing required if there are no resx files to 
+            // compile
+            if (resxResources.Count == 0) {
+                return;
+            }
+
+            // create instance of ResGen task
+            ResGenTask rt = new ResGenTask();
+
+            // inherit project from solution task
+            rt.Project = SolutionTask.Project;
+
+            // inherit namespace manager from solution task
+            rt.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // parent is solution task
+            rt.Parent = SolutionTask;
+
+            // inherit verbose setting from solution task
+            rt.Verbose = SolutionTask.Verbose;
+
+            // make sure framework specific information is set
+            rt.InitializeTaskConfiguration();
+
+            // set parent of child elements
+            rt.Assemblies.Parent = rt;
+
+            // inherit project from solution task from parent task
+            rt.Assemblies.Project = rt.Project;
+
+            // inherit namespace manager from parent task
+            rt.Assemblies.NamespaceManager = rt.NamespaceManager;
+
+            // set base directory for filesets
+            rt.Assemblies.BaseDirectory = ProjectDirectory;
+
+            // set resx files to compile
+            foreach (DictionaryEntry entry in resxResources) {
+                Resource resource = (Resource) entry.Key;
+                FileInfo outputFile = (FileInfo) entry.Value;
+
+                QualifiedResource qualifiedResource = new QualifiedResource(
+                    resource.InputFile, outputFile);
+
+                rt.QualifiedResources.Add(qualifiedResource);
+            }
+
+            // inherit assembly references from project
+            foreach (ReferenceBase reference in References) {
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    solutionConfiguration);
+                foreach (string assemblyFile in assemblyReferences) {
+                    rt.Assemblies.Includes.Add(assemblyFile);
+                }
+            }
+
+            // increment indentation level
+            rt.Project.Indent();
+            try {
+                // execute task
+                rt.Execute();
+            } finally {
+                // restore indentation level
+                rt.Project.Unindent();
+            }
+
+            // finally write the resx options to response file
+            foreach (DictionaryEntry entry in resxResources) {
+                Resource resource = (Resource) entry.Key;
+
+                if (resource.Culture != null) {
+                    // ignore resource files associated with a culture
+                    continue;
+                }
+
+                FileInfo outputFile = (FileInfo) entry.Value;
+                string manifestResourceName = resource.GetManifestResourceName(
+                    solutionConfiguration);
+
+                // write option to response file
+                sw.WriteLine(string.Format(CultureInfo.InvariantCulture, 
+                    "/res:\"{0}\",\"{1}\"", outputFile.FullName,
+                    manifestResourceName));
+            }
+        }
 
         private bool PreBuild(ConfigurationSettings cs) {
             string buildCommandLine = ProjectSettings.PreBuildEvent;

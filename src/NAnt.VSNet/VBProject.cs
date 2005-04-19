@@ -54,7 +54,7 @@ namespace NAnt.VSNet {
 
         #region Override implementation of ManagedProjectBase
 
-        protected override void WriteProjectOptions(StreamWriter sw, ConfigurationSettings config) {
+        protected override void WriteProjectOptions(StreamWriter sw) {
             // write namespace imports
             if (_imports.Count > 0) {
                 sw.WriteLine("/imports:\"{0}\"", _imports.ToString());

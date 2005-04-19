@@ -58,15 +58,6 @@ namespace NAnt.VSNet {
             get { return _culture; }
         }
 
-        public string ManifestResourceName {
-            get { 
-                if (_manifestResourceName == null) {
-                    throw new InvalidOperationException("The resource must compiled first.");
-                }
-                return _manifestResourceName;
-            }
-        }
-
         /// <summary>
         /// Gets a <see cref="FileInfo" /> representing the physical location
         /// of the resource file.
@@ -91,6 +82,19 @@ namespace NAnt.VSNet {
             get {
                 return new FileInfo(FileUtils.CombinePaths(Path.GetDirectoryName(
                     Project.ProjectPath), _resourceSourceFileRelativePath));
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the resource is in fact a ResX file.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the resource is a ResX file; otherwise,
+        /// <see langword="false" />.
+        /// </value>
+        public bool IsResX {
+            get { 
+                return InputFile.Extension.ToLower(CultureInfo.InvariantCulture) == ".resx";
             }
         }
 
@@ -120,12 +124,6 @@ namespace NAnt.VSNet {
                     break;
             }
 
-            // obtain project configuration (corresponding with solution configuration)
-            ConfigurationSettings projectConfig = (ConfigurationSettings) Project.BuildConfigurations[solutionConfiguration];
-
-            // determine manifest resource name
-            _manifestResourceName = GetManifestResourceName(projectConfig);
-
             return compiledResourceFile;
         }
 
@@ -149,7 +147,7 @@ namespace NAnt.VSNet {
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
                 case ".resx":
                     compiledResourceFile = FileUtils.CombinePaths(config.ObjectDir.FullName, 
-                        GetManifestResourceName(config));
+                        GetManifestResourceName(solutionConfiguration));
                     break;
                 case ".licx":
                     compiledResourceFile = FileUtils.CombinePaths(config.ObjectDir.FullName, 
@@ -163,23 +161,26 @@ namespace NAnt.VSNet {
             return new FileInfo(compiledResourceFile);
         }
 
-        #endregion Public Instance Methods
+        public string GetManifestResourceName(string solutionConfiguration) {
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings projectConfig = (ConfigurationSettings) Project.BuildConfigurations[solutionConfiguration];
 
-        #region Private Instance Methods
-
-        private string GetManifestResourceName(ConfigurationSettings configSettings) {
             switch (Project.Type) {
                 case ProjectType.CSharp:
-                    return GetManifestResourceNameCSharp(configSettings, _dependentFile);
+                    return GetManifestResourceNameCSharp(projectConfig, _dependentFile);
                 case ProjectType.VB:
-                    return GetManifestResourceNameVB(configSettings, _dependentFile);
+                    return GetManifestResourceNameVB(projectConfig, _dependentFile);
                 case ProjectType.JSharp:
-                    return GetManifestResourceNameJSharp(configSettings, _dependentFile);
+                    return GetManifestResourceNameJSharp(projectConfig, _dependentFile);
                 default:
                     throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                         "Unsupported project type '{0}'.", Project.Type));
             }
         }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
 
         private string GetManifestResourceNameCSharp(ConfigurationSettings configSetting, string dependentFile) {
             // defer to the resource management code in CscTask
@@ -319,60 +320,7 @@ namespace NAnt.VSNet {
         }
 
         private FileInfo CompileResx(string solutionConfiguration) {
-            // create instance of ResGen task
-            ResGenTask rt = new ResGenTask();
-
-            // inherit project from solution task
-            rt.Project = _solutionTask.Project;
-
-            // inherit namespace manager from solution task
-            rt.NamespaceManager = _solutionTask.NamespaceManager;
-
-            // parent is solution task
-            rt.Parent = _solutionTask;
-
-            // inherit verbose setting from solution task
-            rt.Verbose = _solutionTask.Verbose;
-
-            // make sure framework specific information is set
-            rt.InitializeTaskConfiguration();
-
-            // set parent of child elements
-            rt.Assemblies.Parent = rt;
-
-            // inherit project from solution task from parent task
-            rt.Assemblies.Project = rt.Project;
-
-            // inherit namespace manager from parent task
-            rt.Assemblies.NamespaceManager = rt.NamespaceManager;
-
-            // set base directory for filesets
-            rt.Assemblies.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(Project.ProjectPath));
-
-            // set task properties
-            rt.InputFile = InputFile;
-            rt.OutputFile = GetCompiledResourceFile(solutionConfiguration);
-
-            // inherit assembly references from project
-            foreach (ReferenceBase reference in Project.References) {
-                StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    solutionConfiguration);
-                foreach (string assemblyFile in assemblyReferences) {
-                    rt.Assemblies.Includes.Add(assemblyFile);
-                }
-            }
-
-            // increment indentation level
-            rt.Project.Indent();
-            try {
-                // execute task
-                rt.Execute();
-            } finally {
-                // restore indentation level
-                rt.Project.Unindent();
-            }
-
-            return rt.OutputFile;
+            throw new InvalidOperationException();
         }
 
         #endregion Private Instance Methods
@@ -383,7 +331,6 @@ namespace NAnt.VSNet {
         private FileInfo _resourceSourceFile;
         private string _dependentFile;
         private string _resourceSourceFileRelativePath;
-        private string _manifestResourceName;
         private ManagedProjectBase _project;
         private SolutionTask _solutionTask;
         private GacCache _gacCache;
