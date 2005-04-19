@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+﻿<?xml version="1.0" ?>
 <!--
 // NAnt - A .NET build tool
 // Copyright (C) 2001-2003 Gerry Shaw
@@ -130,8 +130,8 @@
         <comment>No name was assigned to the base element '{0}' for collection element {1} for &lt;{2} .../&gt;.</comment>
     </data>
     <data name="NA1027">
-        <value>Unexpected attribute \"{0}\" on element &lt;{1}&gt;.</value>
-        <comment>Unexpected attribute \"{0}\" on element &lt;{1}&gt;.</comment>
+        <value>Unexpected attribute "{0}" on element &lt;{1}&gt;.</value>
+        <comment>Unexpected attribute "{0}" on element &lt;{1}&gt;.</comment>
     </data>
     <data name="NA1029">
         <value>BuildElementCollectionAttribute cannot be applied to read-only property with uninitialized collection-based value '{0}' element for &lt;{1} ... /&gt;.</value>
@@ -145,7 +145,7 @@
         <value>BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for &lt;{1} .../&gt;.</value>        
     </data>
     <data name="NA1032">
-        <value>The &lt;{0}&gt; type does not support the nested build element \"{1}\".</value>       
+        <value>The &lt;{0}&gt; type does not support the nested build element "{1}".</value>       
     </data>
     <data name="NA1033">
         <value>'{0}' is a required attribute of &lt;{1} ... /&gt;.</value>
@@ -289,8 +289,8 @@
         <comment>Property '{0}' does not exist.", name), "name</comment>
     </data>
     <data name="NA1068">
-        <value>Read-only property \"{0}\" cannot be overwritten.</value>
-        <comment>Read-only property \"{0}\" cannot be overwritten.</comment>
+        <value>Read-only property "{0}" cannot be overwritten.</value>
+        <comment>Read-only property "{0}" cannot be overwritten.</comment>
     </data> 
     <!-- also a bunch of deprecated property warnings.　--> 
     <!--Messages From: \NAnt.Core/Target.cs-->
@@ -437,8 +437,8 @@
     <!--Messages From: \NAnt.Core/Functions/DoubleFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/EnvironmentFunctions.cs-->
     <data name="NA1095">
-        <value>Environment variable \"{0}\" does not exist.</value>
-        <comment>Environment variable \"{0}\" does not exist.</comment>
+        <value>Environment variable "{0}" does not exist.</value>
+        <comment>Environment variable "{0}" does not exist.</comment>
     </data> <!--Messages From: \NAnt.Core/Functions/FileFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/FileVersionInfoFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/Int32Functions.cs-->
@@ -446,12 +446,12 @@
     <!--Messages From: \NAnt.Core/Functions/MathFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/NAntFunctions.cs-->
     <data name="NA1096">
-        <value>\"{0}\" is not a valid framework identifier.</value>
-        <comment>\"{0}\" is not a valid framework identifier.</comment>
+        <value>"{0}" is not a valid framework identifier.</value>
+        <comment>"{0}" is not a valid framework identifier.</comment>
     </data>
     <data name="NA1097">
-        <value>Target \"{0}\" does not exist.</value>
-        <comment>Target \"{0}\" does not exist.</comment>
+        <value>Target "{0}" does not exist.</value>
+        <comment>Target "{0}" does not exist.</comment>
     </data>
     <data name="NA1098">
         <value>Property '{0}' has not been set.</value>
@@ -465,8 +465,8 @@
     <!--Messages From: \NAnt.Core/Functions/PathFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/PkgConfigFunctions.cs-->
     <data name="NA1100">
-        <value>Package \"{0}\" does not exist.</value>
-        <comment>Package \"{0}\" does not exist.</comment>
+        <value>Package "{0}" does not exist.</value>
+        <comment>Package "{0}" does not exist.</comment>
     </data>
     <!--Messages From: \NAnt.Core/Functions/StringFunctions.cs-->
     <!--Messages From: \NAnt.Core/Functions/TimeSpanFunctions.cs-->
@@ -599,16 +599,16 @@
     </data>
     <!--Messages From: \NAnt.Core/Tasks/LoadTasks.cs-->
     <data name="NA1130">
-        <value>Failure scanning \"{0}\" for extensions.</value>
-        <comment>Failure scanning \"{0}\" for extensions.</comment>
+        <value>Failure scanning "{0}" for extensions.</value>
+        <comment>Failure scanning "{0}" for extensions.</comment>
     </data>
     <data name="NA1131">
-        <value>Path \"{0}\" does not exist. Can't scan for extensions.</value>
-        <comment>Path \"{0}\" does not exist. Can't scan for extensions.</comment>
+        <value>Path "{0}" does not exist. Can't scan for extensions.</value>
+        <comment>Path "{0}" does not exist. Can't scan for extensions.</comment>
     </data>
     <data name="NA1132">
-        <value>Assembly \"{0}\" does not exist. Can't scan for extensions.</value>
-        <comment>Assembly \"{0}\" does not exist. Can't scan for extensions.</comment>
+        <value>Assembly "{0}" does not exist. Can't scan for extensions.</value>
+        <comment>Assembly "{0}" does not exist. Can't scan for extensions.</comment>
     </data>
     <!--Messages From: \NAnt.Core/Tasks/LoopTask.cs-->
     <data name="NA1133">
@@ -649,8 +649,8 @@
     </data>
     <!--Messages From: \NAnt.Core/Tasks/PropertyTask.cs-->
     <data name="NA1143">
-        <value>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</value>
-        <comment>Target framework could not be changed. \"{0}\" is not a valid framework identifier. {1}</comment>
+        <value>Target framework could not be changed. "{0}" is not a valid framework identifier. {1}</value>
+        <comment>Target framework could not be changed. "{0}" is not a valid framework identifier. {1}</comment>
     </data>
     <!--Messages From: \NAnt.Core/Tasks/RegexTask.cs-->
     <data name="NA1144">
@@ -658,23 +658,23 @@
         <comment>No match found for expression '{0}' in '{1}'.</comment>
     </data>
     <data name="NA1145">
-        <value>Invalid value \"{0}\" for \"pattern\" attribute.</value>
-        <comment>Invalid value \"{0}\" for \"pattern\" attribute.</comment>
+        <value>Invalid value "{0}" for "pattern" attribute.</value>
+        <comment>Invalid value "{0}" for "pattern" attribute.</comment>
     </data>
     <!--Messages From: \NAnt.Core/Tasks/SetEnvTask.cs-->
     <data name="NA1146">
-        <value>Failed setting environment variable \"{0}\" to \"{1}\".</value>
-        <comment>Failed setting environment variable \"{0}\" to \"{1}\".</comment>
+        <value>Failed setting environment variable "{0}" to "{1}".</value>
+        <comment>Failed setting environment variable "{0}" to "{1}".</comment>
     </data>
     <!--Messages From: \NAnt.Core/Tasks/SleepTask.cs-->
     <!--Messages From: \NAnt.Core/Tasks/StyleTask.cs-->
     <data name="NA1147">
-        <value>No source files indicated; use \"in\" or \"infiles\".</value>
-        <comment>No source files indicated; use \"in\" or \"infiles\".</comment>
+        <value>No source files indicated; use "in" or "infiles".</value>
+        <comment>No source files indicated; use "in" or "infiles".</comment>
     </data>
     <data name="NA1148">
-        <value>The \"out\" attribute is not allowed when \"infiles\" is used.</value>
-        <comment>The \"out\" attribute is not allowed when \"infiles\" is used.</comment>
+        <value>The "out" attribute is not allowed when "infiles" is used.</value>
+        <comment>The "out" attribute is not allowed when "infiles" is used.</comment>
     </data>
     <data name="NA1149">
         <value>Stylesheet file '{0}' does not exist.</value>
@@ -764,16 +764,16 @@
     <!--Messages From: \NAnt.Core/Types/XmlNamespaceCollection.cs-->
     <!--Messages From: \NAnt.Core/Types/XsltExtensionObject.cs-->
     <data name="NA1166">
-        <value>Assembly \"{0}\" does not exist. Can't create extension object.</value>
-        <comment>Assembly \"{0}\" does not exist. Can't create extension object.</comment>
+        <value>Assembly "{0}" does not exist. Can't create extension object.</value>
+        <comment>Assembly "{0}" does not exist. Can't create extension object.</comment>
     </data>
     <data name="NA1167">
-        <value>Can't create extension object \"{0}\" from \"{1}\".</value>
-        <comment>Can't create extension object \"{0}\" from \"{1}\".</comment>
+        <value>Can't create extension object "{0}" from "{1}".</value>
+        <comment>Can't create extension object "{0}" from "{1}".</comment>
     </data>
     <data name="NA1168">
-        <value>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </value>
-        <comment>Failed to create extension object \"{0}\" from \"{1}\" Assembly.CreateInstance() returned null. </comment>
+        <value>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null. </value>
+        <comment>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null. </comment>
     </data>
     <!--Messages From: \NAnt.Core/Types/XsltExtensionObjectCollection.cs-->
     <!--Messages From: \NAnt.Core/Types/XsltParameter.cs-->
