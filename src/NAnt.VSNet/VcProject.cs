@@ -186,6 +186,19 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Get the location of the project.
+        /// </summary>
+        /// <value>
+        /// <see cref="NAnt.VSNet.ProjectLocation.Local" />.
+        /// </value>
+        /// <remarks>
+        /// For now, we only support local Visual C++ projects.
+        /// </remarks>
+        public override ProjectLocation ProjectLocation {
+            get { return ProjectLocation.Local; }
+        }
+
+        /// <summary>
         /// Get the directory in which intermediate build output that is not 
         /// specific to the build configuration will be stored.
         /// </summary>

@@ -124,22 +124,47 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
+        /// Get the location of the project.
+        /// </summary>
+        public abstract ProjectLocation ProjectLocation {
+            get;
+        }
+
+        /// <summary>
         /// Get the directory in which intermediate build output that is not 
         /// specific to the build configuration will be stored.
         /// </summary>
         /// <remarks>
-        /// <para>
-        /// This is a directory relative to the project directory named 
-        /// <c>obj\</c>.
-        /// </para>
+        ///   <para>
+        ///   For <see cref="NAnt.VSNet.ProjectLocation.Local" /> projects, this is defined
+        ///   as <c>&lt;Project Directory&lt;\obj</c>.
+        ///   </para>
+        ///   <para>
+        ///   For <see cref="NAnt.VSNet.ProjectLocation.Web" /> projects, this is defined
+        ///   as <c>%HOMEPATH%\VSWebCache\&lt;Machine Name&gt;\&lt;Project Directory&gt;\obj</c>.
+        ///   </para>
         /// </remarks>
         public virtual DirectoryInfo ObjectDir {
-            get { 
-                return new DirectoryInfo(
-                    FileUtils.CombinePaths(ProjectDirectory.FullName, "obj"));
+            get {
+                switch (ProjectLocation) {
+                    case ProjectLocation.Web:
+                        string webCachePath = FileUtils.CombinePaths(
+                            FileUtils.GetHomeDirectory(), "VSWebCache");
+                        string machinePath= FileUtils.CombinePaths(webCachePath,
+                            Environment.MachineName);
+                        string projectPath = FileUtils.CombinePaths(machinePath,
+                            Name);
+                        return new DirectoryInfo(FileUtils.CombinePaths(projectPath,
+                            "obj"));
+                    case ProjectLocation.Local:
+                        return new DirectoryInfo(
+                            FileUtils.CombinePaths(ProjectDirectory.FullName, "obj"));
+                    default:
+                        throw new NotSupportedException(ProjectLocation.ToString());
+                }
             }
         }
-        
+
         /// <summary>
         /// Gets or sets the unique identifier of the VS.NET project.
         /// </summary>
@@ -785,5 +810,20 @@ namespace NAnt.VSNet {
         /// Visual Studio.NET 2003
         /// </summary>
         Everett = 2,
+    }
+
+    /// <summary>
+    /// Indentifies the physical location of a managed project.
+    /// </summary>
+    public enum ProjectLocation {
+        /// <summary>
+        /// A local project. 
+        /// </summary>
+        Local = 1,
+
+        /// <summary>
+        /// A web project.
+        /// </summary>
+        Web = 2,
     }
 }

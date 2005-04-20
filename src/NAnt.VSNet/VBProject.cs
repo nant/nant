@@ -124,6 +124,22 @@ namespace NAnt.VSNet {
         #region Override implemenation of ManagedProjectBase
 
         /// <summary>
+        /// Returns the project location from the specified project XML fragment.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <returns>
+        /// The project location of the specified project XML file.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The project location could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The project location is invalid.</para>
+        /// </exception>
+        protected override ProjectLocation DetermineProjectLocation(XmlElement docElement) {
+            return GetProjectLocation(docElement.SelectSingleNode("./VisualBasic"));
+        }
+
+        /// <summary>
         /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
         /// for this project.
         /// </summary>

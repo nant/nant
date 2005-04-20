@@ -54,6 +54,7 @@ namespace NAnt.VSNet {
             _resources = new ArrayList();
             _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _projectPath = projectPath;
+            _projectLocation = DetermineProjectLocation(xmlDefinition);
 
             if (!IsWebProject) {
                 _projectDirectory = new FileInfo(projectPath).Directory;
@@ -172,6 +173,12 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if this is a web project; otherwise,
         /// <see langword="false" />.
         /// </value>
+        /// <remarks>
+        /// If the url of a web project has been mapped to a local path
+        /// (using the &lt;webmap&gt; element), then this property will return
+        /// <see langword="false" /> for a <see cref="NAnt.VSNet.ProjectLocation.Web" />
+        /// project.
+        /// </remarks>
         private bool IsWebProject {
             get { return ProjectFactory.IsUrl(_projectPath); }
         }
@@ -221,6 +228,13 @@ namespace NAnt.VSNet {
         /// </summary>
         public override DirectoryInfo ProjectDirectory {
             get { return _projectDirectory; }
+        }
+
+        /// <summary>
+        /// Get the location of the project.
+        /// </summary>
+        public override ProjectLocation ProjectLocation {
+            get { return _projectLocation; }
         }
 
         /// <summary>
@@ -571,6 +585,20 @@ namespace NAnt.VSNet {
         protected virtual void WriteProjectOptions(StreamWriter sw) {
         }
 
+        /// <summary>
+        /// Returns the project location from the specified project XML fragment.
+        /// </summary>
+        /// <param name="docElement">XML fragment representing the project file.</param>
+        /// <returns>
+        /// The project location of the specified project XML file.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The project location could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The project location is invalid.</para>
+        /// </exception>
+        protected abstract ProjectLocation DetermineProjectLocation(XmlElement docElement);
+
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
@@ -897,8 +925,7 @@ namespace NAnt.VSNet {
             XmlAttribute productVersionAttribute = projectNode.Attributes["ProductVersion"];
             if (productVersionAttribute == null) {
                 throw new BuildException("The \"ProductVersion\" attribute is"
-                    + " missing from the <VisualStudioProject> node.",
-                    Location.UnknownLocation);
+                    + " missing from the project node.", Location.UnknownLocation);
             }
 
             // check if we're dealing with a valid version number
@@ -926,6 +953,42 @@ namespace NAnt.VSNet {
                 productVersion.ToString()), Location.UnknownLocation);
         }
 
+        /// <summary>
+        /// Returns the <see cref="ProjectLocation" /> of the specified project
+        /// XML fragment.
+        /// </summary>
+        /// <param name="projectNode">XML fragment representing the project to check.</param>
+        /// <returns>
+        /// The <see cref="ProjectLocation" /> of the specified project XML 
+        /// fragment.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The project location could not be determined.</para>
+        ///   <para>-or-</para>
+        ///   <para>The project location is invalid.</para>
+        /// </exception>
+        protected static ProjectLocation GetProjectLocation(XmlNode projectNode) {
+            if (projectNode == null) {
+                throw new ArgumentNullException("projectNode");
+            }
+
+            XmlAttribute projectTypeAttribute = projectNode.Attributes["ProjectType"];
+            if (projectTypeAttribute == null) {
+                throw new BuildException("The \"ProjectType\" attribute is"
+                    + " missing from the project node.", Location.UnknownLocation);
+            }
+
+            try {
+                return (ProjectLocation) Enum.Parse(typeof(ProjectLocation), 
+                    projectTypeAttribute.Value, true);
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "The value of the \"ProjectType\" attribute ({0}) is not a valid"
+                    + " location string.", projectTypeAttribute.Value),
+                    Location.UnknownLocation, ex);
+            }
+        }
+
         #endregion Protected Static Methods
 
         #region Private Instance Fields
@@ -946,6 +1009,7 @@ namespace NAnt.VSNet {
         private readonly DirectoryInfo _projectDirectory;
         private readonly string _webProjectBaseUrl;
         private readonly ProjectSettings _projectSettings;
+        private readonly ProjectLocation _projectLocation;
 
         #endregion Private Instance Fields
 
