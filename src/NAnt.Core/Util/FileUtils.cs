@@ -256,6 +256,20 @@ namespace NAnt.Core.Util {
             return Path.GetFullPath(combinedPath);
         }
 
+        /// <summary>
+        /// Returns the home directory of the current user.
+        /// </summary>
+        /// <returns>
+        /// The home directory of the current user.
+        /// </returns>
+        public static string GetHomeDirectory() {
+            if (PlatformHelper.IsUnix) {
+                return Environment.GetEnvironmentVariable("HOME");
+            } else {
+                return Environment.GetEnvironmentVariable("USERPROFILE");
+            }
+        }
+
         #endregion Public Static Methods
     }
 }
