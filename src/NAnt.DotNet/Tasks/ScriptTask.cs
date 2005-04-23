@@ -508,8 +508,8 @@ namespace NAnt.DotNet.Tasks {
                 // create constructor
                 CodeConstructor constructMember = new CodeConstructor();
                 constructMember.Attributes = MemberAttributes.Public;
-                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("Project", "project"));
-                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("PropertyDictionary", "propDict"));
+                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("NAnt.Core.Project", "project"));
+                constructMember.Parameters.Add(new CodeParameterDeclarationExpression("NAnt.Core.PropertyDictionary", "propDict"));
                 
                 constructMember.BaseConstructorArgs.Add(new CodeVariableReferenceExpression("project"));
                 constructMember.BaseConstructorArgs.Add(new CodeVariableReferenceExpression ("propDict"));
