@@ -512,26 +512,22 @@ namespace NAnt.MSNet.Tasks {
         protected override void InitializeTask(XmlNode taskNode) {
             if (ToDirectory == null && Assemblies != null && Assemblies.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'todir' should be set when using the <assemblies> element"
-                    + " to specify the list of PE files to disassemble."), Location);
+                    ResourceUtils.GetString("NA3001")), Location);
             }
 
             if (InputFile != null && Assemblies != null && Assemblies.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'input' attribute and the <assemblies> element" 
-                    + " cannot be combined."), Location);
+                    ResourceUtils.GetString("NA3002")), Location);
             }
 
             if (OutputFile == null && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Either the 'output' or 'todir' attribute should be set."), 
-                    Location);
+                    ResourceUtils.GetString("NA3003")), Location);
             }
 
             if (OutputFile != null && ToDirectory != null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "The 'output' and 'todir' attribute cannot both be set."), 
-                    Location);
+                    ResourceUtils.GetString("NA3004")), Location);
             }
         }
 
@@ -561,8 +557,7 @@ namespace NAnt.MSNet.Tasks {
             // verify if input file actually exists
             if (!inputFile.Exists) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Input file '{0}' does not exist.", inputFile.FullName), 
-                    Location);
+                    ResourceUtils.GetString("NA3005"), inputFile.FullName), Location);
             }
 
             // determine output file corresponding with PE file
@@ -570,7 +565,7 @@ namespace NAnt.MSNet.Tasks {
 
             // only actually perform disassembly if necessary
             if (NeedsDisassembling(inputFile, outputFile)) {
-                Log(Level.Info, "Disassembling '{0}' to '{1}'.",
+                Log(Level.Info, ResourceUtils.GetString("String_Disassembling"),
                     inputFile.FullName, outputFile.FullName);
 
                 // ensure output directory exists
@@ -610,8 +605,7 @@ namespace NAnt.MSNet.Tasks {
                 // we should never actually get here (if the checks in 
                 // InitializeTask have been executed
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "The output file for '{0}' could not be determined.", 
-                    inputFile.FullName), Location);
+                    ResourceUtils.GetString("NA3006"), inputFile.FullName), Location);
             }
 
             return outputFile;
@@ -739,13 +733,13 @@ namespace NAnt.MSNet.Tasks {
         /// </returns>
         private bool NeedsDisassembling(FileInfo inputFile, FileInfo outputFile) {
             if (ForceRebuild) {
-                Log(Level.Verbose, "'rebuild' attribute set to true, disassembling.");
+                Log(Level.Verbose, ResourceUtils.GetString("String_RebuildAttributeSetToTrue"));
                 return true;
             }
 
             // check if output file already exists
             if (!outputFile.Exists) {
-                Log(Level.Verbose, "Output file '{0}' does not exist, disassembling.",
+                Log(Level.Verbose, ResourceUtils.GetString("String_OutputFileDoesNotExist"),
                     outputFile.FullName);
                 return true;
             }
@@ -754,7 +748,7 @@ namespace NAnt.MSNet.Tasks {
              string fileName = FileSet.FindMoreRecentLastWriteTime(
                 inputFile.FullName, outputFile.LastWriteTime);
             if (fileName != null) {
-                Log(Level.Verbose, "'{0}' has been updated, disassembling.", 
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                     fileName);
                 return true;
             }

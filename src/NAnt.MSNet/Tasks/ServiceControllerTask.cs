@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gert Driesen (gert.driesen@ardatis.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.ComponentModel;
@@ -219,8 +220,7 @@ namespace NAnt.MSNet.Tasks {
                     TimeSpan.FromMilliseconds(Timeout));
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot start service {0} on computer '{1}'.", ServiceName,
-                    MachineName), Location, ex);
+                    ResourceUtils.GetString("NA3007"), ServiceName, MachineName), Location, ex);
             }
         }
 
@@ -235,8 +235,7 @@ namespace NAnt.MSNet.Tasks {
                     serviceController.Stop();
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot stop service {0} on computer '{1}'.", ServiceName, 
-                        MachineName), Location);
+                        ResourceUtils.GetString("NA3008"), ServiceName, MachineName), Location);
                 }
 
                 // wait until service is stopped or timeout expired
@@ -247,8 +246,7 @@ namespace NAnt.MSNet.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot stop service {0} on computer '{1}'.", ServiceName, 
-                    MachineName), Location, ex);
+                    ResourceUtils.GetString("NA3008"), ServiceName, MachineName), Location, ex);
             }
         }
 
@@ -277,23 +275,20 @@ namespace NAnt.MSNet.Tasks {
                 if (serviceController.Status == ServiceControllerStatus.Running) {
                     if (serviceController.CanPauseAndContinue) {
                         if (serviceController.Status != ServiceControllerStatus.Running) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Cannot pause service {0} on computer '{1}' as its" +
-                                " not currently started.", ServiceName, MachineName), 
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA3010"), ServiceName, MachineName),
                                 Location);
                         } else {
                             serviceController.Pause();
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot pause service {0} on computer '{1}' as it does not" +
-                            " support the pause and continue mechanism.", ServiceName,
-                            MachineName), Location);
+                            ResourceUtils.GetString("NA3011"), ServiceName, MachineName),
+                            Location);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot pause service {0} on computer '{1}' as its" +
-                        " not currently started.", ServiceName, MachineName), 
+                        ResourceUtils.GetString("NA3010"), ServiceName, MachineName),
                         Location);
                 }
 
@@ -305,8 +300,8 @@ namespace NAnt.MSNet.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot pause service {0} on computer '{1}'.", ServiceName,
-                    MachineName), Location, ex);
+                    ResourceUtils.GetString("NA3009"), ServiceName, MachineName),
+                    Location, ex);
             }
         }
 
@@ -323,22 +318,19 @@ namespace NAnt.MSNet.Tasks {
                             serviceController.Continue();
                         } else if (serviceController.Status != ServiceControllerStatus.Running) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Cannot continue service {0} on computer '{1} as its" +
-                                " not currently started.", ServiceName, MachineName), 
+                                ResourceUtils.GetString("NA3013"), ServiceName, MachineName), 
                                 Location);
                         } else {
                             // do nothing as service is already running
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot continue service {0} on computer '{1} as it does" +
-                            " not support the pause and continue mechanism.", ServiceName, 
-                            MachineName), Location);
+                            ResourceUtils.GetString("NA3014"), ServiceName, MachineName), 
+                            Location);
                     }
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Cannot continue service {0} on computer '{1} as its" +
-                        " not currently running or paused.", ServiceName, MachineName), 
+                        ResourceUtils.GetString("NA3015"), ServiceName, MachineName), 
                         Location);
                 }
 
@@ -350,8 +342,8 @@ namespace NAnt.MSNet.Tasks {
                 throw ex;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot continue service {0} on computer '{1}'.", ServiceName, 
-                    MachineName), Location, ex);
+                    ResourceUtils.GetString("NA3012"), ServiceName, MachineName),
+                    Location, ex);
             }
         }
 
