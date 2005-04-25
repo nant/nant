@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+// Giuseppe Greco <giuseppe.greco@agamura.com>
+// Copyright (C) 2005 Agamura, Inc.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// Giuseppe Greco (giuseppe.greco@agamura.com)
+-->
+<root>
+    <resheader name="ResMimeType">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="Version">
+        <value>1.0</value>
+    </resheader>
+    <resheader name="Reader">
+        <value>System.Resources.ResXResourceReader</value>
+    </resheader>
+    <resheader name="Writer">
+        <value>System.Resources.ResXResourceWriter</value>
+    </resheader>
+
+    <!--Message from:\NAnt.MSNet\Tasks\IlasmTask.cs-->
+    <data name="NA3001">
+        <value>The 'todir' should be set when using the &lt;assemblies&gt; element to specify the list of PE files to disassemble.</value>
+        <comment>The 'todir' should be set when using the &lt;assemblies&gt; element to specify the list of PE files to disassemble.</comment>
+    </data>
+    <data name="NA3002">
+        <value>The 'input' attribute and the &lt;assemblies&gt; element cannot be combined.</value>
+        <comment>The 'input' attribute and the &lt;assemblies&gt; element cannot be combined.</comment>
+    </data>
+    <data name="NA3003">
+        <value>Either the 'output' or 'todir' attribute should be set.</value>
+        <comment>Either the 'output' or 'todir' attribute should be set.</comment>
+    </data>
+    <data name="NA3004">
+        <value>The 'output' and 'todir' attribute cannot both be set.</value>
+        <comment>The 'output' and 'todir' attribute cannot both be set.</comment>
+    </data>
+    <data name="NA3005">
+        <value>Input file '{0}' does not exist.</value>
+        <comment>Input file '{0}' does not exist.</comment>
+    </data>
+    <data name="NA3006">
+        <value>The output file for '{0}' could not be determined.</value>
+        <comment>The output file for '{0}' could not be determined.</comment>
+    </data>
+
+    <!--Message from:\NAnt.MSNet\Tasks\ServiceControllerTask.cs-->
+    <data name="NA3007">
+        <value>Cannot start service {0} on computer '{1}'.</value>
+        <comment>Cannot start service {0} on computer '{1}'.</comment>
+    </data>
+    <data name="NA3008">
+        <value>Cannot stop service {0} on computer '{1}'.</value>
+        <comment>Cannot stop service {0} on computer '{1}'.</comment>
+    </data>
+    <data name="NA3009">
+        <value>Cannot pause service {0} on computer '{1}'.</value>
+        <comment>Cannot pause service {0} on computer '{1}'.</comment>
+    </data>
+    <data name="NA3010">
+        <value>Cannot pause service {0} on computer '{1}' as its not currently started.</value>
+        <comment>Cannot pause service {0} on computer '{1}' as its not currently started.</comment>
+    </data>
+    <data name="NA3011">
+        <value>Cannot pause service {0} on computer '{1}' as it does not support the pause and continue mechanism.</value>
+        <comment>Cannot pause service {0} on computer '{1}' as it does not support the pause and continue mechanism.</comment>
+    </data>
+    <data name="NA3012">
+        <value>Cannot continue service {0} on computer '{1}'.</value>
+        <comment>Cannot continue service {0} on computer '{1}'.</comment>
+    </data>
+    <data name="NA3013">
+        <value>Cannot continue service {0} on computer '{1} as its not currently started.</value>
+        <comment>Cannot continue service {0} on computer '{1} as its not currently started.</comment>
+    </data>
+    <data name="NA3014">
+        <value>Cannot continue service {0} on computer '{1} as it does not support the pause and continue mechanism.</value>
+        <comment>Cannot continue service {0} on computer '{1} as it does not support the pause and continue mechanism.</comment>
+    </data>
+    <data name="NA3015">
+        <value>Cannot continue service {0} on computer '{1} as its not currently running or paused.</value>
+        <comment>Cannot continue service {0} on computer '{1} as its not currently running or paused.</comment>
+    </data>
+
+    <!--Message from:\NAnt.MSNet\Tasks\IlasmTask.cs-->
+    <data name="String_Disassembling">
+        <value>Disassembling '{0}' to '{1}'.</value>
+        <comment>Disassembling '{0}' to '{1}'.</comment>
+    </data>
+    <data name="String_RebuildAttributeSetToTrue">
+        <value>'rebuild' attribute set to true, disassembling.</value>
+        <comment>'rebuild' attribute set to true, disassembling.</comment>
+    </data>
+    <data name="String_OutputFileDoesNotExist">
+        <value>Output file '{0}' does not exist, disassembling.</value>
+        <comment>Output file '{0}' does not exist, disassembling.</comment>
+    </data>
+    <data name="String_FileHasBeenUpdated">
+        <value>'{0}' has been updated, disassembling.</value>
+        <comment>'{0}' has been updated, disassembling.</comment>
+    </data>
+</root>
