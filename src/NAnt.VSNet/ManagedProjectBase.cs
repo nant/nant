@@ -836,6 +836,16 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // check extra output files
+            foreach (DictionaryEntry de in cs.ExtraOutputFiles) {
+                string extraOutputFile = (string) de.Key;
+
+                // check if extra output file exists
+                if (!File.Exists(extraOutputFile)) {
+                    return false;
+                }
+            }
+
             return true;
         }
 
