@@ -351,6 +351,9 @@ namespace NAnt.DotNet.Tasks {
         /// to get all options except the culture field.
         /// The default is <see langword="true" />.
         /// </summary>
+        /// <remarks>
+        /// TODO: remove this once Mono bug #74814 is fixed.
+        /// </remarks>
         [FrameworkConfigurable("supportstemplate")]
         public bool SupportsTemplate {
             get { return _supportsTemplate; }
