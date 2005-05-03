@@ -204,6 +204,12 @@
         <comment>Type '{0}' is not a valid CodeDomProvider.</comment>
     </data>
 
+    <!--Message from:\NAnt.DotNet\Tasks\AssemblyLinkerTask.cs-->
+    <data name="String_LinkerDoesNotSupportTemplateAssembly">
+        <value>The assembly linker for {0} does not support a command line option to specify an assembly from which to get all options except the culture field.</value>
+        <comment>The assembly linker for {0} does not support a command line option to specify an assembly from which to get all options except the culture field.</comment>
+    </data>
+
     <!--Message from:\NAnt.DotNet\Tasks\ResourceInfoTask.cs-->
     <data name="String_GeneratedFile">
         <value>Generated file '{0}'.</value>

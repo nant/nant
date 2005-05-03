@@ -88,6 +88,9 @@ namespace NAnt.DotNet.Tasks {
         private FileInfo _win32Icon;
         private FileInfo _win32Res;
 
+        // framework configuration settings
+        private bool _supportsTemplate = true;
+
         #endregion Private Instance Fields
 
         #region Public Instance Properties
@@ -343,6 +346,18 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Indicates whether the assembly linker for a given target framework
+        /// supports the "template" option, which takes an assembly from which
+        /// to get all options except the culture field.
+        /// The default is <see langword="true" />.
+        /// </summary>
+        [FrameworkConfigurable("supportstemplate")]
+        public bool SupportsTemplate {
+            get { return _supportsTemplate; }
+            set { _supportsTemplate = value; }
+        }
+
+        /// <summary>
         /// Specifies an assembly from which to get all options except the 
         /// culture field.
         /// </summary>
@@ -530,7 +545,13 @@ namespace NAnt.DotNet.Tasks {
 
                     // write path to template assembly
                     if (TemplateFile != null) {
-                        writer.WriteLine("/template:\"{0}\"", TemplateFile.FullName);
+                        if (SupportsTemplate) {
+                            writer.WriteLine("/template:\"{0}\"", TemplateFile.FullName);
+                        } else {
+                            Log(Level.Warning,
+                                ResourceUtils.GetString("String_LinkerDoesNotSupportTemplateAssembly"),
+                                Project.TargetFramework.Description);
+                        }
                     }
 
                     // title field
