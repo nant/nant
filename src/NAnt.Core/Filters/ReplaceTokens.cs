@@ -43,8 +43,8 @@ namespace NAnt.Core.Filters {
     /// </para>
     /// <para>
     /// Tokens are specified by using the <see cref="Token" /> element. It is 
-    /// possoble to specify from 1 to n tokens and replacement values. Values can 
-    /// be any valid NAnt expression 
+    /// possible to specify from 1 to n tokens and replacement values. Values can 
+    /// be any valid NAnt expression.
     /// </para>
     /// <para>
     /// Filters are intended to be used as a element of a <see cref="FilterChain"/>.
@@ -205,7 +205,8 @@ namespace NAnt.Core.Filters {
                 throw new BuildException("One or more tokens and replacement values should be specified.", Location);
             }
 
-            // create a string builder to use for a buffer while searching for tokens.
+            // create a string builder to use for a buffer while searching for
+            // tokens
             _tokenString = new StringBuilder(_maxTokenLength + 1, _maxTokenLength + 1);
         }
 
@@ -223,24 +224,24 @@ namespace NAnt.Core.Filters {
         /// <returns>Either the replacement token or the characters that were read looking for the token</returns>
         private string FindTokenContents( out bool tokenNotFound, out bool unknownToken, out bool streamEnded) {
             int charactersScanned = 0;
-            char currentChar = _beginToken;
+            char currentChar = BeginToken;
             bool tokenFound = false;
             tokenNotFound = false;
             streamEnded = false;
             unknownToken = true;
 
-            //Reset token string
+            // reset token string
             _tokenString.Length = 0;
 
-            //Only peak within the limits of the largest token
+            // only peak within the limits of the largest token
             while ((charactersScanned <= _maxTokenLength)) {
                 charactersScanned++;
 
-                //Read a character
+                // read a character
                 int streamChar = base.Read();
                 currentChar = (char) streamChar;
 
-                //Check for end of stream
+                // check for end of stream
                 if (streamChar == -1) {
                     //Two adjacent tokens were found
                     tokenNotFound = true;
@@ -249,64 +250,62 @@ namespace NAnt.Core.Filters {
                     return _tokenString.ToString();
                 }
 
-                if (CompareCharacters(currentChar, _endToken)) {
+                if (CompareCharacters(currentChar, EndToken)) {
                     tokenFound = true;
                     break;
-                } else if (CompareCharacters(currentChar, _beginToken) && (!CompareCharacters(_endToken, _beginToken))) {
-                    //Only happens if the beginning and ending tokens are not the same
-                    //Add end char and break
+                } else if (CompareCharacters(currentChar, BeginToken) && (!CompareCharacters(EndToken, BeginToken))) {
+                    // add end char and break, only happens if the beginning 
+                    // and ending tokens are not the same
                     tokenNotFound = true;
                     unknownToken = true;
-                    _tokenString.Append((char)currentChar);
+                    _tokenString.Append((char) currentChar);
                     return _tokenString.ToString();
                 } else {
-                    //Add possiable token contents to the buffer
-                    _tokenString.Append((char)currentChar);
+                    // add possiable token contents to the buffer
+                    _tokenString.Append((char) currentChar);
                 }
             }
 
-            //Token found and length greater than 0
-            if ((tokenFound)) {
+            // token found and length greater than 0
+            if (tokenFound) {
                 string replacementValue = null;
 
-                //Look up token if not empty
+                // look up token if not empty
                 if (_tokenString.Length != 0) {
-                    //Token found so look it up
+                    // token found so look it up
                     string contentsRead = _tokenString.ToString();
                     replacementValue = _tokenValues[contentsRead];
                 } else {
-                    //Two adjacent tokens were found
+                    // two adjacent tokens were found
                     tokenNotFound = true;
                     unknownToken = true;
-
                     return new string(currentChar, 1);
                 }
 
-
-                //Did we find a replacement value for the token?
+                // did we find a replacement value for the token?
                 if (replacementValue != null) {
-                    //This was a token we can handle
+                    // this was a token we can handle
                     tokenNotFound = false;
                     unknownToken = false;
 
-                    //Return the replacment value to output
+                    // return the replacment value to output
                     return replacementValue;
-                } else { //We don't know about the token
-                    //The token was not in the list so just output it but add then ending
-                    //token character back.
+                } else { 
+                    // we don't know about the token
+
+                    // the token was not in the list so just output it but add 
+                    // then ending token character back
                     tokenNotFound = true;
                     unknownToken = true;
                     return _tokenString.Append(currentChar).ToString();
                 }
-            } else {  //Read max number of characters
-                
+            } else { // read max number of characters
                 //return string to output in future reads
                 tokenNotFound = true;
                 unknownToken = false;
 
                 return _tokenString.ToString();
             }
-
         }
 
         /// <summary>
@@ -318,31 +317,32 @@ namespace NAnt.Core.Filters {
         private int GetNextCharacter(AcquireCharDelegate AcquireChar) {
             int ch;
 
-            //Either read the next character or if there is a buffer output the next character
+            // either read the next character or if there is a buffer output 
+            // the next character
             if (_outputBuffer == null) {
                 ch = base.Read();
             } else {
-                //Characters left in the buffer?
+                // characters left in the buffer?
                 if (_bufferPosition < _outputBuffer.Length) {
-
-                    //If this is the last character of a token string that is unknown
-                    //process the charactor again since it might be the beginning of another token.
+                    // if this is the last character of a token string that is 
+                    // unknown then process the charactor again since it might 
+                    // be the beginning of another token
                     if ((_tokenNotFound == true) && (_unknownToken == true) && (_bufferPosition == _outputBuffer.Length - 1)) {
-                        //Process token end char again. It could be the same as token begin.
+                        // process token end char again as it could be the same
+                        // as token begin
                         ch = _outputBuffer[_outputBuffer.Length - 1];
                         _bufferPosition++;
                     } else {
-                        //Pass along buffer character
+                        // pass along buffer character
                         return _outputBuffer[_bufferPosition++];
                     }
-                } else  {//End of buffer
-
-                    //Reset buff and get next char
+                } else  { // end of buffer
+                    // reset buffer and get next char
                     _outputBuffer = null;
                     _bufferPosition = 0;
 
-                    //Reaad the next character or end the stream the end of the stream
-                    //was encountered while reading the buffer.
+                    // read the next character or end the stream the end of the 
+                    // stream was encountered while reading the buffer
                     if (!_endStreamAfterBuffer) {
                         ch = ReadChar();
                     } else {
@@ -351,41 +351,44 @@ namespace NAnt.Core.Filters {
                 }
             }
 
-            //Process beginning token
-            if (CompareCharacters(ch, _beginToken)) {
-                //Look for a token after _beginToken and return either the replacement token
-                //or the charactors that were read.
+            // process beginning token
+            if (CompareCharacters(ch, BeginToken)) {
+                // look for a token after BeginToken and return either the 
+                // replacement token or the charactors that were read
                 _outputBuffer = FindTokenContents(out _tokenNotFound, out _unknownToken, out _endStreamAfterBuffer);
 
-                //A token was not found so _beginToken needs to be accounted for.
+                // a token was not found so BeginToken needs to be accounted for.
                 if (_tokenNotFound) {
                     _bufferPosition = 0;
-                    return _beginToken;
+                    return BeginToken;
                 } else {
-                    //Output first character of buffer
-                    _bufferPosition = 1;
-                    return _outputBuffer[0];
+                    if (_outputBuffer.Length > 0) {
+                        // output first character of buffer
+                        _bufferPosition = 1;
+                        return _outputBuffer[0];
+                    } else {
+                        // return next character
+                        return GetNextCharacter(AcquireChar);
+                    }
                 }
             } else {
-                //This was not a beginning token so just pass it through
+                // this was not a beginning token so just pass it through
                 return ch;
             }
         }
 
-
         /// <summary>
-        /// Compares to characters taking into account the _ignoreCase flag.
+        /// Compares to characters taking <see cref="IgnoreCase" /> into account.
         /// </summary>
         /// <param name="char1"></param>
         /// <param name="char2"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// </returns>
         private bool CompareCharacters(int char1, int char2) {
             //Compare chars with or without case
-            if (_ignoreCase == true) {
-                    
+            if (IgnoreCase) {
                 return (char.ToUpper((char)char1) == char.ToUpper((char)char2));
-            }
-            else {
+            } else {
                 return char1 == char2;
             }
         }
@@ -393,4 +396,3 @@ namespace NAnt.Core.Filters {
         #endregion Private Instance Methods
     }
 }
-

@@ -42,6 +42,22 @@ namespace Tests.NAnt.Core.Filters {
         }
 
         /// <summary>
+        /// Test if an empty replacement value is supported.
+        /// </summary>
+        [Test]
+        public void EmptyTokenValue() {
+            string prologueXml = null;
+
+            string filterXml = @"<" + _tagName + @" endtoken=""@"">
+                               <token key=""OLD"" value="""" />
+                               </" + _tagName + @">";
+
+            string input = @"@OLD@";
+            string expectedOutput = string.Empty;
+            base.FilterTest(filterXml, input, expectedOutput, prologueXml);
+        }
+
+        /// <summary>
         /// Test if two tokens are next to each other
         /// </summary>
         [Test]

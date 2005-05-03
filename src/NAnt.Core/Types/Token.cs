@@ -51,7 +51,6 @@ namespace NAnt.Core.Types {
         /// New value of token.
         /// </summary>
         [TaskAttribute("value", Required=true)]
-        [StringValidator(AllowEmpty=false)]
         public string Value {
             get { return _value; }
             set { _value = value; }
