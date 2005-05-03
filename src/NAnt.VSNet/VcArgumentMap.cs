@@ -216,6 +216,7 @@ namespace NAnt.VSNet {
 
             // General
             map.AddEnum("DebugInformationFormat", null, null, "/Z7", "/Zd", "/Zi", "/ZI");
+            map.AddEnum("CompileAsManaged", null, null, null, "/clr"); // file-level only
             map.AddEnum("WarningLevel", null, "/W0", "/W1", "/W2", "/W3", "/W4");
             map.AddBool("Detect64BitPortabilityProblems", "/Wp64");
             map.AddBool("WarnAsError", "/WX");
