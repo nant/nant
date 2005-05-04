@@ -81,6 +81,7 @@ namespace NAnt.VisualCpp.Tasks {
         private string _pdbFile;
         private Hashtable _resolvedIncludes;
         private Regex _includeRegex;
+        private StringCollection _dirtySources = new StringCollection();
 
         #endregion Private Instance Fields
 
@@ -304,7 +305,7 @@ namespace NAnt.VisualCpp.Tasks {
 
             if (NeedsCompiling()) {
                 Log(Level.Info, "Compiling {0} files to '{1}'.", 
-                    Sources.FileNames.Count, OutputDir.FullName);
+                    _dirtySources.Count, OutputDir.FullName);
  
                 // create temp response file to hold compiler options
                 _responseFileName = Path.GetTempFileName();
@@ -385,7 +386,7 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write each of the filenames
-                    foreach (string filename in Sources.FileNames) {
+                    foreach (string filename in _dirtySources) {
                         writer.WriteLine(QuoteArgumentValue(filename));
                     }
 
@@ -433,7 +434,13 @@ namespace NAnt.VisualCpp.Tasks {
         /// Determines if the sources need to be compiled.
         /// </summary>
         protected virtual bool NeedsCompiling() {
-            return !(IsPchfileUpToDate() && AreObjsUpToDate());
+            if (!IsPchfileUpToDate()) {
+                // if pch file is not up-to-date, then mark all sources as dirty
+                Log(Level.Verbose, "PCH out of date, recompiling all sources.");
+                _dirtySources = StringUtils.Clone(Sources.FileNames);
+                return true;
+            }
+            return !AreObjsUpToDate();
         }
 
         #endregion Protected Instance Methods
@@ -471,7 +478,7 @@ namespace NAnt.VisualCpp.Tasks {
 
             // if an existing pch file is used, then pch file must never be
             // recompiled
-            if (PchMode != PrecompiledHeaderMode.Use) {
+            if (PchMode == PrecompiledHeaderMode.Use) {
                 return true;
             }
 
@@ -561,15 +568,18 @@ namespace NAnt.VisualCpp.Tasks {
                 if (!File.Exists(filename)) {
                     Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
                         filename);
-                    return false;
+                    _dirtySources.Add(filename);
+                    continue;
                 }
 
                 if (!IsObjUpToDate(filename)) {
-                    return false;
+                    _dirtySources.Add(filename);
+                    continue;
                 }
             }
 
-            return true;
+            // if there are no outdated files, then the OBJs are up to date
+            return _dirtySources.Count == 0;
         }
 
         /// <summary>
