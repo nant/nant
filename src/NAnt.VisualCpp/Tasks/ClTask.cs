@@ -469,6 +469,12 @@ namespace NAnt.VisualCpp.Tasks {
                 return false;
             }
 
+            // if an existing pch file is used, then pch file must never be
+            // recompiled
+            if (PchMode != PrecompiledHeaderMode.Use) {
+                return true;
+            }
+
             // check if sources fresher than pch file
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, pchFileInfo.LastWriteTime);
             if (fileName != null) {
@@ -533,6 +539,16 @@ namespace NAnt.VisualCpp.Tasks {
                 Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
                     fileName);
                 return false;
+            }
+
+            if (PchFile != null && PchMode == PrecompiledHeaderMode.Use) {
+                // check if precompiled header is modified after obj was compiled
+                fileName = FileSet.FindMoreRecentLastWriteTime(PchFile, objFileInfo.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                        fileName);
+                    return false;
+                }
             }
 
             return true;
@@ -646,6 +662,15 @@ namespace NAnt.VisualCpp.Tasks {
                     if (resolvedInclude != null) {
                         if (File.GetLastWriteTime(resolvedInclude) > objLastWriteTime) {
                             return resolvedInclude;
+                        } else {
+                            /*
+                            // recursively check includes
+                            resolvedInclude = FindUpdatedInclude(resolvedInclude, 
+                                objLastWriteTime);
+                            if (resolvedInclude != null) {
+                                return resolvedInclude;
+                            }
+                            */
                         }
                     } else {
                         // TODO: what do we do if the include cannot be located ?
