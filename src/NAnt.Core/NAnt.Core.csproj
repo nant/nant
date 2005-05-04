@@ -520,6 +520,10 @@
                     BuildAction = "EmbeddedResource"
                 />
                 <File
+                    RelPath = "Resources\Strings.resx"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "Tasks\AttribTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
