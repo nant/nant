@@ -427,7 +427,7 @@ namespace NAnt.Core {
             // add a true property for each task (use in build to test for task existence).
             // add a property for each task with the assembly location.
             p.Properties.AddReadOnly("nant.tasks." + tb.TaskName, Boolean.TrueString);
-            p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.AssemblyFileName);
+            p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.Assembly.Location);
         }
 
         #endregion Internal Static Methods
@@ -449,12 +449,15 @@ namespace NAnt.Core {
                     Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
 
                 if (type.IsSubclassOf(typeof(Task)) && !type.IsAbstract && taskNameAttribute != null) {
-                    task.Log(Level.Debug, "Creating TaskBuilder for \"{0}\".", 
-                        type.Name);
-                    TaskBuilder tb = new TaskBuilder(type.FullName, type.Assembly.Location);
+                    task.Log(Level.Debug, string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("String_CreatingTaskBuilder"), 
+                        type.Name));
+
+                    TaskBuilder tb = new TaskBuilder(type.Assembly, type.FullName);
                     if (TaskBuilders[tb.TaskName] == null) {
-                        task.Log(Level.Debug, "Adding \"{0}\" from {1}:{2}.", 
-                            tb.TaskName, tb.AssemblyFileName, tb.ClassName);
+                        task.Log(Level.Debug, string.Format(CultureInfo.InvariantCulture, 
+                            ResourceUtils.GetString("String_AddingTask"), tb.TaskName, 
+                            tb.Assembly.Location, tb.ClassName));
 
                         TaskBuilders.Add(tb);
                         foreach(WeakReference wr in _projects) {
@@ -502,11 +505,11 @@ namespace NAnt.Core {
                 if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
                     logger.Info(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
-                    DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.FullName, type.Assembly.Location);
+                    DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.Assembly, type.FullName);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
-                            dtb.AssemblyFileName, dtb.ClassName));
+                            dtb.Assembly.Location, dtb.ClassName));
 
                         DataTypeBuilders.Add(dtb);
                     }
@@ -618,12 +621,12 @@ namespace NAnt.Core {
                 if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
                     task.Log(Level.Debug, "Creating FilterBuilder for \"{0}\".", 
                         type.Name);
-                    FilterBuilder builder = new FilterBuilder(type.FullName, type.Assembly.Location);
+                    FilterBuilder builder = new FilterBuilder(type.Assembly, type.FullName);
                     if (FilterBuilders[builder.FilterName] == null) {
                         FilterBuilders.Add(builder);
 
                         task.Log(Level.Debug, "Adding filter \"{0}\" from {1}:{2}.", 
-                            builder.FilterName, builder.AssemblyFileName, 
+                            builder.FilterName, builder.Assembly.Location, 
                             builder.ClassName);
                     }
 

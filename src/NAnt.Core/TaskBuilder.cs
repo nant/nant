@@ -31,16 +31,14 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Creates a new instance of the <see cref="TaskBuilder" /> class
-        /// for the specified task class in the assembly specified.
+        /// for the specified <see cref="Task" /> class in the <see cref="Assembly" />
+        /// specified.
         /// </summary>
-        /// <param name="className">The class representing the task.</param>
-        /// <param name="assemblyFileName">The assembly containing the task.</param>/// 
-        public TaskBuilder(string className, string assemblyFileName) {
+        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="Task" />.</param>
+        /// <param name="className">The class representing the <see cref="Task" />.</param>
+        public TaskBuilder(Assembly assembly, string className) {
+            _assembly = assembly;
             _className = className;
-            _assemblyFileName = assemblyFileName;
-
-            // determine from which assembly the task will be created
-            Assembly assembly = GetAssembly();
 
             // get task name from attribute
             TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
@@ -54,28 +52,25 @@ namespace NAnt.Core {
         #region Public Instance Properties
 
         /// <summary>
-        /// Gets the name of the task class that can be created using this
-        /// <see cref="TaskBuilder" />.
+        /// Gets the name of the <see cref="Task" /> class that can be created
+        /// using this <see cref="TaskBuilder" />.
         /// </summary>
         /// <value>
-        /// The name of the task class that can be created using this
-        /// <see cref="TaskBuilder" />.
+        /// The name of the <see cref="Task" /> class that can be created using
+        /// this <see cref="TaskBuilder" />.
         /// </value>
         public string ClassName {
             get { return _className; }
         }
 
         /// <summary>
-        /// Gets the filename of the <see cref="Assembly" /> from which the
-        /// task will be created.
+        /// Gets the <see cref="Assembly" /> from which the task will be created.
         /// </summary>
         /// <value>
-        /// The filename of the <see cref="Assembly" /> from which the task will
-        /// be created, or <see langword="null" /> to create the task from the
-        /// executing <see cref="Assembly" />.
+        /// The <see cref="Assembly" /> containing the task.
         /// </value>
-        public string AssemblyFileName {
-            get { return _assemblyFileName; }
+        public Assembly Assembly {
+            get { return _assembly; }
         }
 
         /// <summary>
@@ -96,8 +91,7 @@ namespace NAnt.Core {
 
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public Task CreateTask() {
-            Assembly assembly = GetAssembly();
-            return (Task) assembly.CreateInstance(
+            return (Task) Assembly.CreateInstance(
                 ClassName, 
                 true, 
                 BindingFlags.Public | BindingFlags.Instance,
@@ -109,51 +103,10 @@ namespace NAnt.Core {
 
         #endregion Public Instance Methods
 
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Gets the <see cref="Assembly" /> from which the task identified by
-        /// <see cref="TaskName" /> will be created.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Assembly" /> from which the task identified by 
-        /// <see cref="TaskName" /> will be created.
-        /// </returns>
-        private Assembly GetAssembly() {
-            Assembly assembly = null;
-
-            if (AssemblyFileName == null) {
-                assembly = Assembly.GetExecutingAssembly();
-            } else {
-                //check to see if it is loaded already
-                Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
-                for (int i = 0; i < ass.Length; i++) {
-                    try {
-                        string assemblyLocation = ass[i].Location;
-
-                        if (assemblyLocation != null && assemblyLocation == AssemblyFileName) {
-                            assembly = ass[i];
-                            break;
-                        }
-                    } catch (NotSupportedException) {
-                        // dynamically loaded assemblies do not not have a location
-                    }
-                }
-
-                //load if not loaded
-                if (assembly == null) {
-                    assembly = Assembly.LoadFrom(AssemblyFileName);
-                }
-            }
-            return assembly;
-        }
-
-        #endregion Private Instance Methods
-
         #region Private Instance Fields
 
+        private Assembly _assembly;
         private string _className;
-        private string _assemblyFileName;
         private string _taskName;
 
         #endregion Private Instance Fields

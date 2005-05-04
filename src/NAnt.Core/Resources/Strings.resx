@@ -843,48 +843,44 @@
     <!-- General Strings -->
     <data name="String_ValidatingElement">
         <value>Validating &lt;{1} {2}='...'&gt; with {0}</value>
-        <comment>Validating &lt;{1} {2}='...'&gt; with {0}</comment>
     </data>
     <data name="String_FoundAttribute">
         <value>Found {0} &lt;attribute&gt; for {1}</value>
-        <comment>Found {0} &lt;attribute&gt; for {1}</comment>
     </data>
      <data name="String_SkippingAttribute">
         <value>Skipping {0} &lt;attribute&gt; for {1}</value>
-        <comment>Skipping {0} &lt;attribute&gt; for {1}</comment>
     </data>
     <data name="String_SettingValue">
         <value>Setting value: {2}.{0} = {1}</value>
-        <comment>Setting value: {2}.{0} = {1}</comment>
-    </data> <!--Messages From: \NAnt.Core/Log.cs-->
+    </data> 
     <data name="String_TotalTime">
         <value>Total time: {0} seconds.</value>
-        <comment>Total time: {0} seconds.</comment>
     </data>
     <data name="String_BuildSucceeded">
         <value>BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)</value>
-        <comment>BUILD SUCCEEDED - {0} non-fatal error(s), {1} warning(s)</comment>
     </data>
     <data name="String_BuildFailed">
         <value>BUILD FAILED - {0} non-fatal error(s), {1} warning(s)</value>
-        <comment>BUILD FAILED - {0} non-fatal error(s), {1} warning(s)</comment>
     </data>
     <data name="String_AddingTarget">
         <value>Adding Target '{0}'</value>
-        <comment>Adding Target '{0}'</comment>
     </data>
     <data name="String_TaskExecute">
         <value>Task.Execute() for '{0}'</value>
-        <comment>Task.Execute() for '{0}'</comment>
     </data>
     <data name="String_AddingDataType">
-        <value>Adding '{0}' from {1}:{2}</value>
-        <comment>Adding '{0}' from {1}:{2}</comment>
+        <value>Adding data type '{0}' from {1}:{2}</value>
     </data>
     <data name="String_CreatingDataTypeBaseBuilder">
         <value>Creating DataTypeBaseBuilder for {0}</value>
-        <comment>Creating DataTypeBaseBuilder for {0}</comment>
     </data>
+    <data name="String_AddingTask">
+        <value>Adding task '{0}' from {1}:{2}</value>
+    </data>
+    <data name="String_CreatingTaskBuilder">
+        <value>Creating TaskBuilder for {0}</value>
+    </data>
+
     <!--ExternalProgramBase.cs -->
     <data name="String_Starting_Program">
         <value>Starting '{1} ({2})' in '{0}'</value>

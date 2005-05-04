@@ -30,23 +30,15 @@ namespace NAnt.Core.Filters {
 
         /// <summary>
         /// Creates a new instance of the <see cref="FilterBuilder" /> class
-        /// for the specified Element class.
+        /// for the specified <see cref="Filter" /> class in the <see cref="Assembly" />
+        /// specified.
         /// </summary>
-        /// <param name="className">The class representing the Element.</param>
-        public FilterBuilder(string className) : this(className, null) {
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="FilterBuilder" /> class
-        /// for the specified Element class in the assembly specified.
-        /// </summary>
-        /// <param name="className">The class representing the Element.</param>
-        /// <param name="assemblyFileName">The assembly containing the Element.</param>/// 
-        public FilterBuilder(string className, string assemblyFileName) {
+        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="Filter" />.</param>
+        /// <param name="className">The class representing the <see cref="Filter" />.</param>
+        public FilterBuilder(Assembly assembly, string className) {
+            _assembly = assembly;
             _className = className;
-            _assemblyFileName = assemblyFileName;
 
-            Assembly assembly = GetAssembly();
             // get Element name from attribute
             ElementNameAttribute ElementNameAttribute = (ElementNameAttribute) 
                 Attribute.GetCustomAttribute(assembly.GetType(ClassName), typeof(ElementNameAttribute));
@@ -58,14 +50,37 @@ namespace NAnt.Core.Filters {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets the name of the <see cref="Filter" /> class that can be created
+        /// using this <see cref="FilterBuilder" />.
+        /// </summary>
+        /// <value>
+        /// The name of the <see cref="Filter" /> class that can be created using
+        /// this <see cref="FilterBuilder" />.
+        /// </value>
         public string ClassName {
             get { return _className; }
         }
 
-        public string AssemblyFileName {
-            get { return _assemblyFileName; }
+        /// <summary>
+        /// Gets the <see cref="Assembly" /> from which the filter will be
+        /// created.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Assembly" /> containing the filter.
+        /// </value>
+        public Assembly Assembly {
+            get { return _assembly; }
         }
 
+        /// <summary>
+        /// Gets the name of the filter which the <see cref="FilterBuilder" />
+        /// can create.
+        /// </summary>
+        /// <value>
+        /// The name of the task which the <see cref="TaskBuilder" /> can 
+        /// create.
+        /// </value>
         public string FilterName {
             get { return _filterName; }
         }
@@ -76,8 +91,7 @@ namespace NAnt.Core.Filters {
 
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public Filter CreateFilter() {
-            Assembly assembly = GetAssembly();
-            return (Filter) assembly.CreateInstance(
+            return (Filter) Assembly.CreateInstance(
                 ClassName, 
                 true, 
                 BindingFlags.Public | BindingFlags.Instance,
@@ -89,43 +103,11 @@ namespace NAnt.Core.Filters {
 
         #endregion Public Instance Methods
 
-        #region Private Instance Methods
-
-        private Assembly GetAssembly() {
-            Assembly assembly = null;
-
-            if (AssemblyFileName == null) {
-                assembly = Assembly.GetExecutingAssembly();
-            } else {
-                //check to see if it is loaded already
-                Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
-                for (int i = 0; i < ass.Length; i++){
-                    try {
-                        string assemblyLocation = ass[i].Location;
-
-                        if (assemblyLocation != null && assemblyLocation == AssemblyFileName) {
-                            assembly = ass[i];
-                            break;
-                        }
-                    } catch (NotSupportedException) {
-                        // dynamically loaded assemblies do not not have a location
-                    }
-                }
-                //load if not loaded
-                if (assembly == null) {
-                    assembly = Assembly.LoadFrom(AssemblyFileName);
-                }
-            }
-            return assembly;
-        }
-
-        #endregion Private Instance Methods
-
         #region Private Instance Fields
 
-        string _className;
-        string _assemblyFileName;
-        string _filterName;
+        private Assembly _assembly;
+        private string _className;
+        private string _filterName;
 
         #endregion Private Instance Fields
     }

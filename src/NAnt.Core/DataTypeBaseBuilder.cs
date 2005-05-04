@@ -29,45 +29,60 @@ namespace NAnt.Core {
         #region Public Instance Constructors
 
         /// <summary>
-        /// Creates a new instance of the <see cref="DataTypeBaseBuilder" /> class
-        /// for the specified Element class.
+        /// Creates a new instance of the <see cref="DataTypeBaseBuilder" /> 
+        /// class for the specified <see cref="DataTypeBase" /> class in the 
+        /// <see cref="Assembly" /> specified.
         /// </summary>
-        /// <param name="className">The class representing the Element.</param>
-        public DataTypeBaseBuilder(string className) : this(className, null) {
-        }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="DataTypeBaseBuilder" /> class
-        /// for the specified Element class in the assembly specified.
-        /// </summary>
-        /// <param name="className">The class representing the Element.</param>
-        /// <param name="assemblyFileName">The assembly containing the Element.</param>/// 
-        public DataTypeBaseBuilder(string className, string assemblyFileName) {
+        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="DataTypeBase" />.</param>
+        /// <param name="className">The class representing the <see cref="DataTypeBase" />.</param>
+        public DataTypeBaseBuilder(Assembly assembly, string className) {
+            _assembly = assembly;
             _className = className;
-            _assemblyFileName = assemblyFileName;
 
-            Assembly assembly = GetAssembly();
             // get Element name from attribute
             ElementNameAttribute ElementNameAttribute = (ElementNameAttribute) 
                 Attribute.GetCustomAttribute(assembly.GetType(ClassName), typeof(ElementNameAttribute));
 
-            _elementName = ElementNameAttribute.Name;
+            _dataTypeName = ElementNameAttribute.Name;
         }
 
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets the name of the <see cref="DataTypeBase" /> class that can be
+        /// created using this <see cref="DataTypeBaseBuilder" />.
+        /// </summary>
+        /// <value>
+        /// The name of the <see cref="DataTypeBase" /> class that can be created
+        /// using this <see cref="DataTypeBaseBuilder" />.
+        /// </value>
         public string ClassName {
             get { return _className; }
         }
 
-        public string AssemblyFileName {
-            get { return _assemblyFileName; }
+        /// <summary>
+        /// Gets the <see cref="Assembly" /> from which the data type will be
+        /// created.
+        /// </summary>
+        /// <value>
+        /// The <see cref="Assembly" /> containing the data type.
+        /// </value>
+        public Assembly Assembly {
+            get { return _assembly; }
         }
 
+        /// <summary>
+        /// Gets the name of the data type which the <see cref="DataTypeBaseBuilder" />
+        /// can create.
+        /// </summary>
+        /// <value>
+        /// The name of the data type which the <see cref="DataTypeBaseBuilder" />
+        /// can create.
+        /// </value>
         public string DataTypeName {
-            get { return _elementName; }
+            get { return _dataTypeName; }
         }
 
         #endregion Public Instance Properties
@@ -76,8 +91,7 @@ namespace NAnt.Core {
 
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public DataTypeBase CreateDataTypeBase() {
-            Assembly assembly = GetAssembly();
-            return (DataTypeBase) assembly.CreateInstance(
+            return (DataTypeBase) Assembly.CreateInstance(
                 ClassName, 
                 true, 
                 BindingFlags.Public | BindingFlags.Instance,
@@ -89,43 +103,11 @@ namespace NAnt.Core {
 
         #endregion Public Instance Methods
 
-        #region Private Instance Methods
-
-        private Assembly GetAssembly() {
-            Assembly assembly = null;
-
-            if (AssemblyFileName == null) {
-                assembly = Assembly.GetExecutingAssembly();
-            } else {
-                //check to see if it is loaded already
-                Assembly[] ass = AppDomain.CurrentDomain.GetAssemblies();
-                for (int i = 0; i < ass.Length; i++) {
-                    try {
-                        string assemblyLocation = ass[i].Location;
-
-                        if (assemblyLocation != null && assemblyLocation == AssemblyFileName) {
-                            assembly = ass[i];
-                            break;
-                        }
-                    } catch (NotSupportedException) {
-                        // dynamically loaded assemblies do not not have a location
-                    }
-                }
-                //load if not loaded
-                if (assembly == null) {
-                    assembly = Assembly.LoadFrom(AssemblyFileName);
-                }                
-            }
-            return assembly;
-        }
-
-        #endregion Private Instance Methods
-
         #region Private Instance Fields
 
-        string _className;
-        string _assemblyFileName;
-        string _elementName;
+        private Assembly _assembly;
+        private string _className;
+        private string _dataTypeName;
 
         #endregion Private Instance Fields
     }

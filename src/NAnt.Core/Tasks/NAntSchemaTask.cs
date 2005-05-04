@@ -110,11 +110,11 @@ namespace NAnt.Core.Tasks {
                 dataTypes = new ArrayList(TypeFactory.DataTypeBuilders.Count);
 
                 foreach (TaskBuilder tb in TypeFactory.TaskBuilders) {
-                    taskTypes.Add(Assembly.LoadFrom(tb.AssemblyFileName).GetType(tb.ClassName, true, true));
+                    taskTypes.Add(tb.Assembly.GetType(tb.ClassName, true, true));
                 }
 
                 foreach (DataTypeBaseBuilder db in TypeFactory.DataTypeBuilders) {
-                    dataTypes.Add(Assembly.LoadFrom(db.AssemblyFileName).GetType(db.ClassName, true, true));
+                    dataTypes.Add(db.Assembly.GetType(db.ClassName, true, true));
                 }
             } else {
                 taskTypes = new ArrayList(1);

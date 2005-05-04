@@ -249,29 +249,23 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Returns the filename of the assembly from which the specified task
+        /// Returns the <see cref="Assembly" /> from which the specified task
         /// was loaded.
         /// </summary>
-        /// <param name="name">The task to get the location of.</param>
+        /// <param name="name">The name of the task to get the <see cref="Assembly" /> of.</param>
         /// <returns>
-        /// The filename of the assembly from which the specified task was 
-        /// loaded.
+        /// The <see cref="Assembly" /> from which the specified task was loaded.
         /// </returns>
         /// <exception cref="ArgumentException">Task <paramref name="name" /> is not available.</exception>
-        // Do not expose this function to build authors, as it makes more sense to
-        // add a function returning the assembly in which the task is defined,
-        // but for this we would need to modify TaskBuilder.
-        //
-        // However, we need to perform profiling to determine the impact of this.
-        //[Function("get-location")]
-        public string GetLocation(string name) {
+        [Function("get-assembly")]
+        public Assembly GetAssembly(string name) {
             TaskBuilder task = TypeFactory.TaskBuilders[name];
             if (task == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1099"), name));
             }
 
-            return task.AssemblyFileName;
+            return task.Assembly;
         }
 
         #endregion Public Instance Methods
