@@ -26,6 +26,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -88,7 +89,12 @@ namespace NAnt.VisualCpp.Tasks {
         /// </summary>
         [TaskAttribute("output")]
         public FileInfo OutputFile {
-            get { return _outputFile; }
+            get { 
+                if (_outputFile == null) {
+                    _outputFile = new FileInfo(Path.ChangeExtension(RcFile.FullName, "RES"));
+                }
+                return _outputFile;
+            }
             set { _outputFile = value; }
         }
 
@@ -150,10 +156,8 @@ namespace NAnt.VisualCpp.Tasks {
                     str.Append("/v ");
                 }
 
-                if (OutputFile != null) {
-                    str.AppendFormat(CultureInfo.InvariantCulture, 
-                        "/fo\"{0}\" ", OutputFile.FullName);
-                }
+                str.AppendFormat(CultureInfo.InvariantCulture, 
+                    "/fo\"{0}\" ", OutputFile.FullName);
 
                 if (Options != null) {
                     str.AppendFormat(CultureInfo.InvariantCulture,
@@ -171,7 +175,7 @@ namespace NAnt.VisualCpp.Tasks {
                 }
 
                 // append user definitions
-                foreach (Option define in _defines) {
+                foreach (Option define in Defines) {
                     if (define.Value == null) {
                         str.AppendFormat("/d {0} ", ArgumentUtils.DuplicateTrailingBackslash(define.OptionName));
                     } else {
@@ -190,23 +194,13 @@ namespace NAnt.VisualCpp.Tasks {
         /// Compile the resource file
         /// </summary>
         protected override void ExecuteTask() {
-
             if (IncludeDirs.BaseDirectory == null) {
                 IncludeDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
-            if (NeedsCompiling()) 
-            {
-                string message = string.Format(CultureInfo.InvariantCulture, 
-                    "Compiling '{0}'", RcFile.FullName);
-
-
-                if (OutputFile != null) {
-                    message += string.Format(CultureInfo.InvariantCulture, 
-                        " to '{0}'", OutputFile.FullName);
-                }
-
-                Log(Level.Info, message + ".");
+            if (NeedsCompiling()) {
+                Log(Level.Info, "Compiling \"{0}\" to \"{1}\".", RcFile.FullName,
+                    OutputFile.FullName);
                 base.ExecuteTask();
             }
         }
@@ -219,27 +213,68 @@ namespace NAnt.VisualCpp.Tasks {
         /// Determines if the resource need compiling.
         /// </summary>
         protected virtual bool NeedsCompiling() {
-            if (OutputFile != null) {
-                if (!OutputFile.Exists) {
-                    Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
-                        OutputFile.FullName);
-                    return true;
-                }
-
-                // if output file file is older the resource file, it is stale
-                string fileName = FileSet.FindMoreRecentLastWriteTime(
-                    RcFile.FullName, OutputFile.LastWriteTime);
-                if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' is out of date, recompiling.", 
-                        fileName);
-                    return true;
-                }
-
-                // output file is up-to-date
-                return false;
-            } else {
+            if (!OutputFile.Exists) {
+                Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
+                    OutputFile.FullName);
                 return true;
             }
+
+            // if output file file is older the resource file, it is stale
+            string fileName = FileSet.FindMoreRecentLastWriteTime(
+                RcFile.FullName, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' is out of date, recompiling.", 
+                    fileName);
+                return true;
+            }
+
+            // if resource file does not exist, then let compiler handle error
+            if (!RcFile.Exists) {
+                return true;
+            }
+
+            // check whether external files have been updated
+
+            Regex regBitmap = new Regex("IDB_(?<name>\\w+)\\s+BITMAP\\s+\\\"(?<file>[^\\\"]+)\\\"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            Regex regIcon = new Regex("IDI_(?<name>\\w+)\\s+ICON\\s+\\\"(?<file>[^\\\"]+)\\\"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            Regex regBinary = new Regex("IDR_(?<name>\\w+)\\s+(?<Number>\\w+)\\s+\\\"(?<file>[^\\\"]+)\\\"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            using (StreamReader sr = new StreamReader(RcFile.FullName)) {
+                while (sr.Peek() != -1) {
+                    string line = sr.ReadLine();
+
+                    Match resourceMatch = regBitmap.Match(line);
+                    if (resourceMatch.Success) {
+                        goto check_resource_timestamp;
+                    }
+
+                    resourceMatch = regIcon.Match(line);
+                    if (resourceMatch.Success) {
+                        goto check_resource_timestamp;
+                    }
+                    
+                    resourceMatch = regBinary.Match(line);
+                    if (resourceMatch.Success) {
+                        goto check_resource_timestamp;
+                    }
+
+                    continue;
+
+                check_resource_timestamp:
+                    string externalFile = Path.Combine(RcFile.DirectoryName,
+                        resourceMatch.Groups["file"].Value);
+                    fileName = FileSet.FindMoreRecentLastWriteTime(
+                        externalFile, OutputFile.LastWriteTime);
+                    if (fileName != null) {
+                        Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                            fileName);
+                        return true;
+                    }
+                }
+            }
+
+            // output file is up-to-date
+            return false;
         }
 
         #endregion Protected Instance Methods

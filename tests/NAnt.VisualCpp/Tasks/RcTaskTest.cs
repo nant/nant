@@ -56,7 +56,7 @@ namespace Tests.NAnt.VisualCpp.Tasks {
                 Assert.Ignore("The Resource Compiler (rc.exe) is not available on the PATH.");
             }
 
-            RunBuild(FormatBuildFile(""));
+            RunBuild(FormatBuildFile(_resInputFile, ""));
             Assert.IsTrue(File.Exists(Path.ChangeExtension(_resInputFile, "RES")),
                 "Default compiled resource not created.");
         }
@@ -77,16 +77,57 @@ namespace Tests.NAnt.VisualCpp.Tasks {
             // if the output file is rebuilt
             System.Threading.Thread.Sleep(1000);
 
-            RunBuild(FormatBuildFile("output=\"" + outputFile + "\""));
+            RunBuild(FormatBuildFile(_resInputFile, "output=\"" + outputFile + "\""));
 
             DateTime newLastModified = File.GetLastWriteTime(outputFile);
             Assert.AreEqual(orgLastModified, newLastModified, 
                 "output file should not have been rebuilt");
         }
 
-        private string FormatBuildFile(string extra) {
-            return string.Format(CultureInfo.InvariantCulture, _projectXml, _resInputFile, extra);
+        /// <summary>
+        /// Test to make sure that a modification of an external file that is 
+        /// referenced by a rc file caused the rc file to be rebuilt (bug #1195320).
+        /// </summary>
+        [Test]
+        public void Test_External_Files() {
+            if (!ResourceCompilerPresent) {
+                Assert.Ignore("The Resource Compiler (rc.exe) is not available on the PATH.");
+            }
+
+            string xmlFile = CreateTempFile(Path.Combine(_resDir, "description.xml"), 
+                "<root/>");
+            string resFile = CreateTempFile(Path.Combine(_resDir, "test-external.rc"), 
+                "IDR_XML_DESCRIPTION     XML               \"description.xml\"");
+            string outputFile = CreateTempFile(Path.Combine(_resDir, "output.res"));
+
+            RunBuild(FormatBuildFile(resFile, "output=\"" + outputFile + "\""));
+
+            DateTime orgLastModified = File.GetLastWriteTime(outputFile);
+
+            // wait for a second to make sure we would get another lastwritetime
+            // if the output file is rebuilt
+            System.Threading.Thread.Sleep(1000);
+
+            RunBuild(FormatBuildFile(resFile, "output=\"" + outputFile + "\""));
+
+            DateTime newLastModified = File.GetLastWriteTime(outputFile);
+            Assert.AreEqual(orgLastModified, newLastModified, 
+                "output file should not have been rebuilt");
+
+            // "modify" xml file
+            File.SetLastWriteTime(xmlFile, DateTime.Now);
+
+            // rc file should now be recompiled
+            RunBuild(FormatBuildFile(resFile, "output=\"" + outputFile + "\""));
+
+            // verify whether rc file was rebuilt
+            newLastModified = File.GetLastWriteTime(outputFile);
+            Assert.IsTrue(orgLastModified != newLastModified, 
+                "output file should have been rebuilt");
+        }
+
+        private string FormatBuildFile(string inputFile, string extra) {
+            return string.Format(CultureInfo.InvariantCulture, _projectXml, inputFile, extra);
         }
     }
 }
-
