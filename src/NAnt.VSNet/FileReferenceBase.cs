@@ -78,50 +78,43 @@ namespace NAnt.VSNet {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Gets the complete set of output files for the specified assembly.
+        /// Gets the complete set of output files for the specified assembly and adds them to <paremref name="outputFiles"/> collection.
         /// </summary>
         /// <param name="assemblyFile">The path of the assembly to get the output files for.</param>
-        /// <returns>
-        /// The complete set of output files for the reference.
-        /// </returns>
+        /// <param name="outputFiles">The set of output files to be updated.</param>
         /// <remarks>
         /// The key of the case-insensitive <see cref="Hashtable" /> is the 
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        protected Hashtable GetAssemblyOutputFiles(string assemblyFile) {
-            Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
+        protected void GetAssemblyOutputFiles(string assemblyFile, Hashtable outputFiles) {
             if (!File.Exists(assemblyFile)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Couldn't find referenced assembly '{0}'.", assemblyFile), 
                     Location.UnknownLocation);
             }
 
-            string[] referencedModules = GetAllReferencedModules(assemblyFile);
+            if (!outputFiles.ContainsKey(assemblyFile)) {
+                string[] referencedModules = GetAllReferencedModules(assemblyFile);
 
-            // get a list of the references in the output directory
-            foreach (string referenceFile in referencedModules) {
-                // skip module if module is not the assembly referenced by 
-                // the project and is installed in GAC
-                if (string.Compare(referenceFile, assemblyFile, true, CultureInfo.InvariantCulture) != 0) {
-                    // skip referenced module if the assembly referenced by
-                    // the project is a system reference or the module itself
-                    // is installed in the GAC
-                    if (IsSystem || GacCache.IsAssemblyInGac(referenceFile)) {
-                        continue;
+                // get a list of the references in the output directory
+                foreach (string referenceFile in referencedModules) {
+                    // skip module if module is not the assembly referenced by 
+                    // the project and is installed in GAC
+                    if (string.Compare(referenceFile, assemblyFile, true, CultureInfo.InvariantCulture) != 0) {
+                        // skip referenced module if the assembly referenced by
+                        // the project is a system reference or the module itself
+                        // is installed in the GAC
+                        if (IsSystem || GacCache.IsAssemblyInGac(referenceFile)) {
+                            continue;
+                        }
                     }
-                }
 
-                // get list of files related to referenceFile, this will include
-                // referenceFile itself
-                Hashtable relatedFiles = GetRelatedFiles(referenceFile);
-                foreach (DictionaryEntry de in relatedFiles) {
-                    outputFiles[(string) de.Key] = (string) de.Value;
+                    // get list of files related to referenceFile, this will include
+                    // referenceFile itself
+                    GetRelatedFiles(referenceFile, outputFiles);
                 }
             }
-
-            return outputFiles;
         }
 
         #endregion Protected Instance Methods

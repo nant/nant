@@ -409,15 +409,14 @@ namespace NAnt.VSNet {
         /// Gets the complete set of output files for the project.
         /// configuration.
         /// </summary>
-        /// <value>
-        /// The complete set of output files for the project.
-        /// </value>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
+        /// <param name="outputFiles">The set of output files to be updated.</param>
         /// <remarks>
         /// The key of the case-insensitive <see cref="Hashtable" /> is the 
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public Hashtable GetOutputFiles(string solutionConfiguration) {
+        public void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
             // obtain project configuration (corresponding with solution configuration)
             ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
             if (config == null) {
@@ -426,16 +425,15 @@ namespace NAnt.VSNet {
                     solutionConfiguration, Name), Location.UnknownLocation);
             }
 
-            Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
             foreach (ReferenceBase reference in References) {
                 if (!reference.CopyLocal) {
                     continue;
                 }
 
-                Hashtable referenceOutputFiles = reference.GetOutputFiles(solutionConfiguration);
-                foreach (DictionaryEntry de in referenceOutputFiles) {
-                    outputFiles[de.Key] = de.Value;
+                // only add output files of reference if we did not add them
+                // already
+                if (!outputFiles.ContainsKey(config.BuildPath)) {
+                    reference.GetOutputFiles(solutionConfiguration, outputFiles);
                 }
             }
 
@@ -447,12 +445,7 @@ namespace NAnt.VSNet {
             if (projectOutputFile != null && File.Exists(projectOutputFile)) {
                 // get list of files related to project output file (eg. debug symbols,
                 // xml doc, ...), this will include the project output file itself
-                Hashtable relatedFiles = ReferenceBase.GetRelatedFiles(projectOutputFile);
-
-                // add each related file to set of primary output files
-                foreach (DictionaryEntry de in relatedFiles) {
-                    outputFiles[(string) de.Key] = (string) de.Value;
-                }
+                ReferenceBase.GetRelatedFiles(projectOutputFile, outputFiles);
             }
 
             // add extra project-level output files
@@ -464,9 +457,6 @@ namespace NAnt.VSNet {
             foreach (DictionaryEntry de in config.ExtraOutputFiles) {
                 outputFiles[(string) de.Key] = (string) de.Value;
             }
-
-            // return output files for the project
-            return outputFiles;
         }
 
         /// <summary>
@@ -555,7 +545,8 @@ namespace NAnt.VSNet {
         /// </remarks>
         protected virtual void Prepare(string solutionConfiguration) {
             // determine the output files of the project
-            Hashtable outputFiles = GetOutputFiles(solutionConfiguration);
+            Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            GetOutputFiles(solutionConfiguration, outputFiles);
 
             // use the <attrib> task to ensure none of the output files are
             // marked read-only

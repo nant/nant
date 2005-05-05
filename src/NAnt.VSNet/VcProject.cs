@@ -449,7 +449,8 @@ namespace NAnt.VSNet {
                 if (reference.CopyLocal) {
                     Log(Level.Verbose, " - " + reference.Name);
 
-                    Hashtable outputFiles = reference.GetOutputFiles(solutionConfiguration);
+                    Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                    reference.GetOutputFiles(solutionConfiguration, outputFiles);
 
                     foreach (DictionaryEntry de in outputFiles) {
                         // determine file to copy
@@ -1128,7 +1129,7 @@ namespace NAnt.VSNet {
                     Option op = new Option();
                     op.OptionName = undefinePreprocessorDef;
                     midlTask.Undefines.Add(op);
-                }            
+                }
             }
 
             string additionalIncludeDirs = MergeToolSetting(projectConfig, fileConfig,
@@ -1151,7 +1152,7 @@ namespace NAnt.VSNet {
                         continue;
                     }
                     midlTask.Arguments.Add(new Argument(string.Format("/cpp_opt\"{0}\"", cPreprocessOption)));
-                }    
+                }
             }
 
             Hashtable midlArgs = fileConfig.GetToolArguments(compilerTool, _midlArgMap);
@@ -1462,13 +1463,13 @@ namespace NAnt.VSNet {
             }
 
             // Forced Symbol References
-	        string symbolReferences = projectConfig.GetToolSetting(linkerTool,
+            string symbolReferences = projectConfig.GetToolSetting(linkerTool,
                 "ForceSymbolReferences");
             if (!StringUtils.IsNullOrEmpty(symbolReferences)) {
-		        foreach (string symbol in symbolReferences.Split(';')) {
-			        linkTask.Symbols.Add(new Symbol(symbol));
-		        }
-	        }
+                foreach (string symbol in symbolReferences.Split(';')) {
+                    linkTask.Symbols.Add(new Symbol(symbol));
+                }
+            }
 
             // generation of map file during linking
             bool generateMapFile = bool.Parse(projectConfig.GetToolSetting(linkerTool, "GenerateMapFile", "FALSE"));

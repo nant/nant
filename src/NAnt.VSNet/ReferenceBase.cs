@@ -110,16 +110,13 @@ namespace NAnt.VSNet {
         /// specified configuration.
         /// </summary>
         /// <param name="solutionConfiguration">The solution configuration that is built.</param>
-        /// <returns>
-        /// The complete set of output files of the reference for the specified
-        /// configuration.
-        /// </returns>
+        /// <param name="outputFiles">The set of output files to be updated.</param>
         /// <remarks>
         /// The key of the case-insensitive <see cref="Hashtable" /> is the 
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public abstract Hashtable GetOutputFiles(string solutionConfiguration);
+        public abstract void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles);
 
         /// <summary>
         /// Gets the complete set of assemblies that need to be referenced when
@@ -203,16 +200,14 @@ namespace NAnt.VSNet {
 
         #region Public Static Methods
 
-        public static Hashtable GetRelatedFiles(string file) {
-            Hashtable relatedFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
+        public static void GetRelatedFiles(string file, Hashtable relatedFiles) {
             // determine directory of specified file
             string directory = Path.GetDirectoryName(file);
 
             // check whether the directory of the specified file actually 
             // exists
             if (StringUtils.ConvertEmptyToNull(directory) == null || !Directory.Exists(directory)) {
-                return relatedFiles;
+                return;
             }
 
             // file itself should always be added
@@ -238,9 +233,6 @@ namespace NAnt.VSNet {
 
                 relatedFiles[relatedFile] = Path.GetFileName(relatedFile);
             }
-
-            // return list of related files
-            return relatedFiles;
         }
 
         #endregion Public Static Methods
@@ -253,4 +245,3 @@ namespace NAnt.VSNet {
         #endregion Private Instance Fields
     }
 }
-

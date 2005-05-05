@@ -97,6 +97,7 @@ namespace NAnt.VSNet {
         /// Gets the complete set of output files for the referenced project.
         /// </summary>
         /// <param name="solutionConfiguration">The solution configuration that is built.</param>
+        /// <param name="outputFiles">The set of output files to be updated.</param>
         /// <returns>
         /// The complete set of output files for the referenced project.
         /// </returns>
@@ -105,8 +106,8 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override Hashtable GetOutputFiles(string solutionConfiguration) {
-            return Project.GetOutputFiles(solutionConfiguration);
+        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+            Project.GetOutputFiles(solutionConfiguration, outputFiles);
         }
 
         /// <summary>

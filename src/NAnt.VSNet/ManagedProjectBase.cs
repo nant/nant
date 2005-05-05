@@ -461,7 +461,9 @@ namespace NAnt.VSNet {
                 #region Deploy project and configuration level output files
 
                 // copy primary project output (and related files)
-                Hashtable outputFiles = GetOutputFiles(solutionConfiguration);
+                Hashtable outputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                GetOutputFiles(solutionConfiguration, outputFiles);
+
                 foreach (DictionaryEntry de in outputFiles) {
                     string srcPath = (string) de.Key;
                     string relativePath = (string) de.Value;
