@@ -526,6 +526,23 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
+        /// <summary>
+        /// Test for bug #1195736.
+        /// </summary>
+        [Test]
+        public void Test_Dont_Match_BaseDir_2() {
+            string baseDir = TempDir.Create("NAnt.Tests.DirectoryScannerBaseDirTest");
+            TempFile.Create(Path.Combine(baseDir, "filea.txt"));
+            TempFile.Create(Path.Combine(baseDir, "fileb.txt"));
+
+            _scanner = new DirectoryScanner();
+            _scanner.BaseDirectory = new DirectoryInfo(baseDir + Path.DirectorySeparatorChar);
+            _scanner.Includes.Add(@"filea.txt");
+            _scanner.Includes.Add(Path.Combine(baseDir, "fileb.txt"));
+            _scanner.Scan();
+
+            Assert.AreEqual(2, _scanner.FileNames.Count);
+        }
 
         #endregion Public Instance Methods
 

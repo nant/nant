@@ -429,16 +429,19 @@ namespace NAnt.Core {
             if (Path.IsPathRooted(s)) {
                 searchDirectory = new DirectoryInfo(s).FullName;
             } else {
-                //We also (correctly) get to this branch of code when s.Length == 0
-                // Note that I tried setting the base directory of unrooted exclude patterns to "" but this ends up
-                // matching base directories where it shouldn't.
-//              if (isInclude || indexOfFirstWildcard == -1)
-                    searchDirectory = new DirectoryInfo(Path.Combine(
-                        BaseDirectory.FullName, s)).FullName;
-//              else
-//                  searchDirectory = String.Empty;
+                // we also (correctly) get to this branch of code when s.Length == 0
+                searchDirectory = new DirectoryInfo(Path.Combine(
+                    BaseDirectory.FullName, s)).FullName;
             }
             
+            // remove trailing directory separator character, fixes bug #1195736
+            //
+            // do not remove trailing directory separator if search directory is
+            // root of drive (eg. d:\)
+            if (StringUtils.EndsWith(searchDirectory, Path.DirectorySeparatorChar) && (searchDirectory.Length != 3 || searchDirectory[1] != Path.VolumeSeparatorChar)) {
+                searchDirectory = searchDirectory.Substring(0, searchDirectory.Length - 1);
+            }
+
             string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
             
             // if it's not a wildcard, just return
