@@ -124,14 +124,29 @@ namespace Tests.NAnt.Core.Tasks {
                             ]]>
                         </code>
                     </script>
+                    <script language='C#' prefix='whatever'>
+                        <code>
+                        <![CDATA[
+                                [Function(""test"")]
+                                public static string Testfunc() {
+                                    return ""some other result!!!!!!!!"";
+                                }
+                            ]]>
+                        </code>
+                    </script>
                     <echo message='${script::test-func()}'/>
+                    <echo message='${whatever::test()}'/>
                 </project>";
             Project project = CreateFilebasedProject(_xml);
             string result = ExecuteProject(project);
             Assert.IsNotNull(TypeFactory.LookupFunction("script::test-func", project),
-                "Function script should have defined a new custom function." + Environment.NewLine + result);
+                "Function script should have defined a new custom function #1." + Environment.NewLine + result);
+            Assert.IsNotNull(TypeFactory.LookupFunction("whatever::test", project),
+                "Function script should have defined a new custom function #2." + Environment.NewLine + result);
             Assert.IsTrue(result.IndexOf("some result") != -1,
-                "Function script should written something." + Environment.NewLine + result);
+                "Function script should written something #1." + Environment.NewLine + result);
+            Assert.IsTrue(result.IndexOf("some other result") != -1,
+                "Function script should written something #2." + Environment.NewLine + result);
         }
 
         [Test]
