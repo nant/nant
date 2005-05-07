@@ -54,9 +54,9 @@ namespace Tests.NAnt.Console {
                     //check absolute
                     Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {@"-buildfile:" + build1FileName}), "Using absolute filepath failed");
                     //check relative path, should be resolvable via currentdirectory
-                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {"-buildfile:.\\" + filename}), "Using relative filepath failed");
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {string.Format("-buildfile:.{0}{1}", Path.DirectorySeparatorChar, filename)}), "Using relative filepath failed #1");
                     //check relative path, should be resolvable via currentdirectory
-                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {"-buildfile:..\\foo\\" + filename}), "Using relative filepath failed");
+                    Assert.IsTrue(0 == ConsoleDriver.Main(new string[] {string.Format("-buildfile:..{0}foo{0}{1}", Path.DirectorySeparatorChar, filename)}), "Using relative filepath failed #2");
                 } catch (Exception e) {
                     e.ToString();
                     errors = true;
@@ -79,7 +79,7 @@ namespace Tests.NAnt.Console {
             } catch {
             }
 
-            string baseDirectory = TempDir.Create(Path.Combine(TempDirName,  "GetBuildFileName"));
+            string baseDirectory = TempDir.Create(Path.Combine(TempDirName, "GetBuildFileName"));
             string build1FileName = Path.Combine(baseDirectory, "file1.build");
             string build2FileName = Path.Combine(baseDirectory, "file2.build");
 
