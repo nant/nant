@@ -52,6 +52,12 @@
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
             <arg value="${serverpart}/${nightly.builds.path}/${project.name}-bin.tar.gz" />
         </exec>
+        <!-- copy the release notes and license to sourceforge -->
+        <exec workingdir="${build.dir}/doc" program="scp">
+            <arg value="-C" />
+            <arg value="*.html" />
+            <arg value="${serverpart}/${nightly.builds.path}/" />
+        </exec>
         <echo message="Copied distributions over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
