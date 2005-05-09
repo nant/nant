@@ -65,6 +65,7 @@ namespace NAnt.Core.Types {
         #region Private Instance Fields
 
         private FileInfo _file;
+        private DirectoryInfo _directory;
         private PathSet _path;
         private string _value;
         private string _line;
@@ -156,6 +157,16 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
+        /// The value for a directory-based command-line argument; will be
+        /// replaced with the absolute path of the directory.
+        /// </summary>
+        [TaskAttribute("dir")]
+        public DirectoryInfo Directory {
+            get { return _directory; }
+            set { _directory = value; }
+        }
+
+        /// <summary>
         /// The value for a PATH-like command-line argument; you can use 
         /// <c>:</c> or <c>;</c> as path separators and NAnt will convert it 
         /// to the platform's local conventions, while resolving references to 
@@ -243,6 +254,8 @@ namespace NAnt.Core.Types {
             get {
                 if (File != null) {
                     return File.FullName;
+                } else if (Directory != null) {
+                    return Directory.FullName;
                 } else if (Path != null) {
                     return Path.ToString();
                 } else if (Line != null) {
