@@ -393,7 +393,7 @@ namespace NAnt.VSNet {
                     } catch (Exception ex) {
                         // ignore assemblies that cannot be found or loaded
                         Log(Level.Warning, "Referenced assembly \"{0}\" could not"
-                            + " be loaded: ", assemblyFile, ex.Message);
+                            + " be loaded: {1}", assemblyFile, ex.Message);
                     }
                 }
             }
