@@ -30,10 +30,23 @@ namespace NAnt.Core.Tasks {
     ///   target and all its dependent targets will be re-executed.
     ///   </para>
     ///   <para>
-    ///   To avoid dependent targets from being executed more than once, an &quot;unless&quot;
-    ///   attribute with value &quot;${<see href="../functions/target.has-executed.html">target::has-executed</see>('<c>&lt;target name&gt;</c>')}&quot;
-    ///   should be added to the dependent targets.
+    ///   To avoid dependent targets from being executed more than once, two 
+    ///   options are available:
     ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///         <description>
+    ///         Add an &quot;unless&quot; attribute with value &quot;${<see href="../functions/target.has-executed.html">target::has-executed</see>('<c>&lt;target name&gt;</c>')}&quot;
+    ///         to the dependent targets.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         Set the <see cref="CascadeDependencies" /> attribute on the 
+    ///         <see cref="CallTask" /> to <see langword="false " /> (<c>recommended</c>).
+    ///         </description>
+    ///     </item>
+    ///   </list>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -54,7 +67,7 @@ namespace NAnt.Core.Tasks {
     ///     <![CDATA[
     /// <project default="build">
     ///     <property name="debug" value="false" />
-    ///     <target name="init" unless="${target::has-executed('init')}">
+    ///     <target name="init">
     ///         <echo message="initializing" />
     ///     </target>
     ///     <target name="compile" depends="init">
@@ -69,13 +82,68 @@ namespace NAnt.Core.Tasks {
     /// </project>
     ///     ]]>
     ///   </code>
+    ///   <para>
+    ///   The <see cref="CascadeDependencies" /> parameter of the 
+    ///   <see cref="CallTask" /> defaults to <see langword="true" />, 
+    ///   causing the &quot;init&quot; target to be executed for both
+    ///   the &quot;debug&quot; and &quot;release&quot; build.
+    ///   </para>
+    ///   <para>
+    ///   This results in the following build log:
+    ///   </para>
+    ///   <code>
+    /// build:
+    ///   
+    /// init:
+    ///
+    ///     [echo] initializing
+    ///     
+    /// compile:
+    /// 
+    ///     [echo] compiling with debug = false
+    ///     
+    /// init:
+    /// 
+    ///     [echo] initializing
+    ///     
+    /// compile:
+    /// 
+    ///     [echo] compiling with debug = true
+    ///     
+    /// BUILD SUCCEEDED
+    ///   </code>
+    ///   <para>
+    ///   If the &quot;init&quot; should only be executed once, set the
+    ///   <see cref="CascadeDependencies" /> attribute of the <see cref="CallTask" />
+    ///   to <see langword="false" />.
+    ///   </para>
+    ///   <para>
+    ///   The build log would then look like this:
+    ///   </para>
+    ///   <code>
+    /// build:
+    ///   
+    /// init:
+    ///
+    ///     [echo] initializing
+    ///     
+    /// compile:
+    /// 
+    ///     [echo] compiling with debug = false
+    ///     
+    /// compile:
+    /// 
+    ///     [echo] compiling with debug = true
+    ///     
+    /// BUILD SUCCEEDED
+    ///   </code>
     /// </example>
     [TaskName("call")]
     public class CallTask : Task {
         #region Private Instance Fields
 
-        private string _target = null;
-        private bool _force = false;
+        private string _target;
+        private bool _force;
         private bool _cascade = true;
 
         #endregion Private Instance Fields
@@ -99,15 +167,15 @@ namespace NAnt.Core.Tasks {
         /// default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("force")]
-        [System.Obsolete("The <call> task will now always force execution of the specified target, and its dependencies.", false)]
+        [System.Obsolete("Use the \"cascase\" attribute to control whether dependencies should be re-executed.", false)]
         public bool ForceExecute {
             get { return _force; }
             set { _force = value; }
         }
         
         /// <summary>
-        /// Cascade all the specified targets dependencies. The 
-        /// default is <see langword="true" />.
+        /// Execute the specified targets dependencies -- even if they have been 
+        /// previously executed. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("cascade")] 
         public bool CascadeDependencies {
