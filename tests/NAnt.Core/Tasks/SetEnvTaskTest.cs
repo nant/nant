@@ -85,8 +85,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_UsePathAttribute() {
             string _xml = @"
                     <project>
-                        <setenv name='test_path' path='/home/foo' >
-                        </setenv>
+                        <setenv name='test_path' path='/home/foo' />
                     </project>";
             RunBuild(_xml);
             Assert.IsTrue( Environment.GetEnvironmentVariable("test_path") != null, 
@@ -96,16 +95,15 @@ namespace Tests.NAnt.Core.Tasks {
         }
         [Test]
         public void Test_NestedPathElement() {
-                        
-            string expectedPath = string.Format(@"c:{0}windows{1}c:{0}cygwin{0}usr{0}local{0}bin",
-                Path.DirectorySeparatorChar, Path.PathSeparator );
+            string expectedPath = string.Format(@"{0}{1}dir1{2}{0}{1}dir2",
+                TempDirectory.FullName, Path.DirectorySeparatorChar, Path.PathSeparator);
             string _xml = @"
                     <project>
                         <setenv>
                             <variable name='test_path2'>
                                 <path>
-                                    <pathelement dir='c:/windows' />
-                                    <pathelement dir='c:/cygwin/usr/local/bin' />
+                                    <pathelement dir='dir1' />
+                                    <pathelement dir='dir2' />
                                 </path>
                             </variable>
                         </setenv>
