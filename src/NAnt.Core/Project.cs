@@ -468,11 +468,9 @@ namespace NAnt.Core {
         /// <exception cref="BuildException">NAnt does not support the current platform.</exception>
         public string PlatformName {
             get { 
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT 
-                    || Environment.OSVersion.Platform == PlatformID.Win32S 
-                    || Environment.OSVersion.Platform == PlatformID.Win32Windows) {
+                if (PlatformHelper.IsWin32) {
                     return "win32";
-                } else if (((int) Environment.OSVersion.Platform) == 128) {
+                } else if (PlatformHelper.IsUnix) {
                     return "unix";
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 

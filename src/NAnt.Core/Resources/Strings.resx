@@ -257,8 +257,8 @@
         <comment>Root element in '{0}' must be named '{1}'.</comment>
     </data>
     <data name="NA1060">
-        <value>NAnt currently does not support this platform ({0}, ID = {0}).</value>
-        <comment>NAnt currently does not support this platform ({0}, ID = {0}).</comment>
+        <value>NAnt currently does not support this platform ({0}, ID = {1}).</value>
+        <comment>NAnt currently does not support this platform ({0}, ID = {1}).</comment>
     </data>
     <data name="NA1061">
         <value>Invalid path '{0}'. The '{1}' scheme is not supported for paths.</value>

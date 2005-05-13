@@ -34,39 +34,27 @@ namespace NAnt.Core {
             if (Type.GetType("System.MonoType", false) != null) {
                 // we're on Mono
                 IsMono = true;
-            } else {
-                IsMono = false;
             }
             
             PlatformID platformID = Environment.OSVersion.Platform;
 
             if (platformID == PlatformID.Win32NT || platformID == PlatformID.Win32Windows) {
                 IsWin32 = true;
-            } else {
-                IsWin32 = false;
             }
 
-            if (Environment.Version.Major == 1) {
-                // on the Mono 1.0 profile, the value for unix is 128
-                // (MS.NET 1.x does not have an enum field for unix)
-                if ((int) platformID == 128) {
-                    IsUnix = true;
-                }
-            } else if ((int) platformID == 4) {
-                // on the Mono 2.0 profile, and MS.NET 2.0 the value for
-                // unix is 4
+            // check for (non-)Unix platforms - see FAQ for more details
+            // http://www.mono-project.com/FAQ:_Technical#How_to_detect_the_execution_platform_.3F
+            int platform = (int) Environment.OSVersion.Platform;
+            if (platform == 4 || platform == 128) {
                 IsUnix = true;
             }
 
             if (IsWin32 && !IsMono) {
                 PInvokeOK = true;
-            } else {
-                PInvokeOK = false;
             }
         }
 
         public static bool IsVolumeCaseSensitive(string path) {  
-            
             if (PInvokeOK) {
                 StringBuilder VolLabel = new StringBuilder(256);    // Label
                 UInt32 VolFlags = new UInt32();
@@ -86,11 +74,7 @@ namespace NAnt.Core {
                 return (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
             }
 
-            if (IsUnix) {
-                return true;
-            } else {
-                return false;
-            }
+            return IsUnix;
         }
         
         private class PInvokeHelper {
