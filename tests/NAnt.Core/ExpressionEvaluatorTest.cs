@@ -398,7 +398,7 @@ namespace Tests.NAnt.Core {
 
             // string to datetime
             AssertExpression("datetime::parse('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
-            AssertFailure("datetime::parse('1')");
+            AssertFailure("datetime::parse('B')");  
         }
 
         [Test]
