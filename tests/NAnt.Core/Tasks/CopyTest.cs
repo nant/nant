@@ -332,21 +332,24 @@ namespace Tests.NAnt.Core.Tasks {
                     <mkdir dir='src/dir1' />
                     <mkdir dir='src/dir2' />
                     <mkdir dir='src/dir3' />
+                    <echo file='dest/uptodate.txt'>dest</echo>
                     <touch file='dest/uptodate.txt' datetime='02/01/2000' />
+                    <echo file='src/dir1/uptodate.txt'>dir1</echo>
                     <touch file='src/dir1/uptodate.txt' datetime='05/01/2000' />
+                    <echo file='src/dir2/uptodate.txt'>dir2</echo>
                     <touch file='src/dir2/uptodate.txt' datetime='03/01/2000' />
+                    <echo file='src/dir3/uptodate.txt'>dir3</echo>
                     <touch file='src/dir3/uptodate.txt' datetime='04/01/2000' />
                     <copy todir='dest' flatten='true'>
                         <fileset>
                             <include name='src/**' />
                         </fileset>
                     </copy>
-                    <fail unless=""${datetime::get-day(file::get-last-write-time('dest/uptodate.txt')) == 1}"">#1</fail>
-                    <fail unless=""${datetime::get-month(file::get-last-write-time('dest/uptodate.txt')) == 5}"">#2</fail>
-                    <fail unless=""${datetime::get-year(file::get-last-write-time('dest/uptodate.txt')) == 2000}"">#3</fail>
+                    <loadfile file='dest/uptodate.txt' property='file.content' />
+                    <fail unless=""${string::trim(file.content) == 'dir1'}"">File content was '${file.content}'.</fail>
                 </project>";
 
-            RunBuild(buildXml);
+            RunBuild(buildXml, Level.Debug);
         }
 
         /// <summary>
