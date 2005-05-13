@@ -1,8 +1,8 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.0.9466"
-        SchemaVersion = "1.0"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
         ProjectGuid = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
     >
         <Build>
@@ -16,7 +16,10 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
                 RootNamespace = "NAnt.Core"
+                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -30,6 +33,7 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
+                    NoStdLib = "false"
                     NoWarn = "0618,1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Core\"
@@ -49,6 +53,7 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
+                    NoStdLib = "false"
                     NoWarn = "0618,1591"
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.Core\"

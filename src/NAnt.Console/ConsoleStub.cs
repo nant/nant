@@ -41,10 +41,13 @@ namespace NAnt.Console {
                 FrameworkFamily = "net";
             }
 
-            if ((int) Environment.OSVersion.Platform == 128) {
-                Platform = "unix";
-            } else {
+			// check for non-Unix platforms - see FAQ for more details
+            // http://www.mono-project.com/FAQ:_Technical#How_to_detect_the_execution_platform_.3F
+			int platform = (int) Environment.OSVersion.Platform;
+            if (platform != 4 && platform != 128) {
                 Platform = "win32";
+            } else {
+                Platform = "unix";
             }
         }
 
