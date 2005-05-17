@@ -150,7 +150,7 @@ namespace Tests.NAnt.Core {
                 string output = null;
                 try {
                     p.Execute();
-                } catch (Exception e) {
+                } catch (BuildException e) {
                     output = c.Close();
                     throw new TestBuildException("Error Executing Project", output, e);
                 } finally {
