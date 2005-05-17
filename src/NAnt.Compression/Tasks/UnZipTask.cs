@@ -97,6 +97,13 @@ namespace NAnt.Compression.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             try {
+                // ensure zip file exists
+                if (!ZipFile.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Zip file '{0}' does not exist.", ZipFile.FullName),
+                        Location);
+                }
+
                 using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
                     Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
                         ZipFile.FullName, ToDirectory.FullName, s.Length);
