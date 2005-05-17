@@ -42,7 +42,6 @@ namespace Tests.NAnt.Compression.Tasks {
 
 
 
-        /// <summary>Test to make sure debug option works.</summary>
         [Test]
         public void Test_ReleaseBuild() {
             CreateTempDir("doc");
@@ -51,6 +50,22 @@ namespace Tests.NAnt.Compression.Tasks {
             Assert.IsTrue(Directory.Exists(Path.Combine(TempDirName,"doc")),
                 "UnZip dir not created.");
             TempDir.Delete("doc");
+        }
+
+        /// <summary>
+        /// Checks whether a "normal" build error is reported when build author
+        /// attempts to extract a directory instead of a zip file.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void ExtractDirectory() {
+            CreateTempDir("doc");
+
+            string projectXML = @"<project>
+                <unzip zipfile='doc'/>
+            </project>";
+
+            RunBuild(projectXML);
         }
     }
 }
