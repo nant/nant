@@ -1482,20 +1482,28 @@ namespace NAnt.Core {
                         }
 
                         property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                    } catch (FormatException) {
+                        throw CreateBuildException(attributeNode, parent, 
+                            property, value);
                     } catch (ArgumentException) {
-                        string message = string.Format(CultureInfo.InvariantCulture, 
-                            "'{0}' is not a valid value for attribute" +
-                            " '{1}' of <{2} ... />. Valid values are: ", 
-                            value, attributeNode.Name, parent.Name);
-
-                        foreach (object field in Enum.GetValues(property.PropertyType)) {
-                            message += field.ToString() + ", ";
-                        }
-
-                        // strip last ,
-                        message = message.Substring(0, message.Length - 2);
-                        throw new BuildException(message, parent.Location);
+                        throw CreateBuildException(attributeNode, parent, 
+                            property, value);
                     }
+                }
+
+                private BuildException CreateBuildException(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                    string message = string.Format(CultureInfo.InvariantCulture, 
+                        "'{0}' is not a valid value for attribute" +
+                        " '{1}' of <{2} ... />. Valid values are: ", 
+                        value, attributeNode.Name, parent.Name);
+
+                    foreach (object field in Enum.GetValues(property.PropertyType)) {
+                        message += field.ToString() + ", ";
+                    }
+
+                    // strip last ,
+                    message = message.Substring(0, message.Length - 2);
+                    return new BuildException(message, parent.Location);
                 }
             }
 
