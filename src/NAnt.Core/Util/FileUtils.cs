@@ -185,17 +185,26 @@ namespace NAnt.Core.Util {
 
             ArrayList arList = new ArrayList();
             
-            // for each Item in the path that differs from ".." we just add it to the ArrayList
+            // for each Item in the path that differs from ".." we just add it 
+            // to the ArrayList, but skip empty parts
             for (int iCount = 0; iCount < path2Parts.Length; iCount++) {
-                // If we get a ".." Try to remove the last item added (as if going up in the Directory Structure)
-                if (path2Parts[iCount] == "..") {
+                string currentPart = path2Parts[iCount];
+
+                // skip empty parts
+                if (currentPart.Length == 0) {
+                    continue;
+                }
+
+                // if we get a ".." Try to remove the last item added (as if 
+                // going up in the Directory Structure)
+                if (currentPart == "..") {
                     if (arList.Count > 0 && ((string) arList[arList.Count - 1] != "..")) {
                         arList.RemoveAt(arList.Count -1);
                     } else {
-                        arList.Add(path2Parts[iCount]);
+                        arList.Add(currentPart);
                     }
                 } else {
-                    arList.Add(path2Parts[iCount]);
+                    arList.Add(currentPart);
                 }
             }
 
@@ -226,8 +235,16 @@ namespace NAnt.Core.Util {
 
             string separatorString = separatorChar.ToString(CultureInfo.InvariantCulture);
 
-            return Path.Combine(string.Join(separatorString, path1Parts,
+            string combinedPath = Path.Combine(string.Join(separatorString, path1Parts,
                 0, counter), string.Join(separatorString, (String[]) arList.ToArray(typeof(String))));
+
+            // if path2 ends in directory separator character, then make sure
+            // combined path has trailing directory separator character
+            if (path2.EndsWith("/") || path2.EndsWith(separatorString)) {
+                combinedPath += Path.DirectorySeparatorChar;
+            }
+
+            return combinedPath;
         }
 
         /// <summary>
