@@ -52,10 +52,9 @@ namespace NAnt.VSNet {
         #region Private Instance Constructors
 
         private SolutionBase(TempFileCollection tfc, SolutionTask solutionTask) {
-            _htProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htProjectFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _projectEntries = new ProjectEntryCollection();
             _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
@@ -86,8 +85,8 @@ namespace NAnt.VSNet {
             get { return _webMaps; }
         }
 
-        protected Hashtable ProjectFiles {
-            get { return _htProjectFiles; }
+        protected ProjectEntryCollection ProjectEntries {
+            get { return _projectEntries; }
         }
 
         protected Hashtable ProjectBuildConfigurations {
@@ -147,7 +146,7 @@ namespace NAnt.VSNet {
                     if (ManagedProjectBase.IsEnterpriseTemplateProject(fullPath)) {
                         RecursiveLoadTemplateProject(fullPath);
                     } else {
-                        _htProjectFiles[projectGuidNode.InnerText] = fullPath;
+                        ProjectEntries.Add(new ProjectEntry(projectGuidNode.InnerText, fullPath));
                     }
                 } else {
                     Log(Level.Verbose, "Skipping file reference '{0}'.", 
@@ -165,24 +164,30 @@ namespace NAnt.VSNet {
         /// </returns>
         /// <exception cref="BuildException">No project with unique identifier <paramref name="projectGuid" /> could be located.</exception>
         public string GetProjectFileFromGuid(string projectGuid) {
-            // locate project file using the project guid
-            string projectFile = (string) _htProjectFiles[projectGuid];
+            // locate project entry using the project guid
+            ProjectEntry projectEntry = ProjectEntries[projectGuid];
 
             // TODO : as an emergency patch throw a build error when a GUID fails
             // to return a project file. This should be sanity checked when the 
             // HashTable is populated and not at usage time to avoid internal 
             // errors during build.
-            if (projectFile == null) {
+            if (projectEntry == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Project with GUID '{0}' must be included for the build to" 
                     + " work.", projectGuid), Location.UnknownLocation);
             }
 
-            return projectFile;
+            return projectEntry.Path;
         }
 
         public ProjectBase GetProjectFromGuid(string projectGuid) {
-            return (ProjectBase) _htProjects[projectGuid];
+            ProjectEntry projectEntry = ProjectEntries[projectGuid];
+            if (projectEntry == null || projectEntry.Project == null) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Project with GUID '{0}' is not loaded.", projectGuid), 
+                    Location.UnknownLocation);
+            }
+            return projectEntry.Project;
         }
 
         public bool Compile(string solutionConfiguration) {
@@ -196,7 +201,17 @@ namespace NAnt.VSNet {
             while (true) {
                 bool compiledThisRound = false;
 
-                foreach (ProjectBase project in _htProjects.Values) {
+                foreach (ProjectEntry projectEntry in ProjectEntries) {
+                    ProjectBase project = projectEntry.Project;
+
+                    if (project == null) {
+                        // mark project done
+                        htProjectsDone[projectEntry.Guid] = null;
+
+                        // skip projects that are not loaded/supported
+                        continue;
+                    }
+
                     if (htProjectsDone.Contains(project.Guid)) {
                         continue;
                     }
@@ -223,9 +238,13 @@ namespace NAnt.VSNet {
                                 htFailedProjects[project.Guid] = null;
 
                                 // mark the projects referencing this one as failed
-                                foreach (ProjectBase pFailed in _htProjects.Values) {
-                                    if (HasProjectDependency(pFailed.Guid, project.Guid)) {
-                                        htFailedProjects[pFailed.Guid] = null;
+                                foreach (ProjectEntry entry in ProjectEntries) {
+                                    ProjectBase failedProject = entry.Project;
+                                    if (failedProject == null) {
+                                        // skip projects that are not loaded/supported
+                                    }
+                                    if (HasProjectDependency(failedProject.Guid, project.Guid)) {
+                                        htFailedProjects[failedProject.Guid] = null;
                                     }
                                 }
                             }
@@ -241,14 +260,21 @@ namespace NAnt.VSNet {
                         compiledThisRound = true;
 
                         // remove all references to this project
-                        foreach (ProjectBase pRemove in _htProjects.Values) {
-                            RemoveProjectDependency(pRemove.Guid, project.Guid);
+                        foreach (ProjectEntry entry in ProjectEntries) {
+                            ProjectBase removeProject = entry.Project;
+                            if (removeProject == null) {
+                                // skip projects that are not loaded/supported
+                                continue;
+                            }
+                            RemoveProjectDependency(removeProject.Guid, project.Guid);
                         }
+
+                        // mark project done
                         htProjectsDone[project.Guid] = null;
                     }
                 }
 
-                if (_htProjects.Count == htProjectsDone.Count) {
+                if (ProjectEntries.Count == htProjectsDone.Count) {
                     break;
                 }
                 if (!compiledThisRound) {
@@ -302,13 +328,16 @@ namespace NAnt.VSNet {
         protected void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
                 string projectGuid = ProjectFactory.LoadGuid(projectFileName);
-                if (_htProjectFiles[projectGuid] != null) {
+
+                // locate project entry using the project guid
+                ProjectEntry projectEntry = ProjectEntries[projectGuid];
+                if (projectEntry != null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Error loading project {0}. " 
                         + " Project GUID {1} already exists! Conflicting project is {2}.", 
-                        projectFileName, projectGuid, _htProjectFiles[projectGuid]));
+                        projectFileName, projectGuid, projectEntry.Path));
                 }
-                _htProjectFiles[projectGuid] = projectFileName;
+                ProjectEntries.Add(new ProjectEntry(projectGuid, projectFileName));
                 if (isReferenceProject)
                     _htReferenceProjects[projectGuid] = null;
             }
@@ -334,12 +363,9 @@ namespace NAnt.VSNet {
 
             FileSet excludes = _solutionTask.ExcludeProjects;
 
-            // _htProjectFiles contains project GUIDs read from the solution 
-            // file as keys and the corresponding full path to the project file 
-            // as the value
-            foreach (DictionaryEntry de in _htProjectFiles) {
-                string projectPath = (string) de.Value;
-                string projectGuid = (string) de.Key;
+            foreach (ProjectEntry projectEntry in ProjectEntries) {
+                string projectPath = projectEntry.Path;
+                string projectGuid = projectEntry.Guid;
 
                 // determine whether project is on case-sensitive filesystem,
                 bool caseSensitive = PlatformHelper.IsVolumeCaseSensitive(projectPath);
@@ -401,8 +427,8 @@ namespace NAnt.VSNet {
                 // set project build configuration
                 SetProjectBuildConfiguration(p);
 
-                // add project to hashtable
-                _htProjects[projectGuid] = p;
+                // add project to entry
+                projectEntry.Project = p;
             }
         }
 
@@ -410,16 +436,20 @@ namespace NAnt.VSNet {
             Log(Level.Verbose, "Gathering additional dependencies...");
 
             // first get all of the output files
-            foreach (DictionaryEntry de in _htProjects) {
-                string projectGuid = (string) de.Key;
-                ProjectBase p = (ProjectBase) de.Value;
+            foreach (ProjectEntry projectEntry in ProjectEntries) {
+                ProjectBase project = projectEntry.Project;
 
-                foreach (string configuration in p.Configurations) {
-                    ConfigurationBase projectConfig = (ConfigurationBase) p.ProjectConfigurations[configuration];
+                if (project == null) {
+                    // skip projects that are not loaded/supported
+                    continue;
+                }
+
+                foreach (string configuration in project.Configurations) {
+                    ConfigurationBase projectConfig = (ConfigurationBase) project.ProjectConfigurations[configuration];
                     if (projectConfig != null) {
                         string projectOutputFile = projectConfig.OutputPath;
                         if (projectOutputFile != null) {
-                            _htOutputFiles[projectOutputFile] = projectGuid;
+                            _htOutputFiles[projectOutputFile] = project.Guid;
                         }
                     }
                 }
@@ -442,9 +472,13 @@ namespace NAnt.VSNet {
             }
 
             // build the dependency list
-            foreach (DictionaryEntry de in _htProjects) {
-                string projectGuid = (string) de.Key;
-                ProjectBase project = (ProjectBase) de.Value;
+            foreach (ProjectEntry projectEntry in ProjectEntries) {
+                ProjectBase project = projectEntry.Project;
+
+                if (project == null) {
+                    // skip projects that are not loaded/supported
+                    continue;
+                }
 
                 // check if project actually supports the build configuration
                 ConfigurationBase projectConfig = (ConfigurationBase) 
@@ -455,7 +489,7 @@ namespace NAnt.VSNet {
 
                 foreach (ReferenceBase reference in project.References) {
                     if (reference is ProjectReferenceBase) {
-                        AddProjectDependency(projectGuid, ((ProjectReferenceBase) reference).Project.Guid);
+                        AddProjectDependency(project.Guid, ((ProjectReferenceBase) reference).Project.Guid);
                     } else {
                         string outputFile = reference.GetPrimaryOutputFile(
                             solutionConfiguration);
@@ -463,7 +497,7 @@ namespace NAnt.VSNet {
                         // that is an output directory of another project, 
                         // then add dependency on that project
                         if (outputFile != null && outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
-                            AddProjectDependency(projectGuid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
+                            AddProjectDependency(project.Guid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
                         }
                     }
                 }
@@ -475,25 +509,24 @@ namespace NAnt.VSNet {
                 string projectGuid = (string) de.Key;
 
                 // lookup project using GUID
-                ProjectBase project = (ProjectBase) _htProjects[projectGuid];
+                ProjectEntry projectEntry = ProjectEntries[projectGuid];
                 // make sure project is loaded
-                if (project == null) {
+                if (projectEntry == null || projectEntry.Project == null) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         "Dependencies for project \'{0}\' could not be analyzed."
                         + " Project is not included.", projectGuid), 
                         Location.UnknownLocation);
                 }
 
-                string projectName = project.Name;
-
                 Hashtable projectDependencies = (Hashtable) de.Value;
 
                 foreach (string dependentProject in ((Hashtable) projectDependencies.Clone()).Keys) {
+                    ProjectEntry entry = ProjectEntries[dependentProject];
                     // check whether dependent project is actually loaded
-                    if (!_htProjects.ContainsKey(dependentProject)) {
+                    if (entry == null || entry.Project == null) {
                         Log(Level.Warning, "Project \"{0}\": removed dependency"
                             + " on project \"{1}\", which is not included.", 
-                            projectName, dependentProject);
+                            projectEntry.Project.Name, dependentProject);
 
                         // remove dependency on project that's not included
                         projectDependencies.Remove(dependentProject);
@@ -617,8 +650,7 @@ namespace NAnt.VSNet {
                     // If we want a different behaviour, this 
                     // should be controlled by a flag
 
-                    projectRef = (ProjectBase) _htProjects[
-                        (string) _htOutputFiles[outputFile]];
+                    projectRef = ProjectEntries[(string) _htOutputFiles[outputFile]].Project;
                 } else if (_outputDir != null) {
                     // if an output directory is set, then the 
                     // assembly reference might not have been 
@@ -634,18 +666,18 @@ namespace NAnt.VSNet {
                         _outputDir.FullName, Path.GetFileName(
                         outputFile));
                     if (_htOutputFiles.Contains(projectOutput)) {
-                        projectRef = (ProjectBase) _htProjects[
-                            (string) _htOutputFiles[projectOutput]];
+                        projectRef = (ProjectBase) ProjectEntries[
+                            (string) _htOutputFiles[projectOutput]].Project;
                     }
                 }
 
                 // try matching assembly reference and project on assembly name
                 // if the assembly file does not exist
                 if (projectRef == null && !System.IO.File.Exists(outputFile)) {
-                    foreach (ProjectBase aProject in _htProjects.Values) {
+                    foreach (ProjectEntry projectEntry in ProjectEntries) {
                         // we can only do this for managed projects, as we only have
                         // an assembly name for these
-                        ManagedProjectBase managedProject = aProject as ManagedProjectBase;
+                        ManagedProjectBase managedProject = projectEntry.Project as ManagedProjectBase;
                         if (managedProject == null) {
                             continue;
                         }
@@ -732,11 +764,9 @@ namespace NAnt.VSNet {
         }
 
         private string FindGuidFromPath(string projectPath) {
-            foreach (DictionaryEntry de in _htProjectFiles) {
-                string guid = (string) de.Key;
-                string path = (string) de.Value;
-                if (string.Compare(path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
-                    return guid;
+            foreach (ProjectEntry projectEntry in ProjectEntries) {
+                if (string.Compare(projectEntry.Path, projectPath, true, CultureInfo.InvariantCulture) == 0) {
+                    return projectEntry.Guid;
                 }
             }
             return "";
@@ -747,8 +777,7 @@ namespace NAnt.VSNet {
         #region Private Instance Fields
 
         private FileInfo _file;
-        private Hashtable _htProjectFiles;
-        private Hashtable _htProjects;
+        private ProjectEntryCollection _projectEntries;
         private Hashtable _htProjectDirectories;
         private Hashtable _htProjectDependencies;
         private Hashtable _htProjectBuildConfigurations;
@@ -760,5 +789,319 @@ namespace NAnt.VSNet {
         private TempFileCollection _tfc;
 
         #endregion Private Instance Fields
+
+        public class ProjectEntry {
+            #region Private Instance Fields
+
+            private string _guid;
+            private string _path;
+            private ProjectBase _project;
+
+            #endregion Private Instance Fields
+
+            #region Public Instance Constructors
+            
+            public ProjectEntry(string guid, string path) {
+                if (guid == null) {
+                    throw new ArgumentNullException("guid");
+                }
+                if (path == null) {
+                    throw new ArgumentNullException("path");
+                }
+
+                _guid = guid;
+                _path = path;
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Properties
+
+            public string Guid {
+                get { return _guid; }
+            }
+
+            public string Path {
+                get { return _path; }
+            }
+
+            /// <summary>
+            /// Gets or sets the in memory representation of the project.
+            /// </summary>
+            /// <value>
+            /// The in memory representation of the project, or <see langword="null" />
+            /// if the project is not (yet) loaded.
+            /// </value>
+            /// <remarks>
+            /// This property will always be <see langword="null" /> for
+            /// projects that are not supported.
+            /// </remarks>
+            public ProjectBase Project {
+                get { return _project; }
+                set { _project = value; }
+            }
+
+            #endregion Public Instance Properties
+        }
+
+        /// <summary>
+        /// Contains a collection of <see cref="ProjectEntry" /> elements.
+        /// </summary>
+        [Serializable()]
+            public class ProjectEntryCollection : CollectionBase {
+            #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ProjectEntryCollection"/> class.
+            /// </summary>
+            public ProjectEntryCollection() {
+            }
+        
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ProjectEntryCollection"/> class
+            /// with the specified <see cref="ProjectEntryCollection"/> instance.
+            /// </summary>
+            public ProjectEntryCollection(ProjectEntryCollection value) {
+                AddRange(value);
+            }
+        
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ProjectEntryCollection"/> class
+            /// with the specified array of <see cref="ProjectEntry"/> instances.
+            /// </summary>
+            public ProjectEntryCollection(ProjectEntry[] value) {
+                AddRange(value);
+            }
+
+            #endregion Public Instance Constructors
+        
+            #region Public Instance Properties
+
+            /// <summary>
+            /// Gets or sets the element at the specified index.
+            /// </summary>
+            /// <param name="index">The zero-based index of the element to get or set.</param>
+            [System.Runtime.CompilerServices.IndexerName("Item")]
+            public ProjectEntry this[int index] {
+                get { return (ProjectEntry) base.List[index]; }
+                set { base.List[index] = value; }
+            }
+
+            /// <summary>
+            /// Gets the <see cref="ProjectEntry"/> with the specified GUID.
+            /// </summary>
+            /// <param name="guid">The GUID of the <see cref="ProjectEntry"/> to get.</param>
+            /// <remarks>
+            /// Performs a case-insensitive lookup.
+            /// </remarks>
+            [System.Runtime.CompilerServices.IndexerName("Item")]
+            public ProjectEntry this[string guid] {
+                get {
+                    if (guid != null) {
+                        // try to locate instance by guid (case-insensitive)
+                        foreach (ProjectEntry projectEntry in base.List) {
+                            if (string.Compare(projectEntry.Guid, guid, true, CultureInfo.InvariantCulture) == 0) {
+                                return projectEntry;
+                            }
+                        }
+                    }
+                    return null;
+                }
+                set {
+                    bool insert = true;
+
+                    for (int i = 0; i < base.Count; i++) {
+                        ProjectEntry projectEntry = (ProjectEntry) base.List[i];
+                        if (string.Compare(projectEntry.Guid, guid, true, CultureInfo.InvariantCulture) == 0) {
+                            base.List[i] = value;
+                            insert = false;
+                        }
+                    }
+
+                    if (insert) {
+                        Add(value);
+                    }
+                }
+            }
+
+            #endregion Public Instance Properties
+
+            #region Public Instance Methods
+        
+            /// <summary>
+            /// Adds a <see cref="ProjectEntry"/> to the end of the collection.
+            /// </summary>
+            /// <param name="item">The <see cref="ProjectEntry"/> to be added to the end of the collection.</param> 
+            /// <returns>The position into which the new element was inserted.</returns>
+            public int Add(ProjectEntry item) {
+                return base.List.Add(item);
+            }
+
+            /// <summary>
+            /// Adds the elements of a <see cref="ProjectEntry"/> array to the end of the collection.
+            /// </summary>
+            /// <param name="items">The array of <see cref="ProjectEntry"/> elements to be added to the end of the collection.</param> 
+            public void AddRange(ProjectEntry[] items) {
+                for (int i = 0; (i < items.Length); i = (i + 1)) {
+                    Add(items[i]);
+                }
+            }
+
+            /// <summary>
+            /// Adds the elements of a <see cref="ProjectEntryCollection"/> to the end of the collection.
+            /// </summary>
+            /// <param name="items">The <see cref="ProjectEntryCollection"/> to be added to the end of the collection.</param> 
+            public void AddRange(ProjectEntryCollection items) {
+                for (int i = 0; (i < items.Count); i = (i + 1)) {
+                    Add(items[i]);
+                }
+            }
+        
+            /// <summary>
+            /// Determines whether a <see cref="ProjectEntry"/> is in the collection.
+            /// </summary>
+            /// <param name="item">The <see cref="ProjectEntry"/> to locate in the collection.</param> 
+            /// <returns>
+            /// <see langword="true" /> if <paramref name="item"/> is found in the 
+            /// collection; otherwise, <see langword="false" />.
+            /// </returns>
+            public bool Contains(ProjectEntry item) {
+                return base.List.Contains(item);
+            }
+
+            /// <summary>
+            /// Determines whether a <see cref="ProjectEntry"/> with the specified
+            /// GUID is in the collection, using a case-insensitive lookup.
+            /// </summary>
+            /// <param name="value">The GUID to locate in the collection.</param> 
+            /// <returns>
+            /// <see langword="true" /> if a <see cref="ProjectEntry" /> with GUID 
+            /// <paramref name="value"/> is found in the collection; otherwise, 
+            /// <see langword="false" />.
+            /// </returns>
+            public bool Contains(string value) {
+                return this[value] != null;
+            }
+        
+            /// <summary>
+            /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
+            /// </summary>
+            /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
+            /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+            public void CopyTo(ProjectEntry[] array, int index) {
+                base.List.CopyTo(array, index);
+            }
+        
+            /// <summary>
+            /// Retrieves the index of a specified <see cref="ProjectEntry"/> object in the collection.
+            /// </summary>
+            /// <param name="item">The <see cref="ProjectEntry"/> object for which the index is returned.</param> 
+            /// <returns>
+            /// The index of the specified <see cref="ProjectEntry"/>. If the <see cref="ProjectEntry"/> is not currently a member of the collection, it returns -1.
+            /// </returns>
+            public int IndexOf(ProjectEntry item) {
+                return base.List.IndexOf(item);
+            }
+        
+            /// <summary>
+            /// Inserts a <see cref="ProjectEntry"/> into the collection at the specified index.
+            /// </summary>
+            /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+            /// <param name="item">The <see cref="ProjectEntry"/> to insert.</param>
+            public void Insert(int index, ProjectEntry item) {
+                base.List.Insert(index, item);
+            }
+        
+            /// <summary>
+            /// Returns an enumerator that can iterate through the collection.
+            /// </summary>
+            /// <returns>
+            /// A <see cref="ProjectEntryEnumerator"/> for the entire collection.
+            /// </returns>
+            public new ProjectEntryEnumerator GetEnumerator() {
+                return new ProjectEntryEnumerator(this);
+            }
+        
+            /// <summary>
+            /// Removes a member from the collection.
+            /// </summary>
+            /// <param name="item">The <see cref="ProjectEntry"/> to remove from the collection.</param>
+            public void Remove(ProjectEntry item) {
+                base.List.Remove(item);
+            }
+        
+            #endregion Public Instance Methods
+        }
+
+        /// <summary>
+        /// Enumerates the <see cref="ProjectEntry"/> elements of a <see cref="ProjectEntryCollection"/>.
+        /// </summary>
+        public class ProjectEntryEnumerator : IEnumerator {
+            #region Internal Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ProjectEntryEnumerator"/> class
+            /// with the specified <see cref="ProjectEntryCollection"/>.
+            /// </summary>
+            /// <param name="arguments">The collection that should be enumerated.</param>
+            internal ProjectEntryEnumerator(ProjectEntryCollection arguments) {
+                IEnumerable temp = (IEnumerable) (arguments);
+                _baseEnumerator = temp.GetEnumerator();
+            }
+
+            #endregion Internal Instance Constructors
+
+            #region Implementation of IEnumerator
+            
+            /// <summary>
+            /// Gets the current element in the collection.
+            /// </summary>
+            /// <returns>
+            /// The current element in the collection.
+            /// </returns>
+            public ProjectEntry Current {
+                get { return (ProjectEntry) _baseEnumerator.Current; }
+            }
+
+            object IEnumerator.Current {
+                get { return _baseEnumerator.Current; }
+            }
+
+            /// <summary>
+            /// Advances the enumerator to the next element of the collection.
+            /// </summary>
+            /// <returns>
+            /// <see langword="true" /> if the enumerator was successfully advanced 
+            /// to the next element; <see langword="false" /> if the enumerator has 
+            /// passed the end of the collection.
+            /// </returns>
+            public bool MoveNext() {
+                return _baseEnumerator.MoveNext();
+            }
+
+            bool IEnumerator.MoveNext() {
+                return _baseEnumerator.MoveNext();
+            }
+            
+            /// <summary>
+            /// Sets the enumerator to its initial position, which is before the 
+            /// first element in the collection.
+            /// </summary>
+            public void Reset() {
+                _baseEnumerator.Reset();
+            }
+            
+            void IEnumerator.Reset() {
+                _baseEnumerator.Reset();
+            }
+
+            #endregion Implementation of IEnumerator
+
+            #region Private Instance Fields
+    
+            private IEnumerator _baseEnumerator;
+
+            #endregion Private Instance Fields
+        }
     }
 }

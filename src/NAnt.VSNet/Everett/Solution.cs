@@ -52,8 +52,8 @@ namespace NAnt.VSNet.Everett {
                 if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
-                    // add project path to collection
-                    ProjectFiles[guid] = fullProjectPath;
+                    // add project entry to collection
+                    ProjectEntries.Add(new ProjectEntry(guid, fullProjectPath));
                 }
 
                 // set-up project dependencies

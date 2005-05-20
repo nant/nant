@@ -53,7 +53,7 @@ namespace NAnt.VSNet.Rainier {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
                     // add project path to collection
-                    ProjectFiles[guid] = fullProjectPath;
+                    ProjectEntries.Add(new ProjectEntry(guid, fullProjectPath));
                 }
 
                 // set-up project dependencies
