@@ -148,7 +148,6 @@ namespace NAnt.VisualCpp.Tasks {
             }
         }
 
-
         /// <summary>
         /// Specifies whether Managed Extensions for C++ should be enabled.
         /// The default is <see langword="false" />.
@@ -361,7 +360,7 @@ namespace NAnt.VisualCpp.Tasks {
                     // program database file
                     writer.WriteLine("/Fd{0}", QuoteArgumentValue(ProgramDatabaseFile));
 
-                    // the object file
+                    // the object file or output directory
                     writer.WriteLine("/Fo{0}", QuoteArgumentValue(ObjectFile));
 
                     // specify pch file, if user specified one
@@ -514,13 +513,13 @@ namespace NAnt.VisualCpp.Tasks {
         private bool IsObjUpToDate(string srcFileName) {
             // TODO: also check for updated metadata includes (#using directives)
 
+            FileInfo objFileInfo = new FileInfo(GetObjOutputFile(srcFileName, 
+                ObjectFile));
+
             // if obj file doesn't exist, it must be stale
-            string objFileName = Path.ChangeExtension(Path.Combine(OutputDir.FullName, 
-                Path.GetFileName(srcFileName)), ".obj");
-            FileInfo objFileInfo = new FileInfo(objFileName);
             if (!objFileInfo.Exists) {
                 Log(Level.Verbose, "'{0}' does not exist, recompiling.", 
-                    objFileName);
+                    objFileInfo.FullName);
                 return false;
             }
 
@@ -607,6 +606,8 @@ namespace NAnt.VisualCpp.Tasks {
             // quick and dirty code to check whether includes have been modified
             // after the source was last modified
 
+            // TODO: recursively check includes
+
             Log(Level.Debug, "Checking whether includes of \"{0}\" have been"
                 + " updated.", srcFileName);
 
@@ -672,15 +673,6 @@ namespace NAnt.VisualCpp.Tasks {
                     if (resolvedInclude != null) {
                         if (File.GetLastWriteTime(resolvedInclude) > objLastWriteTime) {
                             return resolvedInclude;
-                        } else {
-                            /*
-                            // recursively check includes
-                            resolvedInclude = FindUpdatedInclude(resolvedInclude, 
-                                objLastWriteTime);
-                            if (resolvedInclude != null) {
-                                return resolvedInclude;
-                            }
-                            */
                         }
                     } else {
                         // TODO: what do we do if the include cannot be located ?
@@ -711,6 +703,38 @@ namespace NAnt.VisualCpp.Tasks {
                 BackslashProcessingMethod.Duplicate);
         }
 
+        /// <summary>
+        /// Determines the file name of the OBJ file for the specified source
+        /// file.
+        /// </summary>
+        /// <param name="srcFile">The source file for which the OBJ file should be determined.</param>
+        /// <param name="objectPath">The path of the object file.</param>
+        /// <returns>
+        /// The file name of the OBJ file for the specified source file.
+        /// </returns>
+        public static string GetObjOutputFile(string srcFile, string objectPath) {
+            if (srcFile == null) {
+                throw new ArgumentNullException("srcFile");
+            }
+            if (objectPath == null) {
+                throw new ArgumentNullException("objectPath");
+            }
+
+            // check if objectPath is file
+            if (!objectPath.EndsWith("/") && Path.GetFileName(objectPath).Length != 0) {
+                // if object file has no extension then use .obj, otherwise
+                // use objectPath as is
+                if (Path.GetExtension(objectPath).Length == 0) {
+                    return Path.ChangeExtension(objectPath, ".obj");
+                } else {
+                    return objectPath;
+                }
+            } else {
+                return FileUtils.CombinePaths(objectPath, 
+                    Path.GetFileNameWithoutExtension(srcFile) + ".obj");
+            }
+        }
+        
         #endregion Public Static Methods
 
         /// <summary>

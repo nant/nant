@@ -315,6 +315,11 @@ namespace NAnt.VSNet {
             // configuration
             Hashtable buildIdlConfigs = new Hashtable();
 
+            // determine directory for storing intermediate build output for
+            // current project build configuration
+            string intermediateDir = FileUtils.CombinePaths(ProjectDirectory.FullName, 
+                projectConfig.IntermediateDir);
+
             foreach (object projectFile in _projectFiles) {
                 string fileName = null;
                 VcConfigurationBase fileConfig = null;
@@ -362,8 +367,9 @@ namespace NAnt.VSNet {
                         // add file to list of sources to build with this config
                         ((ArrayList) buildConfigs[fileConfig]).Add(fileName);
 
-                        // add to list of files to link
-                        _objFiles.Add(GetObjOutputFile(fileName, projectConfig));
+                        // register output file for linking
+                        _objFiles.Add(GetObjOutputFile(fileName, fileConfig,
+                            intermediateDir));
                         break;
                     case ".rc":
                         if (!buildRcConfigs.ContainsKey(fileConfig)) {
@@ -373,7 +379,7 @@ namespace NAnt.VSNet {
                         // add file to list of resources to build with this config
                         ((ArrayList) buildRcConfigs[fileConfig]).Add(fileName);
 
-                        // add to list of files to link
+                        // register output file for linking
                         _objFiles.Add(GetResourceOutputFile(fileName, fileConfig));
                         break;
                     case ".idl":
@@ -723,17 +729,8 @@ namespace NAnt.VSNet {
                     pdbFile);
             }
 
-            // set name of object file
-            //
-            // we must set an absolute path for the object file, otherwise <cl> 
-            // assumes a location relative to the output directory - not the 
-            // project directory.
-            string objectFile = fileConfig.GetToolSetting(compilerTool, "ObjectFile",
-                "$(IntDir)/");
-            if (!StringUtils.IsNullOrEmpty(objectFile)) {
-                clTask.ObjectFile = FileUtils.CombinePaths(ProjectDirectory.FullName, 
-                    objectFile);
-            }
+            // set path of object file or directory (can be null)
+            clTask.ObjectFile = GetObjectFile(fileConfig);
 
             string asmOutput = fileConfig.GetToolSetting(compilerTool, "AssemblerOutput");
             string asmListingLocation = fileConfig.GetToolSetting(compilerTool, "AssemblerListingLocation");
@@ -743,7 +740,8 @@ namespace NAnt.VSNet {
             }
 
             foreach (string fileName in fileNames) {
-                clTask.Sources.FileNames.Add(FileUtils.CombinePaths(ProjectDirectory.FullName, fileName));
+                clTask.Sources.FileNames.Add(FileUtils.CombinePaths(
+                    ProjectDirectory.FullName, fileName));
             }
 
             string preprocessorDefs = MergeToolSetting(projectConfig, fileConfig, 
@@ -1761,11 +1759,34 @@ namespace NAnt.VSNet {
             }
         }
 
-        private string GetObjOutputFile(string fileName, VcProjectConfiguration projectConfig) {
-            string intermediateDir = FileUtils.CombinePaths(ProjectDirectory.FullName, 
-                projectConfig.IntermediateDir);
-            return FileUtils.CombinePaths(intermediateDir, 
-                Path.GetFileNameWithoutExtension(fileName) + ".obj");
+        /// <summary>
+        /// Gets the absolute path to the object file or directory.
+        /// </summary>
+        /// <param name="fileConfig">The build configuration</param>
+        /// <returns>
+        /// The absolute path to the object file or directory, or 
+        /// </returns>
+        /// <remarks>
+        /// We use an absolute path for the object file, otherwise 
+        /// <c>&lt;cl&gt;</c> assumes a location relative to the output 
+        /// directory - not the project directory.
+        /// </remarks>
+        private string GetObjectFile(VcConfigurationBase fileConfig) {
+            string objectFile = fileConfig.GetToolSetting("VCCLCompilerTool", 
+                "ObjectFile", "$(IntDir)/");
+            if (!StringUtils.IsNullOrEmpty(objectFile)) {
+                return FileUtils.CombinePaths(ProjectDirectory.FullName, 
+                    objectFile);
+            }
+            return null;
+        }
+
+        private string GetObjOutputFile(string fileName, VcConfigurationBase fileConfig, string intermediateDir) {
+            string objectFile = GetObjectFile(fileConfig);
+            if (objectFile == null) {
+                objectFile = intermediateDir;
+            }
+            return ClTask.GetObjOutputFile(fileName, objectFile);
         }
 
         private string GetResourceOutputFile(string fileName, VcConfigurationBase fileConfig) {
