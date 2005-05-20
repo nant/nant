@@ -104,6 +104,21 @@ namespace Tests.NAnt.Core.Util {
 
             Assert.AreEqual(@"\\test\c$\whatever.txt", FileUtils.CombinePaths(@"\\test\c$", @"test\..\whatever.txt"), "#5");
             Assert.AreEqual(@"\\test\c$\whatever.txt", FileUtils.CombinePaths(@"\\test\c$", "test/../whatever.txt"), "#6");
+
+            Assert.AreEqual(@"c:\test\whatever\obj", FileUtils.CombinePaths(@"c:\test", @"whatever\obj"), "#7");
+            Assert.AreEqual(@"c:\test\whatever\obj", FileUtils.CombinePaths(@"c:\test", @"whatever/obj"), "#8");
+
+            // retain trailing separator character
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\obj\"), "#7");
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\obj/"), "#8");
+
+            // ignore duplicate directory separators
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\obj\/"), "#8");
+            Assert.AreEqual(@"c:\test\whatever\obj", FileUtils.CombinePaths(@"c:\test", @"whatever\/obj"), "#8");
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\\obj\\"), "#9");
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\\\obj\\\"), "#9");
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever//obj//"), "#10");
+            Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever///obj///"), "#10");
         }
     }
 }
