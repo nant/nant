@@ -168,6 +168,10 @@ namespace NAnt.VisualCpp.Tasks {
                 LibDirs.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
 
+            if (!NeedsCompiling()) {
+                return;
+            }
+
             Log(Level.Info, "Combining {0} files to '{1}'.", 
                 Sources.FileNames.Count, OutputFile.FullName);
 
@@ -240,6 +244,32 @@ namespace NAnt.VisualCpp.Tasks {
         }
 
         #endregion Override implementation of Task
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Determines if the sources need to be linked.
+        /// </summary>
+        protected virtual bool NeedsCompiling() {
+			// check if output file exists - if not, rebuild
+			if (!OutputFile.Exists) {
+				Log(Level.Verbose, "Output file '{0}' does not exist, rebuilding library.", 
+					OutputFile.FullName);
+				return true;
+			}
+
+			// check if .OBJ files were updated
+			string fileName = FileSet.FindMoreRecentLastWriteTime(
+                Sources.FileNames, OutputFile.LastWriteTime);
+			if (fileName != null) {
+				Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
+				return true;
+			}
+
+			return false;
+        }
+
+        #endregion Protected Instance Methods
     }
 }
 #if unused
