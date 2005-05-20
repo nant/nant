@@ -494,9 +494,6 @@ namespace NAnt.Core {
 
             // check whether directory is on case-sensitive volume
             bool caseSensitive = IsCaseSensitiveFileSystem(path);
-            string pathCompare = path;
-            if (!caseSensitive)
-                pathCompare = pathCompare.ToLower();
 
             CompareOptions compareOptions = CompareOptions.None;
             CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
@@ -509,7 +506,7 @@ namespace NAnt.Core {
 
             // Only include the valid patterns for this path
             foreach (RegexEntry entry in _includePatterns) {
-                string baseDirectory = (caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower()); 
+                string baseDirectory = entry.BaseDirectory; 
 
                 // check if the directory being searched is equal to the 
                 // basedirectory of the RegexEntry
@@ -528,14 +525,15 @@ namespace NAnt.Core {
                         baseDirectory += Path.DirectorySeparatorChar;
                     }
 
-                    if (pathCompare.StartsWith(baseDirectory)) {
+                    // check if path is subdirectory of base directory
+                    if (compare.IsPrefix(path, baseDirectory)) {
                         includedPatterns.Add(entry);
                     }
                 }
             }
 
             foreach (RegexEntry entry in _excludePatterns) {
-                string baseDirectory = (caseSensitive ? entry.BaseDirectory : entry.BaseDirectory.ToLower()); 
+                string baseDirectory = entry.BaseDirectory; 
                 
                 if (entry.BaseDirectory.Length == 0 || compare.Compare(path, baseDirectory, compareOptions) == 0) {
                     excludedPatterns.Add(entry);
@@ -552,7 +550,8 @@ namespace NAnt.Core {
                         baseDirectory += Path.DirectorySeparatorChar;
                     }
 
-                    if (pathCompare.StartsWith(baseDirectory)) {
+                    // check if path is subdirectory of base directory
+                    if (compare.IsPrefix(path, baseDirectory)) {
                         excludedPatterns.Add(entry);
                     }
                 }
@@ -574,8 +573,6 @@ namespace NAnt.Core {
             // scan files
             foreach (FileInfo fileInfo in currentDirectoryInfo.GetFiles()) {
                 string filename = Path.Combine(path, fileInfo.Name);
-                if (!caseSensitive)
-                    filename = filename.ToLower();
                 if (IsPathIncluded(filename, caseSensitive, includedPatterns, excludedPatterns)) {
                     _fileNames.Add(Path.Combine(path, fileInfo.Name));
                 }
@@ -920,9 +917,8 @@ namespace NAnt.Core {
             if (value == null || IsCaseSensitiveFileSystem(value)) {
                 return base.IndexOf(value);
             } else {
-                string lowercaseValue = value.ToLower(CultureInfo.InvariantCulture);
                 foreach (string s in this) {
-                    if (s.ToLower(CultureInfo.InvariantCulture) == lowercaseValue) {
+                    if (string.Compare(s, value, true, CultureInfo.InvariantCulture) == 0) {
                         return base.IndexOf(s);
                     }
                 }
