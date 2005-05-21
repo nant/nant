@@ -20,8 +20,8 @@
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />               
             </sources>                       
-            <resources basedir="Resources">
-                <include name="**/*" />
+            <resources prefix="NAnt.Core" dynamicprefix="true">
+                <include name="Resources/**/*" />
             </resources>
             <references>
                 <include name="${build.dir}/bin/log4net.dll"/>

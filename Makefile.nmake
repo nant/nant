@@ -36,20 +36,22 @@ bootstrap\NAnt.exe:
 	$(CSC) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Core.dll:
-	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\Strings.resources
+	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\NAnt.Core.Resources.Strings.resources
 	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll \
-		-r:System.Web.dll -resource:bootstrap\Strings.resources -recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
+		-r:System.Web.dll -resource:bootstrap\NAnt.Core.Resources.Strings.resources \
+		-recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.DotNetTasks.dll:
-	$(RESGEN)  src\NAnt.DotNet\Resources\Strings.resx bootstrap\DotNet.Strings.resources
-	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll -r:bootstrap\NAnt.Core.dll \
-		-r:bootstrap\lib\$(FRAMEWORK_DIR)\1.0\NDoc.Core.dll -resource:bootstrap\DotNet.Strings.resources,Strings.resources \
-		-recurse:src\NAnt.DotNet\*.cs src\CommonAssemblyInfo.cs
+	$(RESGEN)  src\NAnt.DotNet\Resources\Strings.resx bootstrap\NAnt.DotNet.Resources.Strings.resources
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll \
+		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\$(FRAMEWORK_DIR)\1.0\NDoc.Core.dll \
+		-resource:bootstrap\NAnt.DotNet.Resources.Strings.resources -recurse:src\NAnt.DotNet\*.cs \
+		src\CommonAssemblyInfo.cs
 	
 bootstrap\NAnt.CompressionTasks.dll:
-	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll -r:bootstrap\NAnt.Core.dll \
-		-r:bootstrap\lib\ICSharpCode.SharpZipLib.dll -recurse:src\NAnt.Compression\*.cs \
-		src\CommonAssemblyInfo.cs
+	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll \
+		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\ICSharpCode.SharpZipLib.dll \
+		-recurse:src\NAnt.Compression\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Win32Tasks.dll:
 	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Win32Tasks.dll \

@@ -32,25 +32,24 @@ namespace NAnt.Core.Util {
     /// be inherited from.
     /// </summary>
     public sealed class ResourceUtils {
-
-        #region private fields
+        #region Private Static Fields
 
         private static ResourceManager _sharedResourceManager;
-        private static Hashtable _resourceManagerDictionary = new Hashtable();
+        private static readonly Hashtable _resourceManagerDictionary = new Hashtable();
 
-        #endregion private fields
+        #endregion Private Static Fields
 
-        #region private constructors
+        #region Private Instance Constructors
 
         /// <summary>
-        /// Prevents the <see cref="NAnt.Core.Util.ResourceUtils" /> class
-        /// from being instantiated explicitly.
+        /// Prevents the <see cref="ResourceUtils" /> class from being 
+        /// instantiated explicitly.
         /// </summary>
         private ResourceUtils() {}
 
-        #endregion private constructors
+        #endregion Private Instance Constructors
 
-        #region public methods
+        #region Public Static Methods
 
         /// <summary>
         /// Registers the assembly to be used as the fallback if resources
@@ -174,13 +173,17 @@ namespace NAnt.Core.Util {
         /// </code>
         /// </example>
         public static string GetString(string name, CultureInfo culture, Assembly assembly) {
-            if (!_resourceManagerDictionary.Contains(assembly.GetName().Name)) {
+            string assemblyName = assembly.GetName().Name;
+
+            if (!_resourceManagerDictionary.Contains(assemblyName)) {
                 RegisterAssembly(assembly);
             }
 
+            // retrieve resource manager for assembly
+            ResourceManager resourceManager = (ResourceManager) 
+                _resourceManagerDictionary[assemblyName];
+
             // try to get the required string from the given assembly
-            ResourceManager resourceManager =
-                _resourceManagerDictionary[assembly.GetName().Name] as ResourceManager;
             string localizedString = resourceManager.GetString(name, culture);
 
             // if the given assembly does not contain the required string, then
@@ -191,9 +194,9 @@ namespace NAnt.Core.Util {
             return localizedString;
         }
 
-        #endregion public methods
+        #endregion Public Static Methods
 
-        #region private methods
+        #region Private Static Methods
 
         /// <summary>
         /// Registers the specified assembly.
@@ -204,11 +207,41 @@ namespace NAnt.Core.Util {
         /// </param>
         private static void RegisterAssembly(Assembly assembly) {
             lock (_resourceManagerDictionary) {
-                _resourceManagerDictionary.Add(assembly.GetName().Name,
-                    new ResourceManager("Strings", assembly));
+                string assemblyName = assembly.GetName().Name;
+
+                _resourceManagerDictionary.Add(assemblyName,
+                    new ResourceManager(GetResourceName(assemblyName), 
+                    assembly));
             }
         }
 
-        #endregion private methods
+        /// <summary>
+        /// Determines the manifest resource name of the resource holding the
+        /// localized strings.
+        /// </summary>
+        /// <param name="assemblyName">The name of the assembly.</param>
+        /// <returns>
+        /// The manifest resource name of the resource holding the localized
+        /// strings for the specified assembly.
+        /// </returns>
+        /// <remarks>
+        /// The manifest resource name of the resource holding the localized
+        /// strings should match the name of the assembly, minus <c>Tasks</c>
+        /// suffix.
+        /// </remarks>
+        private static string GetResourceName(string assemblyName) {
+            string resourceName = null;
+            if (assemblyName.EndsWith("Tasks")) {
+                // hack to determine the manifest resource name as our
+                // assembly names have a Tasks suffix, while our
+                // root namespace in VS.NET does not
+                resourceName = assemblyName.Substring(0, assemblyName.Length - 5);
+            } else {
+                resourceName = assemblyName;
+            }
+            return resourceName + ".Resources.Strings";
+        }
+
+        #endregion Private Static Methods
     }
 }

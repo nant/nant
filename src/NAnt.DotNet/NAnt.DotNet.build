@@ -23,8 +23,8 @@
                 <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
                 <include name="${lib.framework.dir}/NDoc.Core.dll" />
             </references>
-            <resources basedir="Resources">
-                <include name="**/*" />
+            <resources prefix="NAnt.DotNet" dynamicprefix="true">
+                <include name="Resources/**/*" />
             </resources>
         </csc>
     </target>

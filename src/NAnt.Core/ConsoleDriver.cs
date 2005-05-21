@@ -307,7 +307,8 @@ namespace NAnt.Core {
         /// </remarks>
         public static void ShowProjectHelp(XmlDocument buildDoc) {
             // load our transform file out of the embedded resources
-            Stream xsltStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProjectHelp.xslt");
+            Stream xsltStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                "NAnt.Core.Resources.ProjectHelp.xslt");
             if (xsltStream == null) {
                 throw new Exception("Missing 'ProjectHelp.xslt' Resource Stream");
             }
