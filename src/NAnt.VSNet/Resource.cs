@@ -295,14 +295,12 @@ namespace NAnt.VSNet {
             lt.Target = Path.GetFileName(Project.ProjectSettings.OutputFileName).
                 ToUpper(CultureInfo.InvariantCulture);
 
-            // inherit non-GAC assembly references from project
+            // inherit assembly references from project
             foreach (ReferenceBase reference in Project.References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
                     solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
-                    if (!_gacCache.IsAssemblyInGac(assemblyFile)) {
-                        lt.Assemblies.Includes.Add(assemblyFile);
-                    }
+                    lt.Assemblies.Includes.Add(assemblyFile);
                 }
             }
 
