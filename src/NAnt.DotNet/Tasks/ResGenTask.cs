@@ -596,10 +596,12 @@ namespace NAnt.DotNet.Tasks {
                 using (StreamReader sr = new StreamReader(resourceFile, true)) {
                     XPathDocument xpathDoc = new XPathDocument(new XmlTextReader(sr));
 
-                    // determine the number of <data> elements that have a "type"
-                    // attribute with a value that does not start with "System."
-                    // and is not fully qualified
-                    int count = xpathDoc.CreateNavigator().Select("/root/data[@type and not(starts-with(@type, 'System.') and contains(@type,'PublicKeyToken='))]").Count;
+                    // determine the number of <data> elements that either have
+                    // a "mimetype" attribute (meaning it contains a serialized
+                    // instance that might be of a referenced assembly) or a
+                    // "type" attribute with a value that does not start with 
+                    // "System." and is not fully qualified
+                    int count = xpathDoc.CreateNavigator().Select("/root/data[@mimetype or (@type and not(starts-with(@type, 'System.') and contains(@type,'PublicKeyToken=')))]").Count;
 
                     // if there are no <data> elements of a third party type, we 
                     // assume that the resource file does not reference types from
