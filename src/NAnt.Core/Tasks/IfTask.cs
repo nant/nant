@@ -46,18 +46,38 @@ namespace NAnt.Core.Tasks {
     ///     </para>
     /// </remarks>
     /// <example>
-    ///   <para>Check that a target exists.</para>
+    ///   <para>Tests the value of a property using expressions.</para>
     ///   <code>
-    ///   <![CDATA[
+    ///     <![CDATA[
+    /// <if test="${build.configuration='release'}">
+    ///     <echo>Build release configuration</echo>
+    /// </if>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>Tests the the output of a function.</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <if test="${not file::exists(filename) or file::get-length(filename) = 0}">
+    ///     <echo message="The version file ${filename} doesn't exist or is empty!" />
+    /// </if>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para><c>(Deprecated)</c> Check that a target exists.</para>
+    ///   <code>
+    ///     <![CDATA[
     /// <target name="myTarget" />
     /// <if targetexists="myTarget">
     ///     <echo message="myTarget exists" />
     /// </if>
-    ///   ]]>
+    ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Check existence of a property.</para>
+    ///   <para><c>(Deprecated)</c> Check existence of a property.</para>
     ///   <code>
     ///     <![CDATA[
     /// <if propertyexists="myProp">
@@ -67,7 +87,7 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Check that a property value is true.</para>
+    ///   <para><c>(Deprecated)</c> Check that a property value is true.</para>
     ///   <code>
     ///     <![CDATA[
     /// <if propertytrue="myProp">
@@ -78,7 +98,8 @@ namespace NAnt.Core.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Check that a property exists and is <see langword="true" /> (uses multiple conditions).
+    ///   <c>(Deprecated)</c> Check that a property exists and is <see langword="true" /> 
+    ///   (uses multiple conditions).
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -100,7 +121,8 @@ namespace NAnt.Core.Tasks {
     /// </example>
     /// <example>
     ///   <para>
-    ///   Check file dates. If <c>myfile.dll</c> is uptodate, then do stuff.
+    ///   <c>(Deprecated)</c> Check file dates. If <c>myfile.dll</c> is uptodate,
+    ///   then do stuff.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -135,32 +157,16 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
-    /// <example>
-    /// <para>Tests the value of a property using expressions.</para>
-    /// <code>
-    /// <if test="${build.configuration='release'}">
-    ///     <echo>Build release configuration</echo>
-    /// </if>
-    /// </code>
-    /// </example>
-    /// <example>
-    /// <para>Tests the the output of a function.</para>
-    /// <code>
-    /// <if test="${not file::exists(filename) or file::get-length(filename) = 0}">
-    ///     <echo message="The version file ${filename} doesn't exist or is empty!" />
-    /// </if>
-    /// </code>
-    /// </example>
     [TaskName("if")]
     public class IfTask : TaskContainer {
         #region Private Instance Fields
 
-        private string _propNameTrue = null;
-        private string _propNameExists = null;
-        private string _targetName = null;
-        private string _test = null;
-        private FileSet _compareFiles = null;
-        private FileSet _uptodateFiles = null;
+        private string _propNameTrue;
+        private string _propNameExists;
+        private string _targetName;
+        private string _test;
+        private FileSet _compareFiles;
+        private FileSet _uptodateFiles;
 
         #endregion Private Instance Fields
 
@@ -386,6 +392,7 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     [TaskName("ifnot")]
+    [Obsolete("Use the <if> task instead.", false)]
     public class IfNotTask : IfTask {
         #region Override implementation of IfTask
 
