@@ -1254,9 +1254,16 @@ namespace NAnt.Core {
                     Element element = InitializeBuildElement(childNode, 
                         childElementType);
 
-                    // invoke method, passing in the initialized element
-                    method.Invoke(Element, BindingFlags.InvokeMethod, null,
-                        new object[] {element}, CultureInfo.InvariantCulture);
+                    try {
+                        // invoke method, passing in the initialized element
+                        method.Invoke(Element, BindingFlags.InvokeMethod, null,
+                            new object[] {element}, CultureInfo.InvariantCulture);
+                    } catch (TargetInvocationException ex) {
+                        if (ex.InnerException != null) {
+                            throw ex.InnerException;
+                        }
+                        throw;
+                    }
                 }
 
                 // permanently mark nodes as processed
