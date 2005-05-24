@@ -205,7 +205,7 @@ namespace NAnt.Core.Tasks {
             if (Verbose) {
                 foreach (DictionaryEntry entry in Properties) {
                     string name = (string) entry.Key;
-                    if (name.StartsWith(Prefix) && !name.StartsWith(Prefix + "env.")) {
+                    if (name.StartsWith(Prefix)) {
                         Log(Level.Info, name + " = " + entry.Value.ToString());
                     }
                 }
