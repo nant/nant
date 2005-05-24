@@ -419,10 +419,8 @@ namespace NAnt.Core {
             // if subtype of DataTypeBase
             DataTypeBase dataType = buildElement as DataTypeBase;
 
-            string nantNamespaceURI = parent.NamespaceManager.LookupNamespace("nant");
-                        
-            if (dataType != null && dataType.CanBeReferenced && childNode.Attributes["refid", nantNamespaceURI] != null ) {
-                dataType.RefID = childNode.Attributes["refid", nantNamespaceURI].Value;
+            if (dataType != null && dataType.CanBeReferenced && childNode.Attributes["refid"] != null ) {
+                dataType.RefID = childNode.Attributes["refid"].Value;
 
                 if (!StringUtils.IsNullOrEmpty(dataType.ID)) {
                     // throw exception because of id and ref
@@ -749,8 +747,7 @@ namespace NAnt.Core {
 
                     if (ElementXml != null) {
                         // locate attribute in build file
-                        attributeNode = ElementXml.Attributes[buildAttribute.Name,
-                            NamespaceManager.LookupNamespace("nant")];
+                        attributeNode = ElementXml.Attributes[buildAttribute.Name];
                     }
 
                     if (attributeNode != null) {
@@ -1370,7 +1367,7 @@ namespace NAnt.Core {
                 
                 // check if we're dealing with a reference to a data type
                 DataTypeBase dataType = childElement as DataTypeBase;
-                if (dataType != null && xml.Attributes["refid", NamespaceManager.LookupNamespace("nant")] != null) {
+                if (dataType != null && xml.Attributes["refid"] != null) {
                     // references to data type should be always be set
                     if (setter == null) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
