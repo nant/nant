@@ -416,6 +416,22 @@ namespace NAnt.Core.Tasks {
                     choice.Items.Add(targetElement);
                 }
 
+                // allow elements from other namespace
+                XmlSchemaAny otherNamespaceAny = new XmlSchemaAny();
+                otherNamespaceAny.MinOccurs = 0;
+                otherNamespaceAny.MaxOccurs = Decimal.MaxValue;
+                otherNamespaceAny.Namespace = "##other";
+                otherNamespaceAny.ProcessContents = XmlSchemaContentProcessing.Strict;
+                choice.Items.Add(otherNamespaceAny);
+
+                // allow elements from local namespace
+                XmlSchemaAny localNamespaceAny = new XmlSchemaAny();
+                localNamespaceAny.MinOccurs = 0;
+                localNamespaceAny.MaxOccurs = Decimal.MaxValue;
+                localNamespaceAny.Namespace = "##local";
+                localNamespaceAny.ProcessContents = XmlSchemaContentProcessing.Strict;
+                choice.Items.Add(localNamespaceAny);
+
                 return tasklistCT;
             }
 
@@ -587,6 +603,11 @@ namespace NAnt.Core.Tasks {
                         group1.Items.Add(childElement);
                     }
                 }
+
+                // allow attributes from other namespace
+                ct.AnyAttribute = new XmlSchemaAnyAttribute();
+                ct.AnyAttribute.Namespace = "##other";
+                ct.AnyAttribute.ProcessContents = XmlSchemaContentProcessing.Skip;
 
                 Schema.Items.Add(ct);
                 Compile();
