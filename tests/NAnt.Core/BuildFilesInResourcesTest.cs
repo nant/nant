@@ -30,16 +30,12 @@ using Tests.NAnt.Core.Util;
 namespace Tests.NAnt.Core {
     [TestFixture]
     public class BuildFilesInResourcesTest {
-        #region Private Instance Fields
-        #endregion Private Instance Fields
-
         #region Public Instance Methods
-
 
         [Test]
         public void Test_FilesInResources() {
             foreach (string resName in Assembly.GetExecutingAssembly().GetManifestResourceNames()){
-                if (resName.StartsWith("XML:.Build.Files")) {
+                if (resName.StartsWith("XML_.Build.Files")) {
                     TextReader file = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(resName));
                     bool success = false;                    
                     string stuff = null;
@@ -50,10 +46,8 @@ namespace Tests.NAnt.Core {
                         Project p = new Project(doc, Level.Info, 0);
                         stuff = BuildTestBase.ExecuteProject(p);
                         success = true;
-                    }
-                    catch(Exception){                        
-                    }
-                    finally {
+                    } catch(Exception){
+                    } finally {
                         if (resName.IndexOf(".Invalid.") > 0){
                             if(!success) stuff = "expected a failure:" + stuff;
                             success = !success;
