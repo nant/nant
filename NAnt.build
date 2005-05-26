@@ -459,14 +459,14 @@
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
         <!-- retrieve location of VS.NET 2002 schema store -->
         <readregistry property="vs2002.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.0\InstallDir" hive="LocalMachine" failonerror="false" />
-        <if propertyexists="vs2002.xml.schemas">
+        <if test="${property::exists('vs2002.xml.schemas')}">
             <!-- deploy schema to VS.NET 2002 schema store -->
             <copy file="${schema.output}" todir="${vs2002.xml.schemas}..\\Packages\schemas\xml" />
         </if>
         
         <!-- retrieve location of VS.NET 2003 schema store -->
         <readregistry property="vs2003.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir" hive="LocalMachine" failonerror="false" />
-        <if propertyexists="vs2003.xml.schemas">
+        <if test="${property::exists('vs2003.xml.schemas')}">
             <!-- deploy schema to VS.NET 2002 schema store -->
             <copy file="${schema.output}" todir="${vs2003.xml.schemas}..\\Packages\schemas\xml" />        
         </if>
