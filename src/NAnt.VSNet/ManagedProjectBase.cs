@@ -799,6 +799,16 @@ namespace NAnt.VSNet {
                 return false;
             }
 
+            // check if project file was updated after the output file was
+            // built
+            string fileName = FileSet.FindMoreRecentLastWriteTime(ProjectPath,
+                dtOutputTimeStamp);
+            if (fileName != null) {
+                Log(Level.Debug, "Project file \"0\" has been updated, recompiling.",
+                    fileName);
+                return false;
+            }
+
             // check all of the input files
             foreach (string file in _sourceFiles.Keys) {
                 if (dtOutputTimeStamp < File.GetLastWriteTime(file)) {
