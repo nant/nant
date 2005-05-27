@@ -32,19 +32,19 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_GetFullPath_Null() {
-            FileUtils.GetFullPath(null);    
+            FileUtils.GetFullPath(null);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_GetFullPath_Empty() {
-            FileUtils.GetFullPath(string.Empty);    
+            FileUtils.GetFullPath(string.Empty);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_GetFullPath_Whitespace() {
-            FileUtils.GetFullPath(" ");    
+            FileUtils.GetFullPath(" ");
         }
 
         [Test]
@@ -119,6 +119,11 @@ namespace Tests.NAnt.Core.Util {
             Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever\\\obj\\\"), "#9");
             Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever//obj//"), "#10");
             Assert.AreEqual(@"c:\test\whatever\obj\", FileUtils.CombinePaths(@"c:\test", @"whatever///obj///"), "#10");
+
+            // if second path is rooted, it should be returned as is
+            Assert.AreEqual(@"c:\whatever\..\test", FileUtils.CombinePaths(@"c:\test", @"c:\whatever\..\test"), "#11");
+            Assert.AreEqual(@"c:\whatever\..\test\\", FileUtils.CombinePaths(@"c:\test", @"c:\whatever\..\test\\"), "#12");
+            Assert.AreEqual(@"\\server\c$\test.txt", FileUtils.CombinePaths(@"c:\test", @"\\server\c$\test.txt"), "#13");
         }
     }
 }
