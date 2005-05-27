@@ -177,6 +177,10 @@ namespace NAnt.Core.Util {
                 throw new ArgumentNullException("path2");
             }
 
+            if (Path.IsPathRooted(path2)) {
+                return path2;
+            }
+
             char separatorChar = Path.DirectorySeparatorChar;
             char[] splitChars = new char[] {'/', separatorChar};
 
