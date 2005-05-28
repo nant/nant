@@ -1,19 +1,40 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>NAnt - Loggers & Listeners</title>
-        <meta http-equiv="Content-Language" content="en-ca">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta name="description" content="Loggers &amp; Listeners">
-        <link rel="stylesheet" type="text/css" href="../style.css">
+        <title>NAnt - Loggers &amp; Listeners</title>
+        <meta http-equiv="Content-Language" content="en-ca" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="description" content="Loggers &amp; Listeners" />
+        <link rel="stylesheet" type="text/css" href="../style.css" />
+        <style type="text/css">
+            .xmlelement {
+                color: #660000;
+            }
+            
+            .xmlattribute {
+                color: red;
+            }
+
+            .xmltext {
+                color: blue;
+            }
+
+            .xmlcomment {
+                color: green;
+            }
+            
+            .xmlcdata {
+                color: #FF00CC;
+            }
+        </style>
     </head>
     <body>
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
             <tr>
                 <td class="NavBar-Cell">
-                    <a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> <img src="../images/arrow.gif" alt="->" width="13" height="9">
-                    <a href="../index.html">Help</a> <img alt="->" src="../images/arrow.gif"> <a href="index.html">
-                        Fundamentals</a> <img height="9" alt="->" src="../images/arrow.gif" width="13">
+                    <a title="NAnt home page" href="http://nant.sourceforge.net"><b>NAnt</b></a> <img src="../images/arrow.gif" alt="->" width="13" height="9" />
+                    <a href="../index.html">Help</a> <img alt="->" src="../images/arrow.gif"/> <a href="index.html">
+                        Fundamentals</a> <img height="9" alt="->" src="../images/arrow.gif" width="13" />
                     Loggers &amp; Listeners
                 </td>
                 <td class="NavBar-Cell" align="right">
@@ -35,16 +56,22 @@
         <ul>
             <li>
             build started
+            </li>
             <li>
             build finished
+            </li>
             <li>
             target started
+            </li>
             <li>
             target finished
+            </li>
             <li>
             task started
+            </li>
             <li>
             task finished
+            </li>
             <li>
                 message logged</li>
         </ul>
@@ -57,9 +84,11 @@
                 Receives a handle to the standard output and error print streams and therefore 
                 can log information to the console or the <code>-logfile</code>
             specified file.
+            </li>
             <li>
                 Logging level (<code>-quiet</code>, <code>-verbose</code>, <code>-debug</code>) 
             aware.
+            </li>
             <li>
                 Emacs-mode aware. This still needs to be implemented.
             </li>
@@ -68,9 +97,9 @@
         <div class="table">
             <table>
                 <colgroup>
-                    <col>
-                        <col>
-                            <col style="TEXT-ALIGN: center">
+                    <col />
+                        <col />
+                            <col style="TEXT-ALIGN: center" />
                 </colgroup>
                 <tbody>
                     <tr>
@@ -107,12 +136,12 @@
                 </tbody>
             </table>
         </div>
-        <h3><a id="DefaultLogger">DefaultLogger</h3>
+        <h3><a id="DefaultLogger" />DefaultLogger</h3>
         <p>Simply run NAnt normally, or:</p>
         <blockquote>
             <p><code>NAnt.exe -logger:NAnt.Core.DefaultLogger</code></p>
         </blockquote>
-        <h3><a id="MailLogger">MailLogger</h3>
+        <h3><a id="MailLogger" />MailLogger</h3>
         <p>
             The MailLogger captures all output logged through DefaultLogger (standard NAnt 
             output) and will send success and failure messages to unique e-mail lists, with 
@@ -120,11 +149,11 @@
         </p>
         <p>Properties controlling the operation of MailLogger are:</p>
         <div class="table">
-            <table id="Table1">
+            <table>
                 <colgroup>
-                    <col>
-                        <col>
-                            <col>
+                    <col />
+                    <col />
+                    <col />
                 </colgroup>
                 <tbody>
                     <tr>
@@ -176,6 +205,16 @@
                         <td>No, default is "Build Success".</td>
                     </tr>
                     <tr>
+                        <td>MailLogger.failure.attachments</td>
+                        <td>The ID of a fileset representing a set of files to attach when the build fails.</td>
+                        <td>No.</td>
+                    </tr>
+                    <tr>
+                        <td>MailLogger.success.attachments</td>
+                        <td>The ID of a fileset representing a set of files to attach when the build is successful.</td>
+                        <td>No.</td>
+                    </tr>
+                    <tr>
                         <td>MailLogger.body.encoding</td>
                         <td>The encoding type of the body of the e-mail message.</td>
                         <td>No, default is system's ANSI code page.</td>
@@ -187,7 +226,39 @@
         <blockquote>
             <p><code>NAnt.exe -logger:NAnt.Core.MailLogger</code></p>
         </blockquote>
-        <h3><a id="XmlLogger">XmlLogger</h3>
+        <p>Example:</p>
+        <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">project</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger Test"</span> <span class="xmlattribute">default</span><span class="xmltext">="build"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.mailhost"</span> <span class="xmlattribute">value</span><span class="xmltext">="smtp.wherever.be" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.from"</span> <span class="xmlattribute">value</span><span class="xmltext">="me@telenet.be" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.failure.notify"</span> <span class="xmlattribute">value</span><span class="xmltext">="true" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.success.notify"</span> <span class="xmlattribute">value</span><span class="xmltext">="true" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.failure.to"</span> <span class="xmlattribute">value</span><span class="xmltext">="support@home.be" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.success.to"</span> <span class="xmlattribute">value</span><span class="xmltext">="support@home.be" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.failure.subject"</span> <span class="xmlattribute">value</span><span class="xmltext">="Nightly build failure !" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.success.subject"</span> <span class="xmlattribute">value</span><span class="xmltext">="Nightly build successful" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.failure.attachments"</span> <span class="xmlattribute">value</span><span class="xmltext">="MailLogger.failure.files" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="MailLogger.success.attachments"</span> <span class="xmlattribute">value</span><span class="xmltext">="MailLogger.success.files" /&gt;</span>
+
+        <span class="xmlcomment">&lt;!-- set of files to attach when build fails --&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">fileset</span> <span class="xmlattribute">id</span><span class="xmltext">="MailLogger.failure.files"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="dump.log" /&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="trace.txt" /&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">fileset</span><span class="xmltext">&gt;</span>
+
+        <span class="xmlcomment">&lt;!-- set of files to attach when build is successful --&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">fileset</span> <span class="xmlattribute">id</span><span class="xmltext">="MailLogger.success.files"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="trace.txt" /&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">fileset</span><span class="xmltext">&gt;</span>
+    
+        <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="build"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">echo</span> <span class="xmlattribute">message</span><span class="xmltext">=&quot;Starting build&quot; /&gt;</span>
+            ....
+            <span class="xmltext">&lt;</span><span class="xmlelement">echo</span> <span class="xmlattribute">message</span><span class="xmltext">=&quot;Finished build&quot; /&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">project</span><span class="xmltext">&gt;</span>
+        </pre>
+        <h3><a id="XmlLogger" />XmlLogger</h3>
         <p>
             Writes all build information out to an XML file named <code>log.xml</code>, or 
             the value of the <code>XmlLogger.file</code> property if present, when used as 
@@ -201,27 +272,26 @@
         <p>Usage:</p>
         <blockquote>
             <p>
-                <code>NAnt.exe -listener:NAnt.Core.XmlLogger</code><br>
+                <code>NAnt.exe -listener:NAnt.Core.XmlLogger</code><br />
                 <code>NAnt.exe -logger:NAnt.Core.XmlLogger -logfile:buildlog.xml</code>
             </p>
         </blockquote>
         <p>Example:</p>
         <pre class="code">
-    &lt;buildresults project="test"&gt;
-        &lt;message level="Info"&gt;&lt;![CDATA[Buildfile: file:///D:/nant-test/xmlpeek/default.build]]&gt;&lt;/message&gt;
-        &lt;message level="Info"&gt;&lt;![CDATA[Target framework: Microsoft .NET Framework 1.1]]&gt;&lt;/message&gt;
-        &lt;message level="Info"&gt;&lt;![CDATA[Target(s) specified: build]]&gt;&lt;/message&gt;
-        &lt;target name="build"&gt;
-            &lt;task name="xmlpeek"&gt;
-                &lt;message level="Info"&gt;&lt;![CDATA[Peeking at 'D:\nant-test\xmlpeek\input.xml' with XPath expression 'x:parameters/x:param'.]]&gt;&lt;/message&gt;
-                &lt;message level="Info"&gt;&lt;![CDATA[Found '1' nodes with the XPath expression 'x:parameters/x:param'.]]&gt;&lt;/message&gt;
-                &lt;duration&gt;15.625&lt;/duration&gt;
-            &lt;/task&gt;
-            &lt;duration&gt;15.625&lt;/duration&gt;
-        &lt;/target&gt;
-        &lt;duration&gt;31.25&lt;/duration&gt;
-    &lt;/buildresults&gt;
+    <span class="xmltext">&lt;</span><span class="xmlelement">buildresults</span> <span class="xmlattribute">project</span><span class="xmltext">="test"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">message</span> <span class="xmlattribute">level</span><span class="xmltext">="Info"&gt;&lt;![</span><span class="xmlcdata">CDATA[Buildfile: file:///D:/nant-test/xmlpeek/default.build]]</span><span class="xmltext">&gt;&lt;/</span><span class="xmlelement">message</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">message</span> <span class="xmlattribute">level</span><span class="xmltext">="Info"&gt;&lt;![</span><span class="xmlcdata">CDATA[Target framework: Microsoft .NET Framework 1.1]]</span><span class="xmltext">&gt;&lt;/</span><span class="xmlelement">message</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">message</span> <span class="xmlattribute">level</span><span class="xmltext">="Info"&gt;&lt;![</span><span class="xmlcdata">CDATA[Target<span class="xmltext">(</span>s<span class="xmltext">)</span> specified: build]]</span><span class="xmltext">&gt;&lt;/</span><span class="xmlelement">message</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="build"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">task</span> <span class="xmlattribute">name</span><span class="xmltext">="xmlpeek"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">message</span> <span class="xmlattribute">level</span><span class="xmltext">="Info"&gt;&lt;![</span><span class="xmlcdata">CDATA[Peeking at <span class="xmltext">'D:\nant-test\xmlpeek\input.xml'</span> with XPath expression <span class="xmltext">'x:parameters/x:param'</span>.]]</span><span class="xmltext">&gt;&lt;/</span><span class="xmlelement">message</span><span class="xmltext">&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">message</span> <span class="xmlattribute">level</span><span class="xmltext">="Info"&gt;&lt;![</span><span class="xmlcdata">CDATA[Found <span class="xmltext">'1'</span> nodes with the XPath expression <span class="xmltext">'x:parameters/x:param'</span>.]]</span><span class="xmltext">&gt;&lt;/</span><span class="xmlelement">message</span><span class="xmltext">&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span><span style="color: black;">15.625</span><span class="xmltext">&lt;/</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">task</span><span class="xmltext">&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span><span style="color: black;">15.625</span><span class="xmltext">&lt;/</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span><span style="color: black;">31.25</span><span class="xmltext">&lt;/</span><span class="xmlelement">duration</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">buildresults</span><span class="xmltext">&gt;</span>
         </pre>
-        </A>
     </body>
 </html>

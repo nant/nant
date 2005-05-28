@@ -36,6 +36,7 @@ using System.Runtime.Remoting.Lifetime;
 using System.Text;
 using System.Web.Mail;
 
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -787,6 +788,14 @@ namespace NAnt.Core {
     ///         <description>The subject of build success messages. [default: "Build Success"]</description>
     ///     </item>
     ///     <item>
+    ///         <term>MailLogger.success.attachments</term>
+    ///         <description>The ID of a fileset holdng set of files to attach when the build is successful.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.failure.attachments</term>
+    ///         <description>The ID of a fileset holdng set of files to attach when the build fails.</description>
+    ///     </item>
+    ///     <item>
     ///         <term>MailLogger.body.encoding</term>
     ///         <description>The encoding type of the body of the e-mail message. [default: system's ANSI code page]</description>
     ///     </item>
@@ -874,13 +883,19 @@ namespace NAnt.Core {
                     return;
                 }
 
+                // create message to send
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = GetPropertyValue(properties, "from", null);
                 mailMessage.To = GetPropertyValue(properties, prefix + ".to", null);
                 mailMessage.Subject = GetPropertyValue(properties, prefix + ".subject",
                     (success) ? "Build Success" : "Build Failure");
                 mailMessage.Body = _buffer.ToString();
+                
+                // attach files in fileset to message
+                AttachFiles(mailMessage, project, GetPropertyValue(properties, 
+                    prefix + ".attachments", null));
 
+                // set encoding of body
                 if (bodyEncoding != null) {
                     mailMessage.BodyEncoding = bodyEncoding;
                 }
@@ -889,8 +904,8 @@ namespace NAnt.Core {
                 SmtpMail.SmtpServer = GetPropertyValue(properties, "mailhost", "localhost");
                 SmtpMail.Send(mailMessage);
             } catch (Exception ex) {
-                Console.WriteLine("MailLogger failed to send e-mail!");
-                Console.WriteLine(ex.ToString());
+                Console.Error.WriteLine("[MailLogger] E-mail could not be sent!");
+                Console.Error.WriteLine(ex.ToString());
             }
         }
 
@@ -930,6 +945,34 @@ namespace NAnt.Core {
             }
 
             return value;
+        }
+
+        private void AttachFiles(MailMessage mail, Project project, string filesetID) {
+            if (StringUtils.IsNullOrEmpty(filesetID)) {
+                return;
+            }
+
+            // lookup fileset
+            FileSet fileset = project.DataTypeReferences[filesetID] as FileSet;
+            if (fileset == null) {
+                Console.Error.WriteLine("[MailLogger] Fileset \"{0}\" is not"
+                    + " defined. No files have been attached.", filesetID);
+                return;
+            }
+
+            foreach (string fileName in fileset.FileNames) {
+                if (!File.Exists(fileName)) {
+                    Console.Error.WriteLine("[MailLogger] Attachment \"{0}\""
+                        + " does not exist. Skipping.", filesetID);
+                    continue;
+                }
+
+                // create attachment
+                MailAttachment attachment = new MailAttachment(fileName, 
+                    MailEncoding.UUEncode);
+                // add attachment to mail
+                mail.Attachments.Add(attachment);
+            }
         }
 
         #endregion Private Instance Methods
