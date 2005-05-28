@@ -95,6 +95,7 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The location of the specified assembly.
         /// </returns>
+        [Function("get-location")]
         public static string GetLocation(Assembly assembly) {
             return assembly.Location;
         }
