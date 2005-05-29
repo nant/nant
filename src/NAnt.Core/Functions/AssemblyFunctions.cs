@@ -55,7 +55,35 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">An assembly or module was loaded twice with two different evidences, or the assembly name is longer than MAX_PATH characters.</exception>
         [Function("load-from-file")]
         public Assembly LoadFromFile(string assemblyFile) {
-            return Assembly.LoadFrom(Project.GetFullPath(assemblyFile));
+            return Assembly.LoadFrom(Project.GetFullPath(assemblyFile),
+                AppDomain.CurrentDomain.Evidence);
+        }
+
+        /// <summary>
+        /// Loads an assembly given the long form of its name.
+        /// </summary>
+        /// <param name="assemblyString">The long form of the assembly name.</param>
+        /// <returns>
+        /// The loaded assembly.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="assemblyString" /> is a <see langword="null" />.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="assemblyString" /> is not found.</exception>
+        /// <example>
+        ///   <para>
+        ///   Determine the location of the Microsoft Access 11 Primary Interop 
+        ///   Assembly by loading it using its fully qualified name, and copy it
+        ///   to the build directory.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <property name="access.pia.path" value="${assembly::get-location(assembly::load('Microsoft.Office.Interop.Access, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c'))}" />
+        /// <copy file="${access.pia.path}" todir="${build.dir}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
+        [Function("load")]
+        public Assembly Load(string assemblyString) {
+            return Assembly.Load(assemblyString, AppDomain.CurrentDomain.Evidence);
         }
 
         #endregion Public Instance Methods
