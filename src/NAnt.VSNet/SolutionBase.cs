@@ -443,6 +443,7 @@ namespace NAnt.VSNet {
                         Log(Level.Warning, "Project \"{0}\": ignored dependency"
                             + " on project \"{1}\", which is not included.", 
                             project.Name, dependentProjectGuid);
+                        continue;
                     }
 
                     project.ProjectDependencies.Add(dependentEntry.Project);
