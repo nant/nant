@@ -43,7 +43,7 @@ namespace NAnt.VSNet {
             } else {
                 LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
                 LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
-                LoadProjects(gacCache, refResolver);
+                LoadProjects(gacCache, refResolver, CollectionsUtil.CreateCaseInsensitiveHashtable());
             }
         }
 
@@ -52,10 +52,8 @@ namespace NAnt.VSNet {
         #region Private Instance Constructors
 
         private SolutionBase(TempFileCollection tfc, SolutionTask solutionTask) {
-            _htProjectDirectories = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _projectEntries = new ProjectEntryCollection();
-            _htProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _tfc = tfc;
@@ -191,12 +189,12 @@ namespace NAnt.VSNet {
         }
 
         public bool Compile(string solutionConfiguration) {
-            GetDependenciesFromProjects(solutionConfiguration);
-
             Hashtable htProjectsDone = CollectionsUtil.CreateCaseInsensitiveHashtable();
             Hashtable htFailedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             ArrayList failedProjects = new ArrayList();
             bool success = true;
+
+            GetDependenciesFromProjects(solutionConfiguration);
 
             while (true) {
                 bool compiledThisRound = false;
@@ -225,7 +223,7 @@ namespace NAnt.VSNet {
                         FixProjectReferences(project, solutionConfiguration, htProjectsDone);
                     }
 
-                    if (GetProjectDependencies(project.Guid).Length == 0) {
+                    if (!HasDirtyProjectDependency(project, htProjectsDone)) {
                         try {
                             if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(solutionConfiguration))) {
                                 if (!failed) {
@@ -239,12 +237,14 @@ namespace NAnt.VSNet {
 
                                 // mark the projects referencing this one as failed
                                 foreach (ProjectEntry entry in ProjectEntries) {
-                                    ProjectBase failedProject = entry.Project;
-                                    if (failedProject == null) {
+                                    ProjectBase dependentProject = entry.Project;
+                                    if (dependentProject == null) {
                                         // skip projects that are not loaded/supported
                                     }
-                                    if (HasProjectDependency(failedProject.Guid, project.Guid)) {
-                                        htFailedProjects[failedProject.Guid] = null;
+                                    // if the project depends on the failed
+                                    // project, then also mark it failed
+                                    if (dependentProject.ProjectDependencies.Contains(project)) {
+                                        htFailedProjects[dependentProject.Guid] = null;
                                     }
                                 }
                             }
@@ -258,16 +258,6 @@ namespace NAnt.VSNet {
                         }
 
                         compiledThisRound = true;
-
-                        // remove all references to this project
-                        foreach (ProjectEntry entry in ProjectEntries) {
-                            ProjectBase removeProject = entry.Project;
-                            if (removeProject == null) {
-                                // skip projects that are not loaded/supported
-                                continue;
-                            }
-                            RemoveProjectDependency(removeProject.Guid, project.Guid);
-                        }
 
                         // mark project done
                         htProjectsDone[project.Guid] = null;
@@ -343,22 +333,15 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected void AddProjectDependency(string projectGuid, string dependencyGuid) {
-            if (!_htProjectDependencies.Contains(projectGuid)) {
-                _htProjectDependencies[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            }
-
-            ((Hashtable) _htProjectDependencies[projectGuid])[dependencyGuid] = null;
-        }
-
         /// <summary>
         /// Loads the projects from the file system and stores them in an 
         /// instance variable.
         /// </summary>
         /// <param name="gacCache"><see cref="GacCache" /> instance to use to determine whether an assembly is located in the Global Assembly Cache.</param>
         /// <param name="refResolver"><see cref="ReferencesResolver" /> instance to use to determine location and references of assemblies.</param>
+        /// <param name="explicitProjectDependencies">TODO</param>
         /// <exception cref="BuildException">A project GUID in the solution file does not match the actual GUID of the project in the project file.</exception>
-        protected void LoadProjects(GacCache gacCache, ReferencesResolver refResolver) {
+        protected void LoadProjects(GacCache gacCache, ReferencesResolver refResolver, Hashtable explicitProjectDependencies) {
             Log(Level.Verbose, "Loading projects...");
 
             FileSet excludes = _solutionTask.ExcludeProjects;
@@ -387,8 +370,8 @@ namespace NAnt.VSNet {
 
                 if (skipProject) {
                     // remove dependencies for excluded projects
-                    if (_htProjectDependencies.ContainsKey(projectGuid)) {
-                        _htProjectDependencies.Remove(projectGuid);
+                    if (explicitProjectDependencies.ContainsKey(projectGuid)) {
+                        explicitProjectDependencies.Remove(projectGuid);
                     }
 
                     // project was excluded, move on to next project
@@ -430,6 +413,41 @@ namespace NAnt.VSNet {
                 // add project to entry
                 projectEntry.Project = p;
             }
+
+            // add explicit dependencies (as set in VS.NET) to individual projects
+            foreach (DictionaryEntry dependencyEntry in explicitProjectDependencies) {
+                string projectGuid = (string) dependencyEntry.Key;
+                Hashtable dependencies = (Hashtable) dependencyEntry.Value;
+
+                ProjectEntry projectEntry = ProjectEntries[projectGuid];
+                if (projectEntry == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Dependencies for project \'{0}\' could not be analyzed."
+                        + " Project is not included.", projectGuid), 
+                        Location.UnknownLocation);
+                }
+
+                ProjectBase project = projectEntry.Project;
+
+                // make sure project is loaded
+                if (project == null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "Dependencies for project \'{0}\' could not be analyzed."
+                        + " Project is not loaded.", projectGuid), 
+                        Location.UnknownLocation);
+                }
+
+                foreach (string dependentProjectGuid in dependencies.Keys) {
+                    ProjectEntry dependentEntry = ProjectEntries[dependentProjectGuid];
+                    if (dependentEntry == null || dependentEntry.Project == null) {
+                        Log(Level.Warning, "Project \"{0}\": ignored dependency"
+                            + " on project \"{1}\", which is not included.", 
+                            project.Name, dependentProjectGuid);
+                    }
+
+                    project.ProjectDependencies.Add(dependentEntry.Project);
+                }
+            }
         }
 
         protected void GetDependenciesFromProjects(string solutionConfiguration) {
@@ -467,7 +485,8 @@ namespace NAnt.VSNet {
                 string folder = Path.GetDirectoryName(outputfile);
 
                 if (_solutionTask.AssemblyFolderList.Contains(folder)) {
-                    outputsInAssemblyFolders[Path.GetFileName(outputfile)] = de.Value;
+                    outputsInAssemblyFolders[Path.GetFileName(outputfile)] = 
+                        (string) de.Value;
                 }
             }
 
@@ -488,48 +507,28 @@ namespace NAnt.VSNet {
                 }
 
                 foreach (ReferenceBase reference in project.References) {
-                    if (reference is ProjectReferenceBase) {
-                        AddProjectDependency(project.Guid, ((ProjectReferenceBase) reference).Project.Guid);
+                    ProjectReferenceBase projectReference = reference as ProjectReferenceBase;
+                    if (projectReference != null) {
+                        project.ProjectDependencies.Add(projectReference.Project);
                     } else {
                         string outputFile = reference.GetPrimaryOutputFile(
                             solutionConfiguration);
                         // if we reference an assembly in an AssemblyFolder
                         // that is an output directory of another project, 
                         // then add dependency on that project
-                        if (outputFile != null && outputsInAssemblyFolders.Contains(Path.GetFileName(outputFile))) {
-                            AddProjectDependency(project.Guid, (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)]);
+                        if (outputFile == null) {
+                            continue;
                         }
-                    }
-                }
-            }
 
-            // remove dependencies on projects that are no longer included in 
-            // solution
-            foreach (DictionaryEntry de in _htProjectDependencies) {
-                string projectGuid = (string) de.Key;
+                        string dependencyGuid = (string) outputsInAssemblyFolders[Path.GetFileName(outputFile)];
+                        if (dependencyGuid == null) {
+                            continue;
+                        }
 
-                // lookup project using GUID
-                ProjectEntry projectEntry = ProjectEntries[projectGuid];
-                // make sure project is loaded
-                if (projectEntry == null || projectEntry.Project == null) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Dependencies for project \'{0}\' could not be analyzed."
-                        + " Project is not included.", projectGuid), 
-                        Location.UnknownLocation);
-                }
-
-                Hashtable projectDependencies = (Hashtable) de.Value;
-
-                foreach (string dependentProject in ((Hashtable) projectDependencies.Clone()).Keys) {
-                    ProjectEntry entry = ProjectEntries[dependentProject];
-                    // check whether dependent project is actually loaded
-                    if (entry == null || entry.Project == null) {
-                        Log(Level.Warning, "Project \"{0}\": removed dependency"
-                            + " on project \"{1}\", which is not included.", 
-                            projectEntry.Project.Name, dependentProject);
-
-                        // remove dependency on project that's not included
-                        projectDependencies.Remove(dependentProject);
+                        ProjectEntry dependencyEntry = ProjectEntries[dependencyGuid];
+                        if (dependencyEntry != null && dependencyEntry.Project != null) {
+                            project.ProjectDependencies.Add(dependencyEntry.Project);
+                        }
                     }
                 }
             }
@@ -596,7 +595,7 @@ namespace NAnt.VSNet {
         protected void FixProjectReferences(ProjectBase project, string solutionConfiguration, Hashtable builtProjects) {
             // check if the project still has dependencies that have not been 
             // built
-            if (GetProjectDependencies(project.Guid).Length > 0) {
+            if (HasDirtyProjectDependency(project, builtProjects)) {
                 return;
             }
 
@@ -704,7 +703,7 @@ namespace NAnt.VSNet {
                     // unless referenced project has already been build, add
                     // referenced project as project dependency
                     if (!builtProjects.Contains(projectReference.Project.Guid)) {
-                        AddProjectDependency(project.Guid, projectReference.Project.Guid);
+                        project.ProjectDependencies.Add(projectReference.Project);
                     }
                 }
             }
@@ -714,29 +713,23 @@ namespace NAnt.VSNet {
 
         #region Private Instance Methods
 
-        private void RemoveProjectDependency(string projectGuid, string dependencyGuid) {
-            if (!_htProjectDependencies.Contains(projectGuid)) {
-                return;
+        /// <summary>
+        /// Determines whether any of the project dependencies of the specified
+        /// project still needs to be built.
+        /// </summary>
+        /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
+        /// <param name="builtProjects"><see cref="Hashtable" /> containing list of projects that have been built.</param>
+        /// <returns>
+        /// <see langword="true" /> if one of the project dependencies has not
+        /// yet been built; otherwise, <see langword="false" />.
+        /// </returns>
+        private bool HasDirtyProjectDependency(ProjectBase project, Hashtable builtProjects) {
+            foreach (ProjectBase projectDependency in project.ProjectDependencies) {
+                if (!builtProjects.ContainsKey(projectDependency.Guid)) {
+                    return true;
+                }
             }
-
-            ((Hashtable) _htProjectDependencies[projectGuid]).Remove(dependencyGuid);
-        }
-
-        private bool HasProjectDependency(string projectGuid, string dependencyGuid) {
-            if (!_htProjectDependencies.Contains(projectGuid)) {
-                return false;
-            }
-
-            return ((Hashtable) _htProjectDependencies[projectGuid]).Contains(dependencyGuid);
-        }
-
-        private string[] GetProjectDependencies(string projectGuid) {
-            if (!_htProjectDependencies.Contains(projectGuid)) {
-                return new string[0];
-            }
-
-            ICollection projectDependencies = ((Hashtable) _htProjectDependencies[projectGuid]).Keys;
-            return (string[]) new ArrayList(projectDependencies).ToArray(typeof(string));
+            return false;
         }
 
         private void SetProjectBuildConfiguration(ProjectBase project) {
@@ -776,17 +769,15 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private FileInfo _file;
-        private ProjectEntryCollection _projectEntries;
-        private Hashtable _htProjectDirectories;
-        private Hashtable _htProjectDependencies;
-        private Hashtable _htProjectBuildConfigurations;
-        private Hashtable _htOutputFiles;
-        private Hashtable _htReferenceProjects;
-        private SolutionTask _solutionTask;
-        private WebMapCollection _webMaps;
-        private DirectoryInfo _outputDir;
-        private TempFileCollection _tfc;
+        private readonly FileInfo _file;
+        private readonly ProjectEntryCollection _projectEntries;
+        private readonly Hashtable _htProjectBuildConfigurations;
+        private readonly Hashtable _htOutputFiles;
+        private readonly Hashtable _htReferenceProjects;
+        private readonly SolutionTask _solutionTask;
+        private readonly WebMapCollection _webMaps;
+        private readonly DirectoryInfo _outputDir;
+        private readonly TempFileCollection _tfc;
 
         #endregion Private Instance Fields
 

@@ -326,5 +326,11 @@ namespace NAnt.VSNet {
         private DirectoryInfo _outputDir;
 
         #endregion Private Instance Fields
+
+        #region Internal Static Fields
+
+        internal const string LinkerTool = "VCLinkerTool";
+
+        #endregion Internal Static Fields
     }
 }

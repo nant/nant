@@ -41,6 +41,8 @@ namespace NAnt.VSNet.Everett {
             Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
             MatchCollection projectMatches = reProjects.Matches(solutionContent);
 
+            Hashtable explicitProjectDependencies = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
             foreach (Match projectMatch in projectMatches) {
                 string project = projectMatch.Groups["project"].Value;
                 string guid = projectMatch.Groups["guid"].Value;
@@ -62,7 +64,11 @@ namespace NAnt.VSNet.Everett {
 
                 foreach (Match dependencyMatch in dependencyMatches) {
                     string dependency = dependencyMatch.Groups["dep"].Value;
-                    AddProjectDependency(guid, dependency);
+
+                    if (!explicitProjectDependencies.ContainsKey(guid)) {
+                        explicitProjectDependencies[guid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                    }
+                    ((Hashtable) explicitProjectDependencies[guid])[dependency] = null;
                 }
 
                 // set-up project configuration 
@@ -87,7 +93,7 @@ namespace NAnt.VSNet.Everett {
 
             LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
             LoadProjectGuids(new ArrayList(solutionTask.ReferenceProjects.FileNames), true);
-            LoadProjects(gacCache, refResolver);
+            LoadProjects(gacCache, refResolver, explicitProjectDependencies);
         }
     }
 }

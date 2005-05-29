@@ -252,6 +252,16 @@ namespace NAnt.VSNet {
             get { return _refResolver; }
         }
 
+        /// <summary>
+        /// Gets the set of projects that the project depends on.
+        /// </summary>
+        /// <value>
+        /// The set of projects that the project depends on.
+        /// </value>
+        public ProjectBaseCollection ProjectDependencies {
+            get { return _projectDependencies; }
+        }
+
         protected virtual string DevEnvDir {
             get {
                 string vs7CommonDirKeyName = @"SOFTWARE\Microsoft\VisualStudio\" 
@@ -753,15 +763,16 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private ProductVersion _productVersion;
-        private SolutionTask _solutionTask;
-        private TempFileCollection _temporaryFiles;
-        private DirectoryInfo _outputDir;
-        private Hashtable _projectConfigurations;
-        private Hashtable _buildConfigurations;
-        private GacCache _gacCache;
-        private ReferencesResolver _refResolver;
-        private Hashtable _extraOutputFiles;
+        private readonly ProductVersion _productVersion;
+        private readonly SolutionTask _solutionTask;
+        private readonly TempFileCollection _temporaryFiles;
+        private readonly DirectoryInfo _outputDir;
+        private readonly Hashtable _projectConfigurations;
+        private readonly Hashtable _buildConfigurations;
+        private readonly GacCache _gacCache;
+        private readonly ReferencesResolver _refResolver;
+        private readonly Hashtable _extraOutputFiles;
+        private readonly ProjectBaseCollection _projectDependencies = new ProjectBaseCollection();
 
         #endregion Private Instance Fields
     }
@@ -816,5 +827,272 @@ namespace NAnt.VSNet {
         /// A web project.
         /// </summary>
         Web = 2,
+    }
+
+    /// <summary>
+    /// Contains a collection of <see cref="ProjectBase" /> elements.
+    /// </summary>
+    [Serializable()]
+    public class ProjectBaseCollection : CollectionBase {
+        #region Public Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectBaseCollection"/> class.
+        /// </summary>
+        public ProjectBaseCollection() {
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectBaseCollection"/> class
+        /// with the specified <see cref="ProjectBaseCollection"/> instance.
+        /// </summary>
+        public ProjectBaseCollection(ProjectBaseCollection value) {
+            AddRange(value);
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectBaseCollection"/> class
+        /// with the specified array of <see cref="ProjectBase"/> instances.
+        /// </summary>
+        public ProjectBaseCollection(ProjectBase[] value) {
+            AddRange(value);
+        }
+
+        #endregion Public Instance Constructors
+        
+        #region Public Instance Properties
+
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index of the element to get or set.</param>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public ProjectBase this[int index] {
+            get { return (ProjectBase) base.List[index]; }
+            set { base.List[index] = value; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="ProjectBase"/> with the specified GUID.
+        /// </summary>
+        /// <param name="guid">The GUID of the <see cref="ProjectBase"/> to get.</param>
+        /// <remarks>
+        /// Performs a case-insensitive lookup.
+        /// </remarks>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public ProjectBase this[string guid] {
+            get {
+                if (guid == null) {
+                    throw new ArgumentNullException("guid");
+                }
+
+                // try to locate instance by guid (case-insensitive)
+                foreach (ProjectBase project in base.List) {
+                    if (string.Compare(project.Guid, guid, true, CultureInfo.InvariantCulture) == 0) {
+                        return project;
+                    }
+                }
+                return null;
+            }
+        }
+
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+        
+        /// <summary>
+        /// Adds a <see cref="ProjectBase"/> to the end of the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="ProjectBase"/> to be added to the end of the collection.</param> 
+        /// <returns>The position into which the new element was inserted.</returns>
+        public int Add(ProjectBase item) {
+            return base.List.Add(item);
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="ProjectBase"/> array to the end of the collection.
+        /// </summary>
+        /// <param name="items">The array of <see cref="ProjectBase"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(ProjectBase[] items) {
+            for (int i = 0; (i < items.Length); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+
+        /// <summary>
+        /// Adds the elements of a <see cref="ProjectBaseCollection"/> to the end of the collection.
+        /// </summary>
+        /// <param name="items">The <see cref="ProjectBaseCollection"/> to be added to the end of the collection.</param> 
+        public void AddRange(ProjectBaseCollection items) {
+            for (int i = 0; (i < items.Count); i = (i + 1)) {
+                Add(items[i]);
+            }
+        }
+        
+        /// <summary>
+        /// Determines whether a <see cref="ProjectBase"/> is in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="ProjectBase"/> to locate in the collection.</param> 
+        /// <returns>
+        /// <see langword="true" /> if <paramref name="item"/> is found in the 
+        /// collection; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Contains(ProjectBase item) {
+            return base.List.Contains(item);
+        }
+
+        /// <summary>
+        /// Determines whether a <see cref="ProjectBase"/> with the specified
+        /// GUID is in the collection, using a case-insensitive lookup.
+        /// </summary>
+        /// <param name="value">The GUID to locate in the collection.</param> 
+        /// <returns>
+        /// <see langword="true" /> if a <see cref="ProjectBase" /> with GUID 
+        /// <paramref name="value"/> is found in the collection; otherwise, 
+        /// <see langword="false" />.
+        /// </returns>
+        public bool Contains(string value) {
+            return this[value] != null;
+        }
+        
+        /// <summary>
+        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
+        /// </summary>
+        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
+        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+        public void CopyTo(ProjectBase[] array, int index) {
+            base.List.CopyTo(array, index);
+        }
+        
+        /// <summary>
+        /// Retrieves the index of a specified <see cref="ProjectBase"/> object in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="ProjectBase"/> object for which the index is returned.</param> 
+        /// <returns>
+        /// The index of the specified <see cref="ProjectBase"/>. If the <see cref="ProjectBase"/> is not currently a member of the collection, it returns -1.
+        /// </returns>
+        public int IndexOf(ProjectBase item) {
+            return base.List.IndexOf(item);
+        }
+        
+        /// <summary>
+        /// Inserts a <see cref="ProjectBase"/> into the collection at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="item">The <see cref="ProjectBase"/> to insert.</param>
+        public void Insert(int index, ProjectBase item) {
+            base.List.Insert(index, item);
+        }
+        
+        /// <summary>
+        /// Returns an enumerator that can iterate through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="ProjectBaseEnumerator"/> for the entire collection.
+        /// </returns>
+        public new ProjectBaseEnumerator GetEnumerator() {
+            return new ProjectBaseEnumerator(this);
+        }
+        
+        /// <summary>
+        /// Removes a member from the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="ProjectBase"/> to remove from the collection.</param>
+        public void Remove(ProjectBase item) {
+            base.List.Remove(item);
+        }
+        
+        /// <summary>
+        /// Remove items with the specified guid from the collection.
+        /// </summary>
+        /// <param name="guid">The guid of the project to remove from the collection.</param>
+        public void Remove(string guid) {
+            ProjectBase removeProject = null;
+
+            // try to locate instance by guid (case-insensitive)
+            foreach (ProjectBase project in base.List) {
+                if (string.Compare(project.Guid, guid, true, CultureInfo.InvariantCulture) == 0) {
+                    removeProject = project;
+                    break;
+                }
+            }
+
+            if (removeProject != null) {
+                base.InnerList.Remove(removeProject);
+            }
+        }
+
+        #endregion Public Instance Methods
+    }
+
+    /// <summary>
+    /// Enumerates the <see cref="ProjectBase"/> elements of a <see cref="ProjectBaseCollection"/>.
+    /// </summary>
+    public class ProjectBaseEnumerator : IEnumerator {
+        #region Internal Instance Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectBaseEnumerator"/> class
+        /// with the specified <see cref="ProjectBaseCollection"/>.
+        /// </summary>
+        /// <param name="arguments">The collection that should be enumerated.</param>
+        internal ProjectBaseEnumerator(ProjectBaseCollection arguments) {
+            IEnumerable temp = (IEnumerable) (arguments);
+            _baseEnumerator = temp.GetEnumerator();
+        }
+
+        #endregion Internal Instance Constructors
+
+        #region Implementation of IEnumerator
+            
+        /// <summary>
+        /// Gets the current element in the collection.
+        /// </summary>
+        /// <returns>
+        /// The current element in the collection.
+        /// </returns>
+        public ProjectBase Current {
+            get { return (ProjectBase) _baseEnumerator.Current; }
+        }
+
+        object IEnumerator.Current {
+            get { return _baseEnumerator.Current; }
+        }
+
+        /// <summary>
+        /// Advances the enumerator to the next element of the collection.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the enumerator was successfully advanced 
+        /// to the next element; <see langword="false" /> if the enumerator has 
+        /// passed the end of the collection.
+        /// </returns>
+        public bool MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+
+        bool IEnumerator.MoveNext() {
+            return _baseEnumerator.MoveNext();
+        }
+            
+        /// <summary>
+        /// Sets the enumerator to its initial position, which is before the 
+        /// first element in the collection.
+        /// </summary>
+        public void Reset() {
+            _baseEnumerator.Reset();
+        }
+            
+        void IEnumerator.Reset() {
+            _baseEnumerator.Reset();
+        }
+
+        #endregion Implementation of IEnumerator
+
+        #region Private Instance Fields
+    
+        private IEnumerator _baseEnumerator;
+
+        #endregion Private Instance Fields
     }
 }

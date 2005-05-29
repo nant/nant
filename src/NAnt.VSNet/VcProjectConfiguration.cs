@@ -92,6 +92,8 @@ namespace NAnt.VSNet {
                 _useOfATL = (UseOfATL) Enum.ToObject(typeof(UseOfATL), 
                     int.Parse(useOfATL, CultureInfo.InvariantCulture));
             }
+
+            _linkerConfiguration = new LinkerConfig(this);
         }
 
         #endregion Internal Instance Constructors
@@ -149,6 +151,10 @@ namespace NAnt.VSNet {
 
         internal string RawReferencesPath {
             get { return _rawReferencesPath; }
+        }
+
+        internal LinkerConfig LinkerConfiguration {
+            get { return _linkerConfiguration; }
         }
 
         #endregion Internal Instance Properties
@@ -220,14 +226,14 @@ namespace NAnt.VSNet {
 
                 switch (Type) {
                     case ConfigurationType.Application:
-                        string applicationOutput = GetToolSetting("VCLinkerTool", "OutputFile");
+                        string applicationOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
                         if (StringUtils.IsNullOrEmpty(applicationOutput)) {
                             applicationOutput = ExpandMacros("$(OutDir)/$(ProjectName).exe");
                         }
                         outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, applicationOutput);
                         break;
                     case ConfigurationType.DynamicLibrary:
-                        string libraryOutput = GetToolSetting("VCLinkerTool", "OutputFile");
+                        string libraryOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
                         if (StringUtils.IsNullOrEmpty(libraryOutput)) {
                             libraryOutput = ExpandMacros("$(OutDir)/$(ProjectName).dll");
                         }
@@ -359,6 +365,7 @@ namespace NAnt.VSNet {
         private readonly CharacterSet _characterSet = CharacterSet.NotSet;
         private readonly UseOfMFC _useOfMFC = UseOfMFC.NotUsing;
         private readonly UseOfATL _useOfATL = UseOfATL.NotUsing;
+        private readonly LinkerConfig _linkerConfiguration;
 
         #endregion Private Instance Fields
 
@@ -390,6 +397,57 @@ namespace NAnt.VSNet {
             /// Utility.
             /// </summary>
             Utility = 10
+        }
+
+        internal class LinkerConfig {
+            #region Private Instance Constructor
+
+            internal LinkerConfig(VcProjectConfiguration projectConfig) {
+                _projectConfig = projectConfig;
+            }
+
+            #endregion Private Instance Constructor
+
+            #region Public Instance Properties
+
+            /// <summary>
+            /// Gets the absolute path to the import library to generate.
+            /// </summary>
+            /// <value>
+            /// The absolute path to the import library to generate, or
+            /// <see langword="null" /> if no import library must be generated.
+            /// </value>
+            public string ImportLibrary {
+                get {
+                    string importLibrary = StringUtils.ConvertEmptyToNull(
+                        _projectConfig.GetToolSetting(VcConfigurationBase.LinkerTool, 
+                        "ImportLibrary"));
+                    if (importLibrary != null) {
+                        if (_projectConfig.OutputDir != null) {
+                            importLibrary = FileUtils.CombinePaths(_projectConfig.OutputDir.FullName, Path.GetFileName(importLibrary));
+                        } else {
+                            importLibrary = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, importLibrary);
+                        }
+                    }
+                    return importLibrary;
+                }
+            }
+
+            #endregion Public Instance Properties
+
+            #region Private Instance Properties
+
+            private VcProject Project {
+                get { return (VcProject) _projectConfig.Project; }
+            }
+
+            #endregion Private Instance Properties
+
+            #region Private Instance Fields
+
+            private readonly VcProjectConfiguration _projectConfig;
+
+            #endregion Private Instance Fields
         }
     }
 }
