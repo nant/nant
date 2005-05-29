@@ -483,11 +483,18 @@ namespace NAnt.VSNet {
                         assemblyFile = ReferencesResolver.GetAssemblyFileName(
                             primaryInteropAssemblyName);
                     } catch (Exception ex) {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Primary Interop Assembly \"{0}\", referenced by project"
-                            + " \"{1}\", could not be loaded.", primaryInteropAssemblyName,
-                            Parent.Name), Location.UnknownLocation, 
-                            ex);
+                        // only have build fail if we're actually dealing with a
+                        // reference to a primary interop assembly
+                        //
+                        // certain tools (such as Office) register the name of
+                        // the primary interop assembly of the typelib, but the 
+                        // actual primary interop assembly is not always installed
+                        if (WrapperTool == "primary") {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "Primary Interop Assembly \"{0}\", referenced by project"
+                                + " \"{1}\", could not be loaded.", primaryInteropAssemblyName,
+                                Parent.Name), Location.UnknownLocation, ex);
+                        }
                     }
                 }
             }
