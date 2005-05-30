@@ -19,12 +19,14 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // Tim Noll (tim.noll@gmail.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
@@ -102,12 +104,13 @@ namespace NAnt.Core.Tasks {
                 
         private DirectoryInfo _destDir;
         private string _extension = "html";
-        private FileInfo _xsltFile;
+        private Uri _xsltFile;
         private FileInfo _srcFile;
         private FileInfo _outputFile;
         private FileSet _inFiles = new FileSet();
         private XsltParameterCollection _xsltParameters = new XsltParameterCollection();
         private XsltExtensionObjectCollection _xsltExtensions = new XsltExtensionObjectCollection();
+        private Proxy _proxy;
 
         #endregion Private Instance Fields
 
@@ -143,7 +146,7 @@ namespace NAnt.Core.Tasks {
         /// basedir or as an absolute path.
         /// </summary>
         [TaskAttribute("style", Required=true)]
-        public FileInfo XsltFile {
+        public Uri XsltFile {
             get { return _xsltFile; }
             set { _xsltFile = value; }
         }
@@ -191,6 +194,15 @@ namespace NAnt.Core.Tasks {
         [BuildElementCollection("extensionobjects", "extensionobject")]
         public XsltExtensionObjectCollection ExtensionObjects {
             get { return _xsltExtensions; }
+        }
+
+        /// <summary>
+        /// The network proxy to use to access the Internet resource.
+        /// </summary>
+        [BuildElement("proxy")]
+        public Proxy Proxy {
+            get { return _proxy; }
+            set { _proxy = value; }
         }
 
         #endregion Public Instance Properties
@@ -244,10 +256,23 @@ namespace NAnt.Core.Tasks {
                     Location);
             }
 
-            if (!XsltFile.Exists) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    ResourceUtils.GetString("NA1149"), XsltFile.FullName), 
-                    Location);
+            if (XsltFile.IsFile) {
+                FileInfo fileInfo = new FileInfo(XsltFile.LocalPath);
+
+                if (!fileInfo.Exists) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("NA1149"), fileInfo.FullName), 
+                        Location);
+                }
+            } else {
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(XsltFile);
+                HttpWebResponse response = response = (HttpWebResponse) request.GetResponse();
+
+                if (response.StatusCode != HttpStatusCode.OK) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("NA1149"), XsltFile), 
+                        Location);
+                }
             }
 
             foreach (string srcFile in srcFiles) {
@@ -281,8 +306,12 @@ namespace NAnt.Core.Tasks {
                 }
 
                 bool destOutdated = !destInfo.Exists
-                    || srcInfo.LastWriteTime  > destInfo.LastWriteTime
-                    || XsltFile.LastWriteTime > destInfo.LastWriteTime;
+                    || srcInfo.LastWriteTime > destInfo.LastWriteTime;
+
+                if (!destOutdated && XsltFile.IsFile) {
+                    FileInfo fileInfo = new FileInfo(XsltFile.LocalPath);
+                    destOutdated |= fileInfo.LastWriteTime > destInfo.LastWriteTime;
+                }
 
                 if (destOutdated) {
                     XmlReader xmlReader = null;
@@ -305,7 +334,7 @@ namespace NAnt.Core.Tasks {
                             // load the xml that needs to be transformed
                             Log(Level.Verbose, "Loading XML file '{0}'.", 
                                 srcInfo.FullName);
-                            xmlReader = CreateXmlReader(srcInfo.FullName);
+                            xmlReader = CreateXmlReader(new Uri(srcInfo.FullName));
                             xml = new XPathDocument(xmlReader);
                         } finally {
                             // restore original current directory
@@ -336,15 +365,17 @@ namespace NAnt.Core.Tasks {
                         XslTransform xslt = new XslTransform();
 
                         try {
-                            // change current directory to directory containing
-                            // XSLT file, to allow includes to be resolved 
-                            // correctly
-                            Directory.SetCurrentDirectory(XsltFile.DirectoryName);
+                            if (XsltFile.IsFile) {
+                                // change current directory to directory containing
+                                // XSLT file, to allow includes to be resolved 
+                                // correctly
+                                FileInfo fileInfo = new FileInfo(XsltFile.LocalPath);
+                                Directory.SetCurrentDirectory(fileInfo.DirectoryName);
+                            }
 
                             // load the stylesheet
-                            Log(Level.Verbose, "Loading stylesheet '{0}'.", 
-                                XsltFile.FullName);
-                            xslReader = CreateXmlReader(XsltFile.FullName);
+                            Log(Level.Verbose, "Loading stylesheet '{0}'.", XsltFile);
+                            xslReader = CreateXmlReader(XsltFile);
                             xslt.Load(xslReader);
 
                             // create writer for the destination xml
@@ -360,7 +391,7 @@ namespace NAnt.Core.Tasks {
                         }
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            ResourceUtils.GetString("NA1151"), srcInfo.FullName, XsltFile.FullName), 
+                            ResourceUtils.GetString("NA1151"), srcInfo.FullName, XsltFile), 
                             Location, ex);
                     } finally {
                         // ensure file handles are closed
@@ -382,9 +413,18 @@ namespace NAnt.Core.Tasks {
 
         #region Protected Instance Methods
 
-        protected virtual XmlReader CreateXmlReader(string file) {
-            return new XmlTextReader(file, new FileStream(file, FileMode.Open,
-                FileAccess.Read));
+        protected virtual XmlReader CreateXmlReader(Uri uri) {
+            XmlUrlResolver resolver = new XmlUrlResolver();
+
+            resolver.Credentials = Proxy != null
+                ? Proxy.Credentials.GetCredential()
+                : CredentialCache.DefaultCredentials;
+
+            Stream stream = uri.IsFile
+                ? new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read)
+                : (Stream) resolver.GetEntity(uri, null, typeof(Stream));
+
+            return new XmlTextReader(uri.ToString(), stream);
         }
 
         protected virtual TextWriter CreateWriter(string filepath) {

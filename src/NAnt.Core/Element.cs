@@ -18,6 +18,7 @@
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 // Gert Driesen (gert.driesen@ardatis.com)
+// Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;
 using System.Collections;
@@ -1412,6 +1413,8 @@ namespace NAnt.Core {
                     attributeSetter = new DirectoryAttributeSetter();
                 } else if (attributeType == typeof(PathSet)) {
                     attributeSetter = new PathSetAttributeSetter();
+                } else if (attributeType == typeof(Uri)) {
+                    attributeSetter = new UriAttributeSetter();
                 } else {
                     attributeSetter = new ConvertableAttributeSetter();
                 }
@@ -1615,6 +1618,36 @@ namespace NAnt.Core {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             ResourceUtils.GetString("NA1022"), 
                             value, attributeNode.Name, parent.Name), parent.Location, ex);
+                    }
+                }
+            }
+
+            private class UriAttributeSetter : IAttributeSetter {
+                public void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
+                    string uri = StringUtils.ConvertEmptyToNull(value);
+                    if (uri != null) {
+                        Uri propertyValue;
+
+                        try {
+                            propertyValue = new Uri(value);
+                        } catch (Exception ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA1022"), 
+                                value, attributeNode.Name, parent.Name), parent.Location, ex);
+                        }
+
+                        try {
+                            property.SetValue(parent, propertyValue, BindingFlags.Public | BindingFlags.Instance, null, null, CultureInfo.InvariantCulture);
+                        } catch (Exception ex) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA1022"), 
+                                value, attributeNode.Name, parent.Name), parent.Location, ex);
+                        }
+                    } else {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "An empty string is not a valid value for attribute" 
+                            + " '{0}' of <{1} ... />.", 
+                            attributeNode.Name, parent.Name), parent.Location);
                     }
                 }
             }

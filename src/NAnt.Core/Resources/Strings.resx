@@ -677,8 +677,8 @@
         <comment>The "out" attribute is not allowed when "infiles" is used.</comment>
     </data>
     <data name="NA1149">
-        <value>Stylesheet file '{0}' does not exist.</value>
-        <comment>Stylesheet file '{0}' does not exist.</comment>
+        <value>Stylesheet '{0}' does not exist.</value>
+        <comment>Stylesheet '{0}' does not exist.</comment>
     </data>
     <data name="NA1150">
         <value>Unable to find source XML file '{0}'.</value>

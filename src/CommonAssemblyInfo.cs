@@ -22,6 +22,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyrightAttribute("Copyright (C) 2001-2005 Gerry Shaw")]
 [assembly: AssemblyTrademarkAttribute("")]
 [assembly: AssemblyCultureAttribute("")]
-[assembly: AssemblyVersionAttribute("0.85.1948.0")]
+[assembly: AssemblyVersionAttribute("0.85.1976.0")]
 [assembly: AssemblyInformationalVersionAttribute("0.85")]
 
