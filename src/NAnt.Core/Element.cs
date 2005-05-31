@@ -1628,8 +1628,12 @@ namespace NAnt.Core {
                     if (uri != null) {
                         Uri propertyValue;
 
+                        if (value.IndexOf(Uri.SchemeDelimiter) < 0) {
+                            uri = parent.Project.GetFullPath(value);
+                        }
+
                         try {
-                            propertyValue = new Uri(value);
+                            propertyValue = new Uri(uri);
                         } catch (Exception ex) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                                 ResourceUtils.GetString("NA1022"), 
