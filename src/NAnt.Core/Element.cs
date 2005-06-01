@@ -1628,7 +1628,11 @@ namespace NAnt.Core {
                     if (uri != null) {
                         Uri propertyValue;
 
-                        if (value.IndexOf(Uri.SchemeDelimiter) < 0) {
+                        // if uri does not contain a scheme, we'll consider it
+                        // to be a normal path and as such we need to resolve
+                        // it to an absolute path (relative to project base 
+                        // directory
+                        if (value.IndexOf(Uri.SchemeDelimiter) == -1) {
                             uri = parent.Project.GetFullPath(value);
                         }
 
