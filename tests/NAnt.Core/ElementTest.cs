@@ -39,8 +39,15 @@ namespace Tests.NAnt.Core {
         #region Private Instance Fields
 
         private OutputType _outputType = OutputType.None;
+        private Uri _uri;
 
         #endregion Private Instance Fields
+
+        #region Internal Static Fields
+
+        internal const string UriPropertyName = "elementTest1.uri";
+
+        #endregion Internal Static Fields
 
         #region Public Instance Properties
 
@@ -55,12 +62,22 @@ namespace Tests.NAnt.Core {
             set { _outputType = value; }
         }
 
+        [TaskAttribute("uri")]
+        public Uri Uri {
+            get { return _uri; }
+            set { _uri = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
 
         protected override void ExecuteTask() { 
             Log(Level.Info, "OutputType is \"{0}\".", Type.ToString());
+
+            if (Uri != null) {
+                Properties.Add(ElementTest1Task.UriPropertyName, Uri.ToString());
+            }
         }
 
         #endregion Override implementation of Task
@@ -150,6 +167,94 @@ namespace Tests.NAnt.Core {
                 <project name='testing' default='test'>
                      <target name='test'>
                         <elementTest1 type='library' />
+                     </target>
+                </project>";
+
+            RunBuild(build);
+        }
+
+        [Test]
+        public void Test_Uri_Default() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 />
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(build);
+            ExecuteProject(project);
+
+            // uri property should not be registered
+            Assert.IsFalse(project.Properties.Contains(ElementTest1Task.UriPropertyName));
+        }
+
+        [Test]
+        public void Test_Uri_RelativeFilePath() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 uri='dir/test.txt' />
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(build);
+            ExecuteProject(project);
+
+            Uri expectedUri = new Uri(project.GetFullPath("dir/test.txt"));
+
+            // uri property should be registered
+            Assert.IsTrue(project.Properties.Contains(ElementTest1Task.UriPropertyName));
+            // path should have been resolved to absolute path (in project dir)
+            Assert.AreEqual(expectedUri.ToString(), project.Properties[
+                ElementTest1Task.UriPropertyName]);
+        }
+
+        [Test]
+        public void Test_Uri_FileScheme() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 uri='file:///test/file.txt' />
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(build);
+            ExecuteProject(project);
+
+            // uri property should be registered
+            Assert.IsTrue(project.Properties.Contains(ElementTest1Task.UriPropertyName));
+            // path should have been resolved to absolute path (in project dir)
+            Assert.AreEqual("file:///test/file.txt", project.Properties[
+                ElementTest1Task.UriPropertyName]);
+        }
+
+        [Test]
+        public void Test_Uri_HttpScheme() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 uri='http://nant.sourceforge.net/' />
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(build);
+            ExecuteProject(project);
+
+            // uri property should be registered
+            Assert.IsTrue(project.Properties.Contains(ElementTest1Task.UriPropertyName));
+            // path should have been resolved to absolute path (in project dir)
+            Assert.AreEqual("http://nant.sourceforge.net/", project.Properties[
+                ElementTest1Task.UriPropertyName]);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_Uri_InvalidUri() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest1 uri=':://file.sourceforge.net' />
                      </target>
                 </project>";
 
