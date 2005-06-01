@@ -109,15 +109,7 @@ namespace NAnt.VSNet {
                     if (buildAction == "Compile") {
                         _sourceFiles[sourceFile] = null;
                     } else if (buildAction == "EmbeddedResource") {
-                        FileInfo fi = new FileInfo(sourceFile);
-                        if (fi.Exists && fi.Length == 0) {
-                            Log(Level.Verbose, "Skipping zero-byte embedded resource '{0}'.", 
-                                fi.FullName);
-                        } else {
-                            string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                            Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
-                            _resources.Add(r);
-                        }
+                        RegisterEmbeddedResource(sourceFile, elemFile);
                     }
                 } else {
                     switch (buildAction) {
@@ -125,15 +117,7 @@ namespace NAnt.VSNet {
                             _sourceFiles[sourceFile] = null;
                             break;
                         case "EmbeddedResource":
-                            FileInfo resourceFile = new FileInfo(sourceFile);
-                            if (resourceFile.Exists && resourceFile.Extension.ToLower(CultureInfo.InvariantCulture) == ".resx" && resourceFile.Length == 0) {
-                                Log(Level.Verbose, "Skipping zero-byte embedded resx '{0}'.", 
-                                    resourceFile.FullName);
-                            } else {
-                                string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(resourceFile.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
-                                Resource r = new Resource(this, resourceFile, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
-                                _resources.Add(r);
-                            }
+                            RegisterEmbeddedResource(sourceFile, elemFile);
                             break;
                         case "None":
                             // check if file is "App.config" (using case-insensitive comparison)
@@ -153,10 +137,6 @@ namespace NAnt.VSNet {
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
-
-        public Resource[] Resources {
-            get { return (Resource[]) _resources.ToArray(typeof(Resource)); }
-        }
 
         public ProjectSettings ProjectSettings {
             get { return _projectSettings; }
@@ -284,6 +264,28 @@ namespace NAnt.VSNet {
             base.Prepare(solutionConfiguration);
         }
 
+        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+            base.GetOutputFiles (solutionConfiguration, outputFiles);
+
+            // obtain project configuration (corresponding with solution configuration)
+            ConfigurationSettings projectConfig = (ConfigurationSettings) 
+                BuildConfigurations[solutionConfiguration];
+
+            // add satellite assemblies
+            Hashtable resourceSets = GetLocalizedResources();
+            foreach (LocalizedResourceSet localizedResourceSet in resourceSets.Values) {
+                FileInfo satelliteAssembly = localizedResourceSet.GetSatelliteAssemblyPath(
+                    projectConfig, ProjectSettings);
+                // skip files that do not exist, or are already in hashtable
+                if (satelliteAssembly.Exists && !outputFiles.ContainsKey(satelliteAssembly.FullName)) {
+                    string relativePath = localizedResourceSet.GetRelativePath(
+                        ProjectSettings);
+                    outputFiles.Add(satelliteAssembly.FullName, relativePath);
+                }
+            }
+        }
+
+
         protected override bool Build(string solutionConfiguration) {
             bool bSuccess = true;
             bool outputUpdated;
@@ -393,11 +395,8 @@ namespace NAnt.VSNet {
 
                 Log(Level.Verbose, "Building satellite assemblies...");
 
-                Hashtable cultureResources = GetCultureSpecificResources();
-                foreach (DictionaryEntry de in cultureResources) {
-                    string culture = ((CultureInfo) de.Key).Name;
-                    ArrayList resFiles = (ArrayList) de.Value;
-
+                Hashtable resourceSets = GetLocalizedResources();
+                foreach (LocalizedResourceSet localizedResourceSet in resourceSets.Values) {
                     AssemblyLinkerTask al = new AssemblyLinkerTask();
                     al.Project = SolutionTask.Project;
                     al.NamespaceManager = SolutionTask.NamespaceManager;
@@ -405,23 +404,20 @@ namespace NAnt.VSNet {
                     al.BaseDirectory = cs.OutputDir;
                     al.InitializeTaskConfiguration();
 
-                    string satelliteBuildDir = FileUtils.CombinePaths(
-                        cs.ObjectDir.FullName, culture);
-
+                    DirectoryInfo satelliteBuildDir = localizedResourceSet.
+                        GetBuildDirectory(cs);
+                    
                     // ensure satellite build directory exists
-                    if (!Directory.Exists(satelliteBuildDir)) {
-                        Directory.CreateDirectory(satelliteBuildDir);
+                    if (!satelliteBuildDir.Exists) {
+                        satelliteBuildDir.Create();
                     }
 
-                    string satelliteBuildFile = FileUtils.CombinePaths(satelliteBuildDir,
-                        string.Format(CultureInfo.InvariantCulture, "{0}.resources.dll", 
-                        ProjectSettings.AssemblyName));
-
-                    al.OutputFile = new FileInfo(satelliteBuildFile);
+                    al.OutputFile = localizedResourceSet.GetSatelliteAssemblyPath(
+                        cs, ProjectSettings);
                     al.OutputTarget = "lib";
-                    al.Culture = culture;
+                    al.Culture = localizedResourceSet.Culture.Name;
                     al.TemplateFile = new FileInfo(cs.BuildPath);
-                    foreach (Resource resource in resFiles) {
+                    foreach (Resource resource in localizedResourceSet.Resources) {
                         FileInfo compiledResourceFile = null;
 
                         if (resource.IsResX) {
@@ -444,12 +440,9 @@ namespace NAnt.VSNet {
                     // increment indentation level
                     SolutionTask.Project.Indent();
                     try {
-                        Log(Level.Verbose, " - {0}", culture);
+                        Log(Level.Verbose, " - {0}", al.Culture);
                         // run assembly linker
                         al.Execute();
-                        // add satellite assembly to extra output files
-                        ExtraOutputFiles[al.OutputFile.FullName] = FileUtils.CombinePaths(
-                            al.Culture, al.OutputFile.Name);
                     } finally {
                         // restore indentation level
                         SolutionTask.Project.Unindent();
@@ -604,6 +597,18 @@ namespace NAnt.VSNet {
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
+
+        private void RegisterEmbeddedResource(string resourceFile, XmlElement elemFile) {
+            FileInfo fi = new FileInfo(resourceFile);
+            if (fi.Exists && string.Compare(".resx", fi.Extension, true) == 0 && fi.Length == 0) {
+                Log(Level.Verbose, "Skipping zero-byte embedded resource '{0}'.", 
+                    fi.FullName);
+            } else {
+                string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
+                Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
+                _resources.Add(r);
+            }
+        }
 
         private void WriteResourceOptions(StreamWriter sw, string solutionConfiguration) {
             Log(Level.Verbose, "Compiling resources:");
@@ -869,26 +874,30 @@ namespace NAnt.VSNet {
         /// </returns>
         /// <remarks>
         /// The key of the <see cref="Hashtable" /> is <see cref="CultureInfo" />
-        /// and the value is an <see cref="ArrayList" /> containing a list of
-        /// <see cref="Resource" /> instances for that culture.
+        /// and the value is an <see cref="LocalizedResourceSet" /> instance
+        /// for that culture.
         /// </remarks>
-        private Hashtable GetCultureSpecificResources() {
-            Hashtable cultureResources = new Hashtable();
+        private Hashtable GetLocalizedResources() {
+            Hashtable localizedResourceSets = new Hashtable();
+
             foreach (Resource resource in _resources) {
+                CultureInfo resourceCulture = resource.Culture;
+
                 // ignore resource files NOT associated with a culture
-                if (resource.Culture == null) {
+                if (resourceCulture == null) {
                     continue;
                 }
-                ArrayList resFiles = null;
-                if (!cultureResources.ContainsKey(resource.Culture)) {
-                    resFiles = new ArrayList();
-                    cultureResources.Add(resource.Culture, resFiles);
-                } else {
-                    resFiles = (ArrayList) cultureResources[resource.Culture];
+
+                LocalizedResourceSet resourceSet = (LocalizedResourceSet) 
+                    localizedResourceSets[resourceCulture];
+                if (resourceSet == null) {
+                    resourceSet = new LocalizedResourceSet(resourceCulture);
+                    localizedResourceSets.Add(resourceCulture, resourceSet);
                 }
-                resFiles.Add(resource);
+
+                resourceSet.Resources.Add(resource);
             }
-            return cultureResources;
+            return localizedResourceSets;
         }
 
         #endregion Private Instance Methods
@@ -1040,6 +1049,69 @@ namespace NAnt.VSNet {
         private const string CommandFile = "compile-commands.txt";
 
         #endregion Private Static Fields
+
+        private class LocalizedResourceSet {
+            #region Private Instance Fields
+
+            private readonly CultureInfo _culture;
+            private readonly ArrayList _resources;
+
+            #endregion Private Instance Fields
+
+            #region Public Instance Constructors
+
+            public LocalizedResourceSet(CultureInfo culture) {
+                if (culture == null) {
+                    throw new ArgumentNullException("culture");
+                }
+
+                _culture = culture;
+                _resources = new ArrayList();
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Properties
+
+            public CultureInfo Culture {
+                get { return _culture; }
+            }
+
+            public ArrayList Resources {
+                get { return _resources; }
+            }
+
+            #endregion Public Instance Properties
+
+            #region Public Instance Methods
+
+            public DirectoryInfo GetBuildDirectory(ConfigurationSettings projectConfig) {
+                return new DirectoryInfo(FileUtils.CombinePaths(
+                    projectConfig.ObjectDir.FullName, Culture.Name));
+            }
+
+            public FileInfo GetSatelliteAssemblyPath(ConfigurationSettings projectConfig, ProjectSettings projectSettings) {
+                DirectoryInfo buildDir = GetBuildDirectory(projectConfig);
+                return new FileInfo(FileUtils.CombinePaths(buildDir.FullName,
+                    GetSatelliteFileName(projectSettings)));
+            }
+
+            public string GetRelativePath(ProjectSettings projectSettings) {
+                return FileUtils.CombinePaths(Culture.Name, GetSatelliteFileName(
+                    projectSettings));
+            }
+
+            #endregion Public Instance Methods
+
+            #region Private Instance Methods
+
+            private string GetSatelliteFileName(ProjectSettings projectSettings) {
+                return string.Format(CultureInfo.InvariantCulture, 
+                    "{0}.resources.dll", projectSettings.AssemblyName);
+            }
+
+            #endregion Private Instance Methods
+        }
     }
 
     /// <summary>
