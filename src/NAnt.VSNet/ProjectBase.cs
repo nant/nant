@@ -426,7 +426,7 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+        public virtual void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
             // obtain project configuration (corresponding with solution configuration)
             ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration];
             if (config == null) {

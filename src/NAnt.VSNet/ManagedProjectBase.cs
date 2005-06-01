@@ -1050,6 +1050,10 @@ namespace NAnt.VSNet {
 
         #endregion Private Static Fields
 
+        /// <summary>
+        /// Groups a set of <see cref="Resource" /> instances for a specific
+        /// culture.
+        /// </summary>
         private class LocalizedResourceSet {
             #region Private Instance Fields
 
@@ -1060,6 +1064,11 @@ namespace NAnt.VSNet {
 
             #region Public Instance Constructors
 
+            /// <summary>
+            /// Initializes a new <see cref="LocalizedResourceSet" /> instance
+            /// for the specified culture.
+            /// </summary>
+            /// <param name="culture">A <see cref="CultureInfo" />.</param>
             public LocalizedResourceSet(CultureInfo culture) {
                 if (culture == null) {
                     throw new ArgumentNullException("culture");
@@ -1073,10 +1082,17 @@ namespace NAnt.VSNet {
 
             #region Public Instance Properties
 
+            /// <summary>
+            /// Gets the <see cref="CultureInfo" /> of the 
+            /// <see cref="LocalizedResourceSet" />.
+            /// </summary>
             public CultureInfo Culture {
                 get { return _culture; }
             }
 
+            /// <summary>
+            /// Gets the set of localized resources.
+            /// </summary>
             public ArrayList Resources {
                 get { return _resources; }
             }
@@ -1085,17 +1101,45 @@ namespace NAnt.VSNet {
 
             #region Public Instance Methods
 
+            /// <summary>
+            /// Gets the intermediate build directory in which the satellite
+            /// assembly is built.
+            /// </summary>
+            /// <param name="projectConfig">The project build configuration.</param>
+            /// <returns>
+            /// The intermediate build directory in which the satellite assembly
+            /// is built.
+            /// </returns>
             public DirectoryInfo GetBuildDirectory(ConfigurationSettings projectConfig) {
                 return new DirectoryInfo(FileUtils.CombinePaths(
                     projectConfig.ObjectDir.FullName, Culture.Name));
             }
 
+            /// <summary>
+            /// Gets a <see cref="FileInfo" /> representing the path to the 
+            /// intermediate file location of the satellite assembly.
+            /// </summary>
+            /// <param name="projectConfig">The project build configuration.</param>
+            /// <param name="projectSettings">The project settings.</param>
+            /// <returns>
+            /// A <see cref="FileInfo" /> representing the path to the 
+            /// intermediate file location of the satellite assembly.
+            /// </returns>
             public FileInfo GetSatelliteAssemblyPath(ConfigurationSettings projectConfig, ProjectSettings projectSettings) {
                 DirectoryInfo buildDir = GetBuildDirectory(projectConfig);
                 return new FileInfo(FileUtils.CombinePaths(buildDir.FullName,
                     GetSatelliteFileName(projectSettings)));
             }
 
+            /// <summary>
+            /// Gets path of the satellite assembly, relative to the output
+            /// directory.
+            /// </summary>
+            /// <param name="projectSettings">The project settings.</param>
+            /// <returns>
+            /// The path of the satellite assembly, relative to the output
+            /// directory.
+            /// </returns>
             public string GetRelativePath(ProjectSettings projectSettings) {
                 return FileUtils.CombinePaths(Culture.Name, GetSatelliteFileName(
                     projectSettings));
