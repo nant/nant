@@ -162,6 +162,8 @@ namespace NAnt.Core.Tasks {
             foreach (string scanPath in TaskFileSet.DirectoryNames) {
                 try {
                     TypeFactory.ScanDir(scanPath, this, FailOnError);
+                } catch (BuildException) {
+                    throw;
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("NA1130"), scanPath),
