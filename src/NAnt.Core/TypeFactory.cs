@@ -189,12 +189,15 @@ namespace NAnt.Core {
                 try {
                     TypeFactory.ScanAssembly(assemblyFile, task);
                 } catch (Exception ex) {
+                    string msg = string.Format(CultureInfo.InvariantCulture,
+                        "Failure scanning \"{0}\" for extensions", assemblyFile);
+
                     if (failOnError) {
-                        throw;
+                        throw new BuildException(msg + ".", 
+                            Location.UnknownLocation, ex);
                     }
                     
-                    task.Log(Level.Error, "Failure scanning \"{0}\" for extensions: {1}",
-                        assemblyFile, ex.Message);
+                    task.Log(Level.Error, msg + ": " + assemblyFile, ex.Message);
                 }
             }
         }
