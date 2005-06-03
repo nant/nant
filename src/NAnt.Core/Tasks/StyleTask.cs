@@ -142,8 +142,8 @@ namespace NAnt.Core.Tasks {
         }
         
         /// <summary>
-        /// Name of the stylesheet to use - given either relative to the project's 
-        /// basedir or as an absolute path.
+        /// URI or path that points to the stylesheet to use. If given as path, it can
+        /// be relative to the project's basedir or absolute.
         /// </summary>
         [TaskAttribute("style", Required=true)]
         public Uri XsltFile {
@@ -266,8 +266,11 @@ namespace NAnt.Core.Tasks {
                 }
             } else {
                 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(XsltFile);
-                HttpWebResponse response = response = (HttpWebResponse) request.GetResponse();
+                if (Proxy != null) {
+                    request.Proxy = Proxy.GetWebProxy();
+                }
 
+                HttpWebResponse response = response = (HttpWebResponse) request.GetResponse();
                 if (response.StatusCode != HttpStatusCode.OK) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1149"), XsltFile), 
@@ -414,17 +417,26 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Methods
 
         protected virtual XmlReader CreateXmlReader(Uri uri) {
-            XmlUrlResolver resolver = new XmlUrlResolver();
+            Stream stream = null;
+            XmlUrlResolver resolver = null;
 
-            resolver.Credentials = Proxy != null
-                ? Proxy.Credentials.GetCredential()
-                : CredentialCache.DefaultCredentials;
+            if (uri.IsFile) {
+                stream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read);
+            } else {
+                resolver = new XmlUrlResolver();
+                HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(XsltFile);
+                if (Proxy != null) {
+                    request.Proxy = Proxy.GetWebProxy();
+                    resolver.Credentials = Proxy.Credentials.GetCredential();
+                } else {
+                    resolver.Credentials = CredentialCache.DefaultCredentials;
+                }
+                stream = request.GetResponse().GetResponseStream();
+            }
 
-            Stream stream = uri.IsFile
-                ? new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read)
-                : (Stream) resolver.GetEntity(uri, null, typeof(Stream));
-
-            return new XmlTextReader(uri.ToString(), stream);
+            XmlTextReader xmlReader = new XmlTextReader(uri.ToString(), stream);
+            xmlReader.XmlResolver = resolver;
+            return new XmlValidatingReader(xmlReader);
         }
 
         protected virtual TextWriter CreateWriter(string filepath) {
