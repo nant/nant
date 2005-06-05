@@ -42,7 +42,7 @@ namespace Tests.NAnt.Core.Tasks {
         
         [Test]
         public void Test_AssemblyNotExists() {
-            string _xml = @"
+            const string _xml = @"
                     <project name='foo'>
                         <loadtasks assembly='foo.dll'  />
                     </project>";
@@ -60,10 +60,10 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void Test_IncorrectArgs() {
-            string _xml = @"
-            <project name='foo'>
-                <loadtasks  path ='c:\cvs\NAntContrib\build' assembly='foo.dll'  />
-            </project>";
+            const string _xml = @"
+                <project name='foo'>
+                    <loadtasks path ='c:\cvs\NAntContrib\build' assembly='foo.dll'  />
+                </project>";
             try {                
                 RunBuild(_xml);
                 Assert.Fail("Invalid attribute combination did not generate an exception");
@@ -72,6 +72,33 @@ namespace Tests.NAnt.Core.Tasks {
                     Assert.Fail("Incorrect exception type !");
             } catch {
                 Assert.Fail("Incorrect exception type !");
+            }
+        }
+
+        /// <summary>
+        /// Check whether the filename of the assembly that caused the failure
+        /// is part of the build failure message.
+        /// </summary>
+        public void Test_AssemblyLoadFailure() {
+            string tempFile = CreateTempFile("test.dll");
+
+            const string _xml = @"
+                <project name='foo'>
+                    <loadtasks path='{0}' />
+                </project>";
+
+            try {                
+                RunBuild(string.Format(CultureInfo.InvariantCulture, _xml,
+                    tempFile));
+                Assert.Fail("LoadTasks should have failed");
+            } catch (TestBuildException e) {
+                if (!(e.InnerException is BuildException)) {
+                    Assert.Fail("Incorrect exception type !");
+                } else {
+                    BuildException buildError = (BuildException) e.InnerException;
+                    Assert.IsTrue(buildError.Message.IndexOf("test.dll") != -1,
+                        "Assembly causing failure is not part of message.");
+                }
             }
         }
    }
