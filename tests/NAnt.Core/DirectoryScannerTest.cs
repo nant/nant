@@ -28,10 +28,9 @@ using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {
     [TestFixture]
-    public class DirectoryScannerTest {
+    public class DirectoryScannerTest : BuildTestBase {
         #region Private Instance Fields
 
-        private string _tempDir;
         private string _folder1;
         private string _folder2;
         private string _folder3;
@@ -70,11 +69,11 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_WildcardMatching2() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "Foo2.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo2.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
@@ -89,11 +88,11 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_WildcardMatching3() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "Foo2.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo2.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
@@ -117,11 +116,11 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_WildcardMatching4() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "Foo2.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo2.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
@@ -150,7 +149,7 @@ namespace Tests.NAnt.Core {
                                                      _folder3
                                                  };
             string[] excludedDirs = new string[] {
-                                                     _tempDir,
+                                                     TempDirName,
                                                      _folder2
                                                  };
 
@@ -179,7 +178,7 @@ namespace Tests.NAnt.Core {
                                                      _folder3
                                                  };
             string[] excludedDirs = new string[] {
-                                                     _tempDir,
+                                                     TempDirName,
                                                  };
 
             // the folder2 directory should now be matched
@@ -196,7 +195,7 @@ namespace Tests.NAnt.Core {
         /// </summary>
         [Test]
         public void Test_WildcardMatching_BaseDirectory3() {
-            string tempDirBin = Path.Combine(_tempDir, "bin");
+            string tempDirBin = Path.Combine(TempDirName, "bin");
             string folder1Bin = Path.Combine(_folder1, "bin");
             string folder2Bin = Path.Combine(_folder2, "bin");
             string folder3Bin = Path.Combine(_folder3, "bin");
@@ -212,7 +211,7 @@ namespace Tests.NAnt.Core {
             string[] excludedFileNames = new string[] {
                                                           Path.Combine(tempDirBin, "Foo1.txt"),
                                                           Path.Combine(folder1Bin, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "whatever.txt"),
+                                                          Path.Combine(TempDirName, "whatever.txt"),
                                                           Path.Combine(_folder1, "Foo.whatever.txt")
                                                       };
             string[] includedDirs = new string[] {
@@ -222,7 +221,7 @@ namespace Tests.NAnt.Core {
                                                      folder2BinTest
                                                  };
             string[] excludedDirs = new string[] {
-                                                     _tempDir,
+                                                     TempDirName,
                                                      _folder1,
                                                      _folder2,
                                                      _folder3,
@@ -244,12 +243,12 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_NoWildcardMatching1() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
                                                           Path.Combine(_folder2, "Foo2.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
             _scanner.Includes.Add(@"Foo1.txt");
@@ -265,11 +264,11 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_NoWildcardMatching2() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder2, "Foo2.txt"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
@@ -289,12 +288,12 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_ParentDirectory1() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
                                                           Path.Combine(_folder2, "Foo2.txt"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
             _scanner.BaseDirectory = new DirectoryInfo(_folder2);
@@ -312,12 +311,12 @@ namespace Tests.NAnt.Core {
         public void Test_ParentDirectory2() 
         {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
                                                           Path.Combine(_folder2, "Foo2.txt"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo.bar"),
+                                                          Path.Combine(TempDirName, "Foo.bar"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
             _scanner.BaseDirectory = new DirectoryInfo(_folder2);
@@ -334,8 +333,8 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_RecursiveWildcardMatching1() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.Foo"),
                                                           Path.Combine(_folder3, "Foo4.me")
                                                       };
@@ -353,13 +352,13 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_RecursiveWildcardMatching2() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo1.txt"),
-                                                          Path.Combine(_tempDir, "Foo2.txt"),
+                                                          Path.Combine(TempDirName, "Foo1.txt"),
+                                                          Path.Combine(TempDirName, "Foo2.txt"),
                                                           Path.Combine(_folder2, "Foo3.txt"),
                                                           Path.Combine(_folder3, "Foo4.txt")
                                                       };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar")
                                                       };
@@ -381,7 +380,7 @@ namespace Tests.NAnt.Core {
                                                           Path.Combine(_folder3, "XYZzzz.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar")
                                                       };
@@ -403,7 +402,7 @@ namespace Tests.NAnt.Core {
                                                           Path.Combine(_folder3, "XYZzzz.txt"),
             };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar")
                                                       };
@@ -422,7 +421,7 @@ namespace Tests.NAnt.Core {
             string[] includedFileNames = new string[] {
                                                       };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar"),
                                                           Path.Combine(_folder3, "XYZ.txt"),
@@ -442,7 +441,7 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_Excludes2() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar")
                                                       };
@@ -465,7 +464,7 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_Excludes3() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar")
+                                                          Path.Combine(TempDirName, "Foo2.bar")
                                                       };
             string[] excludedFileNames = new string[] {
                                                           Path.Combine(_folder2, "Foo3.bar"),
@@ -488,7 +487,7 @@ namespace Tests.NAnt.Core {
         [Test]
         public void Test_Excludes4() {
             string[] includedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder2, "Foo3.bar"),
                                                           Path.Combine(_folder3, "Foo4.bar"),
                                                           Path.Combine(_folder3, "XYZ.txt"),
@@ -517,7 +516,7 @@ namespace Tests.NAnt.Core {
                                                           Path.Combine(_folder3, "XYZ.bak")
                                                       };
             string[] excludedFileNames = new string[] {
-                                                          Path.Combine(_tempDir, "Foo2.bar"),
+                                                          Path.Combine(TempDirName, "Foo2.bar"),
                                                           Path.Combine(_folder3, "XYZzzz.txt")
                                                       };
 
@@ -531,7 +530,7 @@ namespace Tests.NAnt.Core {
         /// </summary>
         [Test]
         public void Test_Dont_Match_BaseDir_2() {
-            string baseDir = TempDir.Create("NAnt.Tests.DirectoryScannerBaseDirTest");
+            string baseDir =  TempDir.Create("NAnt.Tests.DirectoryScannerBaseDirTest");
             TempFile.Create(Path.Combine(baseDir, "filea.txt"));
             TempFile.Create(Path.Combine(baseDir, "fileb.txt"));
 
@@ -549,23 +548,18 @@ namespace Tests.NAnt.Core {
         #region Protected Instance Methods
 
         [SetUp]
-        protected void SetUp() {
-            _tempDir = TempDir.Create("NAnt.Tests.DirectoryScannerTest");
+        protected override void SetUp() {
+            base.SetUp();
 
-            _folder1 = Path.Combine(_tempDir, "folder1");
-            _folder2 = Path.Combine(_tempDir, "folder2");
-            _folder3 = Path.Combine(_folder2, "folder3");
+            _folder1 = Path.Combine(TempDirName, "folder1");
+            _folder2 = Path.Combine(TempDirName, "folder2");
+            _folder3 = Path.Combine(TempDirName, "folder3");
             Directory.CreateDirectory(_folder1);
             Directory.CreateDirectory(_folder2);
             Directory.CreateDirectory(_folder3);
 
             _scanner = new DirectoryScanner();
-            _scanner.BaseDirectory = new DirectoryInfo(_tempDir);
-        }
-
-        [TearDown]
-        protected void TearDown() {
-            TempDir.Delete(_tempDir);
+            _scanner.BaseDirectory = TempDirectory;
         }
 
         #endregion Protected Instance Methods
