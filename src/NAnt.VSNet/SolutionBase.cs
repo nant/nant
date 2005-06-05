@@ -830,7 +830,18 @@ namespace NAnt.VSNet {
             /// </remarks>
             public ProjectBase Project {
                 get { return _project; }
-                set { _project = value; }
+                set {
+					// fail if GUID in project file does not match GUID in 
+					// solution
+					if (string.Compare(Guid, value.Guid, true, CultureInfo.InvariantCulture) != 0) {
+						throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+							"The GUID of project \"{0\" in the project file ({1})"
+							+ " does not match the GUID in the solution ({2})."
+							+ " Please correct this manually.", value.Name,
+							value.Guid, Guid), Location.UnknownLocation);
+					}
+					_project = value; 
+				}
             }
 
             #endregion Public Instance Properties
@@ -924,8 +935,23 @@ namespace NAnt.VSNet {
             /// Adds a <see cref="ProjectEntry"/> to the end of the collection.
             /// </summary>
             /// <param name="item">The <see cref="ProjectEntry"/> to be added to the end of the collection.</param> 
-            /// <returns>The position into which the new element was inserted.</returns>
+            /// <returns>
+            /// The position into which the new element was inserted.
+            /// </returns>
             public int Add(ProjectEntry item) {
+				if (item == null) {
+					throw new ArgumentNullException("item");
+				}
+
+				// fail if a project with the same GUID exists in the collection
+				ProjectEntry existingEntry = this[item.Guid];
+				if (existingEntry != null) {
+					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+						"The GUIDs of projects \"{0}\" and \"{1}\" are identical."
+						+ " Please correct this manually.", item.Path,
+						existingEntry.Path), Location.UnknownLocation);
+				}
+
                 return base.List.Add(item);
             }
 
