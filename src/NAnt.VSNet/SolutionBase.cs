@@ -394,8 +394,8 @@ namespace NAnt.VSNet {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
 
-				// add project to entry
-				projectEntry.Project = p;
+                // add project to entry
+                projectEntry.Project = p;
 
                 // set project build configuration
                 SetProjectBuildConfiguration(p);
@@ -818,22 +818,22 @@ namespace NAnt.VSNet {
             public ProjectBase Project {
                 get { return _project; }
                 set {
-					if (value != null) {
-						// if the project GUID from the solution file doesn't match the 
-						// project GUID from the project file we will run into problems. 
-						// Alert the user to fix this as it is basically a corruption 
-						// probably caused by user manipulation of the solution file
-						// i.e. copy and paste
-						if (string.Compare(Guid, value.Guid, true, CultureInfo.InvariantCulture) != 0) {
-							throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-								"GUID corruption detected for project '{0}'. GUID values" 
-								+ " in project file and solution file do not match ('{1}'" 
-								+ " and '{2}'). Please correct this manually.", value.Name, 
-								value.Guid, Guid), Location.UnknownLocation);
-						}
-					}
-					_project = value; 
-				}
+                    if (value != null) {
+                        // if the project GUID from the solution file doesn't match the 
+                        // project GUID from the project file we will run into problems. 
+                        // Alert the user to fix this as it is basically a corruption 
+                        // probably caused by user manipulation of the solution file
+                        // i.e. copy and paste
+                        if (string.Compare(Guid, value.Guid, true, CultureInfo.InvariantCulture) != 0) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "GUID corruption detected for project '{0}'. GUID values" 
+                                + " in project file and solution file do not match ('{1}'" 
+                                + " and '{2}'). Please correct this manually.", value.Name, 
+                                value.Guid, Guid), Location.UnknownLocation);
+                        }
+                    }
+                _project = value; 
+                }
             }
 
             #endregion Public Instance Properties
@@ -931,18 +931,18 @@ namespace NAnt.VSNet {
             /// The position into which the new element was inserted.
             /// </returns>
             public int Add(ProjectEntry item) {
-				if (item == null) {
-					throw new ArgumentNullException("item");
-				}
+                if (item == null) {
+                    throw new ArgumentNullException("item");
+                }
 
-				// fail if a project with the same GUID exists in the collection
-				ProjectEntry existingEntry = this[item.Guid];
-				if (existingEntry != null) {
-					throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-						"The GUIDs of projects \"{0}\" and \"{1}\" are identical."
-						+ " Please correct this manually.", item.Path,
-						existingEntry.Path), Location.UnknownLocation);
-				}
+                // fail if a project with the same GUID exists in the collection
+                ProjectEntry existingEntry = this[item.Guid];
+                if (existingEntry != null) {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        "The GUIDs of projects \"{0}\" and \"{1}\" are identical."
+                        + " Please correct this manually.", item.Path,
+                        existingEntry.Path), Location.UnknownLocation);
+                }
 
                 return base.List.Add(item);
             }
