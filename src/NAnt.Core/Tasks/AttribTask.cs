@@ -248,12 +248,8 @@ namespace NAnt.Core.Tasks {
 
         private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
-                if (System.IO.File.Exists(path)) {
-                    Log(Level.Verbose, path);
-                    System.IO.File.SetAttributes(path, fileAttributes);
-                } else {
-                    throw new FileNotFoundException();
-                }
+                Log(Level.Verbose, path);
+                System.IO.File.SetAttributes(path, fileAttributes);
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1102"), path);
