@@ -286,7 +286,7 @@ namespace NAnt.VSNet {
         }
 
 
-        protected override bool Build(string solutionConfiguration) {
+        protected override BuildResult Build(string solutionConfiguration) {
             bool bSuccess = true;
             bool outputUpdated;
             string tempFile = null;
@@ -301,7 +301,7 @@ namespace NAnt.VSNet {
                 if (!PreBuild(cs)) {
                     // no longer bother trying to build the project and do not
                     // execute any post-build events
-                    return false;
+                    return BuildResult.Failed;
                 }
 
                 // ensure temp directory exists
@@ -316,6 +316,9 @@ namespace NAnt.VSNet {
                     // project output is up-to-date
                     outputUpdated = false;
                 } else {
+                    // prepare the project for build
+                    Prepare(solutionConfiguration);
+                    
                     // check if project does not contain any sources
                     if (_sourceFiles.Count == 0) {
                         // create temp file
@@ -486,7 +489,7 @@ namespace NAnt.VSNet {
                     Log(Level.Error, "Build failed.");
                 }
 
-                return bSuccess;
+                return outputUpdated ? BuildResult.SuccessOutputUpdated : BuildResult.Success;
             } finally {
                 // check if temporary file was created to support empty projects
                 if (tempFile != null) {
@@ -921,8 +924,26 @@ namespace NAnt.VSNet {
 
         public static string LoadGuid(string fileName) {
             try {
-                XmlDocument doc = LoadXmlDocument(fileName);
-                return ProjectSettings.GetProjectGuid(fileName, doc.DocumentElement);
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    XmlTextReader guidReader = new XmlTextReader(sr);
+                    
+                    while (guidReader.Read()) {
+                        if (guidReader.NodeType == XmlNodeType.Element) {
+                            while (guidReader.Read()) {
+                                if (guidReader.NodeType == XmlNodeType.Element) {
+                                    if (guidReader.MoveToAttribute( "ProjectGuid" ))
+                                        return guidReader.Value;
+                                }                                        
+                            }
+                        }
+                    }
+                }
+
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Couldn't locate ProjectGuid in project '{0}'", fileName),
+                    Location.UnknownLocation);
+
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error loading GUID of project '{0}'.", fileName), 

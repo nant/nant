@@ -31,6 +31,7 @@ using System.Xml;
 using Microsoft.Win32;
 
 using NAnt.Core;
+using NAnt.Core.Functions;
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
@@ -342,11 +343,34 @@ namespace NAnt.VSNet {
                 ObjectDir.Refresh();
             }
 
-            // prepare the project for build
-            Prepare(solutionConfiguration);
-
+            if (_solutionTask.Events != null && _solutionTask.Events.PreBuild != null) {
+                CallBuildEvent(projectConfig, _solutionTask.Events.PreBuild);
+            }
+            
             // build the project            
-            return Build(solutionConfiguration);
+            BuildResult result = Build(solutionConfiguration);
+
+            if (_solutionTask.Events != null && _solutionTask.Events.PostBuild != null) {
+                string successProperty = _solutionTask.Events.PropertyPrefix + "success";
+                string outputUpdatedProperty = _solutionTask.Events.PropertyPrefix + "outputupdated";
+
+                string saveSuccess = _solutionTask.Properties[ successProperty ];
+                string saveUpdated = _solutionTask.Properties[ outputUpdatedProperty ];
+
+                // This isn't pretty, but it's how LoopTask is doing it - we really need a proper scoped property dictionary
+                _solutionTask.Properties.Add( successProperty, BooleanConversionFunctions.ToString( result != BuildResult.Failed ) );
+                _solutionTask.Properties.Add( outputUpdatedProperty, BooleanConversionFunctions.ToString( result == BuildResult.SuccessOutputUpdated ) );
+            
+                try {
+                    CallBuildEvent(projectConfig, _solutionTask.Events.PostBuild);
+                }
+                finally {
+                    _solutionTask.Properties[ successProperty ] = saveSuccess;
+                    _solutionTask.Properties[ outputUpdatedProperty ] = saveUpdated;
+                }
+            }
+            
+            return (result != BuildResult.Failed);
         }
 
         public string GetOutputPath(string solutionConfiguration) {
@@ -513,6 +537,18 @@ namespace NAnt.VSNet {
             }
         }
 
+        /// <summary>
+        /// Gets a list of valid macro expansion variables.
+        /// </summary>
+        /// <returns>The list of macro expansion variables</returns>
+        protected internal virtual StringCollection GetMacros() 
+        {
+            StringCollection macros = new StringCollection();
+            macros.AddRange( new string[] { "projectname", "projectpath", "projectfilename", "projectext", "projectdir", "devenvdir" } );
+
+            return macros;
+        }
+
         #endregion Protected Internal Instance Methods
 
         #region Protected Instance Methods
@@ -544,6 +580,25 @@ namespace NAnt.VSNet {
         ///   <para>The XML fragment does not represent a valid project (for this <see cref="ProjectBase" />).</para>
         /// </exception>
         protected abstract void VerifyProjectXml(XmlElement docElement);
+
+        /// <summary>
+        /// Calls a given build event with the macro properties expanded.
+        /// </summary>
+        protected virtual void CallBuildEvent(ConfigurationBase projectConfig, TaskContainer tasks) {
+            Hashtable savedProperties = new Hashtable();
+
+            try {
+                foreach (string property in projectConfig.GetMacros()) {
+                    savedProperties[property] = _solutionTask.Project.Properties[_solutionTask.Events.PropertyPrefix + property];
+                    _solutionTask.Project.Properties[_solutionTask.Events.PropertyPrefix + property] = projectConfig.ExpandMacro(property);
+                }            
+                tasks.Execute();
+            }
+            finally {
+                foreach (string property in savedProperties.Keys)
+                    _solutionTask.Project.Properties[_solutionTask.Events.PropertyPrefix + property] = (string)savedProperties[property];
+            }
+        }
 
         /// <summary>
         /// Prepares the project for being built.
@@ -616,7 +671,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected abstract bool Build(string solutionConfiguration);
+        protected abstract BuildResult Build(string solutionConfiguration);
 
         /// <summary>
         /// Copies the specified file if the destination file does not exist, or
@@ -800,6 +855,25 @@ namespace NAnt.VSNet {
         /// A Visual J# project.
         /// </summary>
         JSharp = 3
+    }
+
+    /// <summary>
+    /// Specifies the result of the build.
+    /// </summary>
+    public enum BuildResult 
+    {
+        /// <summary>
+        /// The build failed.
+        /// </summary>
+        Failed = 0,
+        /// <summary>
+        /// The build succeeded.
+        /// </summary>
+        Success = 1,
+        /// <summary>
+        /// The build succeeded and the output was updated.
+        /// </summary>
+        SuccessOutputUpdated = 2,
     }
 
     public enum ProductVersion {

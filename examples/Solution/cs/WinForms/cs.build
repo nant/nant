@@ -19,7 +19,19 @@
     <target name="rebuild" depends="clean, build" />
 
     <target name="build.winforms">
-        <solution configuration="${configuration}" solutionfile="WinForms.sln" />
+        <solution configuration="${configuration}" solutionfile="WinForms.sln">
+			<events prefix="build.">
+				<beforeprojectbuild>
+					<echo>About to build project ${build.projectfilename} of solution ${build.solutionfilename}</echo>
+					<fail unless="${build.solutionfilename=='WinForms.sln'}" />
+					<fail unless="${build.projectfilename=='WinForms.csproj'}" />
+				</beforeprojectbuild>
+				<afterprojectbuild>
+					<fail unless="${build.success}" />
+					<echo>After build, successful flag: ${build.success}</echo>
+				</afterprojectbuild>
+			</events>
+        </solution>
         <property name="expected.output" value="bin/${configuration}/WinForms.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>

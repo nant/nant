@@ -285,7 +285,10 @@ namespace NAnt.VSNet {
             return GetProductVersion(docElement);
         }
 
-        protected override bool Build(string solutionConfiguration) {
+        protected override BuildResult Build(string solutionConfiguration) {
+            // prepare the project for build
+            Prepare(solutionConfiguration);
+
             _objFiles.Clear();
             
             // obtain project configuration (corresponding with solution configuration)
@@ -396,13 +399,13 @@ namespace NAnt.VSNet {
 
             // perform pre-build actions
             if (!PreBuild(projectConfig)) {
-                return false;
+                return BuildResult.Failed;
             }
 
             string nmakeCommand = projectConfig.GetToolSetting("VCNMakeTool", "BuildCommandLine");
             if (!StringUtils.IsNullOrEmpty(nmakeCommand)) {
                 RunNMake(nmakeCommand);
-                return true;
+                return BuildResult.Success;
             }
 
             VcConfigurationBase stdafxConfig = null;
@@ -443,7 +446,7 @@ namespace NAnt.VSNet {
                 case VcProjectConfiguration.ConfigurationType.DynamicLibrary:
                     // perform pre-link actions
                     if (!PreLink(projectConfig)) {
-                        return false;
+                        return BuildResult.Failed;
                     }
                     RunLinker(solutionConfiguration);
                     break;
@@ -472,10 +475,10 @@ namespace NAnt.VSNet {
 
             // perform post-build actions
             if (!PostBuild(projectConfig)) {
-                return false;
+                return BuildResult.Failed;
             }
 
-            return true;
+            return BuildResult.Success;
         }
 
         #endregion Override implementation of ProjectBase
@@ -511,6 +514,18 @@ namespace NAnt.VSNet {
                 default:
                     return base.ExpandMacro(macro);
             }
+        }
+
+        /// <summary>
+        /// Gets a list of valid macro expansion variables.
+        /// </summary>
+        /// <returns>The list of macro expansion variables</returns>
+        protected internal override StringCollection GetMacros()
+        {
+            StringCollection macros = base.GetMacros();
+            macros.AddRange( new string[] {"inputdir","inputname", "inputpath", "inputfilename", "inputext", "safeparentname", "safeinputname"} );
+
+            return macros;
         }
 
         #endregion Protected Internal Instance Methods
