@@ -394,24 +394,11 @@ namespace NAnt.VSNet {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
 
-                // if the project GUID from the solution file doesn't match the 
-                // project GUID from the project file we will run into problems. 
-                // Alert the user to fix this as it is basically a corruption 
-                // probably caused by user manipulation of the solution file
-                // i.e. copy and paste
-                if (!p.Guid.Equals(projectGuid)) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "GUID corruption detected for project '{0}'. GUID values" 
-                        + " in project file and solution file do not match ('{1}'" 
-                        + " and '{2}'). Please correct this manually.", p.Name, 
-                        p.Guid, projectGuid), Location.UnknownLocation);
-                }
+				// add project to entry
+				projectEntry.Project = p;
 
                 // set project build configuration
                 SetProjectBuildConfiguration(p);
-
-                // add project to entry
-                projectEntry.Project = p;
             }
 
             // add explicit dependencies (as set in VS.NET) to individual projects
@@ -831,14 +818,19 @@ namespace NAnt.VSNet {
             public ProjectBase Project {
                 get { return _project; }
                 set {
-					// fail if GUID in project file does not match GUID in 
-					// solution
-					if (string.Compare(Guid, value.Guid, true, CultureInfo.InvariantCulture) != 0) {
-						throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-							"The GUID of project \"{0\" in the project file ({1})"
-							+ " does not match the GUID in the solution ({2})."
-							+ " Please correct this manually.", value.Name,
-							value.Guid, Guid), Location.UnknownLocation);
+					if (value != null) {
+						// if the project GUID from the solution file doesn't match the 
+						// project GUID from the project file we will run into problems. 
+						// Alert the user to fix this as it is basically a corruption 
+						// probably caused by user manipulation of the solution file
+						// i.e. copy and paste
+						if (string.Compare(Guid, value.Guid, true, CultureInfo.InvariantCulture) != 0) {
+							throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+								"GUID corruption detected for project '{0}'. GUID values" 
+								+ " in project file and solution file do not match ('{1}'" 
+								+ " and '{2}'). Please correct this manually.", value.Name, 
+								value.Guid, Guid), Location.UnknownLocation);
+						}
 					}
 					_project = value; 
 				}
