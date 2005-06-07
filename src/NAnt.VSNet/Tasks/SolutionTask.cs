@@ -325,7 +325,8 @@ namespace NAnt.VSNet.Tasks {
         /// Solution, project and configuration macro variables are placed in properties under the prefix
         /// specified in <see cref="SolutionEventsElement.PropertyPrefix"/>.
         /// </remarks>
-        [BuildElement("events")]
+        //[BuildElement("events")]
+        //Private until after release...
         public SolutionEventsElement Events
         {
             get { return _events; }
