@@ -424,7 +424,7 @@ namespace NAnt.Core.Tasks {
                 stream = new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read);
             } else {
                 resolver = new XmlUrlResolver();
-                HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(XsltFile);
+                HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(uri);
                 if (Proxy != null) {
                     request.Proxy = Proxy.GetWebProxy();
                     resolver.Credentials = Proxy.Credentials.GetCredential();
