@@ -224,9 +224,9 @@ namespace Tests.NAnt.Core {
 
             // uri property should be registered
             Assert.IsTrue(project.Properties.Contains(ElementTest1Task.UriPropertyName));
-            // path should have been resolved to absolute path (in project dir)
-            Assert.AreEqual("file:///test/file.txt", project.Properties[
-                ElementTest1Task.UriPropertyName]);
+            // ensure resulting property matches expected URI 
+            Assert.AreEqual(new Uri("file:///test/file.txt"), 
+                new Uri(project.Properties[ElementTest1Task.UriPropertyName]));
         }
 
         [Test]
@@ -234,7 +234,7 @@ namespace Tests.NAnt.Core {
             const string build = @"<?xml version='1.0' ?>
                 <project name='testing' default='test'>
                      <target name='test'>
-                        <elementTest1 uri='http://nant.sourceforge.net/' />
+                        <elementTest1 uri='http://nant.sourceforge.net' />
                      </target>
                 </project>";
 
@@ -243,7 +243,7 @@ namespace Tests.NAnt.Core {
 
             // uri property should be registered
             Assert.IsTrue(project.Properties.Contains(ElementTest1Task.UriPropertyName));
-            // path should have been resolved to absolute path (in project dir)
+            // ensure resulting property matches expected URI 
             Assert.AreEqual("http://nant.sourceforge.net/", project.Properties[
                 ElementTest1Task.UriPropertyName]);
         }
