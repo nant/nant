@@ -553,7 +553,7 @@ namespace Tests.NAnt.Core {
 
             _folder1 = Path.Combine(TempDirName, "folder1");
             _folder2 = Path.Combine(TempDirName, "folder2");
-            _folder3 = Path.Combine(TempDirName, "folder3");
+            _folder3 = Path.Combine(_folder2, "folder3");
             Directory.CreateDirectory(_folder1);
             Directory.CreateDirectory(_folder2);
             Directory.CreateDirectory(_folder3);
