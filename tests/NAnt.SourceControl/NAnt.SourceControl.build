@@ -31,7 +31,11 @@
     <target name="test" depends="build">
          <nunit2>
             <formatter type="Plain" />
-            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${path::combine(nant.location, 'nant.tests.config')}" />
+            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${path::combine(nant.location, 'nant.tests.config')}">
+                <categories>
+                    <exclude name="InetAccess" />
+                </categories>
+            </test>
          </nunit2>
     </target>
 </project>
