@@ -34,9 +34,9 @@ namespace NAnt.NUnit2.Types {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <categoryset>
+    /// <categories>
     ///     <include name="NoInternetAccess" />
-    /// </categoryset>
+    /// </categories>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -46,14 +46,14 @@ namespace NAnt.NUnit2.Types {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <categoryset>
+    /// <categories>
     ///     <exclude name="NotWorking" />
-    /// </categoryset>
+    /// </categories>
     ///     ]]>
     ///   </code>
     /// </example>
-    [ElementName("categoryset")]
-    public class CategorySet : DataTypeBase {
+    [ElementName("categories")]
+    public class Categories : DataTypeBase {
         #region Private Instance Fields
 
         private CategoryCollection _includes = new CategoryCollection();

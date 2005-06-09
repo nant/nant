@@ -45,7 +45,7 @@ namespace NAnt.NUnit2.Types {
         private FileInfo _xsltFile;
         private AssemblyFileSet _assemblies = new AssemblyFileSet();
         private FileInfo _appConfigFile;
-        private CategorySet _categories = new CategorySet();
+        private Categories _categories = new Categories();
 
         #endregion Private Instance Fields
 
@@ -83,7 +83,7 @@ namespace NAnt.NUnit2.Types {
         /// Categories of test cases to include or exclude.
         /// </summary>
         [BuildElement("categories")]
-        public CategorySet Categories {
+        public Categories Categories {
             get { return _categories; }
             set { _categories = value; }
         }

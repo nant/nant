@@ -20,66 +20,39 @@
 using System;
 using System.Collections;
 
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
-
-using NAnt.DotNet.Types;
 
 namespace NAnt.NUnit2.Types {
     /// <summary>
-    /// Contains a collection of <see cref="Category" /> items.
+    /// Contains a collection of <see cref="Category" /> elements.
     /// </summary>
     [Serializable()]
-    public class CategoryCollection : DataTypeCollectionBase, IList {
-        #region Public Instance Properties
+    public class CategoryCollection : CollectionBase {
+        #region Public Instance Constructors
 
         /// <summary>
-        /// Returns an enumerator that can iterate through the collection.
+        /// Initializes a new instance of the <see cref="CategoryCollection"/> class.
         /// </summary>
-        /// <returns>
-        /// A <see cref="CategoryEnumerator"/> for the entire collection.
-        /// </returns>
-        public CategoryEnumerator GetEnumerator() {
-            return new CategoryEnumerator(this);
+        public CategoryCollection() {
         }
-
+        
         /// <summary>
-        /// Gets or sets the item at the specified index.
+        /// Initializes a new instance of the <see cref="CategoryCollection"/> class
+        /// with the specified <see cref="CategoryCollection"/> instance.
         /// </summary>
-        /// <param name="index">The zero-based index of the item to get or set.</param>
-        [System.Runtime.CompilerServices.IndexerName("Item")]
-        public Category this[int index] {
-            get { 
-                RangeCheck(index);
-                return (Category) List[index];
-            }
-            set {
-                this.RangeCheck(index);
-                List[index] = value;
-            }
+        public CategoryCollection(CategoryCollection value) {
+            AddRange(value);
         }
-
+        
         /// <summary>
-        /// Gets the <see cref="Category"/> with the specified name.
+        /// Initializes a new instance of the <see cref="CategoryCollection"/> class
+        /// with the specified array of <see cref="Category"/> instances.
         /// </summary>
-        /// <param name="value">The name of the <see cref="Category"/> to get.</param>
-        [System.Runtime.CompilerServices.IndexerName("Item")]
-        public Category this[string value] {
-            get {
-                if (value != null) {
-                    // Try to locate instance using Value
-                    foreach (Category category in base.List) {
-                        if (value.Equals(category.CategoryName)) {
-                            return category;
-                        }
-                    }
-                }
-                return null;
-            }
+        public CategoryCollection(Category[] value) {
+            AddRange(value);
         }
 
-        #endregion Public Instance Properties
+        #endregion Public Instance Constructors
 
         #region Override implementation of Object
 
@@ -108,104 +81,63 @@ namespace NAnt.NUnit2.Types {
         }
 
         #endregion Override implementation of Object
-
-        #region Override implementation of DataTypeCollectionBase
+        
+        #region Public Instance Properties
 
         /// <summary>
-        /// Gets the <see cref="Type" /> of the items in this collection.
+        /// Gets or sets the element at the specified index.
         /// </summary>
-        /// <value>
-        /// The <see cref="Type" /> of the items in this collection.
-        /// </value>
-        protected override Type ItemType {
-            get { return typeof(Category); }
+        /// <param name="index">The zero-based index of the element to get or set.</param>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public Category this[int index] {
+            get {return ((Category)(base.List[index]));}
+            set {base.List[index] = value;}
         }
 
-        #endregion Override implementation of DataTypeCollectionBase
+        /// <summary>
+        /// Gets the <see cref="Category"/> with the specified name.
+        /// </summary>
+        /// <param name="value">The name of the <see cref="Category"/> to get.</param>
+        [System.Runtime.CompilerServices.IndexerName("Item")]
+        public Category this[string value] {
+            get {
+                if (value != null) {
+                    // Try to locate instance using Value
+                    foreach (Category category in base.List) {
+                        if (value.Equals(category.CategoryName)) {
+                            return category;
+                        }
+                    }
+                }
+                return null;
+            }
+        }
 
-        #region IList Members
+        #endregion Public Instance Properties
+
+        #region Public Instance Methods
+        
+        /// <summary>
+        /// Adds a <see cref="Category"/> to the end of the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="Category"/> to be added to the end of the collection.</param> 
+        /// <returns>The position into which the new element was inserted.</returns>
+        public int Add(Category item) {
+            return base.List.Add(item);
+        }
 
         /// <summary>
-        /// Gets or sets the item at the specified index.
+        /// Adds the elements of a <see cref="Category"/> array to the end of the collection.
         /// </summary>
-        /// <param name="index">The zero-based index of the item to get or set.</param>
-        object IList.this[int index] {
-            get { return this[index]; }
-            set { 
-                ValidateType(value);
-                this[index] = (Category) value;
+        /// <param name="items">The array of <see cref="Category"/> elements to be added to the end of the collection.</param> 
+        public void AddRange(Category[] items) {
+            for (int i = 0; (i < items.Length); i = (i + 1)) {
+                Add(items[i]);
             }
         }
 
         /// <summary>
-        /// Inserts a <see cref="Category" /> into the collection at the
-        /// specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="value">The <see cref="Category"/> to insert.</param>
-        void IList.Insert(int index, object value) {
-            ValidateType(value);
-            Insert(index, (Category) value);
-        }
-
-        /// <summary>
-        /// Removes the specified <see cref="Category"/> from the
-        /// collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> to remove from the collection.</param>
-        void IList.Remove(object value) {
-            ValidateType(value);
-            Remove((Category) value);
-        }
-
-        /// <summary>
-        /// Determines whether a <see cref="Category"/> is in the collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> to locate in the collection.</param> 
-        /// <returns>
-        /// <see langword="true" /> if <paramref name="value" /> is found in the 
-        /// collection; otherwise, <see langword="false" />.
-        /// </returns>
-        bool IList.Contains(object value) {
-            ValidateType(value);        
-            return List.Contains((Category) value);
-        }
-
-        /// <summary>
-        /// Gets the location of a <see cref="Category"/> in the collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> object to locate.</param> 
-        /// <returns>
-        /// The zero-based location of the <see cref="Category" /> in the
-        /// collection.
-        /// </returns>
-        /// <remarks>
-        /// If the <see cref="Category"/> is not currently a member of 
-        /// the collection, -1 is returned.
-        /// </remarks>
-        int IList.IndexOf(object value) {
-            ValidateType(value);
-            return IndexOf((Category) value);
-        }
-
-        /// <summary>
-        /// Adds a <see cref="Category"/> to the end of the collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> to be added to the end of the collection.</param> 
-        /// <returns>
-        /// The position into which the new item was inserted.
-        /// </returns>
-        int IList.Add(object value) {
-            ValidateType(value);
-            return Add((Category) value);
-        }
-
-        #endregion
-
-        #region Public Instance Methods
-
-        /// <summary>
-        /// Adds the items of a <see cref="CategoryCollection"/> to the end of the collection.
+        /// Adds the elements of a <see cref="CategoryCollection"/> to the end of the collection.
         /// </summary>
         /// <param name="items">The <see cref="CategoryCollection"/> to be added to the end of the collection.</param> 
         public void AddRange(CategoryCollection items) {
@@ -213,71 +145,85 @@ namespace NAnt.NUnit2.Types {
                 Add(items[i]);
             }
         }
-
-        /// <summary>
-        /// Adds a <see cref="Category"/> to the end of the collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> to be added to the end of the collection.</param> 
-        /// <returns>
-        /// The position into which the new item was inserted.
-        /// </returns>
-        [BuildElement("import")]
-        public int Add(Category value) {
-            return List.Add(value);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="Category" /> into the collection at the
-        /// specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
-        /// <param name="value">The <see cref="Category"/> to insert.</param>
-        public void Insert(int index, Category value) {
-            List.Insert(index, value);
-        }
-
-        /// <summary>
-        /// Removes the specified <see cref="Category"/> from the
-        /// collection.
-        /// </summary>
-        /// <param name="value">The <see cref="Category"/> to remove from the collection.</param>
-        public void Remove(Category value) {
-            List.Remove(value);
-        }
-
+        
         /// <summary>
         /// Determines whether a <see cref="Category"/> is in the collection.
         /// </summary>
-        /// <param name="value">The <see cref="Category"/> to locate in the collection.</param> 
+        /// <param name="item">The <see cref="Category"/> to locate in the collection.</param> 
         /// <returns>
-        /// <see langword="true" /> if <paramref name="value" /> is found in the 
+        /// <see langword="true" /> if <paramref name="item"/> is found in the 
         /// collection; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Contains(Category value) {
-            return List.Contains(value);
+        public bool Contains(Category item) {
+            return base.List.Contains(item);
         }
 
         /// <summary>
-        /// Gets the location of a <see cref="Category"/> in the collection.
+        /// Determines whether a <see cref="Category"/> with the specified
+        /// value is in the collection.
         /// </summary>
-        /// <param name="value">The <see cref="Category"/> object to locate.</param> 
+        /// <param name="value">The argument value to locate in the collection.</param> 
         /// <returns>
-        /// The zero-based location of the <see cref="Category" /> in the
-        /// collection.
+        /// <see langword="true" /> if a <see cref="Category" /> with value 
+        /// <paramref name="value"/> is found in the collection; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
-        /// <remarks>
-        /// If the <see cref="Category"/> is not currently a member of 
-        /// the collection, -1 is returned.
-        /// </remarks>
-        public int IndexOf(Category value) {
-            return List.IndexOf(value);
+        public bool Contains(string value) {
+            return this[value] != null;
         }
-
+        
+        /// <summary>
+        /// Copies the entire collection to a compatible one-dimensional array, starting at the specified index of the target array.        
+        /// </summary>
+        /// <param name="array">The one-dimensional array that is the destination of the elements copied from the collection. The array must have zero-based indexing.</param> 
+        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+        public void CopyTo(Category[] array, int index) {
+            base.List.CopyTo(array, index);
+        }
+        
+        /// <summary>
+        /// Retrieves the index of a specified <see cref="Category"/> object in the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="Category"/> object for which the index is returned.</param> 
+        /// <returns>
+        /// The index of the specified <see cref="Category"/>. If the <see cref="Category"/> is not currently a member of the collection, it returns -1.
+        /// </returns>
+        public int IndexOf(Category item) {
+            return base.List.IndexOf(item);
+        }
+        
+        /// <summary>
+        /// Inserts a <see cref="Category"/> into the collection at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="item">The <see cref="Category"/> to insert.</param>
+        public void Insert(int index, Category item) {
+            base.List.Insert(index, item);
+        }
+        
+        /// <summary>
+        /// Returns an enumerator that can iterate through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="CategoryEnumerator"/> for the entire collection.
+        /// </returns>
+        public new CategoryEnumerator GetEnumerator() {
+            return new CategoryEnumerator(this);
+        }
+        
+        /// <summary>
+        /// Removes a member from the collection.
+        /// </summary>
+        /// <param name="item">The <see cref="Category"/> to remove from the collection.</param>
+        public void Remove(Category item) {
+            base.List.Remove(item);
+        }
+        
         #endregion Public Instance Methods
     }
 
     /// <summary>
-    /// Enumerates the <see cref="Category"/> items of a <see cref="CategoryCollection"/>.
+    /// Enumerates the <see cref="Category"/> elements of a <see cref="CategoryCollection"/>.
     /// </summary>
     public class CategoryEnumerator : IEnumerator {
         #region Internal Instance Constructors
@@ -295,33 +241,27 @@ namespace NAnt.NUnit2.Types {
         #endregion Internal Instance Constructors
 
         #region Implementation of IEnumerator
-
+            
         /// <summary>
-        /// Gets the current item in the collection.
+        /// Gets the current element in the collection.
         /// </summary>
         /// <returns>
-        /// The current item in the collection.
+        /// The current element in the collection.
         /// </returns>
         public Category Current {
             get { return (Category) _baseEnumerator.Current; }
         }
 
-        /// <summary>
-        /// Gets the current item in the collection.
-        /// </summary>
-        /// <returns>
-        /// The current item in the collection.
-        /// </returns>
         object IEnumerator.Current {
             get { return _baseEnumerator.Current; }
         }
 
         /// <summary>
-        /// Advances the enumerator to the next item of the collection.
+        /// Advances the enumerator to the next element of the collection.
         /// </summary>
         /// <returns>
         /// <see langword="true" /> if the enumerator was successfully advanced 
-        /// to the next item; <see langword="false" /> if the enumerator has 
+        /// to the next element; <see langword="false" /> if the enumerator has 
         /// passed the end of the collection.
         /// </returns>
         public bool MoveNext() {
@@ -331,10 +271,10 @@ namespace NAnt.NUnit2.Types {
         bool IEnumerator.MoveNext() {
             return _baseEnumerator.MoveNext();
         }
-
+            
         /// <summary>
         /// Sets the enumerator to its initial position, which is before the 
-        /// first item in the collection.
+        /// first element in the collection.
         /// </summary>
         public void Reset() {
             _baseEnumerator.Reset();
@@ -347,7 +287,7 @@ namespace NAnt.NUnit2.Types {
         #endregion Implementation of IEnumerator
 
         #region Private Instance Fields
-
+    
         private IEnumerator _baseEnumerator;
 
         #endregion Private Instance Fields
