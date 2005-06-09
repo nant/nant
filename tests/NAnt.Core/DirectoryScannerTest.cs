@@ -530,7 +530,7 @@ namespace Tests.NAnt.Core {
         /// </summary>
         [Test]
         public void Test_Dont_Match_BaseDir_2() {
-            string baseDir =  TempDir.Create("NAnt.Tests.DirectoryScannerBaseDirTest");
+            string baseDir =  CreateTempDir("NAnt.Tests.DirectoryScannerBaseDirTest");
             TempFile.Create(Path.Combine(baseDir, "filea.txt"));
             TempFile.Create(Path.Combine(baseDir, "fileb.txt"));
 
