@@ -184,7 +184,7 @@ namespace Tests.NAnt.Core.Tasks {
                 File.Delete(destination);
             }
 
-            Assertion.Assert(destination + " exists, but shouldn't", !File.Exists(destination));
+            Assert.IsTrue(!File.Exists(destination), destination + " exists, but shouldn't");
 
             getTask.Source = source;
             getTask.DestinationFile = new FileInfo(destination);
@@ -192,13 +192,14 @@ namespace Tests.NAnt.Core.Tasks {
             getTask.Verbose = true;
             getTask.Execute();
 
-            Assertion.Assert(destination + " doesn't exist.", File.Exists(destination));
+            Assert.IsTrue(File.Exists(destination), destination + " doesn't exist.");
 
             // cleanup 
             if (File.Exists(destination)) {
                 File.Delete(destination);
             }
-            Assertion.Assert(destination + " exists, but shouldn't.", !File.Exists(destination));
+
+            Assert.IsTrue(!File.Exists(destination), destination + " exists, but shouldn't.");
         }
 
         /// <summary>
