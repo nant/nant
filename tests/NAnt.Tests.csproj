@@ -479,6 +479,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.SourceControl\Tasks\CvsTaskTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.SourceControl\Tasks\UpdateTaskTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
