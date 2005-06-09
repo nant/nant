@@ -65,11 +65,11 @@
     <fileset id="tas.core.tests" basedir="tests">
         <include name="NAnt.DotNet/NAnt.DotNet.build" />
         <include name="NAnt.Compression/NAnt.Compression.build" />
+        <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
         <!--
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
-        <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
         -->
-    </fileset>    
+    </fileset>
     <!-- named project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
@@ -132,13 +132,13 @@
             </fileset>
         </copy>
         <copy todir="${build.dir}/bin">
-		<fileset basedir="lib">
-		        <!-- copy log4net assembly, workaround for Mono bug #57602 -->
-			<include name="log4net.dll" />
-			<!-- #ziplib command line client -->
-			<include name="scvs.exe" />
-		</fileset>
-	</copy>
+            <fileset basedir="lib">
+                <!-- copy log4net assembly, workaround for Mono bug #57602 -->
+                <include name="log4net.dll" />
+                <!-- #ziplib command line client -->
+                <include name="scvs.exe" />
+            </fileset>
+        </copy>
         <!-- copy third party assemblies -->
         <copy todir="${build.dir}/bin/lib">
             <fileset basedir="lib">
