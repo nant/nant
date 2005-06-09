@@ -10,11 +10,8 @@ using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
 namespace Tests.NAnt.SourceControl.Tasks {
-	/// <summary>
-	/// Summary description for CvsTaskTest.
-	/// </summary>
-	[TestFixture]
-	public class CvsTaskTest : BuildTestBase {
+    [TestFixture]
+    public class CvsTaskTest : BuildTestBase {
         private string destination;
 
         private readonly string MODULE = "sharpcvslib";
@@ -80,26 +77,24 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// Test that the checkout command executes successfully.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestCheckout () {
             this.destination = this.TempDirName;
             string checkoutPath = Path.Combine(this.destination, this.MODULE);
             string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
-
             object[] args = {"co", CVSROOT, MODULE, this.destination, true};
             string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Debug);
+                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
 
-            System.Console.WriteLine(result);
-            Assertion.Assert("The check file should not be there.", 
-                File.Exists(checkFilePath));
-
+            Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
 
         /// <summary>
         /// Test that the checkout command executes successfully with non-sharpcvslib binary.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestCheckout_NotSharpcvslib () {
             this.destination = this.TempDirName;
             string checkoutPath = Path.Combine(this.destination, this.MODULE);
@@ -107,18 +102,16 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             object[] args = {"co", CVSROOT, MODULE, this.destination, false};
             string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Debug);
+                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
 
-            System.Console.WriteLine(result);
-            Assertion.Assert("The check file should not be there.", 
-                File.Exists(checkFilePath));
-
+            Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
 
         /// <summary>
         /// Test that the checkout command executes successfully with non-sharpcvslib binary.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestCheckout_CommandOptions_NoSharpCvsLib () {
             this.destination = this.TempDirName;
             string checkoutPath = Path.Combine(this.destination, this.OVERRIDE_DIR);
@@ -126,34 +119,32 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             object[] args = {"co", CVSROOT, MODULE, this.destination, false, this.OVERRIDE_DIR, "HEAD"};
             string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Debug);
+                this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Info);
 
-            System.Console.WriteLine(result);
-            Assertion.Assert("The check file should not be there.", 
-                File.Exists(checkFilePath));
-
+            Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
 
         /// <summary>
         /// Test that the checkout command executes successfully with non-sharpcvslib binary.
         /// </summary>
-// TODO: Get this unit test working
-/*        public void TestCheckout_CommandOptions_SharpCvsLib () {
-            this.destination = this.TempDirName;
-            string checkoutPath = Path.Combine(this.destination, this.OVERRIDE_DIR);
-            string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
+        // TODO: Get this unit test working
+        /*        public void TestCheckout_CommandOptions_SharpCvsLib () {
+                    this.destination = this.TempDirName;
+                    string checkoutPath = Path.Combine(this.destination, this.OVERRIDE_DIR);
+                    string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
-            object[] args = {"co", CVSROOT, MODULE, this.destination, true, this.OVERRIDE_DIR, "HEAD"};
-            string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Debug);
+                    object[] args = {"co", CVSROOT, MODULE, this.destination, true, this.OVERRIDE_DIR, "HEAD"};
+                    string result = 
+                        this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Debug);
 
-            System.Console.WriteLine(result);
-            Assertion.Assert("The check file should not be there.", 
-                File.Exists(checkFilePath));
+                    System.Console.WriteLine(result);
+                    Assertion.Assert("The check file should not be there.", 
+                        File.Exists(checkFilePath));
 
-        }
-*/
+                }
+        */
         [Test]
+        [Category("InetAccess")]
         public void TestCheckout_CommandLine_Sharpcvslib () {
             this.destination = this.TempDirName;
             string checkoutPath = Path.Combine(this.destination, this.OVERRIDE_DIR);
@@ -161,18 +152,16 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             object[] checkoutArgs = {"co", CVSROOT, MODULE, this.destination, true};
             string resultCheckout = 
-                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, checkoutArgs), Level.Debug);
+                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, checkoutArgs), Level.Info);
             System.Console.WriteLine(resultCheckout);
 
             Directory.Delete(Path.Combine(this.destination, "build"));
 
             object[] updateArgs = {"update -dP", CVSROOT, MODULE, this.destination, true};
             string resultUpdate = 
-                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, updateArgs), Level.Debug);
+                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, updateArgs), Level.Info);
 
-            System.Console.WriteLine(resultUpdate);
-            Assertion.Assert("The check file should not be there.", 
-                File.Exists(checkFilePath));
+            Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
 
         /// <summary>
@@ -180,13 +169,20 @@ namespace Tests.NAnt.SourceControl.Tasks {
         ///     is equal.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestTimeCheckout () {
             long sharpCvsLibTime = DoCheckout(true);
             long cvsPathTime = DoCheckout(false);
 
-            Assertion.Assert("Sharpcvslib time: " + sharpCvsLibTime +
-                "; time for the cvs executable in the path variable: " +
-                cvsPathTime, sharpCvsLibTime < cvsPathTime);
+            Assert.IsTrue(sharpCvsLibTime < cvsPathTime, "Sharpcvslib time: " 
+                + sharpCvsLibTime + "; time for the cvs executable in the path"
+                + " variable: " + cvsPathTime);
+        }
+
+        #region Private Instance Methods
+
+        private string FormatBuildFile(string baseFile, object[] args) {
+            return string.Format(CultureInfo.InvariantCulture, baseFile, args);
         }
 
         private long DoCheckout (bool useSharpCvsLib) {
@@ -195,7 +191,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             object[] checkoutArgs = {"co", CVSROOT, MODULE, this.destination, useSharpCvsLib};
             string resultCheckout = 
-                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, checkoutArgs), Level.Debug);
+                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, checkoutArgs), Level.Info);
             System.Console.WriteLine(resultCheckout);
 
             DateTime end = DateTime.Now;
@@ -206,18 +202,8 @@ namespace Tests.NAnt.SourceControl.Tasks {
             return end.Subtract(start).Ticks;
         }
 
-        public void TestCheckout_CommandLine_CvsPath () {
-
-        }
-
-        #region Private Instance Methods
-
-        private string FormatBuildFile(string baseFile, object[] args) {
-            return string.Format(CultureInfo.InvariantCulture, baseFile, args);
-        }
-
         #endregion Private Instance Methods
 
 
-	}
+    }
 }

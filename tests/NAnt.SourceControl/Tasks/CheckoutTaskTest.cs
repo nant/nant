@@ -38,60 +38,49 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string destination;
 
-        private readonly string TestModule = "sharpcvslib";
-        private readonly string CheckFile = "lib/ICSharpCode.SharpZipLib.dll";
+        #endregion Private Instance Fields
 
-        private readonly string TestCvsRoot = 
+        #region Private Static Fields
+
+        private const string TestModule = "sharpcvslib";
+        private const string CheckFile = "lib/ICSharpCode.SharpZipLib.dll";
+
+        private const string TestCvsRoot = 
             ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
-        private readonly string _projectXML = @"<?xml version='1.0'?>
+        private const string _projectXML = @"<?xml version='1.0'?>
             <project>
                 <cvs-checkout   module='{0}' 
                                 cvsroot='{1}'
                                 destination='{2}'
-                                password='{3}'
-                                tag='{4}' 
                                 usesharpcvslib='false'/>
             </project>";
 
-        private readonly string _checkoutByDateProjectXML = @"<?xml version='1.0'?>
+        private const string _checkoutByDateProjectXML = @"<?xml version='1.0'?>
             <project>
                 <cvs-checkout   module='{0}' 
                                 cvsroot='{1}'
                                 destination='{2}'
-                                password='{3}'
-                                date='{4}'
-                                overridedir='{5}'
+                                date='{3}'
+                                overridedir='{4}'
                                 usesharpcvslib='false' />
             </project>";
 
-/*      private readonly string _useSharpCvsLibProjectXML = @"<?xml version='1.0'?>
-            <project>
-                <property name='sourcecontrol.usesharpcvslib' value='{0}'/>
-                <cvs-checkout   module='{1}' 
-                                cvsroot='{2}'
-                                destination='{3}'
-                                password='{4}' />
-            </project>";
-*/
-
-        private readonly string _testReadonly = @"<?xml version='1.0'?>
+        private const string _testReadonly = @"<?xml version='1.0'?>
             <project name='Test checkout' default='checkout'>
                 <property name='sourcecontrol.usesharpcvslib' value='{0}' />
                 <target name='checkout'>
                     <cvs-checkout   module='{1}'
                                     cvsroot='{2}' 
                                     destination='{3}'
-                                    password='{4}'
                                     readonly='true'
                                     quiet='true'
                                     commandline='-n'
                     />
                 </target>
-
             </project>";
 
-        #endregion Private Instance Fields
+        #endregion Private Static Fields
 
         #region Override implementation of BuildTestBase
 
@@ -122,15 +111,14 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// repository.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void Test_CvsCheckout () {
-            object[] args = 
-                {TestModule, TestCvsRoot, destination, string.Empty, string.Empty};
+            object[] args = {TestModule, TestCvsRoot, TempDirName};
 
-            string checkoutPath = Path.Combine(destination, TestModule);
+            string checkoutPath = Path.Combine(TempDirName, TestModule);
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = 
-                RunBuild(FormatBuildFile(_projectXML, args), Level.Debug);
+            string result = RunBuild(FormatBuildFile(_projectXML, args));
             Assert.IsTrue(File.Exists(checkFilePath), "File does not exist, checkout probably did not work.");
         }
 
@@ -138,15 +126,16 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// Test that a checkout is performed for the given date.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestCheckoutDate () {
             object[] args = { 
-                 TestModule, TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
+                 TestModule, TestCvsRoot, destination, "2003/08/16", "2003_08_16"};
 
             string checkoutPath = Path.Combine(destination, "2003_08_16");
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             string result = RunBuild(FormatBuildFile(_checkoutByDateProjectXML, 
-                args), Level.Debug);
+                args), Level.Info);
             Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
         }
 
@@ -154,19 +143,36 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// Test that a checkout is performed for the given date.
         /// </summary>
         [Test]
+        [Category("InetAccess")]
         public void TestCheckoutReadonly () {
             object[] args = { 
-                false, TestModule, TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
+                false, TestModule, TestCvsRoot, destination, "2003/08/16", "2003_08_16"};
 
             string checkoutPath = Path.Combine(destination, TestModule);
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             string result = RunBuild(FormatBuildFile(_testReadonly, args), 
-                Level.Debug);
+                Level.Info);
             Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
 
             FileAttributes attributes = File.GetAttributes(checkFilePath);
             Assert.IsTrue(attributes.CompareTo(FileAttributes.ReadOnly) > 0);
+        }
+
+        /// <summary>
+        /// Test that the validations for the module attribute are carried out
+        /// correctly.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void TestModuleValidation_Bad() {
+            object[] args = { string.Format("{0}/bad/module", TestModule), 
+                                TestCvsRoot, destination, "2003/08/16", "2003_08_16"};
+
+            string checkoutPath = Path.Combine(destination, "2003_08_16");
+            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
+
+            RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Info);
         }
 
         #endregion Public Instance Methods
@@ -175,23 +181,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
         private string FormatBuildFile(string baseFile, object[] args) {
             return string.Format(CultureInfo.InvariantCulture, baseFile, args);
-        }
-
-        /// <summary>
-        /// Test that the validations for the module attribute are carried out
-        ///     correctly.
-        /// </summary>
-        [ExpectedException (typeof(TestBuildException))]
-        public void TestModuleValidation_Bad() {
-            object[] args = { 
-                String.Format("{0}/bad/module", TestModule), 
-                TestCvsRoot, destination, string.Empty, "2003/08/16", "2003_08_16"};
-
-            string checkoutPath = Path.Combine(destination, "2003_08_16");
-            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
-
-            string result = 
-                RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Debug);
         }
 
         #endregion Private Instance Methods
