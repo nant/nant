@@ -191,7 +191,27 @@
             <arg value="self-test" />
         </exec>
     </target>
-    <target name="self-test" depends="init, test-examples">
+    <target name="test-dotnet" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-test-dotnet" />
+        </exec>
+    </target>
+    <target name="test-sourcecontrol" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-test-sourcecontrol" />
+        </exec>
+    </target>
+    <target name="prepare-self-test" depends="init">
         <copy file="${path::combine(nant.location, 'NAnt.exe.config')}" tofile="${path::combine(nant.location, 'nant.tests.config')}" />
         <!-- make sure the config file is writable -->
         <attrib file="${path::combine(nant.location, 'nant.tests.config')}" readonly="false" />
@@ -201,6 +221,22 @@
                  value="${framework::get-target-framework()}"/>
         <!-- output the config file that will be used to run the tests -->
         <echo message="testing with config '${path::combine(nant.location, 'nant.tests.config')}'" />
+    </target>
+    <target name="self-test-dotnet" depends="prepare-self-test">
+        <nant target="test">
+            <buildfiles basedir="tests">
+                <include name="NAnt.DotNet/NAnt.DotNet.build" />
+            </buildfiles>
+        </nant>
+    </target>
+    <target name="self-test-sourcecontrol" depends="prepare-self-test">
+        <nant target="test">
+            <buildfiles basedir="tests">
+                <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
+            </buildfiles>
+        </nant>
+    </target>
+    <target name="self-test" depends="prepare-self-test, test-examples">
         <!-- test NAnt.Console assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="test" />
         <!-- test NAnt.Core assembly -->
