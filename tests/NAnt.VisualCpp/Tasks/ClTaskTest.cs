@@ -34,7 +34,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
     public class ClTaskTest_HelloWorld : VisualCppTestBase {
         string _objDir;
         string _sourceDir;
-        string _sourcePathName;
+
         const string _test_build = @"<?xml version='1.0'?>
                 <project>
                     <cl outputdir=""objs""
@@ -55,7 +55,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             base.SetUp();
             _objDir = CreateTempDir("objs");
             _sourceDir = CreateTempDir("src");
-            _sourcePathName = CreateTempFile(Path.Combine(_sourceDir, "HelloWorld.cpp"), _helloWorld_cpp);
+            CreateTempFile(Path.Combine(_sourceDir, "HelloWorld.cpp"), _helloWorld_cpp);
         }
 
         /// <summary>Test to make sure simple compile works.</summary>
@@ -77,7 +77,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
 
         string _objDir;
         string _sourceDir;
-        string [] _sourcePathName = new string[_sourceCount];
+        string [] _sourcePathNames = new string[_sourceCount];
         string [] _objPathName = new string[_sourceCount];
 
         readonly string [] _sourceFileName = new string[_sourceCount] { "main.cpp", "test1.cpp", "test2.cpp" };
@@ -119,7 +119,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             _sourceDir = CreateTempDir("src");
 
             for (int i = 0; i < _sourceCount; ++i) {
-                _sourcePathName[i] = CreateTempFile(Path.Combine(_sourceDir, _sourceFileName[i]), _sourceCode[i]);
+                _sourcePathNames[i] = CreateTempFile(Path.Combine(_sourceDir, _sourceFileName[i]), _sourceCode[i]);
                 _objPathName[i] = Path.ChangeExtension(Path.Combine(_objDir, _sourceFileName[i]), ".obj");
             }
         }
@@ -174,12 +174,12 @@ namespace Tests.NAnt.VisualCpp.Tasks
             Test_BuildAll();
 
             for (int i = 0; i < _sourceCount; ++i) {
-                File.SetLastWriteTime(_sourcePathName[i], DateTime.Now);
+                File.SetLastWriteTime(_sourcePathNames[i], DateTime.Now);
                 RunBuild(_test_build);
-                FileInfo sourceFileInfo = new FileInfo(_sourcePathName[i]);
+                FileInfo sourceFileInfo = new FileInfo(_sourcePathNames[i]);
                 FileInfo objFileInfo = new FileInfo(_objPathName[i]);
                 Assert.IsTrue(objFileInfo.LastWriteTime >= sourceFileInfo.LastWriteTime,
-                    "{0} must be newer than {1}.", _objPathName[i], _sourcePathName[i]);
+                    "{0} must be newer than {1}.", _objPathName[i], _sourcePathNames[i]);
             }
         }
     }

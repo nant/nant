@@ -235,11 +235,19 @@ namespace Tests.NAnt.VisualCpp {
                                                                                  "windows.h"
                                                                              };
 
-        private static readonly bool _compilerPresent = _compilerPresent = CheckCompilerPresent();
-        private static readonly bool _libsPresent = CheckLibsPresent();
-        private static readonly bool _headerFilesPresent = CheckHeaderFilesPresent();
-        private static readonly bool _supportedCompiler = CheckSupportedCompiler();
-        private static readonly bool _resourceCompilerPresent = CheckResourceCompilerPresent();
+        private static readonly bool _compilerPresent;
+        private static readonly bool _libsPresent;
+        private static readonly bool _headerFilesPresent;
+        private static readonly bool _supportedCompiler;
+        private static readonly bool _resourceCompilerPresent;
+
+	static VisualCppTestBase () {
+	    _compilerPresent = CheckCompilerPresent();
+	    _libsPresent = CheckLibsPresent();
+   	    _headerFilesPresent = CheckHeaderFilesPresent();
+	    _supportedCompiler = CheckSupportedCompiler();
+	    _resourceCompilerPresent = CheckResourceCompilerPresent();
+	}
 
         #endregion Private Static Fields
     }
