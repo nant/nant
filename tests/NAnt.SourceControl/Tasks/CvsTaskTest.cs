@@ -84,8 +84,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
             object[] args = {"co", CVSROOT, MODULE, this.destination, true};
-            string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
+            this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
 
             Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
@@ -101,8 +100,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
             object[] args = {"co", CVSROOT, MODULE, this.destination, false};
-            string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
+            this.RunBuild(FormatBuildFile(CHECKOUT, args), Level.Info);
 
             Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
@@ -118,8 +116,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkFilePath = Path.Combine(checkoutPath, this.CHECK_FILE);
 
             object[] args = {"co", CVSROOT, MODULE, this.destination, false, this.OVERRIDE_DIR, "HEAD"};
-            string result = 
-                this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Info);
+            this.RunBuild(FormatBuildFile(CHECKOUT_WITH_COMMAND_OPTIONS, args), Level.Info);
 
             Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }
@@ -158,8 +155,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             Directory.Delete(Path.Combine(this.destination, "build"));
 
             object[] updateArgs = {"update -dP", CVSROOT, MODULE, this.destination, true};
-            string resultUpdate = 
-                this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, updateArgs), Level.Info);
+            this.RunBuild(FormatBuildFile(GENERIC_COMMANDLINE, updateArgs), Level.Info);
 
             Assert.IsTrue(File.Exists(checkFilePath), "The check file should not be there.");
         }

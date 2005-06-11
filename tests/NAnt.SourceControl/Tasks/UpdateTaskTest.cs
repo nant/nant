@@ -155,7 +155,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             // Run the update to bring the file back down.
             object[] args = {TestUseSharpCvsLib.ToString(), TestModule, TestCvsRoot, checkoutPath, 
                                 string.Empty};
-            string result = this.RunBuild(FormatBuildFile(_updateXML, args), 
+            this.RunBuild(FormatBuildFile(_updateXML, args), 
                 Level.Info);
 
             // Check that the file is back.
@@ -193,7 +193,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
                                 buildDirs, pruneEmpty, overwriteLocal, recursive, checkFilePath};
             string formattedBuildFile = FormatBuildFile(this._updateOptionsXML, args);
             System.Console.WriteLine(formattedBuildFile);
-            string result = this.RunBuild(formattedBuildFile, 
+            this.RunBuild(formattedBuildFile, 
                 Level.Info);
 
             // Check that the file is back.

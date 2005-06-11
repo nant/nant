@@ -118,7 +118,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(TempDirName, TestModule);
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = RunBuild(FormatBuildFile(_projectXML, args));
+            RunBuild(FormatBuildFile(_projectXML, args));
             Assert.IsTrue(File.Exists(checkFilePath), "File does not exist, checkout probably did not work.");
         }
 
@@ -134,7 +134,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(destination, "2003_08_16");
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = RunBuild(FormatBuildFile(_checkoutByDateProjectXML, 
+            RunBuild(FormatBuildFile(_checkoutByDateProjectXML, 
                 args), Level.Info);
             Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
         }
@@ -151,7 +151,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(destination, TestModule);
             string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
-            string result = RunBuild(FormatBuildFile(_testReadonly, args), 
+            RunBuild(FormatBuildFile(_testReadonly, args), 
                 Level.Info);
             Assert.IsTrue(File.Exists(checkFilePath), "File \"{0}\" does not exist.", checkFilePath);
 
@@ -168,9 +168,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
         public void TestModuleValidation_Bad() {
             object[] args = { string.Format("{0}/bad/module", TestModule), 
                                 TestCvsRoot, destination, "2003/08/16", "2003_08_16"};
-
-            string checkoutPath = Path.Combine(destination, "2003_08_16");
-            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
 
             RunBuild(FormatBuildFile(_checkoutByDateProjectXML, args), Level.Info);
         }
