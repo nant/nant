@@ -1,8 +1,8 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.0.9466"
-        SchemaVersion = "1.0"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
         ProjectGuid = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
     >
         <Build>
@@ -16,7 +16,10 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
+                PreBuildEvent = ""
+                PostBuildEvent = ""
                 RootNamespace = "NAnt.VisualCpp"
+                RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
                 <Config
@@ -30,6 +33,8 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.VisualCpp\"
                     RegisterForComInterop = "false"
@@ -48,6 +53,8 @@
                     DebugSymbols = "true"
                     FileAlignment = "4096"
                     IncrementalBuild = "false"
+                    NoStdLib = "false"
+                    NoWarn = ""
                     Optimize = "false"
                     OutputPath = "..\..\build.VS.NET\NAnt.VisualCpp\"
                     RegisterForComInterop = "false"
