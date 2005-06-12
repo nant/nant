@@ -27,6 +27,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Util;
 
+using NAnt.DotNet.Tasks;
 using NAnt.DotNet.Types;
 
 using NAnt.VSNet.Tasks;
@@ -140,31 +141,25 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
-        /// for this project.
+        /// Create the compiler task with the appropriate settings.
         /// </summary>
-        /// <param name="config">The configuration to build.</param>
-        /// <param name="responseFile">The response file for the compiler.</param>
-        /// <returns>
-        /// A <see cref="ProcessStartInfo" /> for launching the compiler for 
-        /// this project.
-        /// </returns>
-        protected override ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile) {
-            ProcessStartInfo psi = new ProcessStartInfo(FileUtils.CombinePaths(SolutionTask.
-                Project.TargetFramework.FrameworkDirectory.FullName, "vbc.exe"), 
-                "@\"" + responseFile + "\"");
+        /// <param name="config"></param>
+        /// <returns></returns>
+        protected override Task GetCompilerTask(ConfigurationBase config) {
+            VbcTask task = new VbcTask();
+            task.Project = SolutionTask.Project;
+            task.Verbose = SolutionTask.Verbose;
+            task.OutputTarget = ProjectSettings.OutputType;
+            task.OutputFile = new FileInfo(config.OutputPath);
+            task.Win32Icon = ProjectSettings.ApplicationIcon;
 
-            // Visual Basic.NET uses the directory from which VS.NET 
-            // was launched as working directory, the closest match
-            // and best behaviour for us is to use the <solution dir>
-            // as working directory and fallback to the <project dir>
-            // if the project was explicitly specified
-            if (SolutionTask.SolutionFile != null) {
-                psi.WorkingDirectory = SolutionTask.SolutionFile.DirectoryName;
-            } else {
-                psi.WorkingDirectory = ProjectDirectory.FullName;
+            foreach(string key in SourceFiles.Keys) {
+                task.Sources.Includes.Add(key);
             }
-            return psi;
+            task.BaseDirectory = CompilerWorkingDir;
+
+            // TODO: Test this, probably missing some settings...
+            return task;
         }
 
         #endregion Override implemenation of ManagedProjectBase

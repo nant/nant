@@ -27,6 +27,8 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Util;
 
+using NAnt.DotNet;
+using NAnt.DotNet.Tasks;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -87,35 +89,27 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Returns a <see cref="ProcessStartInfo" /> for launching the compiler
-        /// for this project.
+        /// Create the compiler task with the appropriate settings.
         /// </summary>
-        /// <param name="config">The configuration to build.</param>
-        /// <param name="responseFile">The response file for the compiler.</param>
-        /// <returns>
-        /// A <see cref="ProcessStartInfo" /> for launching the compiler for 
-        /// this project.
-        /// </returns>
-        protected override ProcessStartInfo GetProcessStartInfo(ConfigurationBase config, string responseFile) {
-            ProcessStartInfo psi = new ProcessStartInfo(FileUtils.CombinePaths(SolutionTask.
-                Project.TargetFramework.FrameworkDirectory.FullName, "csc.exe"), 
-                "/noconfig @\"" + responseFile + "\"");
+        /// <param name="config"></param>
+        /// <returns></returns>
+        protected override Task GetCompilerTask(ConfigurationBase config) {
+            CscTask task = new CscTask();
+            task.Project = SolutionTask.Project;
+            task.Verbose = SolutionTask.Verbose;
+            task.OutputTarget = ProjectSettings.OutputType;
+            task.OutputFile = new FileInfo(config.OutputPath);
+            task.Win32Icon = ProjectSettings.ApplicationIcon;
 
-            // to resolve the path to the file specified in the AssemblyKeyFile 
-            // attribute, the command line compilers try to resolve that relative 
-            // path using the output directory and the current directory
-            //
-            // VS.NET compiles assembly to the intermediate output directory and
-            // uses the solution directory as current directory
-
-            if (SolutionTask.SolutionFile != null) {
-                psi.WorkingDirectory = Path.GetDirectoryName(SolutionTask.SolutionFile.FullName);
-            } else {
-                psi.WorkingDirectory = ProjectDirectory.FullName;
+            foreach(string key in SourceFiles.Keys) {
+                task.Sources.Includes.Add(key);
             }
+            task.BaseDirectory = CompilerWorkingDir;
 
-            return psi;
+            // TODO: Test this, probably missing some settings...
+            return task;
         }
+
 
         #endregion Override implementation of ProjectBase
 
