@@ -96,6 +96,10 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void RecursiveLoadTemplateProject(string fileName) {
+            // normalize path
+            if (!ProjectFactory.IsUrl(fileName)) {
+                fileName = FileUtils.GetFullPath(fileName);
+            }
             XmlDocument doc = ProjectFactory.LoadProjectXml(fileName);
 
             foreach (XmlNode node in doc.SelectNodes("//Reference")) {
