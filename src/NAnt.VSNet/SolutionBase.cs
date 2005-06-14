@@ -124,6 +124,10 @@ namespace NAnt.VSNet {
                         subProjectFilename = map;
                     }
 
+                    if (!ProjectFactory.IsUrl(subProjectFilename)) {
+                        subProjectFilename = FileUtils.GetFullPath(subProjectFilename);
+                    }
+
                     try {
                         Uri uri = new Uri(subProjectFilename);
                         if (uri.Scheme == Uri.UriSchemeFile) {
@@ -567,6 +571,8 @@ namespace NAnt.VSNet {
                             + " <webmap> to map the given URL to a project-relative" 
                             + " path, or specify enablewebdav=\"true\" on the" 
                             + " <solution> task element to use WebDAV.", translatedPath));
+                    } else {
+                        translatedPath = FileUtils.GetFullPath(translatedPath);
                     }
                 }
             } catch (UriFormatException) {
@@ -574,6 +580,9 @@ namespace NAnt.VSNet {
                     solutionDir, translatedPath));
             }
 
+            if (translatedPath.IndexOf("\\") > -1) {
+		throw new Exception(translatedPath);
+            }
             return translatedPath;
         }
 
