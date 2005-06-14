@@ -29,6 +29,7 @@ using NAnt.Core.Util;
 
 using NAnt.DotNet;
 using NAnt.DotNet.Tasks;
+using NAnt.DotNet.Types;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -98,13 +99,31 @@ namespace NAnt.VSNet {
             task.Project = SolutionTask.Project;
             task.Verbose = SolutionTask.Verbose;
             task.OutputTarget = ProjectSettings.OutputType;
-            task.OutputFile = new FileInfo(config.OutputPath);
+            task.OutputFile = new FileInfo(FileUtils.CombinePaths(config.OutputDir.FullName, 
+                ProjectSettings.OutputFileName));
             task.Win32Icon = ProjectSettings.ApplicationIcon;
 
             foreach(string key in SourceFiles.Keys) {
                 task.Sources.Includes.Add(key);
             }
+
             task.BaseDirectory = CompilerWorkingDir;
+
+            // write assembly references to response file
+            foreach (string assemblyReference in 
+                GetAssemblyReferences(SolutionTask.Configuration)) {
+                task.References.Includes.Add(assemblyReference);
+            }
+
+            task.NamespaceManager = SolutionTask.NamespaceManager;
+
+            // set-up resource fileset
+            ResourceFileSet resources = new ResourceFileSet();
+            resources.NamespaceManager = SolutionTask.NamespaceManager;
+            resources.Parent = task;
+            resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(ProjectPath));
+            resources.Prefix = ProjectSettings.RootNamespace;
+            resources.DynamicPrefix = true;
 
             // TODO: Test this, probably missing some settings...
             return task;
