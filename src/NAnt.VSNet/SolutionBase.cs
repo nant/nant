@@ -216,11 +216,23 @@ namespace NAnt.VSNet {
 
                     bool failed = htFailedProjects.Contains(project.Guid);
                     if (!failed) {
-                        // convert assembly references to project references
+                        // attempt to convert assembly references to project 
+                        // references
                         //
                         // this might affect the build order as it can add 
                         // project dependencies
-                        FixProjectReferences(project, solutionConfiguration, htProjectsDone);
+                        if (FixProjectReferences(project, solutionConfiguration, htProjectsDone, htFailedProjects)) {
+                            // mark project failed if it references a project that
+                            // failed to build
+                            //
+                            // this can only happen when assembly reference was
+                            // was fixed to a project reference (that already failed
+                            // to build before the fix-up)
+                            failed = true;
+
+                            // avoid running through the fix-up next time
+                            htFailedProjects[project.Guid] = null;
+                        }
                     }
 
                     if (!HasDirtyProjectDependency(project, htProjectsDone)) {
@@ -575,16 +587,17 @@ namespace NAnt.VSNet {
 
         /// <summary>
         /// Converts assembly references to projects to project references, adding
-        /// a build dependency.
+        /// a build dependency.c
         /// </summary>
         /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
         /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <param name="builtProjects"><see cref="Hashtable" /> containing list of projects that have been built.</param>
-        protected void FixProjectReferences(ProjectBase project, string solutionConfiguration, Hashtable builtProjects) {
+        /// <param name="failedProjects"><see cref="Hashtable" /> containing list of projects that failed to build.</param>
+        protected bool FixProjectReferences(ProjectBase project, string solutionConfiguration, Hashtable builtProjects, Hashtable failedProjects) {
             // check if the project still has dependencies that have not been 
             // built
             if (HasDirtyProjectDependency(project, builtProjects)) {
-                return;
+                return false;
             }
 
             ConfigurationBase projectConfig = (ConfigurationBase) 
@@ -592,13 +605,15 @@ namespace NAnt.VSNet {
 
             // check if the project actually supports the build configuration
             if (projectConfig == null) {
-                return;
+                return false;
             }
 
             Log(Level.Verbose, "Fixing up references...");
 
             ArrayList projectReferences = (ArrayList) 
                 project.References.Clone();
+
+            bool referencesFailedProject = false;
 
             foreach (ReferenceBase reference in projectReferences) {
                 AssemblyReferenceBase assemblyReference = reference as 
@@ -613,6 +628,9 @@ namespace NAnt.VSNet {
 
                 string outputFile = assemblyReference.GetPrimaryOutputFile(
                     solutionConfiguration);
+                if (outputFile == null) {
+                    continue;
+                }
 
                 if (_htOutputFiles.Contains(outputFile)) {
                     // if the reference is an output file of
@@ -677,6 +695,10 @@ namespace NAnt.VSNet {
                 }
 
                 if (projectRef != null) {
+                    if (!referencesFailedProject && failedProjects.ContainsKey(projectRef.Guid)) {
+                        referencesFailedProject = true;
+                    }
+
                     ProjectReferenceBase projectReference = assemblyReference.
                         CreateProjectReference(projectRef);
                     Log(Level.Verbose, "Converted assembly reference to project reference: {0} -> {1}", 
@@ -695,6 +717,8 @@ namespace NAnt.VSNet {
                     }
                 }
             }
+
+            return referencesFailedProject;
         }
 
         #endregion Protected Instance Methods
@@ -714,6 +738,25 @@ namespace NAnt.VSNet {
         private bool HasDirtyProjectDependency(ProjectBase project, Hashtable builtProjects) {
             foreach (ProjectBase projectDependency in project.ProjectDependencies) {
                 if (!builtProjects.ContainsKey(projectDependency.Guid)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether any of the project dependencies of the specified
+        /// project has failed to build.
+        /// </summary>
+        /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
+        /// <param name="failedProjects"><see cref="Hashtable" /> containing list of projects that failed to build.</param>
+        /// <returns>
+        /// <see langword="true" /> if one of the project dependencies has
+        /// failed to build; otherwise, <see langword="false" />.
+        /// </returns>
+        private bool HasFailedProjectDependency(ProjectBase project, Hashtable failedProjects) {
+            foreach (ProjectBase projectDependency in project.ProjectDependencies) {
+                if (failedProjects.ContainsKey(projectDependency.Guid)) {
                     return true;
                 }
             }

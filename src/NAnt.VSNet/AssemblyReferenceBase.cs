@@ -69,8 +69,11 @@ namespace NAnt.VSNet {
                 if (IsPrivateSpecified) {
                     return IsPrivate;
                 } else {
-                    return !IsSystem && !GacCache.IsAssemblyInGac(
-                        ResolveAssemblyReference());
+                    // only copy local if assembly reference could be resolved,
+                    // if not a system assembly and is not in the GAC
+                    string assemblyFile = ResolveAssemblyReference();
+                    return assemblyFile != null && !IsSystem && 
+                        !GacCache.IsAssemblyInGac(assemblyFile);
                 }
             }
         }
@@ -85,7 +88,14 @@ namespace NAnt.VSNet {
         /// </value>
         protected override bool IsSystem {
             get { 
+                // if the assembly cannot be resolved, we consider it not to
+                // be a system assembly
                 string assemblyFile = ResolveAssemblyReference();
+                if (assemblyFile == null) {
+                    return false;
+                }
+                // check if assembly is stored in the framework assembly 
+                // directory
                 return string.Compare(Path.GetDirectoryName(assemblyFile), 
                     SolutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName, 
                     true, CultureInfo.InvariantCulture) == 0;
@@ -115,7 +125,10 @@ namespace NAnt.VSNet {
         /// the output directory.
         /// </remarks>
         public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
-            base.GetAssemblyOutputFiles(ResolveAssemblyReference(), outputFiles);
+            string assemblyFile = ResolveAssemblyReference();
+            if (assemblyFile != null) {
+                base.GetAssemblyOutputFiles(assemblyFile, outputFiles);
+            }
         }
 
         /// <summary>
@@ -132,17 +145,26 @@ namespace NAnt.VSNet {
             // need to reference that assembly itself as VS.NET forces users
             // to add all dependent assemblies to the project itself
 
-            // ensure referenced assembly actually exists
+            StringCollection assemblyReferences = new StringCollection();
+
+            // attempt to resolve assembly reference
             string assemblyFile = ResolveAssemblyReference();
+            if (assemblyFile == null) {
+                Log(Level.Warning, "Assembly \"{0}\", referenced"
+                    + " by project \"{1}\", could not be resolved.", Name, 
+                    Parent.Name);
+                return assemblyReferences;
+            }
+
+            // ensure assembly actually exists
             if (!File.Exists(assemblyFile)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't find assembly \"{0}\", referenced by project"
-                    + " \"{1}\".", assemblyFile, Parent.Name), 
-                    Location.UnknownLocation);
+                Log(Level.Warning, "Assembly \"{0}\", referenced"
+                    + " by project \"{1}\", does not exist.", assemblyFile, 
+                    Parent.Name);
+                return assemblyReferences;
             }
 
             // add referenced assembly to list of reference assemblies
-            StringCollection assemblyReferences = new StringCollection();
             assemblyReferences.Add(assemblyFile);
 
             return assemblyReferences;
@@ -156,7 +178,11 @@ namespace NAnt.VSNet {
         /// The timestamp of the reference.
         /// </returns>
         public override DateTime GetTimestamp(string solutionConfiguration) {
-            return GetFileTimestamp(ResolveAssemblyReference());
+            string assemblyFile = ResolveAssemblyReference();
+            if (assemblyFile == null) {
+                return DateTime.MaxValue;
+            }
+            return GetFileTimestamp(assemblyFile);
         }
 
         #endregion Override implementation of ReferenceBase
@@ -172,6 +198,13 @@ namespace NAnt.VSNet {
 
         #region Protected Instance Methods
 
+        /// <summary>
+        /// Resolves an assembly reference.
+        /// </summary>
+        /// <returns>
+        /// The full path to the resolved assembly, or <see langword="null" />
+        /// if the assembly reference could not be resolved.
+        /// </returns>
         protected abstract string ResolveAssemblyReference();
 
         /// <summary>

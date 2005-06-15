@@ -60,9 +60,10 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Resolves an assembly reference.
         /// </summary>
-        /// <remarks>
-        /// TODO: still need to verify the order.
-        /// </remarks>
+        /// <returns>
+        /// The full path to the resolved assembly, or <see langword="null" />
+        /// if the assembly reference could not be resolved.
+        /// </returns>
         protected override string ResolveAssemblyReference() {
             // check if assembly reference was resolved before
             if (_assemblyFile != null) {
@@ -121,9 +122,8 @@ namespace NAnt.VSNet {
                 return resolvedAssemblyFile;
             }
 
-            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                "Assembly \"{0}\", referenced by project \"{1}\", could not be"
-                + " resolved.", Name, Parent.Name), Location.UnknownLocation);
+            // assembly reference could not be resolved
+            return null;
         }
 
         #endregion Override implementation of AssemblyReferenceBase

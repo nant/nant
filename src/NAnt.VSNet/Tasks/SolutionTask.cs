@@ -319,21 +319,6 @@ namespace NAnt.VSNet.Tasks {
         }
 
         /// <summary>
-        /// Contains the events that may be fired during the execution of this task.
-        /// </summary>
-        /// <remarks>
-        /// Solution, project and configuration macro variables are placed in properties under the prefix
-        /// specified in <see cref="SolutionEventsElement.PropertyPrefix"/>.
-        /// </remarks>
-        //[BuildElement("events")]
-        //Private until after release...
-        public SolutionEventsElement Events
-        {
-            get { return _events; }
-            set { _events = value; }
-        }
-
-        /// <summary>
         /// Gets the list of folders to scan for assembly references.
         /// </summary>
         /// <value>
@@ -504,18 +489,6 @@ namespace NAnt.VSNet.Tasks {
             }
         }
 
-        /// <summary>
-        /// Gets a list of valid macro expansion variables.
-        /// </summary>
-        /// <returns>The list of macro expansion variables</returns>
-        internal StringCollection GetMacros() {
-            StringCollection macros = new StringCollection();
-            if (SolutionFile != null)
-                macros.AddRange(new string[] {"solutionfilename", "solutionpath", "solutiondir", "solutionname", "solutionext"});
-
-            return macros;
-        }
-
         #endregion Internal Instance Methods
 
         #region Private Instance Methods
@@ -598,54 +571,9 @@ namespace NAnt.VSNet.Tasks {
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
-        private SolutionEventsElement _events;
+        // TODO: discuss this on dev list and with Matthew
+        //private SolutionEventsElement _events;
 
         #endregion Private Instance Fields
-    }
-
-    public class SolutionEventsElement : Element
-    {
-        /// <summary>
-        /// The string to prefix the property names with. The default is "solution.".
-        /// </summary>
-        [TaskAttribute("prefix")]
-        public string PropertyPrefix
-        {
-            get { return _propertyPrefix; }
-            set { _propertyPrefix = value; }
-        }
-
-        /// <summary>
-        /// Tasks to execute before compiling each project.
-        /// </summary>
-        /// <remarks>
-        /// This event occurs before any project processing takes place.
-        /// </remarks>
-        [BuildElement("beforeprojectbuild")]
-        public TaskContainer PreBuild
-        {
-            get { return _preBuild; }
-            set { _preBuild = value; }
-        }
-
-        /// <summary>
-        /// Tasks to execute after compiling each project.
-        /// </summary>
-        /// <remarks>
-        /// This event occurs after all project processing has taken place.
-        /// 
-        /// For all projects, the property "success" is set to true if the build succeeded.  For managed projects, the
-        /// property "outputupdated" is set to true if the output has been changed by the compilation. 
-        /// </remarks>
-        [BuildElement("afterprojectbuild")]
-        public TaskContainer PostBuild
-        {
-            get { return _postBuild; }
-            set { _postBuild = value; }
-        }
-
-        private string _propertyPrefix = "solution.";
-        private TaskContainer _preBuild;
-        private TaskContainer _postBuild;
     }
 }

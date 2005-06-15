@@ -60,10 +60,12 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// <para>
         /// Resolves an assembly reference.
-        /// </para>
         /// </summary>
+        /// <returns>
+        /// The full path to the resolved assembly, or <see langword="null" />
+        /// if the assembly reference could not be resolved.
+        /// </returns>
         /// <remarks>
         /// <para>
         /// Visual Studio .NET uses the following search mechanism :
@@ -132,7 +134,7 @@ namespace NAnt.VSNet {
         ///         </term>
         ///     </item>
         ///     <item>
-        ///         <term>
+        ///         <term>  
         ///             The HintPath.
         ///         </term>
         ///     </item>
@@ -182,9 +184,8 @@ namespace NAnt.VSNet {
                 return resolvedAssemblyFile;
             }
 
-            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                "Assembly \"{0}\", referenced by project \"{1}\", could not be"
-                + " resolved.", Name, Parent.Name), Location.UnknownLocation);
+            // assembly reference could not be resolved
+            return null;
         }
 
         #endregion Override implementation of AssemblyReferenceBase

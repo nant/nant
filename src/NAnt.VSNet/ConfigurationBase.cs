@@ -226,23 +226,6 @@ namespace NAnt.VSNet {
                 "Macro \"{0}\" is not supported.", macro), Location.UnknownLocation);
         }
 
-        /// <summary>
-        /// Gets a list of valid macro expansion variables.
-        /// </summary>
-        /// <returns>The list of macro expansion variables</returns>
-        protected internal virtual StringCollection GetMacros()
-        {
-            ArrayList macros = new ArrayList();
-            macros.AddRange( new string[] { "outdir", "configurationname", "targetname", "targetpath", "targetext", "targetfilename", "targetdir", "platformname" } );
-            macros.AddRange( Project.SolutionTask.GetMacros() );
-            macros.AddRange( Project.GetMacros() );
-
-            StringCollection returnMacros = new StringCollection();
-            returnMacros.AddRange((string[])macros.ToArray(typeof(string)));
-
-            return returnMacros;
-        }
-
         #endregion Protected Instance Methods
 
         #region Private Instance Methods

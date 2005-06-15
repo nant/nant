@@ -516,18 +516,6 @@ namespace NAnt.VSNet {
             }
         }
 
-        /// <summary>
-        /// Gets a list of valid macro expansion variables.
-        /// </summary>
-        /// <returns>The list of macro expansion variables</returns>
-        protected internal override StringCollection GetMacros()
-        {
-            StringCollection macros = base.GetMacros();
-            macros.AddRange( new string[] {"inputdir","inputname", "inputpath", "inputfilename", "inputext", "safeparentname", "safeinputname"} );
-
-            return macros;
-        }
-
         #endregion Protected Internal Instance Methods
 
         #region Protected Instance Methods

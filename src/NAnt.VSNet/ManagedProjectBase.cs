@@ -285,7 +285,6 @@ namespace NAnt.VSNet {
             }
         }
 
-
         protected override BuildResult Build(string solutionConfiguration) {
             bool bSuccess = true;
             bool outputUpdated;
@@ -487,6 +486,7 @@ namespace NAnt.VSNet {
 
                 if (!bSuccess) {
                     Log(Level.Error, "Build failed.");
+                    return BuildResult.Failed;
                 }
 
                 return outputUpdated ? BuildResult.SuccessOutputUpdated : BuildResult.Success;

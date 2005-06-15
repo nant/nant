@@ -78,7 +78,8 @@ namespace NAnt.VSNet {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Gets the complete set of output files for the specified assembly and adds them to <paremref name="outputFiles"/> collection.
+        /// Gets the complete set of output files for the specified assembly 
+        /// and adds them to <paremref name="outputFiles"/> collection.
         /// </summary>
         /// <param name="assemblyFile">The path of the assembly to get the output files for.</param>
         /// <param name="outputFiles">The set of output files to be updated.</param>
@@ -89,9 +90,9 @@ namespace NAnt.VSNet {
         /// </remarks>
         protected void GetAssemblyOutputFiles(string assemblyFile, Hashtable outputFiles) {
             if (!File.Exists(assemblyFile)) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't find referenced assembly '{0}'.", assemblyFile), 
-                    Location.UnknownLocation);
+                // no need to output warning if set of output files cannot be
+                // generated
+                return;
             }
 
             if (!outputFiles.ContainsKey(assemblyFile)) {
