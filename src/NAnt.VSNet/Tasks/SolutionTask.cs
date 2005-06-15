@@ -571,8 +571,6 @@ namespace NAnt.VSNet.Tasks {
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
-        // TODO: discuss this on dev list and with Matthew
-        //private SolutionEventsElement _events;
 
         #endregion Private Instance Fields
     }
