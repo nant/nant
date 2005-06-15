@@ -113,8 +113,10 @@ namespace NAnt.VSNet {
                 GetAssemblyReferences(SolutionTask.Configuration)) {
                 task.References.Includes.Add(assemblyReference);
             }
-
             task.BaseDirectory = CompilerWorkingDir;
+
+            // explicitly call InitializeTaskConfiguration() 'cause you gotta
+            task.InitializeTaskConfiguration();
 
             // TODO: Test this, probably missing some settings...
             return task;
