@@ -102,12 +102,11 @@ namespace NAnt.VSNet {
             task.OutputFile = new FileInfo(FileUtils.CombinePaths(config.OutputDir.FullName, 
                 ProjectSettings.OutputFileName));
             task.Win32Icon = ProjectSettings.ApplicationIcon;
+            task.DocFile = config.DocumentationPath;
 
             foreach(string key in SourceFiles.Keys) {
                 task.Sources.Includes.Add(key);
             }
-
-            task.BaseDirectory = CompilerWorkingDir;
 
             // write assembly references to response file
             foreach (string assemblyReference in 
@@ -115,15 +114,7 @@ namespace NAnt.VSNet {
                 task.References.Includes.Add(assemblyReference);
             }
 
-            task.NamespaceManager = SolutionTask.NamespaceManager;
-
-            // set-up resource fileset
-            ResourceFileSet resources = new ResourceFileSet();
-            resources.NamespaceManager = SolutionTask.NamespaceManager;
-            resources.Parent = task;
-            resources.BaseDirectory = new DirectoryInfo(Path.GetDirectoryName(ProjectPath));
-            resources.Prefix = ProjectSettings.RootNamespace;
-            resources.DynamicPrefix = true;
+            task.BaseDirectory = CompilerWorkingDir;
 
             // TODO: Test this, probably missing some settings...
             return task;
