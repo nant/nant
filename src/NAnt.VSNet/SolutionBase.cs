@@ -575,10 +575,6 @@ namespace NAnt.VSNet {
                 translatedPath = FileUtils.GetFullPath(FileUtils.CombinePaths(
                     solutionDir, translatedPath));
             }
-
-            if (translatedPath.IndexOf("\\") > -1) {
-		throw new Exception(translatedPath);
-            }
             return translatedPath;
         }
 
