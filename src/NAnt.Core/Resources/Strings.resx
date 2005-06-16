@@ -285,8 +285,8 @@
         <comment>Property value must be a string, was '{0}'.</comment>
     </data>
     <data name="NA1067">
-        <value>Property '{0}' does not exist.", name), "name</value>
-        <comment>Property '{0}' does not exist.", name), "name</comment>
+        <value>Property '{0}' does not exist.</value>
+        <comment>Property '{0}' does not exist.</comment>
     </data>
     <data name="NA1068">
         <value>Read-only property "{0}" cannot be overwritten.</value>
@@ -772,8 +772,8 @@
         <comment>Can't create extension object "{0}" from "{1}".</comment>
     </data>
     <data name="NA1168">
-        <value>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null. </value>
-        <comment>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null. </comment>
+        <value>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null.</value>
+        <comment>Failed to create extension object "{0}" from "{1}" Assembly.CreateInstance() returned null.</comment>
     </data>
     <!--Messages From: \NAnt.Core/Types/XsltExtensionObjectCollection.cs-->
     <!--Messages From: \NAnt.Core/Types/XsltParameter.cs-->
