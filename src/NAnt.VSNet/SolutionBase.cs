@@ -52,10 +52,10 @@ namespace NAnt.VSNet {
         #region Private Instance Constructors
 
         private SolutionBase(TempFileCollection tfc, SolutionTask solutionTask) {
-            _htOutputFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htOutputFiles = new Hashtable();
             _projectEntries = new ProjectEntryCollection();
             _htProjectBuildConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _htReferenceProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _htReferenceProjects = new Hashtable();
             _tfc = tfc;
             _solutionTask = solutionTask;
             _outputDir = solutionTask.OutputDir;
@@ -178,8 +178,7 @@ namespace NAnt.VSNet {
                     "Project with GUID '{0}' must be included for the build to" 
                     + " work.", projectGuid), Location.UnknownLocation);
             }
-
-            return projectEntry.Path;
+            return FileUtils.ConvertPath(projectEntry.Path);
         }
 
         public ProjectBase GetProjectFromGuid(string projectGuid) {
@@ -470,7 +469,7 @@ namespace NAnt.VSNet {
             // (similar to project dependency) VS.NET 7.0/7.1 do not address this problem
 
             // build list of output which reside in such folders
-            Hashtable outputsInAssemblyFolders = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            Hashtable outputsInAssemblyFolders = new Hashtable();
 
             foreach (DictionaryEntry de in _htOutputFiles) {
                 string outputfile = (string) de.Key;
@@ -619,7 +618,7 @@ namespace NAnt.VSNet {
                 string outputFile = assemblyReference.GetPrimaryOutputFile(
                     solutionConfiguration);
 
-                if (_htOutputFiles.Contains(outputFile)) {
+                if (_htOutputFiles.Contains(outputFile.ToLower())) {
                     // if the reference is an output file of
                     // another build configuration of a project
                     // and this output file wasn't built before
@@ -665,6 +664,7 @@ namespace NAnt.VSNet {
 
                 // try matching assembly reference and project on assembly name
                 // if the assembly file does not exist
+Console.WriteLine("matching file {0}", outputFile);
                 if (projectRef == null && !System.IO.File.Exists(outputFile)) {
                     foreach (ProjectEntry projectEntry in ProjectEntries) {
                         // we can only do this for managed projects, as we only have
