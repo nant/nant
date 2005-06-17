@@ -431,21 +431,25 @@ namespace NAnt.VisualCpp.Tasks {
             if (Proxy != null)
                 writer.WriteLine("/proxy \"{0}\"", Proxy.FullName);
 
-            foreach (Option define in _defines) {
-                if (IfDefined && !UnlessDefined) {
-                    if (define.Value == null) {
-                        writer.WriteLine("/D " + ArgumentUtils.FixTrailingBackslash(define.OptionName));
-                    } else {
-                        writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.FixTrailingBackslash(define.Value));
-                    }
+            foreach (Option define in Defines) {
+                if (!define.IfDefined || define.UnlessDefined) {
+                    continue;
+                }
+
+                if (define.Value == null) {
+                    writer.WriteLine("/D " + ArgumentUtils.FixTrailingBackslash(define.OptionName));
+                } else {
+                    writer.WriteLine("/D " + define.OptionName + "=" + ArgumentUtils.FixTrailingBackslash(define.Value));
                 }
             }
 
-            foreach (Option undefine in _undefines) {
-                if (IfDefined && !UnlessDefined) {
-                    writer.WriteLine("/U " + ArgumentUtils.QuoteArgumentValue(
-                        undefine.OptionName, BackslashProcessingMethod.Fix));
+            foreach (Option undefine in Undefines) {
+                if (!undefine.IfDefined || undefine.UnlessDefined) {
+                    continue;
                 }
+
+                writer.WriteLine("/U " + ArgumentUtils.QuoteArgumentValue(
+                    undefine.OptionName, BackslashProcessingMethod.Fix));
             }
 
             foreach (Option option in _options) {

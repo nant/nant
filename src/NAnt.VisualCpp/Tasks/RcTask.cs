@@ -176,6 +176,10 @@ namespace NAnt.VisualCpp.Tasks {
 
                 // append user definitions
                 foreach (Option define in Defines) {
+                    if (!define.IfDefined || define.UnlessDefined) {
+                        continue;
+                    }
+
                     if (define.Value == null) {
                         str.AppendFormat("/d {0} ", ArgumentUtils.DuplicateTrailingBackslash(define.OptionName));
                     } else {

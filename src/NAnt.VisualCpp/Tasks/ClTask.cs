@@ -325,7 +325,11 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write preprocesser define(s)
-                    foreach (Option define in _defines) {
+                    foreach (Option define in Defines) {
+                        if (!define.IfDefined || define.UnlessDefined) {
+                            continue;
+                        }
+
                         if (define.Value == null)  {
                             writer.WriteLine("/D " + QuoteArgumentValue(define.OptionName));
                         } else {
@@ -335,7 +339,11 @@ namespace NAnt.VisualCpp.Tasks {
                     }
 
                     // write preprocesser undefine(s)
-                    foreach (Option undefine in _undefines) {
+                    foreach (Option undefine in Undefines) {
+                        if (!undefine.IfDefined || undefine.UnlessDefined) {
+                            continue;
+                        }
+
                         writer.WriteLine("/U " + QuoteArgumentValue(undefine.OptionName));
                     }
 

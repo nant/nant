@@ -52,7 +52,8 @@
                 <a class="heading" href="help/filters/replacetokens.html">&lt;replacetokens&gt;</a></h5>
             <ul>
                 <li>
-                    Empty value is not supported for token (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1192677&amp;group_id=31650">#1192677</a>).
+                    Empty value is not supported for token (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1192677&amp;group_id=31650">
+                        #1192677</a>).
                 </li>
             </ul>
         </div>
@@ -62,11 +63,19 @@
                 <a class="heading" href="help/tasks/cl.html">&lt;cl&gt;</a></h5>
             <ul>
                 <li>
-                    Logic for determining whether compilation is necessary is not 
-                    correct when PCH file is specified (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1191185&amp;group_id=31650&amp;atid=402868">#1191185</a>).
+                    Logic for determining whether compilation is necessary is not correct when PCH 
+                    file is specified (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1191185&amp;group_id=31650&amp;atid=402868">
+                        #1191185</a>).
                 </li>
                 <li>
-                    All sources are compiled if any of the specified sources is not up-to-date (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1191285&amp;group_id=31650&amp;atid=402868">#1191285</a>).
+                    All sources are compiled if any of the specified sources is not up-to-date (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1191285&amp;group_id=31650&amp;atid=402868">
+                        #1191285</a>).
+                </li>
+                <li>
+                    Macro definitions specified using the <code>&lt;defines&gt;</code> collection 
+                    are passed to the compiler, regardless of the value of the &quot;if&quot and 
+                    &quot;unless&quot; attributes (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1221945&amp;group_id=31650&amp;atid=402868">
+                        #1221945</a>).
                 </li>
             </ul>
         </div>
@@ -75,8 +84,15 @@
                 <a class="heading" href="help/tasks/rc.html">&lt;rc&gt;</a></h5>
             <ul>
                 <li>
-                    Modification of an external file does not trigger a rebuilt 
-                    of the resource (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1195320&amp;group_id=31650&amp;atid=402868">#1195320</a>).
+                    Modification of an external file does not trigger a rebuilt of the resource 
+                    (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1195320&amp;group_id=31650&amp;atid=402868">
+                        #1195320</a>).
+                </li>
+                <li>
+                    Macro definitions specified using the <code>&lt;defines&gt;</code> collection 
+                    are passed to the compiler, regardless of the value of the &quot;if&quot and 
+                    &quot;unless&quot; attributes (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1221945&amp;group_id=31650&amp;atid=402868">
+                        #1221945</a>).
                 </li>
             </ul>
         </div>
@@ -85,8 +101,9 @@
                 <a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
             <ul>
                 <li>
-                    Defining custom extensions (eg. tasks) using multiple <a href="help/tasks/script.html"><code>&lt;script&gt;</code></a> instances
-                    results in an INTERNAL ERROR (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1187957&amp;group_id=31650&amp;atid=402868">#1187957</a>).
+                    Defining custom extensions (eg. tasks) using multiple <a href="help/tasks/script.html">
+                        <code>&lt;script&gt;</code></a> instances results in an INTERNAL ERROR (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1187957&amp;group_id=31650&amp;atid=402868">
+                        #1187957</a>).
                 </li>
             </ul>
         </div>
@@ -101,34 +118,41 @@
                     Assembly signing fails for web projects.
                 </li>
                 <li>
-                    Build fails if XML Documentation File does not exist (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1188394&amp;group_id=31650&amp;atid=402868">#1188394</a>).
+                    Build fails if XML Documentation File does not exist (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1188394&amp;group_id=31650&amp;atid=402868">
+                        #1188394</a>).
                 </li>
                 <li>
-                    Satellite assemblies of reference projects are not copied to the 
-                    output directory of referencing projects (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1212909&amp;group_id=31650&amp;atid=402868">#1212909</a>).
+                    Satellite assemblies of reference projects are not copied to the output 
+                    directory of referencing projects (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1212909&amp;group_id=31650&amp;atid=402868">
+                        #1212909</a>).
                 </li>
                 <li>
-                    Changes in project file are not detected (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1209741&amp;group_id=31650&amp;atid=402868">#1209741</a>).
+                    Changes in project file are not detected (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1209741&amp;group_id=31650&amp;atid=402868">
+                        #1209741</a>).
                 </li>
                 <li>
-                    Unused assembly reference that cannot be 
-                    resolved or does not exist results in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1186176&amp;group_id=31650&amp;atid=402868">#1186176</a>).
+                    Unused assembly reference that cannot be resolved or does not exist results in 
+                    build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1186176&amp;group_id=31650&amp;atid=402868">
+                        #1186176</a>).
                 </li>
                 <li>
                     Visual C++
                     <div style="margin-left: 20px;">
                         <ul>
                             <li>
-                                File-level option to enable Managed Extensions is ignored (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1190966&amp;group_id=31650&amp;atid=402868">#1190966</a>).
+                                File-level option to enable Managed Extensions is ignored (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1190966&amp;group_id=31650&amp;atid=402868">
+                                    #1190966</a>).
                             </li>
                             <li>
-                                Linking fails if object file name is explictly set for a specific source file
-                                (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1205728&amp;group_id=31650&amp;atid=402868">#1205728</a>).
+                                Linking fails if object file name is explictly set for a specific source file 
+                                (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1205728&amp;group_id=31650&amp;atid=402868">
+                                    #1205728</a>).
                             </li>
                             <li>
-                                Output files of dependent or referenced projects are not included when linking
-                                (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1186838&amp;group_id=31650&amp;atid=402868">#1186838</a> 
-                                and <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1124296&amp;group_id=31650&amp;atid=402868">#1124296</a>).
+                                Output files of dependent or referenced projects are not included when linking 
+                                (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1186838&amp;group_id=31650&amp;atid=402868">
+                                    #1186838</a> and <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1124296&amp;group_id=31650&amp;atid=402868">
+                                    #1124296</a>).
                             </li>
                         </ul>
                     </div>
@@ -142,8 +166,9 @@
                 <a class="heading" href="help/fundamentals/listeners.html#MailLogger">MailLogger</a></h5>
             <ul>
                 <li>
-                    Added &quot;MailLogger.success.attachments&quot; and &quot;MailLogger.failure.attachments&quot;
-                    properties to allow a set of files to be attached to the message that is sent.
+                    Added &quot;MailLogger.success.attachments&quot; and 
+                    &quot;MailLogger.failure.attachments&quot; properties to allow a set of files 
+                    to be attached to the message that is sent.
                 </li>
             </ul>
         </div>
@@ -153,12 +178,12 @@
                 <a class="heading" href="help/elements/NAnt.Core.Types.Argument.html">&lt;arg&gt;</a></h5>
             <ul>
                 <li>
-                    Added &quot;dir&quot; attribute for directory-based command-line arguments.
-                    (feature request <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1193982&amp;group_id=31650&amp;atid=402871">#1193982</a>).
+                    Added &quot;dir&quot; attribute for directory-based command-line arguments. 
+                    (feature request <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1193982&amp;group_id=31650&amp;atid=402871">
+                        #1193982</a>).
                 </li>
             </ul>
         </div>
-
         <h2>
             0.85-rc 3 (April 16, 2005)</h2>
         <h3>
