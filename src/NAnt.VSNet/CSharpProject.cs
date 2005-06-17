@@ -25,6 +25,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
 using NAnt.DotNet;
@@ -99,10 +100,19 @@ namespace NAnt.VSNet {
             task.Project = SolutionTask.Project;
             task.Verbose = SolutionTask.Verbose;
             task.OutputTarget = ProjectSettings.OutputType;
-            task.OutputFile = new FileInfo(FileUtils.CombinePaths(config.OutputDir.FullName, 
+            task.OutputFile = new FileInfo(FileUtils.CombinePaths(config.ObjectDir.FullName, 
                 ProjectSettings.OutputFileName));
             task.Win32Icon = ProjectSettings.ApplicationIcon;
             task.DocFile = config.DocumentationPath;
+
+            // CDH_HACK: Documentation not generated for mono so we generate a place holder
+            if (PlatformHelper.IsMono) {
+                TouchTask touch = new TouchTask();
+                touch.Project = SolutionTask.Project;
+                touch.Verbose = SolutionTask.Verbose;
+                touch.File = task.DocFile;
+                touch.Execute();
+            }
 
             foreach(string key in SourceFiles.Keys) {
                 task.Sources.Includes.Add(key);
@@ -113,12 +123,13 @@ namespace NAnt.VSNet {
                 GetAssemblyReferences(SolutionTask.Configuration)) {
                 task.References.Includes.Add(assemblyReference);
             }
+
             task.BaseDirectory = CompilerWorkingDir;
 
             // explicitly call InitializeTaskConfiguration() 'cause you gotta
             task.InitializeTaskConfiguration();
 
-            // TODO: Test this, probably missing some settings...
+            // CDH_TODO: Test this, probably missing some settings...
             return task;
         }
 
