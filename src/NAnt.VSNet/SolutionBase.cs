@@ -227,6 +227,7 @@ namespace NAnt.VSNet {
                     }
 
                     if (!HasDirtyProjectDependency(project, htProjectsDone)) {
+			Log(Level.Verbose, "Compiling Project '{0}'", project.Name);
                         try {
                             if (!_htReferenceProjects.Contains(project.Guid) && (failed || !project.Compile(solutionConfiguration))) {
                                 if (!failed) {
@@ -618,7 +619,7 @@ namespace NAnt.VSNet {
                 string outputFile = assemblyReference.GetPrimaryOutputFile(
                     solutionConfiguration);
 
-                if (_htOutputFiles.Contains(outputFile.ToLower())) {
+                if (_htOutputFiles.Contains(outputFile)) {
                     // if the reference is an output file of
                     // another build configuration of a project
                     // and this output file wasn't built before
@@ -664,7 +665,6 @@ namespace NAnt.VSNet {
 
                 // try matching assembly reference and project on assembly name
                 // if the assembly file does not exist
-Console.WriteLine("matching file {0}", outputFile);
                 if (projectRef == null && !System.IO.File.Exists(outputFile)) {
                     foreach (ProjectEntry projectEntry in ProjectEntries) {
                         // we can only do this for managed projects, as we only have
