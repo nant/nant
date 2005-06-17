@@ -38,14 +38,24 @@ namespace Tests.NAnt.VisualCpp.Tasks
         const string _test_build = @"<?xml version='1.0'?>
                 <project>
                     <cl outputdir=""objs""
-                        options=""-Zi -MDd -GA -Gz -YX -DWIN32 -DUNICODE -DDEBUG -D_DEBUG"" >
+                        options=""-Zi -MDd -GA -Gz -YX"" >
                         <sources>
                             <include name=""src\HelloWorld.cpp"" />
                         </sources>
+                        <defines>
+                            <define name=""WIN32"" />
+                            <define name=""UNICODE"" />
+                            <define name=""DEBUG"" />
+                            <define name=""_DEBUG"" />
+                            <define name=""TEST"" if=""false"" />
+                        </defines>
                     </cl>
                 </project>";
         const string _helloWorld_cpp = @"
                 #include <stdio.h>
+                #ifdef TEST
+                    causes error
+                #endif
                 void main(void) {
                     printf(""Hello, World."");
                 }";
@@ -105,10 +115,16 @@ namespace Tests.NAnt.VisualCpp.Tasks
         const string _test_build = @"<?xml version='1.0'?>
                 <project>
                     <cl outputdir=""objs""
-                        options=""-Zi -MDd -GA -Gz -YX -DWIN32 -DUNICODE -DDEBUG -D_DEBUG"" >
+                        options=""-Zi -MDd -GA -Gz -YX"" >
                         <sources>
                             <include name=""src\*.cpp"" />
                         </sources>
+                        <defines>
+                            <define name=""WIN32"" />
+                            <define name=""UNICODE"" />
+                            <define name=""DEBUG"" />
+                            <define name=""_DEBUG"" />
+                        </defines>
                     </cl>
                 </project>";
 
