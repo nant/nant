@@ -608,7 +608,7 @@ namespace NDoc.Documenter.NAnt {
 
         #region Private Instance Methods
 
-        private string GetElementNameForType(string id) {
+        protected string GetElementNameForType(string id) {
             return GetElementNameForType(GetTypeNodeByID(id));
         }
 
