@@ -26,6 +26,7 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet;
@@ -105,7 +106,31 @@ namespace NAnt.VSNet {
             task.Win32Icon = ProjectSettings.ApplicationIcon;
             task.DocFile = config.DocumentationPath;
 
-            // CDH_HACK: Documentation not generated for mono so we generate a place holder
+            foreach (string setting in ProjectSettings.Settings) {
+                if (setting.IndexOf("/out") > -1) {
+                    continue;
+                }
+                if (setting.IndexOf("/target") > -1) {
+                    continue;
+                }
+                task.Arguments.Add(new Argument(setting));
+            }
+
+            ConfigurationSettings configSettings = config as ConfigurationSettings;
+            if (null != configSettings) {
+                foreach (string setting in configSettings.Settings) {
+                    if (setting.IndexOf("/out:") > -1) {
+                        continue;
+                    }
+                    if (setting.IndexOf("/target:") > -1) {
+                        continue;
+                    }
+                    task.Arguments.Add(new Argument(setting));
+                }
+            }
+
+            // CDH_HACK: Documentation not generated for mono so 
+            //  we generate a place holder
             if (PlatformHelper.IsMono) {
                 TouchTask touch = new TouchTask();
                 touch.Project = SolutionTask.Project;
@@ -129,7 +154,6 @@ namespace NAnt.VSNet {
             // explicitly call InitializeTaskConfiguration() 'cause you gotta
             task.InitializeTaskConfiguration();
 
-            // CDH_TODO: Test this, probably missing some settings...
             return task;
         }
 

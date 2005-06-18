@@ -25,6 +25,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
+using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet.Tasks;
@@ -124,12 +125,44 @@ namespace NAnt.VSNet {
             task.OutputFile = new FileInfo(config.OutputPath);
             task.Win32Icon = ProjectSettings.ApplicationIcon;
 
+            foreach (string setting in ProjectSettings.Settings) {
+                if (setting.IndexOf("/out") > -1) {
+                    continue;
+                }
+                if (setting.IndexOf("/target") > -1) {
+                    continue;
+                }
+                task.Arguments.Add(new Argument(setting));
+            }
+
+            ConfigurationSettings configSettings = config as ConfigurationSettings;
+            if (null != configSettings) {
+                foreach (string setting in configSettings.Settings) {
+                    if (setting.IndexOf("/out:") > -1) {
+                        continue;
+                    }
+                    if (setting.IndexOf("/target:") > -1) {
+                        continue;
+                    }
+                    task.Arguments.Add(new Argument(setting));
+                }
+            }
+
             foreach(string key in SourceFiles.Keys) {
                 task.Sources.Includes.Add(key);
             }
+
+            // write assembly references to response file
+            foreach (string assemblyReference in 
+                GetAssemblyReferences(SolutionTask.Configuration)) {
+                task.References.Includes.Add(assemblyReference);
+            }
+
             task.BaseDirectory = CompilerWorkingDir;
 
-            // TODO: Test this, probably missing some settings...
+            // explicitly call InitializeTaskConfiguration() 'cause you gotta
+            task.InitializeTaskConfiguration();
+
             return task;
         }
 
