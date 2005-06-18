@@ -113,6 +113,12 @@ namespace NAnt.VSNet {
                 if (setting.IndexOf("/target") > -1) {
                     continue;
                 }
+                if (setting.IndexOf("/baseaddress") > -1 && PlatformHelper.IsMono) {
+                    continue;
+                }
+                if (setting.IndexOf("/filealign") > -1 && PlatformHelper.IsMono) {
+                    continue;
+                }
                 task.Arguments.Add(new Argument(setting));
             }
 
@@ -123,6 +129,12 @@ namespace NAnt.VSNet {
                         continue;
                     }
                     if (setting.IndexOf("/target:") > -1) {
+                        continue;
+                    }
+                    if (setting.IndexOf("/baseaddress") > -1 && PlatformHelper.IsMono) {
+                        continue;
+                    }
+                    if (setting.IndexOf("/filealign") > -1 && PlatformHelper.IsMono) {
                         continue;
                     }
                     task.Arguments.Add(new Argument(setting));

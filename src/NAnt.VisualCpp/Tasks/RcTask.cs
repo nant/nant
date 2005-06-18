@@ -244,23 +244,16 @@ namespace NAnt.VisualCpp.Tasks {
                     string line = sr.ReadLine();
 
                     Match resourceMatch = regBitmap.Match(line);
-                    if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
-                    }
+                    if (!resourceMatch.Success) {
+                        resourceMatch = regIcon.Match(line);
+                        if (!resourceMatch.Success) {
+                            resourceMatch = regBinary.Match(line);
+                            if (!resourceMatch.Success) {
+                                continue;
+                            }
+                        }
+                     }
 
-                    resourceMatch = regIcon.Match(line);
-                    if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
-                    }
-                    
-                    resourceMatch = regBinary.Match(line);
-                    if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
-                    }
-
-                    continue;
-
-                check_resource_timestamp:
                     string externalFile = Path.Combine(RcFile.DirectoryName,
                         resourceMatch.Groups["file"].Value);
                     fileName = FileSet.FindMoreRecentLastWriteTime(
