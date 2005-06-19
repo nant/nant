@@ -145,7 +145,7 @@ namespace NAnt.VSNet {
                 case "safeinputname":
                     return Path.GetFileNameWithoutExtension(_relativePath);
                 default:
-                    return base.ExpandMacro(macro);
+                    return _parentConfig.ExpandMacro(macro);
             }
         }
 

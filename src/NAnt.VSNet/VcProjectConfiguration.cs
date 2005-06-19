@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 
+using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VisualCpp.Types;
@@ -157,7 +158,126 @@ namespace NAnt.VSNet {
             get { return _linkerConfiguration; }
         }
 
+        /// <summary>
+        /// Gets the list of files to link in the order in which they are 
+        /// defined in the project file.
+        /// </summary>
+        internal ArrayList ObjFiles {
+            get {
+                // lazy init
+                if (!_initialized) {
+                    Initialize();
+                }
+                return _objFiles;
+            }
+        }
+
+        /// <summary>
+        /// Holds the C++ sources for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the C++ source files for that
+        /// build configuration.
+        /// </remarks>
+        internal Hashtable SourceConfigs {
+            get {
+                // lazy init
+                if (!_initialized) {
+                    Initialize();
+                }
+                return _sourceConfigs;
+            }
+        }
+
+        /// <summary>
+        /// Gets the resources for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the resources files for that
+        /// build configuration.
+        /// </remarks>
+        internal Hashtable RcConfigs {
+            get {
+                // lazy init
+                if (!_initialized) {
+                    Initialize();
+                }
+                return _rcConfigs;
+            }
+        }
+
+        /// <summary>
+        /// Get the IDL files for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the IDL files for that build 
+        /// configuration.
+        /// </remarks>
+        internal Hashtable IdlConfigs {
+            get {
+                // lazy init
+                if (!_initialized) {
+                    Initialize();
+                }
+                return _idlConfigs;
+            }
+        }
+
         #endregion Internal Instance Properties
+
+        #region Private Instance Properties
+
+        /// <summary>
+        /// Gets the target path for usage in macro expansion.
+        /// </summary>
+        /// <value>
+        /// The target path, or a zero-length string if there's no output file 
+        /// for this configuration.
+        /// </value>
+        private string TargetPath {
+            get {
+                string targetPath = string.Empty;
+
+                switch (Type) {
+                    case ConfigurationType.Application:
+                        string applicationOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(applicationOutput)) {
+                            applicationOutput = ExpandMacros("$(OutDir)/$(ProjectName).exe");
+                        }
+                        targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, applicationOutput);
+                        break;
+                    case ConfigurationType.DynamicLibrary:
+                        string libraryOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(libraryOutput)) {
+                            libraryOutput = ExpandMacros("$(OutDir)/$(ProjectName).dll");
+                        }
+                        targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, libraryOutput);
+                        break;
+                    case ConfigurationType.StaticLibrary:
+                        string librarianOutput = GetToolSetting(VcConfigurationBase.LibTool, "OutputFile");
+                        if (StringUtils.IsNullOrEmpty(librarianOutput)) {
+                            librarianOutput = ExpandMacros("$(OutDir)/$(ProjectName).lib");
+                        }
+                        targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, librarianOutput);
+                        break;
+                    case ConfigurationType.Makefile:
+                        string nmakeOutput = GetToolSetting(VcConfigurationBase.NMakeTool, "Output");
+                        if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
+                            targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
+                        }
+                        break;
+                    case ConfigurationType.Utility:
+                        break;
+                }
+
+                return targetPath;
+            }
+        }
+
+        #endregion Private Instance Properties
 
         #region Override implementation of ConfigurationBase
 
@@ -188,7 +308,7 @@ namespace NAnt.VSNet {
         /// directory.
         /// </summary>
         public override string RelativeOutputDir {
-            get { return ExpandMacros(RawRelativeOutputDir) ; }
+            get { return ExpandMacros(RawRelativeOutputDir); }
         }
 
         #endregion Override implementation of ConfigurationBase
@@ -207,56 +327,19 @@ namespace NAnt.VSNet {
         }
 
         /// <summary>
-        /// Gets the path for the output file.
+        /// Gets the absolute path for the output file.
         /// </summary>
         /// <value>
-        /// The path for the output file, or <see langword="null" /> if there's
-        /// no output file for this configuration.
+        /// The absolute path for the output file, or <see langword="null" /> 
+        /// if there's no output file for this configuration.
         /// </value>
         public override string OutputPath {
             get {
-                // TODO : we might to move this to another property called TargetPath
-                // as the current implementation will not match the real output file
-                // of the project configuration
-                //
-                // Note: to determine the real output path we may even need access to
-                // the sources of the project (if no output file for linker is 
-                // explicitly set to an empty string)
-                string outputPath = null;
-
-                switch (Type) {
-                    case ConfigurationType.Application:
-                        string applicationOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(applicationOutput)) {
-                            applicationOutput = ExpandMacros("$(OutDir)/$(ProjectName).exe");
-                        }
-                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, applicationOutput);
-                        break;
-                    case ConfigurationType.DynamicLibrary:
-                        string libraryOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(libraryOutput)) {
-                            libraryOutput = ExpandMacros("$(OutDir)/$(ProjectName).dll");
-                        }
-                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, libraryOutput);
-                        break;
-                    case ConfigurationType.StaticLibrary:
-                        string librarianOutput = GetToolSetting("VCLibrarianTool", "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(librarianOutput)) {
-                            librarianOutput = ExpandMacros("$(OutDir)/$(ProjectName).lib");
-                        }
-                        outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, librarianOutput);
-                        break;
-                    case ConfigurationType.Makefile:
-                        string nmakeOutput = GetToolSetting("VCNMakeTool", "Output");
-                        if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
-                            outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
-                        }
-                        break;
-                    case ConfigurationType.Utility:
-                        return null;
+                // lazy init
+                if (!_initialized) {
+                    Initialize();
                 }
-
-                return outputPath;
+                return _outputPath;
             }
         }
 
@@ -320,12 +403,228 @@ namespace NAnt.VSNet {
             return args;
         }
 
+        /// <summary>
+        /// Expands the given macro.
+        /// </summary>
+        /// <param name="macro">The macro to expand.</param>
+        /// <returns>
+        /// The expanded macro.
+        /// </returns>
+        /// <exception cref="BuildException">
+        ///   <para>The macro is not supported.</para>
+        ///   <para>-or-</para>
+        ///   <para>The macro is not implemented.</para>
+        ///   <para>-or-</para>
+        ///   <para>The macro cannot be expanded.</para>
+        /// </exception>
+        /// <exception cref="NotImplementedException">
+        ///   <para>Expansion of a given macro is not yet implemented.</para>
+        /// </exception>
+        protected internal override string ExpandMacro(string macro) {
+            // perform case-insensitive expansion of macros 
+            switch (macro.ToLower(CultureInfo.InvariantCulture)) {
+                case "targetname": // E.g. WindowsApplication1
+                    return Path.GetFileNameWithoutExtension(Path.GetFileName(
+                        TargetPath));
+                case "targetpath": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug\WindowsApplications1.exe
+                    return TargetPath;
+                case "targetext": // E.g. .exe
+                    return Path.GetExtension(TargetPath);
+                case "targetfilename": // E.g. WindowsApplications1.exe
+                    return Path.GetFileName(TargetPath);
+                case "targetdir": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug
+                    return Path.GetDirectoryName(TargetPath) + (TargetPath.EndsWith(
+                        Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
+                        ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
+                default:
+                    return base.ExpandMacro(macro);
+            }
+        }
+
         #endregion Override implementation of VcConfigurationBase
 
-        #region Internal Instance Methods
+        #region Private Instance Methods
 
+        private void Initialize() {
+            VcProject vcProject = (VcProject) Project;
 
-        #endregion Internal Instance Methods
+            // determine directory for storing intermediate build output for
+            // current project build configuration
+            string intermediateDir = FileUtils.CombinePaths(vcProject.ProjectDirectory.FullName, 
+                IntermediateDir);
+
+            foreach (object projectFile in vcProject.ProjectFiles) {
+                string fileName = null;
+                VcConfigurationBase fileConfig = null;
+
+                // the array list contains either strings or hashtables
+                if (projectFile is string) {
+                    fileName = (string) projectFile;
+                } else {
+                    Hashtable fileConfigurations = (Hashtable) projectFile;
+                    // obtain file configuration for current build configuration
+                    VcFileConfiguration configuration = (VcFileConfiguration) 
+                        fileConfigurations[Name];
+                    if (configuration != null && configuration.ExcludeFromBuild) {
+                        continue;
+                    }
+                    fileConfig = configuration;
+
+                    // determine relative path
+                    if (configuration == null) {
+                        // obtain relative path for other build configuration
+                        // as the relative is the same anyway
+                        foreach (DictionaryEntry de in fileConfigurations) {
+                            configuration = (VcFileConfiguration) de.Value;
+                            break;
+                        }
+                    }
+                    fileName = configuration.RelativePath;
+                }
+
+                string ext = Path.GetExtension(fileName).ToLower(CultureInfo.InvariantCulture);
+
+                // if there's no specific file configuration (for the current
+                // build configuration), then use the project configuration
+                if (fileConfig == null) {
+                    fileConfig = this;
+                }
+
+                switch (ext) {
+                    case ".cpp":
+                    case ".c":
+                        if (!_sourceConfigs.ContainsKey(fileConfig)) {
+                            _sourceConfigs[fileConfig] = new ArrayList(1);
+                        }
+
+                        // add file to list of sources to build with this config
+                        ((ArrayList) _sourceConfigs[fileConfig]).Add(fileName);
+
+                        // register output file for linking
+                        _objFiles.Add(vcProject.GetObjOutputFile(fileName, 
+                            fileConfig, intermediateDir));
+                        break;
+                    case ".rc":
+                        if (!_rcConfigs.ContainsKey(fileConfig)) {
+                            _rcConfigs[fileConfig] = new ArrayList(1);
+                        }
+
+                        // add file to list of resources to build with this config
+                        ((ArrayList) _rcConfigs[fileConfig]).Add(fileName);
+
+                        // register output file for linking
+                        _objFiles.Add(vcProject.GetResourceOutputFile(fileName, 
+                            fileConfig));
+                        break;
+                    case ".idl":
+                    case ".odl": // ODL is used for old OLE objects
+                        if (!_idlConfigs.ContainsKey(fileConfig)) {
+                            _idlConfigs[fileConfig] = new ArrayList(1);
+                        }
+
+                        // add file to list of idl's to build with this config
+                        ((ArrayList) _idlConfigs[fileConfig]).Add(fileName);
+                        break;
+                }
+            }
+
+            switch (Type) {
+                case ConfigurationType.StaticLibrary:
+                    _outputPath = GetLibrarianOutputFile(intermediateDir);
+                    break;
+                case ConfigurationType.Application:
+                case ConfigurationType.DynamicLibrary:
+                    _outputPath = GetLinkerOutputFile();
+                    break;
+                case ConfigurationType.Makefile:
+                    string nmakeOutput = GetToolSetting(VcConfigurationBase.NMakeTool, "Output");
+                    if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
+                        _outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
+                    }
+                    break;
+            }
+
+            // mark initialization complete
+            _initialized = true;
+        }
+
+        private string GetLibrarianOutputFile(string intermediateDir) {
+            if (_objFiles.Count == 0) {
+                return null;
+            }
+
+            string outFile = GetToolSetting(VcConfigurationBase.LibTool, 
+                "OutputFile", "$(OutDir)/$(ProjectName).lib");
+            // if OutputFile is explicitly set to an empty string, VS.NET
+            // uses file name of first obj file (in intermediate directory)
+            if (StringUtils.IsNullOrEmpty(outFile)) {
+                outFile = FileUtils.CombinePaths(intermediateDir,
+                    Path.GetFileNameWithoutExtension((string) _objFiles[0]) 
+                    + ".lib");
+            } else {
+                outFile = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
+                    outFile);
+            }
+            return outFile;
+        }
+
+        private string GetLinkerOutputFile() {
+            const string noinherit = "$(noinherit)";
+
+            string addDeps = GetToolSetting(VcConfigurationBase.LinkerTool, "AdditionalDependencies");
+            if (!StringUtils.IsNullOrEmpty(addDeps)) {
+                // remove noherit macro from addDeps
+                if (addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) != -1) {
+                    addDeps = addDeps.Remove(addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
+                }
+
+                string[] depParts = addDeps.Split(' ');
+                for (int i = 0; i < depParts.Length; i++) {
+                    string addDep = depParts[i];
+                    if (Path.GetExtension(addDep) == ".obj") {
+                        _objFiles.Insert(i, addDep);
+                    }
+                }
+            }
+
+            if (_objFiles.Count == 0) {
+                return null;
+            }
+
+            string extension = string.Empty;
+
+            switch (Type) {
+                case ConfigurationType.Application:
+                    extension = ".exe";
+                    break;
+                case ConfigurationType.DynamicLibrary:
+                    extension = ".dll";
+                    break;
+            }
+
+            // output file name
+            string outFile = GetToolSetting(VcConfigurationBase.LinkerTool, 
+                "OutputFile", "$(OutDir)/$(ProjectName)" + extension);
+            // if OutputFile is explicitly set to an empty string, VS.NET
+            // uses file name of first obj file (in the current directory) and 
+            // extention based on configuration type 
+            if (StringUtils.IsNullOrEmpty(outFile)) {
+                outFile = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
+                    Path.GetFileNameWithoutExtension((string) _objFiles[0]) +
+                    extension);
+            }
+            if (SolutionTask.OutputDir != null) {
+                outFile = FileUtils.CombinePaths(SolutionTask.OutputDir.FullName, 
+                    Path.GetFileName(outFile));
+            } else {
+                outFile = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
+                    outFile);
+            }
+
+            return outFile;
+        }
+
+        #endregion Private Instance Methods
 
         #region Private Static Methods
 
@@ -366,6 +665,51 @@ namespace NAnt.VSNet {
         private readonly UseOfMFC _useOfMFC = UseOfMFC.NotUsing;
         private readonly UseOfATL _useOfATL = UseOfATL.NotUsing;
         private readonly LinkerConfig _linkerConfiguration;
+        private bool _initialized;
+
+        /// <summary>
+        /// Holds the output path for this build configuration.
+        /// </summary>
+        /// <remarks>
+        /// Lazy initialized by <see cref="Initialize()" />.
+        /// </remarks>
+        private string _outputPath;
+
+        /// <summary>
+        /// Holds list of files to link in the order in which they are defined
+        /// in the project file.
+        /// </summary>
+        private readonly ArrayList _objFiles = new ArrayList();
+
+        /// <summary>
+        /// Holds the C++ sources for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the C++ source files for that
+        /// build configuration.
+        /// </remarks>
+        private readonly Hashtable _sourceConfigs = new Hashtable();
+
+        /// <summary>
+        /// Holds the resources for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the resources files for that
+        /// build configuration.
+        /// </remarks>
+        private readonly Hashtable _rcConfigs = new Hashtable();
+
+        /// <summary>
+        /// Holds the IDL files for each build configuration.
+        /// </summary>
+        /// <remarks>
+        /// The key of the hashtable is a build configuration, and the
+        /// value is an ArrayList holding the IDL files for that build 
+        /// configuration.
+        /// </remarks>
+        private readonly Hashtable _idlConfigs = new Hashtable();
 
         #endregion Private Instance Fields
 
@@ -411,25 +755,33 @@ namespace NAnt.VSNet {
             #region Public Instance Properties
 
             /// <summary>
-            /// Gets the absolute path to the import library to generate.
+            /// Gets a <see cref="FileInfo" /> instance representing the 
+            /// absolute path to the import library to generate.
             /// </summary>
             /// <value>
-            /// The absolute path to the import library to generate, or
-            /// <see langword="null" /> if no import library must be generated.
+            /// A <see cref="FileInfo" /> representing the absolute path to the
+            /// import library to generate, or <see langword="null" /> if no 
+            /// import library must be generated.
             /// </value>
-            public string ImportLibrary {
+            public FileInfo ImportLibrary {
                 get {
                     string importLibrary = StringUtils.ConvertEmptyToNull(
                         _projectConfig.GetToolSetting(VcConfigurationBase.LinkerTool, 
                         "ImportLibrary"));
-                    if (importLibrary != null) {
-                        if (_projectConfig.OutputDir != null) {
-                            importLibrary = FileUtils.CombinePaths(_projectConfig.OutputDir.FullName, Path.GetFileName(importLibrary));
-                        } else {
-                            importLibrary = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, importLibrary);
-                        }
+                    if (importLibrary == null) {
+                        // no import library must be generated
+                        return null;
                     }
-                    return importLibrary;
+
+                    if (_projectConfig.SolutionTask.OutputDir != null) {
+                        importLibrary = FileUtils.CombinePaths(
+                            _projectConfig.SolutionTask.OutputDir.FullName, 
+                            Path.GetFileName(importLibrary));
+                    } else {
+                        importLibrary = FileUtils.CombinePaths(
+                            Project.ProjectDirectory.FullName, importLibrary);
+                    }
+                    return new FileInfo(importLibrary);
                 }
             }
 

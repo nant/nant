@@ -53,7 +53,7 @@ namespace NAnt.VSNet {
                 throw new ArgumentNullException("elem");
             }
 
-            // set output directory (if specified)
+            // output directory override (if specified)
             _outputDir = outputDir;
 
             // get name of configuration (also contains the targeted platform)
@@ -124,13 +124,28 @@ namespace NAnt.VSNet {
 
         #endregion Public Instance Properties
 
+        #region Internal Instance Properties
+
+        /// <summary>
+        /// Gets the name of the configuration, including the platform it
+        /// targets.
+        /// </summary>
+        /// <value>
+        /// Tthe name of the configuration, including the platform it targets.
+        /// </value>
+        internal string FullName {
+            get { return _name; }
+        }
+
+        #endregion Internal Instance Properties
+
         #region Override implementation of ConfigurationBase
 
         /// <summary>
         /// Gets the output directory.
         /// </summary>
         public override DirectoryInfo OutputDir {
-            get { 
+            get {
                 if (_outputDir == null) {
                     if (RelativeOutputDir != null) {
                         _outputDir = new DirectoryInfo(FileUtils.CombinePaths(
@@ -255,21 +270,6 @@ namespace NAnt.VSNet {
 
         #endregion Override implementation of ConfigurationBase
 
-        #region Internal Instance Properties
-
-        /// <summary>
-        /// Gets the name of the configuration, including the platform it
-        /// targets.
-        /// </summary>
-        /// <value>
-        /// Tthe name of the configuration, including the platform it targets.
-        /// </value>
-        internal string FullName {
-            get { return _name; }
-        }
-
-        #endregion Internal Instance Properties
-
         #region Public Instance Methods
 
         /// <summary>
@@ -329,7 +329,15 @@ namespace NAnt.VSNet {
 
         #region Internal Static Fields
 
+        internal const string CLCompilerTool = "VCCLCompilerTool";
         internal const string LinkerTool = "VCLinkerTool";
+        internal const string LibTool = "VCLibrarianTool";
+        internal const string ResourceCompilerTool = "VCResourceCompilerTool";
+        internal const string MIDLTool = "VCMIDLTool";
+        internal const string PreBuildEventTool = "VCPreBuildEventTool";
+        internal const string PostBuildEventTool = "VCPostBuildEventTool";
+        internal const string PreLinkEventTool = "VCPreLinkEventTool";
+        internal const string NMakeTool = "VCNMakeTool";
 
         #endregion Internal Static Fields
     }
