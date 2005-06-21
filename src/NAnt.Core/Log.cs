@@ -893,7 +893,7 @@ namespace NAnt.Core {
                 
                 // attach files in fileset to message
                 AttachFiles(mailMessage, project, GetPropertyValue(properties, 
-                    prefix + ".attachments", null));
+                    prefix + ".attachments", ""));
 
                 // set encoding of body
                 if (bodyEncoding != null) {
