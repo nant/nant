@@ -106,6 +106,46 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     /// <example>
+    ///   <para>Use a custom namespace in C# to create a database</para>
+    ///   <code>
+    ///         &lt;script language=&quot;C#&quot; &gt;
+    ///             &lt;references&gt;
+    ///                 &lt;include name=&quot;System.Data.dll&quot; /&gt;
+    ///             &lt;/references&gt;
+    ///             &lt;imports&gt;
+    ///                 &lt;import namespace=&quot;System.Data.SqlClient&quot; /&gt;
+    ///             &lt;/imports&gt;
+    ///             &lt;code&gt;
+    ///               &lt;![CDATA[
+    ///                 public static void ScriptMain(Project project) {
+    ///                     string dbUserName = &quot;nant&quot;;
+    ///                     string dbPassword = &quot;nant&quot;;
+    ///                     string dbServer = &quot;(local)&quot;;
+    ///                     string dbDatabaseName = &quot;NAntSample&quot;;
+    ///                     string connectionString = String.Format(&quot;Server={0};uid={1};pwd={2};&quot;, dbServer, dbUserName, dbPassword);
+    ///                     
+    ///                     SqlConnection connection = new SqlConnection(connectionString);
+    ///                     string createDbQuery = "CREATE DATABASE " + dbDatabaseName;
+    ///                     SqlCommand createDatabaseCommand = new SqlCommand(createDbQuery);
+    ///                     createDatabaseCommand.Connection = connection;
+    ///                     
+    ///                     connection.Open();
+    ///                     
+    ///                     try {
+    ///                         createDatabaseCommand.ExecuteNonQuery();
+    ///                         project.Log(Level.Info, &quot;Database added successfully: &quot; + dbDatabaseName);
+    ///                     } catch (Exception e) {
+    ///                         project.Log(Level.Error, e.ToString());
+    ///                     } finally {
+    ///                         connection.Close();
+    ///                     }
+    ///                 }
+    ///               ]]&gt;
+    ///             &lt;/code&gt;
+    ///         &lt;/script&gt;
+    ///   </code>
+    /// </example>
+    /// <example>
     ///   <para>Run Visual Basic.NET code that writes a message to the build log.</para>
     ///   <code>
     ///         &lt;script language=&quot;VB&quot;&gt;
