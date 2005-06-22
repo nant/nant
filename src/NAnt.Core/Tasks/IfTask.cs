@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Functions;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -32,18 +33,37 @@ namespace NAnt.Core.Tasks {
     /// <see langword="true" />.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///     If no conditions are checked, all child tasks are executed. 
-    ///     </para>
-    ///     <para>
-    ///     If more than one attribute is used, they are &amp;&amp;'d. The first 
-    ///     to fail stops the check.
-    ///     </para>
-    ///     <para>
-    ///     The order of condition evaluation is, <see cref="TargetNameExists" />, 
-    ///     <see cref="PropertyNameExists" />, <see cref="PropertyNameTrue" />, 
-    ///     <see cref="UpToDateFile" />.
-    ///     </para>
+    ///   <para>
+    ///   If no conditions are checked, all child tasks are executed. 
+    ///   </para>
+    ///   <para>
+    ///   If more than one attribute is used, they are &amp;&amp;'d. The first 
+    ///   to fail stops the check.
+    ///   </para>
+    ///   <para>
+    ///   The order of condition evaluation is, <see cref="TargetNameExists" />, 
+    ///   <see cref="PropertyNameExists" />, <see cref="PropertyNameTrue" />, 
+    ///   <see cref="UpToDateFile" />.
+    ///   </para>
+    ///   <note>
+    ///   instead of using the deprecated attributes, we advise you to use the
+    ///   following functions in combination with the <see cref="Test" />
+    ///   attribute:
+    ///   </note>
+    ///   <list type="table">
+    ///     <listheader>
+    ///         <term>Function</term>
+    ///         <description>Description</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><see cref="PropertyFunctions.Exists(string)" /></term>
+    ///         <description>Checks whether the specified property exists.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="TargetFunctions.Exists(string)" /></term>
+    ///         <description>Checks whether the specified target exists.</description>
+    ///     </item>
+    ///   </list>  
     /// </remarks>
     /// <example>
     ///   <para>Tests the value of a property using expressions.</para>
