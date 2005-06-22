@@ -179,6 +179,18 @@ namespace NAnt.Core.Functions {
         /// <see langword="true" /> if the specified target exists; otherwise,
         /// <see langword="false" />.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Execute target &quot;clean&quot;, if it exists.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <if test="${target::exists('clean')}">
+        ///     <call target="clean" />
+        /// </if>
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("exists")]
         public bool Exists(string name) {
             return (Project.Targets.Find(name) != null);
@@ -291,8 +303,19 @@ namespace NAnt.Core.Functions {
         /// <see langword="false" />.
         /// </returns>
         /// <example>
-        ///   <para>Check whether the &quot;debug&quot; property exists.</para>
-        ///   <code>property::exists('debug')</code>
+        ///   <para>
+        ///   Execute a set of tasks if the &quot;build.debug&quot; property
+        ///   exists.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <if test="${property::exists('build.debug')}">
+        ///     <echo message="Starting debug build" />
+        ///     <call target="init-debug" />
+        ///     <call target="build" />
+        /// </if>
+        ///     ]]>
+        ///   </code>
         /// </example>
         [Function("exists")]
         public bool Exists(string name) {
