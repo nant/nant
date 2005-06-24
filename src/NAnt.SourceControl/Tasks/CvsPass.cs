@@ -40,7 +40,7 @@ namespace NAnt.SourceControl.Tasks {
     ///   <para>Update .cvspass file to include the NAnt anonymous login.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    /// <cvs-pass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///      password="anonymous"
     ///      passfile="C:\.cvspass" />
     ///     ]]>
