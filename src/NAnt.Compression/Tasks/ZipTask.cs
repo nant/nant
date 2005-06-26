@@ -165,67 +165,69 @@ namespace NAnt.Compression.Tasks {
 
                     // add files to zip
                     foreach (string file in fileset.FileNames) {
-                        if (File.Exists(file)) {
-                            // the name of the zip entry
-                            string entryName;
+                        // ensure file exists (in case "asis" was used)
+                        if (!File.Exists(file)) {
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "File '{0}' does not exist.", file), Location);
+                        }
 
-                            // determine name of the zip entry
-                            if (file.StartsWith(basePath)) {
-                                entryName = file.Substring(basePath.Length);
-                                if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
-                                    entryName = entryName.Substring(1);
-                                }
+                        // the name of the zip entry
+                        string entryName;
 
-                                // remember that directory was added to zip file, so
-                                // that we won't add it again later
-                                string dir = Path.GetDirectoryName(file);
-                                if (_addedDirs[dir] == null) {
-                                    _addedDirs[dir] = dir;
-                                }
-                            } else {
-                                // flatten directory structure
-                                entryName = Path.GetFileName(file);
+                        // determine name of the zip entry
+                        if (file.StartsWith(basePath)) {
+                            entryName = file.Substring(basePath.Length);
+                            if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
+                                entryName = entryName.Substring(1);
                             }
 
-                            // add prefix if specified
-                            if (fileset.Prefix != null) {
-                                entryName = fileset.Prefix + entryName;
-                            }
-
-                            // ensure directory separators are understood on linux
-                            if (Path.DirectorySeparatorChar == '\\') {
-                                entryName = entryName.Replace(@"\", "/");
-                            }
-
-                            // create zip entry
-                            ZipEntry entry = new ZipEntry(entryName);
-
-                            // set date/time stamp on zip entry
-                            if (Stamp != DateTime.MinValue) {
-                                entry.DateTime = Stamp;
-                            } else {
-                                entry.DateTime = File.GetLastWriteTime(file);
-                            }
-
-                            Log(Level.Verbose, "Adding {0}.", entryName);
-                        
-                            // write file to zip file
-                            zOutstream.PutNextEntry(entry);
-
-                            // write file content to stream in small chuncks
-                            using (FileStream fs = File.OpenRead(file)) {
-                                byte[] buffer = new byte[50000];
-
-                                while (true) {
-                                    int bytesRead = fs.Read(buffer, 0, buffer.Length);
-                                    if (bytesRead == 0) {
-                                        break;
-                                    }
-                                    zOutstream.Write(buffer, 0, bytesRead);
-                                }
+                            // remember that directory was added to zip file, so
+                            // that we won't add it again later
+                            string dir = Path.GetDirectoryName(file);
+                            if (_addedDirs[dir] == null) {
+                                _addedDirs[dir] = dir;
                             }
                         } else {
-                            throw new FileNotFoundException("File no longer exists.", file);
+                            // flatten directory structure
+                            entryName = Path.GetFileName(file);
+                        }
+
+                        // add prefix if specified
+                        if (fileset.Prefix != null) {
+                            entryName = fileset.Prefix + entryName;
+                        }
+
+                        // ensure directory separators are understood on linux
+                        if (Path.DirectorySeparatorChar == '\\') {
+                            entryName = entryName.Replace(@"\", "/");
+                        }
+
+                        // create zip entry
+                        ZipEntry entry = new ZipEntry(entryName);
+
+                        // set date/time stamp on zip entry
+                        if (Stamp != DateTime.MinValue) {
+                            entry.DateTime = Stamp;
+                        } else {
+                            entry.DateTime = File.GetLastWriteTime(file);
+                        }
+
+                        Log(Level.Verbose, "Adding {0}.", entryName);
+                    
+                        // write file to zip file
+                        zOutstream.PutNextEntry(entry);
+
+                        // write file content to stream in small chuncks
+                        using (FileStream fs = File.OpenRead(file)) {
+                            byte[] buffer = new byte[50000];
+
+                            while (true) {
+                                int bytesRead = fs.Read(buffer, 0, buffer.Length);
+                                if (bytesRead == 0) {
+                                    break;
+                                }
+                                zOutstream.Write(buffer, 0, bytesRead);
+                            }
                         }
                     }
 

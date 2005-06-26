@@ -155,8 +155,10 @@ namespace NAnt.Compression.Tasks {
 
                     // add files to tar
                     foreach (string file in fileset.FileNames) {
+                        // ensure file exists (in case "asis" was used)
                         if (!File.Exists(file)) {
-                            throw new FileNotFoundException("File no longer exists.", file);
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                "File '{0}' does not exist.", file), Location);
                         }
 
                         // the filename of the tar entry
