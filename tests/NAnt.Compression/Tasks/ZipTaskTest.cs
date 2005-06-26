@@ -24,24 +24,26 @@ using System.Xml;
 
 using NUnit.Framework;
 
+using NAnt.Core;
+
 using Tests.NAnt.Core;
 
 namespace Tests.NAnt.Compression.Tasks {
     [TestFixture]
     public class ZipTaskTest : BuildTestBase {
         /// <summary>
-        /// Test to make sure debug option works.
+        /// Test to make sure a simple zip file can be created.
         /// </summary>
         [Test]
-        public void Test_ReleaseBuild() {
-            string projectXML = @"<?xml version='1.0'?>
-            <project>
-                <zip zipfile='test.zip'>
-                    <fileset basedir='src'>
-                        <include name='**'/>
-                    </fileset>
-                </zip>
-            </project>";
+        public void Test_SimpleZip() {
+            const string projectXML = @"<?xml version='1.0'?>
+                <project>
+                    <zip zipfile='test.zip'>
+                        <fileset basedir='src'>
+                            <include name='**'/>
+                        </fileset>
+                    </zip>
+                </project>";
 
             CreateTempDir("src");
             CreateTempFile("src\\temp1.file","hello");
@@ -55,14 +57,43 @@ namespace Tests.NAnt.Compression.Tasks {
         /// </summary>
         [Test]
         public void Test_CreateEmptyZipFile() {
-            string projectXML = @"<?xml version='1.0'?>
-            <project>
-                <zip zipfile='test.zip' />
-            </project>";
-            //do the build            
+            const string projectXML = @"<?xml version='1.0'?>
+                <project>
+                    <zip zipfile='test.zip' />
+                </project>";
+
             RunBuild(projectXML);
             Assert.IsTrue(File.Exists(Path.Combine(TempDirName, "test.zip")),
                 "Zip File not created.");
+        }
+
+        /// <summary>
+        /// Ensures a <see cref="BuildException" /> is thrown when attempting 
+        /// to add a non-existing file to the zip file.
+        /// </summary>
+        [Test]
+        public void Test_NonExistingFile() {
+            const string projectXML = @"<?xml version='1.0'?>
+                <project>
+                    <zip zipfile='test.zip'>
+                        <fileset prefix='bin'>
+                            <include name='whatever/test.txt' asis='true' />
+                        </fileset>
+                    </zip>
+                </project>";
+
+            try {
+                RunBuild(projectXML);
+                Assert.Fail("#1");
+            } catch (TestBuildException ex) {
+                Assert.IsNotNull(ex.InnerException, "#2");
+                Assert.AreEqual(typeof(BuildException), ex.InnerException.GetType(), "#3");
+
+                System.Console.WriteLine(ex.InnerException.Message);
+
+                // error message should contain path of file that does not exist
+                Assert.IsTrue(ex.InnerException.Message.IndexOf("whatever/test.txt") != -1, "#4");
+            }
         }
     }
 }
