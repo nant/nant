@@ -87,12 +87,13 @@ namespace Tests.NAnt.Compression.Tasks {
                 Assert.Fail("#1");
             } catch (TestBuildException ex) {
                 Assert.IsNotNull(ex.InnerException, "#2");
-                Assert.AreEqual(typeof(BuildException), ex.InnerException.GetType(), "#3");
+                Assert.IsTrue(ex.InnerException is BuildException, "#3");
+                Assert.IsNotNull(ex.InnerException.InnerException, "#4");
+                Assert.IsTrue(ex.InnerException.InnerException is BuildException, "#5");
 
-                System.Console.WriteLine(ex.InnerException.Message);
-
+                BuildException be = (BuildException) ex.InnerException.InnerException;
                 // error message should contain path of file that does not exist
-                Assert.IsTrue(ex.InnerException.Message.IndexOf("whatever/test.txt") != -1, "#4");
+                Assert.IsTrue(be.RawMessage.IndexOf("whatever/test.txt") != -1, "#6");
             }
         }
     }
