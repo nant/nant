@@ -9,7 +9,27 @@
             li {
                 margin-top: 10px;
             }
-    </style>
+
+            .xmlelement {
+                color: #660000;
+            }
+            
+            .xmlattribute {
+                color: red;
+            }
+
+            .xmltext {
+                color: blue;
+            }
+
+            .xmlcomment {
+                color: green;
+            }
+
+            .xmlcdata {
+                color: #FF00CC;
+            }
+        </style>
     </head>
     <body>
         <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
@@ -171,6 +191,44 @@
                     to be attached to the message that is sent.
                 </li>
             </ul>
+            <h5>Define types in task containers.</h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Global types can now be (re)defined in task containers 
+                    (such a <code><a href="help/tasks/if.html">&lt;if&gt;</a></code> ,
+                    <code><a href="help/tasks/foreach.html">&lt;foreach&gt;</a></code>).
+                </p>
+                <p>For example:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">project</span> <span class="xmlattribute">name</span><span class="xmltext">="container-type"</span> <span class="xmlattribute">default</span><span class="xmltext">="build"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">if</span> <span class="xmlattribute">test</span><span class="xmltext">="${platform::is-win32()}"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">fileset</span> <span class="xmlattribute">id</span><span class="xmltext">="sources"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="**/*.cs" /&gt;</span>
+                <span class="xmlcomment">&lt;!-- exclude Unix-specific classes --&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="**/Unix/*.cs" /&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">fileset</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">if</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">if</span> <span class="xmlattribute">test</span><span class="xmltext">="${platform::is-unix()}"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">fileset</span> <span class="xmlattribute">id</span><span class="xmltext">="sources"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="**/*.cs" /&gt;</span>
+                <span class="xmlcomment">&lt;!-- exclude Win32-specific classes --&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="**/Win32/*.cs" /&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">fileset</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">if</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="build"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">csc</span> <span class="xmlattribute">output</span><span class="xmltext">="IvsController.dll"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">sources</span> <span class="xmlattribute">refid</span><span class="xmltext">="sources" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">references</span><span class="xmltext">&gt;</span>
+                    <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="System.dll" /&gt;</span>
+                    <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="System.Data.dll" /&gt;</span>
+                    <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="System.Xml.dll" /&gt;</span>
+                <span class="xmltext">&lt;/</span><span class="xmlelement">references</span><span class="xmltext">&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">csc</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">project</span><span class="xmltext">&gt;</span>
+                </pre>
+                <p>Up until now, only tasks could be executed in these containers.</p>
+            </div>
         </div>
         <h4>Types</h4>
         <div style="margin-left: 20px;">

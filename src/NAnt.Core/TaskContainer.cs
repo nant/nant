@@ -27,6 +27,7 @@ using System.Xml;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
@@ -109,17 +110,40 @@ namespace NAnt.Core {
                     continue;
                 }
 
-                Task task = CreateChildTask(childNode);
-                // for now, we should assume null tasks are because of incomplete metadata about the XML.
-                if (task != null) {
-                    task.Parent = this;
-                    task.Execute();
+                if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
+                    // create task instance
+                    Task task = CreateChildTask(childNode);
+                    // for now, we should assume null tasks are because of 
+                    // incomplete metadata about the XML
+                    if (task != null) {
+                        task.Parent = this;
+                        // execute task
+                        task.Execute();
+                    }
+                } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
+                    // we are an datatype declaration
+                    DataTypeBase dataType = CreateChildDataTypeBase(childNode);
+
+                    Log(Level.Debug, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
+                    if (!Project.DataTypeReferences.Contains(dataType.ID)) {
+                        Project.DataTypeReferences.Add(dataType.ID, dataType);
+                    } else {
+                        Project.DataTypeReferences[dataType.ID] = dataType; // overwrite with the new reference.
+                    }
+                } else {
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("NA1071"), childNode.Name), 
+                        Project.LocationMap.GetLocation(childNode));
                 }
             }
         }
 
         protected virtual Task CreateChildTask(XmlNode node) {
             return Project.CreateTask(node);
+        }
+
+        protected virtual DataTypeBase CreateChildDataTypeBase(XmlNode node) {
+            return Project.CreateDataTypeBase(node);
         }
         
         protected virtual bool IsPrivateXmlElement(XmlNode node) {
