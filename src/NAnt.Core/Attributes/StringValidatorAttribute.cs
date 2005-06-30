@@ -98,11 +98,17 @@ namespace NAnt.Core.Attributes {
                     ResourceUtils.GetString("NA1092"), value.ToString()), ex);
             }
 
-            if (!AllowEmpty && StringUtils.IsNullOrEmpty(valueString)) {
-                throw new ValidationException("An empty value is not allowed.");
+            if (StringUtils.IsNullOrEmpty(valueString)) {
+                if (!AllowEmpty) {
+                    throw new ValidationException("An empty value is not allowed.");
+                }
+
+                // if we allow empty value, then there's no need to validate
+                // value against expression
+                return;
             }
 
-            if (null != StringUtils.ConvertEmptyToNull(Expression)) {
+            if (!StringUtils.IsNullOrEmpty(Expression)) {
                 if (!Regex.IsMatch(Convert.ToString(value), Expression)) {
                     string msg = string.Format("String {0} does not match expression {1}.",
                             value, Expression);
