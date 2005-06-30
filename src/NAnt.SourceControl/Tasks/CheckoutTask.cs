@@ -54,8 +54,7 @@ namespace NAnt.SourceControl.Tasks {
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     module="nant"
     ///     revision="0_85"
-    ///     overridedir="v0.85">
-    /// </cvs-checkout>
+    ///     overridedir="v0.85" />
     ///     ]]>
     ///   </code>
     ///   <para>So the nant module tagged with revision 0_85 will be checked 
@@ -64,14 +63,20 @@ namespace NAnt.SourceControl.Tasks {
     ///   branches of a repository at the same time.</para>
     /// </example>
     /// <example>
+    ///   <para>
+    ///   Checkout NAnt with specified revision date to the 
+    ///   folder <c>c:\src\nant\2003_08_16</c>.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
     /// <cvs-checkout 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     module="nant"
     ///     date="2003/08/16"
-    ///     overridedir="2003_08_16"
-    ///     usesharpcvslib="false">
-    /// </cvs-checkout>
+    ///     overridedir="2003_08_16" />
+    ///     ]]>
+    ///   </code>
     /// </example>
     [TaskName("cvs-checkout")]
     public class CheckoutTask : AbstractCvsTask {
