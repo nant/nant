@@ -25,6 +25,7 @@ using ICSharpCode.SharpCvsLib.Util;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
+using NAnt.Core.Util    ;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -37,7 +38,6 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-checkout 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
     ///     module="nant" />
     ///     ]]>
     ///   </code>
@@ -52,7 +52,6 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-checkout 
     ///     destination="c:\src\nant" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
     ///     module="nant"
     ///     revision="0_85"
     ///     overridedir="v0.85">
@@ -68,7 +67,6 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-checkout 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
     ///     module="nant"
     ///     date="2003/08/16"
     ///     overridedir="2003_08_16"
@@ -103,16 +101,29 @@ namespace NAnt.SourceControl.Tasks {
         /// of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
-        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
-            get { return ((Option)CommandOptions["revision"]).Value; }
-            set { SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture, "-r {0}", value), true); }
+            get {
+                if (CommandOptions.ContainsKey("revision")) {
+                    return ((Option)CommandOptions["revision"]).Value;
+                }
+                return null;
+            }
+            set { 
+                if (StringUtils.IsNullOrEmpty(value)) {
+                    CommandOptions.Remove("revision");
+                } else {
+                    SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,
+                        "-r {0}", value), true);
+                }
+            }
         }
 
         /// <summary>
         /// Sticky tag or revision to checkout.
         /// </summary>
         [TaskAttribute("sticky-tag", Required=false)]
+        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string StickyTag {
             get { return Revision; }
             set { Revision = value; }

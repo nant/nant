@@ -148,17 +148,24 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Specify the revision to update the file to.  This corresponds to the "sticky-tag"
-        ///     of the file.
+        /// of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
-        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
             get {
                 if (null == CommandOptions["revision"]) {
                     return null;
                 }
                 return ((Option)CommandOptions["revision"]).Value;}
-            set { SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true); }
+            set { 
+                if (StringUtils.IsNullOrEmpty(value)) {
+                    CommandOptions.Remove("revision");
+                } else {
+                    SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,
+                        "-r {0}", value), true);
+                }
+            }
         }
 
         /// <summary>

@@ -21,11 +21,11 @@ using System;
 using System.Globalization;
 using System.IO;
 
-
 using ICSharpCode.SharpCvsLib.Util;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -53,7 +53,6 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-update 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
     ///     module="nant"
     ///     revision="your_favorite_revision_here"
     ///     overridedir="replacement_for_module_directory_name"
@@ -164,10 +163,22 @@ namespace NAnt.SourceControl.Tasks {
         /// "sticky-tag" of the file.
         /// </summary>
         [TaskAttribute("revision", Required=false)]
-        [StringValidator(AllowEmpty=false, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
         public string Revision {
-            get { return ((Option)CommandOptions["revision"]).Value; }
-            set { SetCommandOption("revision", String.Format(CultureInfo.InvariantCulture,"-r {0}", value), true); }
+            get {
+                if (CommandOptions.ContainsKey("revision")) {
+                    return ((Option)CommandOptions["revision"]).Value;
+                }
+                return null;
+            }
+            set { 
+                if (StringUtils.IsNullOrEmpty(value)) {
+                    CommandOptions.Remove("revision");
+                } else {
+                    SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,
+                        "-r {0}", value), true);
+                }
+            }
         }
 
         /// <summary>
