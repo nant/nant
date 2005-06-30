@@ -146,7 +146,9 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Run Visual Basic.NET code that writes a message to the build log.</para>
+    ///   <para>
+    ///   Run Visual Basic.NET code that writes a message to the build log.
+    ///   </para>
     ///   <code>
     ///         &lt;script language=&quot;VB&quot;&gt;
     ///             &lt;code&gt;
@@ -197,7 +199,9 @@ namespace NAnt.DotNet.Tasks {
     ///   </code>
     /// </example>
     /// <example>
-    ///   <para>Define a custom function and call it using Boo (http://boo.codehaus.org/).</para>
+    ///   <para>
+    ///   Define a custom function and call it using <see href="http://boo.codehaus.org/">Boo</see>.
+    ///   </para>
     ///   <code>
     ///         &lt;script language=&quot;Boo.CodeDom.BooCodeProvider, Boo.CodeDom, Version=1.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67&quot;
     ///             failonerror=&quot;true&quot;&gt;
