@@ -48,11 +48,15 @@ namespace Tests.NAnt.SourceControl.Tasks {
         private const string TestCvsRoot = 
             ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/sharpcvslib";
 
+        private const string NAntModule = "nant";
+        private const string NAntCvsRoot = ":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant";
+
         private const string _projectXML = @"<?xml version='1.0'?>
             <project>
                 <cvs-checkout   module='{0}' 
                                 cvsroot='{1}'
                                 destination='{2}'
+                                revision='{3}'
                                 usesharpcvslib='false'/>
             </project>";
 
@@ -112,14 +116,29 @@ namespace Tests.NAnt.SourceControl.Tasks {
         /// </summary>
         [Test]
         [Category("InetAccess")]
-        public void Test_CvsCheckout () {
-            object[] args = {TestModule, TestCvsRoot, TempDirName};
+        public void Test_CvsCheckout_HEAD () {
+            object[] args = {NAntModule, NAntCvsRoot, TempDirName, string.Empty};
 
-            string checkoutPath = Path.Combine(TempDirName, TestModule);
-            string checkFilePath = Path.Combine(checkoutPath, CheckFile);
+            string checkoutPath = Path.Combine(TempDirName, NAntModule);
+            string checkFilePath = Path.Combine(checkoutPath, "src/NAnt.Compression/Tasks/TarTask.cs");
 
             RunBuild(FormatBuildFile(_projectXML, args));
             Assert.IsTrue(File.Exists(checkFilePath), "File does not exist, checkout probably did not work.");
+        }
+
+        [Test]
+        [Category("InetAccess")]
+        public void Test_CvsCheckout_Revision () {
+            object[] args = {NAntModule, NAntCvsRoot, TempDirName, "EE-patches"};
+
+            string checkoutPath = Path.Combine(TempDirName, NAntModule);
+            string checkFilePath = Path.Combine(checkoutPath, "src/NAnt.Compression/Tasks/TarTask.cs");
+
+            string result = RunBuild(FormatBuildFile(_projectXML, args));
+            Assert.IsFalse(File.Exists(checkFilePath), "File '" + checkFilePath 
+                + "' should not exist.");
+            Assert.IsTrue(File.Exists(Path.Combine(checkoutPath, "NAnt.build")), 
+                "File does not exist, checkout probably did not work.");
         }
 
         /// <summary>
