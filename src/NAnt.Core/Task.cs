@@ -50,7 +50,7 @@ namespace NAnt.Core {
         private bool _verbose = false;
         private bool _ifDefined = true;
         private bool _unlessDefined = false;
-        private Level _threshold;
+        private Level _threshold = Level.Debug;
 
         #endregion Private Instance Fields
 
@@ -128,25 +128,19 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Gets or sets the log threshold for this <see cref="Task" />. By
-        /// default the threshold of a task matches the threshold of the project.
+        /// default the threshold of a task is <see cref="Level.Debug" />,
+        /// causing no messages to be filtered in the task itself.
         /// </summary>
         /// <value>
         /// The log threshold level for this <see cref="Task" />.
         /// </value>
         /// <remarks>
-        /// Setting the threshold of a <see cref="Task" /> higher than the
-        /// threshold of the its <see cref="Project" /> does not have any
-        /// effect.
+        /// When the threshold of a <see cref="Task" /> is higher than the
+        /// threshold of the <see cref="Project" />, then all messages will
+        /// still be delivered to the build listeners.
         /// </remarks>
         public Level Threshold {
-            get { 
-                if ((int) _threshold == 0) {
-                    // if the threshold has not been explictly set, return the
-                    // threshold of the project
-                    return Project.Threshold;
-                }
-                return _threshold; 
-            }
+            get { return _threshold; }
             set { _threshold = value; }
         }
 
@@ -219,15 +213,20 @@ namespace NAnt.Core {
         /// The actual logging is delegated to the project.
         /// </para>
         /// <para>
-        /// If the <see cref="Verbose" /> attribute is set on the task and a 
-        /// message is logged with level <see cref="Level.Verbose" />, the 
-        /// priority of the message will be increased to <see cref="Level.Info" />.
+        /// If the <see cref="Verbose" /> attribute is set on the task and a
+        /// message is logged with level <see cref="Level.Verbose" />, the
+        /// priority of the message will be increased to <see cref="Level.Info" />
         /// when the threshold of the build log is <see cref="Level.Info" />.
         /// </para>
         /// <para>
         /// This will allow individual tasks to run in verbose mode while
         /// the build log itself is still configured with threshold 
         /// <see cref="Level.Info" />.
+        /// </para>
+        /// <para>
+        /// The threshold of the project is not taken into account to determine
+        /// whether a message should be passed to the logging infrastructure, 
+        /// as build listeners might be interested in receiving all messages.
         /// </para>
         /// </remarks>
         public override void Log(Level messageLevel, string message) {
@@ -276,14 +275,20 @@ namespace NAnt.Core {
         /// <param name="messageLevel">The <see cref="Level" /> to check.</param>
         /// <returns>
         /// <see langword="true" /> if messages with the given <see cref="Level" />
-        /// will be output in the build log; otherwise, <see langword="false" />.
+        /// should be passed on to the logging infrastructure; otherwise, 
+        /// <see langword="false" />.
         /// </returns>
+        /// <remarks>
+        /// The threshold of the project is not taken into account to determine
+        /// whether a message should be passed to the logging infrastructure, 
+        /// as build listeners might be interested in receiving all messages.
+        /// </remarks>
         public bool IsLogEnabledFor(Level messageLevel) {
-            if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
+            if (_verbose && messageLevel == Level.Verbose) {
                 return Level.Info >= Threshold;
             }
 
-            return (messageLevel >= Threshold) && (messageLevel >= Project.Threshold);
+            return (messageLevel >= Threshold);
         }
 
         /// <summary>
