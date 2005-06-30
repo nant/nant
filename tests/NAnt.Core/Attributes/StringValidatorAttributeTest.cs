@@ -35,7 +35,7 @@ namespace Tests.NAnt.Core.Attributes {
     public class StringValidatorAttributeTest : BuildTestBase {
 
         /// <summary>
-        /// Test that valid dates do not throw an exception.
+        /// Test that valid values do not throw an exception.
         /// </summary>
         [Test]
         public void Test_ValidStrings() {
@@ -44,6 +44,7 @@ namespace Tests.NAnt.Core.Attributes {
             Assert.IsTrue(IsValid("n", false));
             Assert.IsTrue(IsValid("http://nant.sourceforge.net", 
                 @"(?<Protocol>\w+):\/\/(?<Domain>[\w.]+\/?)\S*"));
+            Assert.IsTrue(IsValid("", true, @"^[A-Za-z0-9][A-Za-z0-9._\-]*$"));
 
             // validate name of file
             Assert.IsTrue(IsValid("name_of_file",
@@ -63,7 +64,7 @@ namespace Tests.NAnt.Core.Attributes {
         }
 
         private bool IsValid (object value) {
-            return this.IsValid(true, null);
+            return this.IsValid(value, true);
         }
 
         private bool IsValid (object value, bool allowEmpty) {
@@ -84,9 +85,7 @@ namespace Tests.NAnt.Core.Attributes {
                 return true;
             } catch (ValidationException) {
                 return false;
-                //throw;
             }
         }
-
     }
 }
