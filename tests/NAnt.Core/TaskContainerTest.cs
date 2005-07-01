@@ -76,7 +76,7 @@ namespace Tests.NAnt.Core {
         public void Test_IfFilesetDefine1() {
             string buildxml = FormatBuildFile(_format1,"${1==1}");
             Project project = CreateFilebasedProject(buildxml, Level.Info);
-            string result = ExecuteProject(project);
+            ExecuteProject(project);
             DataTypeBase foo = project.DataTypeReferences["foo"];
             Assert.IsNotNull(foo);
             Assert.IsTrue(foo is FileSet);
@@ -90,7 +90,7 @@ namespace Tests.NAnt.Core {
         public void Test_IfFilesetDefine2() {
             string buildxml = FormatBuildFile(_format1,"${1==2}");
             Project project = CreateFilebasedProject(buildxml, Level.Info);
-            string result = ExecuteProject(project);
+            ExecuteProject(project);
             DataTypeBase foo = project.DataTypeReferences["foo"];
             Assert.IsNull(foo);
         }
@@ -99,7 +99,7 @@ namespace Tests.NAnt.Core {
         public void Test_IfFilesetRedefine1() {
             string buildxml = FormatBuildFile(_format2,"${1==1}");
             Project project = CreateFilebasedProject(buildxml, Level.Info);
-            string result = ExecuteProject(project);
+            ExecuteProject(project);
             DataTypeBase foo = project.DataTypeReferences["foo"];
             Assert.IsNotNull(foo);
             Assert.IsTrue(foo is FileSet);
@@ -113,7 +113,7 @@ namespace Tests.NAnt.Core {
         public void Test_IfFilesetRedefine2() {
             string buildxml = FormatBuildFile(_format2,"${1==2}");
             Project project = CreateFilebasedProject(buildxml, Level.Info);
-            string result = ExecuteProject(project);
+            ExecuteProject(project);
             DataTypeBase foo = project.DataTypeReferences["foo"];
             Assert.IsNotNull(foo);
             Assert.IsTrue(foo is FileSet);
