@@ -134,7 +134,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
             string checkoutPath = Path.Combine(TempDirName, NAntModule);
             string checkFilePath = Path.Combine(checkoutPath, "src/NAnt.Compression/Tasks/TarTask.cs");
 
-            string result = RunBuild(FormatBuildFile(_projectXML, args));
+            RunBuild(FormatBuildFile(_projectXML, args));
             Assert.IsFalse(File.Exists(checkFilePath), "File '" + checkFilePath 
                 + "' should not exist.");
             Assert.IsTrue(File.Exists(Path.Combine(checkoutPath, "NAnt.build")), 
