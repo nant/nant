@@ -65,7 +65,6 @@ namespace Tests.NAnt.Core.Util {
             Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc//def"), "#9");
             Assert.AreEqual(Directory.GetCurrentDirectory().Substring(0,2) + @"\abc\def", FileUtils.GetFullPath("/abc/def"), "#10");
             Assert.AreEqual(@"\\abc\def", FileUtils.GetFullPath("//abc/def"), "#11");
-            
 
             StringBuilder sb = new StringBuilder();
             while (sb.Length < 260) {
@@ -88,6 +87,10 @@ namespace Tests.NAnt.Core.Util {
 
             Assert.AreEqual(Path.Combine(currentDirParts[0] + Path.DirectorySeparatorChar, @"test\what.txt"), 
                 FileUtils.GetFullPath(sb.ToString()), "#13");
+
+            // filter out single dot parts
+            Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc/./def"), "#14");
+            Assert.AreEqual(Directory.GetCurrentDirectory() + @"\abc\def", FileUtils.GetFullPath(@"abc\.\def"), "#15");
         }
 
         [Test]
@@ -124,6 +127,10 @@ namespace Tests.NAnt.Core.Util {
             Assert.AreEqual(@"c:\whatever\..\test", FileUtils.CombinePaths(@"c:\test", @"c:\whatever\..\test"), "#11");
             Assert.AreEqual(@"c:\whatever\..\test\\", FileUtils.CombinePaths(@"c:\test", @"c:\whatever\..\test\\"), "#12");
             Assert.AreEqual(@"\\server\c$\test.txt", FileUtils.CombinePaths(@"c:\test", @"\\server\c$\test.txt"), "#13");
+
+            // skip single dot parts
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"whatever\.\test.txt"), "#14");
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"whatever/./test.txt"), "#15");
         }
     }
 }
