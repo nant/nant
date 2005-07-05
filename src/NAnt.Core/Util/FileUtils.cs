@@ -194,8 +194,8 @@ namespace NAnt.Core.Util {
             for (int iCount = 0; iCount < path2Parts.Length; iCount++) {
                 string currentPart = path2Parts[iCount];
 
-                // skip empty parts
-                if (currentPart.Length == 0) {
+                // skip empty parts or single dot parts
+                if (currentPart.Length == 0 || currentPart == ".") {
                     continue;
                 }
 
