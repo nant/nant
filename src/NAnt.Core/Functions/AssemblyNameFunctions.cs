@@ -72,6 +72,17 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The full name of the assembly, also known as the display name.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Output the full name of the <c>nunit.framework</c> assembly to the
+        ///   build log.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="${assemblyname::get-full-name(assemblyname::get-assembly-name('nunit.framework.dll'))}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-full-name")]
         public static string GetFullName(AssemblyName assemblyName) {
@@ -85,6 +96,17 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The simple, unencrypted name of the assembly.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Output the simple name of the <c>nunit.framework</c> assembly to 
+        ///   the build log.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="${assemblyname::get-name(assemblyname::get-assembly-name('nunit.framework.dll'))}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         [Function("get-name")]
         public static string GetName(AssemblyName assemblyName) {
@@ -98,6 +120,17 @@ namespace NAnt.Core.Functions {
         /// <returns>
         /// The version of the assembly.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Output the major version of the <c>nunit.framework</c> assembly 
+        ///   to the build log.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="${version::get-major-version(assemblyname::get-version(assemblyname::get-assembly-name('nunit.framework.dll')))}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         /// <seealso cref="AssemblyFunctions.GetName(Assembly)" />
         /// <seealso cref="VersionFunctions" />
         [Function("get-version")]
@@ -118,6 +151,17 @@ namespace NAnt.Core.Functions {
         /// <remarks>
         /// The assembly is not added to this domain.
         /// </remarks>
+        /// <example>
+        ///   <para>
+        ///   Output the full name of the <c>nunit.framework</c> assembly to the
+        ///   build log.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo message="${assemblyname::get-full-name(assemblyname::get-assembly-name('nunit.framework.dll'))}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-assembly-name")]
         public static AssemblyName GetAssemblyName(string assemblyFile) {
             return AssemblyName.GetAssemblyName(assemblyFile); 
