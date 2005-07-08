@@ -320,6 +320,10 @@ namespace NAnt.VSNet {
                             ProjectSettings.AssemblyOriginatorKeyFile));
                     }
 
+                    if (ProjectSettings.AssemblyKeyContainerName != null) {
+                        tlbImp.KeyContainer = ProjectSettings.AssemblyKeyContainerName;
+                    }
+
                     // increment indentation level
                     tlbImp.Project.Indent();
                     try {
@@ -354,6 +358,10 @@ namespace NAnt.VSNet {
                     if (ProjectSettings.AssemblyOriginatorKeyFile != null) {
                         axImp.KeyFile = new FileInfo(FileUtils.CombinePaths(Parent.ProjectDirectory.FullName, 
                             ProjectSettings.AssemblyOriginatorKeyFile));
+                    }
+
+                    if (ProjectSettings.AssemblyKeyContainerName != null) {
+                        axImp.KeyContainer = ProjectSettings.AssemblyKeyContainerName;
                     }
 
                     string rcw = PrimaryInteropAssembly;

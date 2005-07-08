@@ -76,6 +76,10 @@ namespace NAnt.VSNet {
             _assemblyOriginatorKeyFile = StringUtils.ConvertEmptyToNull(
                 elemSettings.Attributes["AssemblyOriginatorKeyFile"].Value);
 
+            // the key container to use to sign ActiveX/COM wrappers
+            _assemblyKeyContainerName = StringUtils.ConvertEmptyToNull(
+                elemSettings.Attributes["AssemblyKeyContainerName"].Value);
+
             // pre and post build events are VS .NET 2003 specific, so do not 
             // assume they are there
             if (elemSettings.Attributes["RunPostBuildEvent"] != null) {
@@ -176,10 +180,22 @@ namespace NAnt.VSNet {
         /// <value>
         /// The path of the key file to use to sign ActiveX/COM wrappers, 
         /// relative to the project root directory, or <see langword="null" />
-        /// if the wrapper assembly should not be signed.
+        /// if the wrapper assembly should not be signed using a key file.
         /// </value>
         public string AssemblyOriginatorKeyFile {
             get { return _assemblyOriginatorKeyFile; }
+        }
+
+        /// <summary>
+        /// Gets the key name to use to sign ActiveX/COM wrappers.
+        /// </summary>
+        /// <value>
+        /// The name of the key container to use to sign ActiveX/COM wrappers,
+        /// or <see langword="null" /> if the wrapper assembly should not be
+        /// signed using a key container.
+        /// </value>
+        public string AssemblyKeyContainerName {
+            get { return _assemblyKeyContainerName; }
         }
 
         public TempFileCollection TemporaryFiles {
@@ -340,6 +356,7 @@ namespace NAnt.VSNet {
         private readonly ManagedProjectBase _project;
         private readonly string _assemblyName;
         private readonly string _assemblyOriginatorKeyFile;
+        private readonly string _assemblyKeyContainerName;
         private readonly string _rootNamespace;
         private readonly string _guid;
         private readonly string _runPostBuildEvent;
