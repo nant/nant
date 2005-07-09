@@ -18,6 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
+using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -104,6 +105,36 @@ namespace Tests.NAnt.Core {
                 return base.ConvertFrom (context, culture, value);
             }
         }
+    }
+
+    /// <summary>
+    /// A simple task with a null element to test failures.
+    /// </summary>
+    [TaskName("elementTest2")]
+    class ElementTest2Task : Task {
+        #region Private Instance Fields
+
+        private ArrayList _children = new ArrayList();
+
+        #endregion Private Instance Fields
+
+        #region Public Instance Properties
+
+        [BuildElementCollection("children", "child", ElementType=typeof(object))]
+        public ArrayList Children {
+            get { return _children; }
+            set { _children = value; }
+        }
+
+        #endregion Public Instance Properties
+
+
+        #region Override implementation of Task
+
+        protected override void ExecuteTask() { 
+        }
+
+        #endregion Override implementation of Task
     }
 
     [TestFixture]
@@ -255,6 +286,23 @@ namespace Tests.NAnt.Core {
                 <project name='testing' default='test'>
                      <target name='test'>
                         <elementTest1 uri=':://file.sourceforge.net' />
+                     </target>
+                </project>";
+
+            RunBuild(build);
+        }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_Non_StronglyTyped_Element_Collection() {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <elementTest2>
+                            <children>
+                                <child />
+                            </children>
+                        </elementTest2>
                      </target>
                 </project>";
 
