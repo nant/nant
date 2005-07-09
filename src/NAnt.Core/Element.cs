@@ -925,8 +925,9 @@ namespace NAnt.Core {
                 // make sure the element is strongly typed
                 if (elementType == null || !typeof(Element).IsAssignableFrom(elementType)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    ResourceUtils.GetString("NA1140"), Name),
-                                    Location);
+                        ResourceUtils.GetString("NA1140"), 
+                        propertyInfo.PropertyType.FullName, propertyInfo.Name),
+                        Location);
                 }
 
                 XmlNodeList collectionNodes = null;
