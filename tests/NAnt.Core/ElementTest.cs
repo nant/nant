@@ -107,6 +107,7 @@ namespace Tests.NAnt.Core {
         }
     }
 
+    /*
     /// <summary>
     /// A simple task with a null element to test failures.
     /// </summary>
@@ -136,6 +137,7 @@ namespace Tests.NAnt.Core {
 
         #endregion Override implementation of Task
     }
+    */
 
     [TestFixture]
     public class ElementTest : BuildTestBase {
@@ -293,6 +295,7 @@ namespace Tests.NAnt.Core {
         }
 
         [Test]
+        [Ignore ("Re-enable this test once we modified the <nantschema> task to generate a schema for a specified set of assemblies.")]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_Non_StronglyTyped_Element_Collection() {
             const string build = @"<?xml version='1.0' ?>
