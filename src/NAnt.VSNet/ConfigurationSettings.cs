@@ -118,7 +118,7 @@ namespace NAnt.VSNet {
                             // hexadecimal, or octal number
                             //
                             // so use hexadecimal as all compiler support this
-                            int intvalue = Convert.ToInt32(value, CultureInfo.InvariantCulture);
+                            uint intvalue = Convert.ToUInt32(value, CultureInfo.InvariantCulture);
                             value = "0x" + intvalue.ToString("x", CultureInfo.InvariantCulture);
                             break;
                         case "DefineConstants":
