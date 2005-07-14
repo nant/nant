@@ -231,7 +231,6 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <example>
         ///     &lt;cvs-checkout    cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-        ///                         password=""
         ///                         module="nant"
         ///                         destination="e:\test\merillcornish\working"
         ///                         readonly="true"

@@ -38,7 +38,6 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-update 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
-    ///     password="" 
     ///     module="nant" />
     ///     ]]>
     ///   </code>
