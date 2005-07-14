@@ -38,6 +38,7 @@ namespace NAnt.SourceControl.Tasks {
     /// <cvs-update 
     ///     destination="c:\src\nant\" 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
+    ///     password="" 
     ///     module="nant" />
     ///     ]]>
     ///   </code>
@@ -148,40 +149,55 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <see langword="true" /> if the command should be executed recursively.
+        /// Specifies if the command should be executed recursively. The 
+        /// default is <see langword="true" />.
         /// </summary>
+        /// <remarks>
+        /// The <c>-R</c> option is on by default in cvs.
+        /// </remarks>
         [TaskAttribute("recursive", Required=false)]
         [BooleanValidator()]
         public bool Recursive {
-            get { return ((Option)CommandOptions["recursive"]).IfDefined; }
-            set { 
-                SetCommandOption("recursive", "-R", value); 
-                SetCommandOption("local-only", "-l", !value); 
-            }
-        }
-
-        /// <summary>
-        /// Specify the revision to update the file to.  This corresponds to the 
-        /// "sticky-tag" of the file.
-        /// </summary>
-        [TaskAttribute("revision", Required=false)]
-        [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
-        public string Revision {
-            get {
-                if (CommandOptions.ContainsKey("revision")) {
-                    return ((Option)CommandOptions["revision"]).Value;
+            get { 
+                Option option = (Option) CommandOptions["recursive"];
+                if (option == null || option.Value == "-R") {
+                    return true;
                 }
-                return null;
+                return false;
             }
-            set { 
-                if (StringUtils.IsNullOrEmpty(value)) {
-                    CommandOptions.Remove("revision");
+            set {
+                if (value) {
+                    // update should be executed recursive
+                    SetCommandOption("recursive", "-R", true);
                 } else {
-                    SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,
-                        "-r {0}", value), true);
+                    // update should be executed locally (not recursive)
+                    SetCommandOption("recursive", "-l", true);
                 }
+
             }
-        }
+
+            /// <summary>
+            /// Specify the revision to update the file to.  This corresponds to the 
+            /// "sticky-tag" of the file.
+            /// </summary>
+            [TaskAttribute("revision", Required=false)]
+            [StringValidator(AllowEmpty=true, Expression=@"^[A-Za-z0-9][A-Za-z0-9._\-]*$")]
+            public string Revision {
+                       get {
+                           if (CommandOptions.ContainsKey("revision")) {
+                               return ((Option)CommandOptions["revision"]).Value;
+                           }
+                           return null;
+                       }
+                       set { 
+                           if (StringUtils.IsNullOrEmpty(value)) {
+                               CommandOptions.Remove("revision");
+                           } else {
+                               SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,
+                                   "-r {0}", value), true);
+                           }
+                       }
+                   }
 
         /// <summary>
         /// Sticky tag or revision to update the local file to.
