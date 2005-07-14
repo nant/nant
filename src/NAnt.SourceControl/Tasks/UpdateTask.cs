@@ -155,7 +155,10 @@ namespace NAnt.SourceControl.Tasks {
         [BooleanValidator()]
         public bool Recursive {
             get { return ((Option)CommandOptions["recursive"]).IfDefined; }
-            set { SetCommandOption("recursive", "-R", value); }
+            set { 
+                SetCommandOption("recursive", "-R", value); 
+                SetCommandOption("local-only", "-l", !value); 
+            }
         }
 
         /// <summary>
