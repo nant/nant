@@ -1281,6 +1281,13 @@ namespace NAnt.VSNet {
                 }
             }
 
+            string delayLoadedDlls = projectConfig.GetToolSetting(VcConfigurationBase.LinkerTool, "DelayLoadDLLs");
+            if (!StringUtils.IsNullOrEmpty(delayLoadedDlls)) {
+                foreach (string dll in delayLoadedDlls.Split(';')) {
+                    linkTask.DelayLoadedDlls.FileNames.Add(dll);
+                }
+            }
+
             foreach (string objFile in projectConfig.ObjFiles) {
                 linkTask.Sources.FileNames.Add(objFile);
             }

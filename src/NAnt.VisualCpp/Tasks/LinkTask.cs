@@ -66,6 +66,7 @@ namespace NAnt.VisualCpp.Tasks {
         private FileSet _sources = new FileSet();
         private FileSet _libdirs = new FileSet();
         private FileSet _modules = new FileSet();
+        private FileSet _delayLoadedDlls = new FileSet();
         private FileSet _embeddedResources = new FileSet();
         private SymbolCollection _symbols = new SymbolCollection();
         private LibraryCollection _ignoreLibraries = new LibraryCollection();
@@ -116,6 +117,15 @@ namespace NAnt.VisualCpp.Tasks {
                 return _pdbFile; 
             }
             set { _pdbFile = value; }
+        }
+
+        /// <summary>
+        /// Specified DLLs for delay loading.
+        /// </summary>
+        [BuildElement("delayloaded")]
+        public FileSet DelayLoadedDlls {
+            get { return _delayLoadedDlls; }
+            set { _delayLoadedDlls = value; }
         }
 
         /// <summary>
@@ -229,7 +239,7 @@ namespace NAnt.VisualCpp.Tasks {
   
                 try {
                     // specify the output file
-					writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
+                    writer.WriteLine("/OUT:\"{0}\"", OutputFile.FullName);
 
                     // write user provided options
                     if (Options != null) {
@@ -244,6 +254,11 @@ namespace NAnt.VisualCpp.Tasks {
                     // write each of the module references
                     foreach (string module in Modules.FileNames) {
                         writer.WriteLine("/ASSEMBLYMODULE:{0}", QuoteArgumentValue(module));
+                    }
+
+                    // write delay loaded DLLs
+                    foreach (string dll in DelayLoadedDlls.FileNames) {
+                        writer.WriteLine("/DELAYLOAD:{0}", QuoteArgumentValue(dll));
                     }
 
                     // write each of the embedded resources
@@ -277,7 +292,7 @@ namespace NAnt.VisualCpp.Tasks {
                             ProgramDatabaseFile.FullName));
                     }
 
-                    // suppresses display of the sign-on banner                    
+                    // suppresses display of the sign-on banner
                     writer.WriteLine("/nologo");
 
                     // write each of the filenames
