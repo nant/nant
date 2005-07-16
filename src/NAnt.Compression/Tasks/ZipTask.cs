@@ -68,7 +68,9 @@ namespace NAnt.Compression.Tasks {
         private DateTime _stampDateTime;
         private string _comment;
         private bool _includeEmptyDirs;
+        private DuplicateHandling _duplicateHandling = DuplicateHandling.Add;
         private Hashtable _addedDirs = new Hashtable();
+        private Hashtable _fileEntries = new Hashtable();
 
         #endregion Private Instance Fields
 
@@ -131,6 +133,16 @@ namespace NAnt.Compression.Tasks {
         public ZipFileSetCollection ZipFileSets {
             get { return _filesets; }
             set { _filesets = value; }
+        }
+
+        /// <summary>
+        /// Specifies the behaviour when a duplicate file is found. The default
+        /// is <see cref="NAnt.Compression.Types.DuplicateHandling.Add" />.
+        /// </summary>
+        [TaskAttribute("duplicate")]
+        public DuplicateHandling DuplicateHandling {
+            get { return _duplicateHandling; }
+            set { _duplicateHandling = value; }
         }
 
         #endregion Public Instance Properties
@@ -202,8 +214,32 @@ namespace NAnt.Compression.Tasks {
                             entryName = entryName.Replace(@"\", "/");
                         }
 
+                        // perform duplicate checking
+                        if (_fileEntries.ContainsKey(entryName)) {
+                            switch (DuplicateHandling) {
+                                case DuplicateHandling.Add:
+                                    break;
+                                case DuplicateHandling.Fail:
+                                    throw new BuildException(string.Format(
+                                        CultureInfo.InvariantCulture, 
+                                        "Duplicate file '{0}' was found.", 
+                                        entryName), Location);
+                                case DuplicateHandling.Preserve:
+                                    // skip current entry
+                                    continue;
+                                default:
+                                    throw new BuildException(string.Format(
+                                        CultureInfo.InvariantCulture, 
+                                        "Duplicate value '{0}' is not supported.", 
+                                        DuplicateHandling.ToString()), Location);
+                            }
+                        }
+
                         // create zip entry
                         ZipEntry entry = new ZipEntry(entryName);
+
+                        // store entry (to allow for duplicate checking)
+                        _fileEntries[entryName] = null;
 
                         // set date/time stamp on zip entry
                         if (Stamp != DateTime.MinValue) {
@@ -290,9 +326,20 @@ namespace NAnt.Compression.Tasks {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Zip file '{0}' could not be created.", ZipFile.FullName), 
                     Location, ex);
+            } finally {
+                CleanUp();
             }
         }
 
-            #endregion Override implementation of Task
+        #endregion Override implementation of Task
+
+        #region Private Instance Methods
+
+        private void CleanUp() {
+            _addedDirs.Clear();
+            _fileEntries.Clear();
         }
+
+        #endregion Private Instance Methods
     }
+}
