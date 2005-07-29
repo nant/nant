@@ -119,16 +119,15 @@ namespace NAnt.VSNet {
                         case "EmbeddedResource":
                             RegisterEmbeddedResource(sourceFile, elemFile);
                             break;
-                        case "None":
-                            // check if file is "App.config" (using case-insensitive comparison)
-                            if (string.Compare("App.config", elemFile.GetAttribute("RelPath"), true, CultureInfo.InvariantCulture) == 0) {
-                                // App.config is only an output file for executable projects
-                                if (ProjectSettings.OutputType == ManagedOutputType.Executable || ProjectSettings.OutputType == ManagedOutputType.WindowsExecutable) {
-                                    ExtraOutputFiles[sourceFile] = ProjectSettings.OutputFileName
-                                        + ".config";
-                                }
-                            }
-                            break;
+                    }
+
+                    // check if file is "App.config" (using case-insensitive comparison)
+                    if (string.Compare("App.config", elemFile.GetAttribute("RelPath"), true, CultureInfo.InvariantCulture) == 0) {
+                        // App.config is only an output file for executable projects
+                        if (ProjectSettings.OutputType == ManagedOutputType.Executable || ProjectSettings.OutputType == ManagedOutputType.WindowsExecutable) {
+                            ExtraOutputFiles[sourceFile] = ProjectSettings.OutputFileName
+                                + ".config";
+                        }
                     }
                 }
             }
