@@ -115,7 +115,7 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         [TaskAttribute("licensetarget", Required=false)]
         [StringValidator(AllowEmpty=false)]
-        [Obsolete("Use the <target> attribute instead.", false)]
+        [Obsolete("Use the \"target\" attribute instead.", false)]
         public string LicenseTarget {
             get { return Target; }
             set { Target = value; }
