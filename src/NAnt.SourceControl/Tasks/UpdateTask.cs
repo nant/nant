@@ -75,25 +75,6 @@ namespace NAnt.SourceControl.Tasks {
 
         #endregion Internal Static Fields
 
-        #region Protected Static Fields
-
-        /// <summary>
-        /// Default value for the overwrite local directive.
-        /// </summary>
-        protected const bool DefaultOverwriteLocal = false;
-
-        /// <summary>
-        /// Default value for build directory directive.
-        /// </summary>
-        protected const bool DefaultBuildDirs = true;
-
-        /// <summary>
-        /// Default value for prune empty directories directive.
-        /// </summary>
-        protected const bool DefaultPruneEmpty = true;
-
-        #endregion Protected Static Fields
-
         #region Public Instance Constructors
 
         /// <summary>
@@ -237,15 +218,6 @@ namespace NAnt.SourceControl.Tasks {
         /// system.
         /// </summary>
         protected override bool IsModuleNeeded {
-            get {return false;}
-        }
-
-        /// <summary>
-        /// Specify if the cvs root should be used for this cvs command.  It is
-        /// only needed if there is no module information on the local file
-        /// system, there fore is not needed for a cvs update.
-        /// </summary>
-        protected override bool IsCvsRootNeeded {
             get {return false;}
         }
 
