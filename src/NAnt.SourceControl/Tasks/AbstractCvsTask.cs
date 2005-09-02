@@ -175,15 +175,6 @@ namespace NAnt.SourceControl.Tasks {
             get { return true; }
         }
 
-        /// <summary>
-        /// Specify if the cvs root should be used for this cvs command.  It is
-        /// only needed if there is no module information on the local file
-        /// system, there fore is not needed for a cvs update.
-        /// </summary>
-        protected virtual bool IsCvsRootNeeded {
-            get { return true; }
-        }
-
         #endregion
 
         #region Public Instance Properties
@@ -271,7 +262,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("cvsroot", Required=false)]
         [StringValidator(AllowEmpty=false)]
-        public override string Root {
+        public override string Root {       
             get { 
                 if (null == base.Root) {
                     try {
@@ -464,8 +455,11 @@ namespace NAnt.SourceControl.Tasks {
             }
 
             Logger.Debug("number of arguments: " + Arguments.Count);
-            if (IsCvsRootNeeded) {
-                Arguments.Add(new Argument(String.Format(CultureInfo.InvariantCulture,"-d{0}", Root)));
+
+            // if set, pass cvsroot to command line tool
+            if (Root != null) {
+                Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                    "-d{0}", Root)));
             }
 
             if (this.UseSharpCvsLib) {
