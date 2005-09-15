@@ -21,16 +21,13 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.Text;
+using System.Web;
 using System.Xml;
 using System.Xml.XPath;
-using System.Web;
-
-using NDoc.Core;
-using NDoc.Core.Reflection;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Filters;
+using NDoc.Core.Reflection;
 
 namespace NDoc.Documenter.NAnt {
     /// <summary>
@@ -608,9 +605,11 @@ namespace NDoc.Documenter.NAnt {
 
         #region Private Instance Methods
 
+/*
         private string GetElementNameForType(string id) {
             return GetElementNameForType(GetTypeNodeByID(id));
         }
+*/
 
         private string GetElementNameForType(XmlNode typeNode) {
             if (typeNode == null) {
