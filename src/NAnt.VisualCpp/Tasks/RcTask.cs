@@ -249,35 +249,41 @@ namespace NAnt.VisualCpp.Tasks {
 
                     Match resourceMatch = regBitmap.Match(line);
                     if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
+                        return CheckResourceTimeStamp(resourceMatch.Groups["file"].Value);
                     }
 
                     resourceMatch = regIcon.Match(line);
                     if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
+                        return CheckResourceTimeStamp(resourceMatch.Groups["file"].Value);
                     }
                     
                     resourceMatch = regBinary.Match(line);
                     if (resourceMatch.Success) {
-                        goto check_resource_timestamp;
-                    }
-
-                    continue;
-
-                check_resource_timestamp:
-                    string externalFile = Path.Combine(RcFile.DirectoryName,
-                        resourceMatch.Groups["file"].Value);
-                    fileName = FileSet.FindMoreRecentLastWriteTime(
-                        externalFile, OutputFile.LastWriteTime);
-                    if (fileName != null) {
-                        Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
-                            fileName);
-                        return true;
+                        return CheckResourceTimeStamp(resourceMatch.Groups["file"].Value);
                     }
                 }
             }
 
             // output file is up-to-date
+            return false;
+        }
+
+        /// <summary>
+        /// Check if a resource file has been updated.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private bool CheckResourceTimeStamp(string filePath ) {
+            string fileName;
+            string externalFile = Path.Combine(RcFile.DirectoryName,
+                                               filePath);
+            fileName = FileSet.FindMoreRecentLastWriteTime(
+                externalFile, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
+                    fileName);
+                return true;
+            }
             return false;
         }
 
