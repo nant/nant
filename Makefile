@@ -42,6 +42,8 @@ clean:
 install: build-bootstrap
 	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
 
+run-test: build-bootstrap
+	$(NANT) -f:NAnt.build test
 	
 bootstrap/NAnt.exe:
 	$(MCS) -target:exe -define:${DEFINE} -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
