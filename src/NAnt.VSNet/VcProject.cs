@@ -47,7 +47,13 @@ namespace NAnt.VSNet {
     public class VcProject: ProjectBase {
         #region Public Instance Constructors
         
-        public VcProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir) : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
+        public VcProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, 
+                SolutionTask solutionTask, 
+                TempFileCollection tfc, 
+                GacCache gacCache, 
+                ReferencesResolver refResolver, 
+                DirectoryInfo outputDir) 
+                : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
             if (projectPath == null) {
                 throw new ArgumentNullException("projectPath");
             }
@@ -61,8 +67,7 @@ namespace NAnt.VSNet {
 
             _name = xmlDefinition.GetAttribute("Name");
             _guid = xmlDefinition.GetAttribute("ProjectGUID");
-            _rootNamespace = xmlDefinition.GetAttribute("RootNamespace");
-
+            
             XmlNodeList configurationNodes = xmlDefinition.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
                 VcProjectConfiguration config = new VcProjectConfiguration(configElem, this, OutputDir);
@@ -1831,7 +1836,6 @@ namespace NAnt.VSNet {
         private readonly string _name;
         private readonly string _projectPath;
         private string _guid;
-        private readonly string _rootNamespace;
         private readonly ArrayList _references;
         private readonly Hashtable _htPlatformConfigurations;
 

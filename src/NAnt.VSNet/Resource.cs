@@ -18,21 +18,12 @@
 // Matthew Mastracci (matt@aclaro.com)
 
 using System;
-using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
-
 using NAnt.DotNet.Tasks;
 using NAnt.DotNet.Types;
-
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -47,7 +38,7 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName, 
                 dependentFile);
-            _gacCache = gacCache;
+            //_gacCache = gacCache;
         }
 
         #endregion Public Instance Constructors
@@ -331,7 +322,7 @@ namespace NAnt.VSNet {
         private string _resourceSourceFileRelativePath;
         private ManagedProjectBase _project;
         private SolutionTask _solutionTask;
-        private GacCache _gacCache;
+        //private GacCache _gacCache;
 
         #endregion Private Instance Fields
     }

@@ -23,13 +23,11 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 using System.Xml;
-
 using NAnt.Core;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
-
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
 
@@ -744,6 +742,7 @@ namespace NAnt.VSNet {
             return false;
         }
 
+/*
         /// <summary>
         /// Determines whether any of the project dependencies of the specified
         /// project has failed to build.
@@ -762,6 +761,7 @@ namespace NAnt.VSNet {
             }
             return false;
         }
+*/
 
         private void SetProjectBuildConfiguration(ProjectBase project) {
             if (!_htProjectBuildConfigurations.Contains(project.Guid)) {
@@ -919,7 +919,7 @@ namespace NAnt.VSNet {
             /// Gets or sets the element at the specified index.
             /// </summary>
             /// <param name="index">The zero-based index of the element to get or set.</param>
-            [System.Runtime.CompilerServices.IndexerName("Item")]
+            [IndexerName("Item")]
             public ProjectEntry this[int index] {
                 get { return (ProjectEntry) base.List[index]; }
                 set { base.List[index] = value; }
@@ -932,7 +932,7 @@ namespace NAnt.VSNet {
             /// <remarks>
             /// Performs a case-insensitive lookup.
             /// </remarks>
-            [System.Runtime.CompilerServices.IndexerName("Item")]
+            [IndexerName("Item")]
             public ProjectEntry this[string guid] {
                 get {
                     if (guid != null) {
