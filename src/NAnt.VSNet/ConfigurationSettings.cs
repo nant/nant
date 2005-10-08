@@ -71,6 +71,11 @@ namespace NAnt.VSNet {
                 ExtraOutputFiles[xmlDocBuildFile] = Path.GetFileName(xmlDocBuildFile);
             }
 
+            // determine whether we need to register project output for use with
+            // COM components
+            _registerForComInterop = string.Compare(elemConfig.GetAttribute("RegisterForComInterop"), 
+                "true", true, CultureInfo.InvariantCulture) == 0;
+
             SolutionTask.Log(Level.Debug, "Project: {0} Relative Output Path: {1} Output Path: {2} Documentation Path: {3}", 
                 Project.Name, _relativeOutputDir, _outputDir.FullName, documentationFile);
 
@@ -190,6 +195,18 @@ namespace NAnt.VSNet {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether to register the project output for
+        /// use with COM components.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the project output should be registered
+        /// for use with COM components; otherwise, <see langword="false" />.
+        /// </value>
+        public bool RegisterForComInterop {
+            get { return _registerForComInterop; }
+        }
+
         #endregion Public Instance Properties
 
         #region Private Instance Fields
@@ -198,6 +215,7 @@ namespace NAnt.VSNet {
         private readonly string _relativeOutputDir;
         private readonly DirectoryInfo _outputDir;
         private readonly string _name;
+        private readonly bool _registerForComInterop;
 
         #endregion Private Instance Fields
     }
