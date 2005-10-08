@@ -504,6 +504,13 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
+                // ensure output directory exists. VS creates output directories
+                // before it starts compiling projects
+                if (!projectConfig.OutputDir.Exists) {
+                    projectConfig.OutputDir.Create();
+                    projectConfig.OutputDir.Refresh();
+                }
+
                 foreach (ReferenceBase reference in project.References) {
                     ProjectReferenceBase projectReference = reference as ProjectReferenceBase;
                     if (projectReference != null) {
