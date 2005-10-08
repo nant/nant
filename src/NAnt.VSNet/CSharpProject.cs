@@ -122,6 +122,16 @@ namespace NAnt.VSNet {
         #region Override implementation of ManagedProjectBase
 
         /// <summary>
+        /// Gets the default file extension of sources for this project.
+        /// </summary>
+        /// <value>
+        /// For C# projects, the default file extension is &quot;.cs&quot;.
+        /// </value>
+        protected override string FileExtension {
+            get { return ".cs"; }
+        }
+
+        /// <summary>
         /// Returns the project location from the specified project XML fragment.
         /// </summary>
         /// <param name="docElement">XML fragment representing the project file.</param>

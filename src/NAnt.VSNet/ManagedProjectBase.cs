@@ -89,7 +89,7 @@ namespace NAnt.VSNet {
 
             XmlNodeList nlFiles = xmlDefinition.SelectNodes("//Files/Include/File");
             foreach (XmlElement elemFile in nlFiles) {
-                string buildAction = elemFile.Attributes["BuildAction"].Value;
+                string buildAction = StringUtils.ConvertEmptyToNull(elemFile.GetAttribute("BuildAction"));
                 string sourceFile;
 
                 if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
@@ -104,10 +104,18 @@ namespace NAnt.VSNet {
                     WebDavClient wdc = new WebDavClient(new Uri(_webProjectBaseUrl));
                     wdc.DownloadFile(sourceFile, elemFile.Attributes["RelPath"].Value);
 
-                    if (buildAction == "Compile") {
-                        _sourceFiles[sourceFile] = null;
-                    } else if (buildAction == "EmbeddedResource") {
-                        RegisterEmbeddedResource(sourceFile, elemFile);
+                    switch (buildAction) {
+                        case "Compile":
+                            _sourceFiles[sourceFile] = null;
+                            break;
+                        case "EmbeddedResource":
+                            RegisterEmbeddedResource(sourceFile, elemFile);
+                            break;
+                        case null:
+                            if (string.Compare(Path.GetExtension(sourceFile), FileExtension, true, CultureInfo.InvariantCulture) == 0) {
+                                _sourceFiles[sourceFile] = null;
+                            }
+                            break;
                     }
                 } else {
                     switch (buildAction) {
@@ -116,6 +124,11 @@ namespace NAnt.VSNet {
                             break;
                         case "EmbeddedResource":
                             RegisterEmbeddedResource(sourceFile, elemFile);
+                            break;
+                        case null:
+                            if (string.Compare(Path.GetExtension(sourceFile), FileExtension, true, CultureInfo.InvariantCulture) == 0) {
+                                _sourceFiles[sourceFile] = null;
+                            }
                             break;
                     }
 
@@ -140,6 +153,20 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets the default file extension of sources for this project.
+        /// </summary>
+        /// <value>
+        /// The default file extension of sources for this project.
+        /// </value>
+        protected abstract string FileExtension {
+            get;
+        }
+
+        #endregion Protected Instance Properties
 
         #region Private Instance Properties
 

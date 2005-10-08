@@ -124,6 +124,16 @@ namespace NAnt.VSNet {
         #region Override implemenation of ManagedProjectBase
 
         /// <summary>
+        /// Gets the default file extension of sources for this project.
+        /// </summary>
+        /// <value>
+        /// For VB projects, the default file extension is &quot;.vb&quot;.
+        /// </value>
+        protected override string FileExtension {
+            get { return ".vb"; }
+        }
+
+        /// <summary>
         /// Returns the project location from the specified project XML fragment.
         /// </summary>
         /// <param name="docElement">XML fragment representing the project file.</param>
