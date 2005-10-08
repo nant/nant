@@ -30,6 +30,9 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Groups a set of functions for dealing with directories.
+    /// </summary>
     [FunctionSet("directory", "Directory")]
     public class DirectoryFunctions : FunctionSetBase {
         #region Public Instance Constructors
@@ -53,18 +56,16 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
-            return Directory.GetCreationTime(Project.GetFullPath(path));
-        }       
-        /// <summary>
-        /// Gets the current working directory.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string" /> containing the path of the current working 
-        /// directory.
-        ///</returns>
-        [Function("get-current-directory")]
-        public static string GetCurrentDirectory() {
-            return Directory.GetCurrentDirectory();
+            string fullPath = Project.GetFullPath(path);
+            // Directory.GetCreationTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!Directory.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return Directory.GetCreationTime(fullPath);
         }
 
         /// <summary>
@@ -79,7 +80,16 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
-            return Directory.GetLastWriteTime(Project.GetFullPath(path));
+            string fullPath = Project.GetFullPath(path);
+            // Directory.GetLastWriteTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!Directory.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return Directory.GetLastWriteTime(fullPath);
         }
 
         /// <summary>
@@ -95,7 +105,28 @@ namespace NAnt.Core.Functions {
         /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
-            return Directory.GetLastAccessTime(Project.GetFullPath(path));
+            string fullPath = Project.GetFullPath(path);
+            // Directory.GetLastAccessTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!Directory.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return Directory.GetLastAccessTime(fullPath);
+        }
+
+        /// <summary>
+        /// Gets the current working directory.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string" /> containing the path of the current working 
+        /// directory.
+        ///</returns>
+        [Function("get-current-directory")]
+        public static string GetCurrentDirectory() {
+            return Directory.GetCurrentDirectory();
         }
 
         /// <summary>

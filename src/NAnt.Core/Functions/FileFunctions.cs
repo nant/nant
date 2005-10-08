@@ -31,6 +31,9 @@ using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Groups a set of functions for dealing with files.
+    /// </summary>
     [FunctionSet("file", "File")]
     public class FileFunctions : FunctionSetBase {
         #region Public Instance Constructors
@@ -55,7 +58,16 @@ namespace NAnt.Core.Functions {
         /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-creation-time")]
         public DateTime GetCreationTime(string path) {
-            return File.GetCreationTime(Project.GetFullPath(path));
+            string fullPath = Project.GetFullPath(path);
+            // File.GetCreationTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!File.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return File.GetCreationTime(fullPath);
         }
 
         /// <summary>
@@ -70,7 +82,16 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-last-write-time")]
         public DateTime GetLastWriteTime(string path) {
-            return File.GetLastWriteTime(Project.GetFullPath(path));
+            string fullPath = Project.GetFullPath(path);
+            // File.GetLastWriteTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!File.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return File.GetLastWriteTime(fullPath);
         }
 
         /// <summary>
@@ -86,7 +107,16 @@ namespace NAnt.Core.Functions {
         /// <exception cref="NotSupportedException">The <paramref name="path" /> parameter is in an invalid format.</exception>
         [Function("get-last-access-time")]
         public DateTime GetLastAccessTime(string path) {
-            return File.GetLastAccessTime(Project.GetFullPath(path));
+            string fullPath = Project.GetFullPath(path);
+            // File.GetLastAccessTime no longer throws an IOException on
+            // .NET 2.0 if the path does not exist, so we take care of this
+            // ourselves to ensure the behaviour of this function remains
+            // consistent across different CLR versions
+            if (!File.Exists(fullPath)) {
+                throw new IOException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find a part of the path \"{0}\".", fullPath));
+            }
+            return File.GetLastAccessTime(fullPath);
         }
 
         /// <summary>
