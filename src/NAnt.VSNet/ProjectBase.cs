@@ -331,13 +331,8 @@ namespace NAnt.VSNet {
 
             Log(Level.Info, "Building '{0}' [{1}] ...", Name, projectConfig.Name);
 
-            // ensure output directory exists
-            if (!projectConfig.OutputDir.Exists) {
-                projectConfig.OutputDir.Create();
-                projectConfig.OutputDir.Refresh();
-            }
-
-            // ensure project-level object directory exists
+            // ensure project-level object directory exists, no need to do this
+            // for the project-level output directory as we already this before
             if (!ObjectDir.Exists) {
                 ObjectDir.Create();
                 ObjectDir.Refresh();
