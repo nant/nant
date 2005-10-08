@@ -25,10 +25,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+
 using NAnt.Core;
+using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
+
 using NAnt.DotNet.Tasks;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -264,6 +268,12 @@ namespace NAnt.VSNet {
             ConfigurationSettings projectConfig = (ConfigurationSettings) 
                 BuildConfigurations[solutionConfiguration];
 
+            // add type library
+            if (projectConfig.RegisterForComInterop) {
+                string typelib = Path.ChangeExtension(projectConfig.BuildPath, ".tlb");
+                outputFiles.Add(typelib, Path.GetFileName(typelib));
+            }
+
             // add satellite assemblies
             Hashtable resourceSets = GetLocalizedResources();
             foreach (LocalizedResourceSet localizedResourceSet in resourceSets.Values) {
@@ -384,6 +394,14 @@ namespace NAnt.VSNet {
 
                     // project output has been updated
                     outputUpdated = true;
+                }
+
+                // check if we need to build typelib
+                if (cs.RegisterForComInterop) {
+                    string typelibPath = Path.ChangeExtension(cs.BuildPath, ".tlb");
+                    if (outputUpdated || !File.Exists(typelibPath)) {
+                        RegisterFromComInterop(cs.BuildPath, typelibPath);
+                    }
                 }
 
                 #region Process culture-specific resource files
@@ -593,6 +611,44 @@ namespace NAnt.VSNet {
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
+
+        /// <summary>
+        /// Generates a type library for the specified assembly, and register it.
+        /// </summary>
+        /// <param name="buildPath">The path to the assembly for which a type library must be generated.</param>
+        /// <param name="typelibPath">The path of the type library to generate.</param>
+        /// <remarks>
+        /// The <c>regasm</c> tool is used to generate the type library.
+        /// </remarks>
+        private void RegisterFromComInterop(string buildPath, string typelibPath) {
+            MemoryStream ms = new MemoryStream();
+
+            ExecTask exec = new ExecTask();
+            exec.Parent = exec.Project = SolutionTask.Project;
+            exec.InitializeTaskConfiguration();
+            exec.FileName = FileUtils.CombinePaths(SolutionTask.
+                Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
+
+            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                "\"{0}\"", buildPath)));
+            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                "/tlb:\"{0}\"", typelibPath)));
+            exec.Arguments.Add(new Argument("/nologo"));
+            if (SolutionTask.Verbose) {
+                exec.Arguments.Add(new Argument("/verbose"));
+            } else {
+                exec.Arguments.Add(new Argument("/silent"));
+            }
+
+            // increment indentation level
+            SolutionTask.Project.Indent();
+            try {
+                exec.Execute();
+            } finally {
+                // restore indentation level
+                SolutionTask.Project.Unindent();
+            }
+        }
 
         private void RegisterEmbeddedResource(string resourceFile, XmlElement elemFile) {
             FileInfo fi = new FileInfo(resourceFile);
@@ -927,7 +983,7 @@ namespace NAnt.VSNet {
                                 if (guidReader.NodeType == XmlNodeType.Element) {
                                     if (guidReader.MoveToAttribute( "ProjectGuid" ))
                                         return guidReader.Value;
-                                }                                        
+                                }
                             }
                         }
                     }
