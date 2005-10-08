@@ -58,7 +58,7 @@ namespace NAnt.VSNet {
                 // will hold the content of the solution file
                 string fileContents;
 
-                using (StreamReader sr = new StreamReader(solutionTask.SolutionFile.FullName)) {
+                using (StreamReader sr = new StreamReader(solutionTask.SolutionFile.FullName, Encoding.Default, true)) {
                     fileContents = sr.ReadToEnd();
                 }
 
