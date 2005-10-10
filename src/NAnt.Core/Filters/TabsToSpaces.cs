@@ -17,10 +17,8 @@
 //
 
 using System;
-using System.IO;
-using System.Globalization;
-
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Filters {
     /// <summary>
@@ -95,7 +93,7 @@ namespace NAnt.Core.Filters {
         /// <returns>-1 if end of stream otherwise a character</returns>
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
-            throw new ApplicationException("Peek currently is not supported.");
+            throw new ApplicationException(ResourceUtils.GetString("String_PeekNotSupported"));
         }
 
         /// <summary>

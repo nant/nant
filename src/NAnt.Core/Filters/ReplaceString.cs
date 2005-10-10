@@ -27,6 +27,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Filters {
     /// <summary>
@@ -159,7 +160,7 @@ namespace NAnt.Core.Filters {
         /// </returns>
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
-            throw new ApplicationException("Peek currently is not supported.");
+            throw new ApplicationException(ResourceUtils.GetString("String_PeekNotSupported"));
         }
 
         #endregion Override implementation of ChainableReader

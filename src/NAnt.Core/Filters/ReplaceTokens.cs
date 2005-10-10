@@ -27,6 +27,7 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Filters {
     /// <summary>
@@ -179,7 +180,7 @@ namespace NAnt.Core.Filters {
         /// </returns>
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
-            throw new ApplicationException("Peek currently is not supported.");
+            throw new ApplicationException(ResourceUtils.GetString("String_PeekNotSupported"));
         }
 
         #endregion Override implementation of ChainableReader
@@ -202,7 +203,7 @@ namespace NAnt.Core.Filters {
             }
 
             if (_tokenValues.Count == 0) {
-                throw new BuildException("One or more tokens and replacement values should be specified.", Location);
+                throw new BuildException(ResourceUtils.GetString("String_OneOrMoreTokens"), Location);
             }
 
             // create a string builder to use for a buffer while searching for

@@ -426,7 +426,7 @@ namespace NAnt.Core {
                 if (!StringUtils.IsNullOrEmpty(dataType.ID)) {
                     // throw exception because of id and ref
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Datatype references cannot contain an id attribute."),
+                        ResourceUtils.GetString("NA1183")),
                         dataType.Location);
                 }
 
@@ -437,7 +437,7 @@ namespace NAnt.Core {
                 } else {
                     // reference not found exception
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "{0} reference '{1}' not defined.", dataType.Name, dataType.RefID), 
+                        ResourceUtils.GetString("NA1184"), dataType.Name, dataType.RefID), 
                         dataType.Location);
                 }
                 if (!elementType.IsAssignableFrom(dataType.GetType())) {
@@ -453,7 +453,7 @@ namespace NAnt.Core {
 
                         // throw error wrong type definition
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Attempting to use a <{0}> reference where a <{1}> is required.", 
+                            ResourceUtils.GetString("NA1185"), 
                             dataTypeAttr.Name, elementTypeAttr.Name), Location.UnknownLocation);
                     }
                 }
@@ -981,7 +981,7 @@ namespace NAnt.Core {
                         // check if its required
                         if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "There must be a least one '{0}' element for <{1} ... />.", 
+                                ResourceUtils.GetString("NA1021"), 
                                 elementName, buildElementCollectionAttribute.Name), 
                                 Location);
                         }
@@ -1168,7 +1168,7 @@ namespace NAnt.Core {
                     // the first element it encounters
                     if (ElementXml.SelectNodes("nant:" + buildElementAttribute.Name, NamespaceManager).Count > 1) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "<{0} ... /> does not support multiple '{1}' child elements.",
+                             ResourceUtils.GetString("NA1186"),
                             Name, buildElementAttribute.Name), Location);
                     }
                 }
@@ -1283,8 +1283,7 @@ namespace NAnt.Core {
                 if (requiredMethods.Count > 0) {
                     foreach (DictionaryEntry entry in requiredMethods) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "There must be a least one <{0} .../> child element for"
-                            + " <{1} .../>.", (string) entry.Key, Name), Location);
+                            ResourceUtils.GetString("NA1021"), (string) entry.Key, Name), Location);
                     }
                 }
             }
@@ -1292,8 +1291,7 @@ namespace NAnt.Core {
             protected virtual Element InitializeBuildElement(XmlNode childNode, Type elementType) {
                 if (!typeof(Element).IsAssignableFrom(elementType)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "<{0} ... /> could not be initialized as its backed by"
-                        + " type '{1}' which does not derive from Element.",
+                        ResourceUtils.GetString("NA1187"),
                         childNode.Name, elementType.FullName), Location);
                 }
 
@@ -1333,16 +1331,14 @@ namespace NAnt.Core {
                         childElement = (Element) propInf.GetValue(Element, null);
                     } catch (InvalidCastException) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Property \"{0}\" for class \"{1}\" is backed by"
-                            + " \"{2}\" which does not derive from \"{3}\".", 
+                            ResourceUtils.GetString("NA1188"), 
                             propInf.Name, Element.GetType().FullName, propInf.PropertyType.FullName, 
                             typeof(Element).FullName), Location);
                     }
                     if (childElement == null) {
                         if (setter == null) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                "Property {0} cannot return null (if there is"
-                                + " no set method) for class {1}", propInf.Name, 
+                                ResourceUtils.GetString("NA1189"), propInf.Name, 
                                 Element.GetType().FullName), Location);
                         } else {
                             // fake the getter as null so we process the rest like there is no getter
@@ -1359,7 +1355,7 @@ namespace NAnt.Core {
                     elementType = setter.GetParameters()[0].ParameterType;
                     if (elementType.IsAbstract) {
                         throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
-                            "Abstract type: {0} for {2}.{1}", elementType.Name, propInf.Name, Name));
+                            ResourceUtils.GetString("String_AbstractType"), elementType.Name, propInf.Name, Name));
                     }
                     childElement = (Element) Activator.CreateInstance(elementType, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, null , CultureInfo.InvariantCulture);
                 }
@@ -1373,7 +1369,7 @@ namespace NAnt.Core {
                     // references to data type should be always be set
                     if (setter == null) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "DataType child element '{0}' in class '{1}' must define a set method.", 
+                            ResourceUtils.GetString("NA1190"), 
                             propInf.Name, this.GetType().FullName), Location);
                     }
                     // re-set the getter (for force the setter to be used)
@@ -1509,8 +1505,7 @@ namespace NAnt.Core {
 
                 private BuildException CreateBuildException(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
                     string message = string.Format(CultureInfo.InvariantCulture, 
-                        "'{0}' is not a valid value for attribute" +
-                        " '{1}' of <{2} ... />. Valid values are: ", 
+                       ResourceUtils.GetString("NA1022") + ResourceUtils.GetString("String_ValidValues"), 
                         value, attributeNode.Name, parent.Name);
 
                     foreach (object field in Enum.GetValues(property.PropertyType)) {
@@ -1537,11 +1532,11 @@ namespace NAnt.Core {
                             encodingName);
                     } catch (ArgumentException) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "\"{0}\" is not a valid encoding.",
+                            ResourceUtils.GetString("NA1191"),
                             encodingName), parent.Location);
                     } catch (NotSupportedException) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "\"{0}\" encoding is not supported on the current platform.",
+                            ResourceUtils.GetString("NA1192"),
                             encodingName), parent.Location);
                     }
 
@@ -1579,8 +1574,7 @@ namespace NAnt.Core {
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "An empty string is not a valid value for attribute" 
-                            + " '{0}' of <{1} ... />.", 
+                            ResourceUtils.GetString("NA1193"), 
                             attributeNode.Name, parent.Name), parent.Location);
                     }
                 }
@@ -1603,8 +1597,7 @@ namespace NAnt.Core {
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "An empty string is not a valid value for attribute" 
-                            + " '{0}' of <{1} ... />.", 
+                           ResourceUtils.GetString("NA1193"), 
                             attributeNode.Name, parent.Name), parent.Location);
                     }
                 }
@@ -1654,8 +1647,7 @@ namespace NAnt.Core {
                         }
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "An empty string is not a valid value for attribute" 
-                            + " '{0}' of <{1} ... />.", 
+                            ResourceUtils.GetString("NA1193"), 
                             attributeNode.Name, parent.Name), parent.Location);
                     }
                 }

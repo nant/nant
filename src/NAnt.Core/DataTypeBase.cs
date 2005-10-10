@@ -15,13 +15,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Ian MacLean (ian_maclean@another.com)
+// Ian MacLean (imaclean@gmail.com)
 
 using System;
 using System.Globalization;
-using System.Reflection;
 using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

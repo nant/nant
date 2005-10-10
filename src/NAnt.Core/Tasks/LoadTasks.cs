@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Ian MacLean (ian_maclean@another.com)
+// Ian MacLean (imaclean@gmail.com)
 
 using System;
 using System.Globalization;

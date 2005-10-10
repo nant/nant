@@ -21,6 +21,7 @@ using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Util;
 
 namespace NAnt.Core.Filters {
     /// <summary>
@@ -125,7 +126,7 @@ namespace NAnt.Core.Filters {
         /// </summary>
         private void Advance() {
             if (AtEnd) {
-                throw new IndexOutOfRangeException("End of output has been reached.");
+                throw new IndexOutOfRangeException(ResourceUtils.GetString("String_EndOfOutput"));
             }
 
             _buffer.Remove(0, 1);

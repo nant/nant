@@ -21,6 +21,7 @@
 // Ian MacLean ( imaclean at gmail.com )
 -->
 <root>
+    <!-- last error id is NA1185 ( update when adding new error codes and strings )-->
     <resheader name="ResMimeType">
         <value>text/microsoft-resx</value>
     </resheader>
@@ -159,6 +160,43 @@
         <value>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</value>
         <comment>Element Required! There must be a least one '{0}' element for &lt;{1} ... /&gt;.</comment>
     </data> 
+    
+    <data name="NA1183">
+        <value>Datatype references cannot contain an id attribute.</value>
+    </data>
+    <data name="NA1184">
+        <value>{0} reference '{1}' not defined.</value>
+    </data>
+    <data name="NA1185">
+        <value>Attempting to use a &lt;{0}&gt; reference where a &lt;{1}&gt; is required.</value>
+    </data>
+    <data name="NA1186">
+        <value>&lt;{0} ... /&gt; does not support multiple '{1}' child elements.</value>
+    </data>
+    <data name="NA1187">
+        <value>&lt;{0} ... /&gt; could not be initialized as its backed by type '{1}' which does not derive from Element.</value>
+    </data>
+    <data name="NA1188">
+        <value>Property '{0}' for class '{1}' is backed by '{2}' which does not derive from '{3}'.</value>
+    </data>
+    <data name="NA1189">
+        <value>Property {0} cannot return null (if there is no set method) for class {1}.</value>
+    </data>
+    
+    <data name="NA1190">
+        <value>DataType child element '{0}' in class '{1}' must define a set method.</value>
+    </data>
+    <data name="NA1191">
+        <value>'{0}' is not a valid encoding.</value>
+    </data>
+    <data name="NA1192">
+        <value>'{0}' encoding is not supported on the current platform.</value>
+    </data>
+    <data name="NA1193">
+        <value>An empty string is not a valid value for attribute '{0}' of &lt;{1} ... /&gt;.</value>
+    </data>
+    
+    
     <!--Messages From: \NAnt.Core/ExpressionEvalBase.cs--> 
     <!-- Group all these together with different pattern. -->
     <data name="NA1036">
@@ -236,6 +274,9 @@
     </data> 
     <!--Messages From: \NAnt.Core/ExpressionParseException.cs-->  
     <!--Messages From: \NAnt.Core/ExpressionTokenizer.cs--> 
+    <data name="NA1182">
+        <value>Identifier cannot end with a dash: {0}</value>
+    </data>
     <!--Messages From: \NAnt.Core/FrameworkInfo.cs-->
     <data name="NA1054">
         <value>The 'System.dll' assembly does not exist in framework assembly directory '{0}'.</value>
@@ -820,7 +861,6 @@
     <data name="NA1178">
         <value>The default targetframework '{0}' is not valid. Defaulting to the runtime framework ({1}).</value>
     </data> 
-    
     <data name="NA1179">
         <value>Recursive includes are not allowed.</value>
     </data>    
@@ -830,9 +870,11 @@
     <data name="NA1181">
         <value>The default targetframework '{0}' is invalid and has not been loaded : {1}.</value>
     </data>     
-     <data name="NA1182">
+    <data name="NA1182">
         <value>Framework '{0}' is invalid and has not been loaded : {1}.</value>
     </data>
+    
+        
     
     <!--Messages From: \NAnt.Core/Util/DefaultCommandLineArgumentAttribute.cs-->
     <!--Messages From: \NAnt.Core/Util/FileUtils.cs-->
@@ -841,8 +883,13 @@
     <!--Messages From: \NAnt.Core/Util/ResourceUtils.cs-->
     <!--Messages From: \NAnt.Core/Util/StringUtils.cs-->
     <!-- General Strings -->
+    
+    
     <data name="String_ValidatingElement">
         <value>Validating &lt;{1} {2}='...'&gt; with {0}</value>
+    </data>
+    <data name="String_AbstractType">
+        <value>Abstract type: {0} for {2}.{1}</value>
     </data>
     <data name="String_FoundAttribute">
         <value>Found {0} &lt;attribute&gt; for {1}</value>
@@ -880,7 +927,25 @@
     <data name="String_CreatingTaskBuilder">
         <value>Creating TaskBuilder for {0}</value>
     </data>
-
+    <data name="String_ValidValues">
+        <value> Valid values are: </value>
+    </data>
+    <data name="String_CannotReadPastStream">
+        <value>Cannot read past end of stream.</value>
+    </data>
+    <data name="String_EndOfOutput">
+        <value>End of output has been reached.</value>
+    </data>
+    <data name="String_PeekNotSupported">
+        <value>Peek currently is not supported.</value>
+    </data>
+    <data name="String_OneOrMoreTokens">
+        <value>One or more tokens and replacement values should be specified.</value>
+    </data>
+    <data name="String_UseBaseFilter">
+        <value>A base filter must be used.</value>
+    </data>
+    
     <!--ExternalProgramBase.cs -->
     <data name="String_Starting_Program">
         <value>Starting '{1} ({2})' in '{0}'</value>

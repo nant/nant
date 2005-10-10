@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using NAnt.Core.Util;
 
 namespace NAnt.Core {
 
@@ -133,7 +134,7 @@ namespace NAnt.Core {
 
         public void GetNextToken() {
             if (_tokenType == TokenType.EOF)
-                throw new ExpressionParseException("Cannot read past end of stream.", -1, -1);
+                throw new ExpressionParseException(ResourceUtils.GetString("String_CannotReadPastStream"), -1, -1);
 
             if (IgnoreWhitespace) {
                 SkipWhitespace();
@@ -229,7 +230,8 @@ namespace NAnt.Core {
 
                     _tokenText = sb.ToString();
                     if (_tokenText.EndsWith("-"))
-                        throw new ExpressionParseException(String.Format(CultureInfo.InvariantCulture, "Identifier cannot end with a dash: {0}", _tokenText), CurrentPosition.CharIndex);
+                        throw new ExpressionParseException(String.Format(CultureInfo.InvariantCulture, 
+							ResourceUtils.GetString("NA1182"), _tokenText), CurrentPosition.CharIndex);
                     return ;
                 }
 

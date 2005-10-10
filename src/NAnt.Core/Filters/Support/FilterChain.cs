@@ -156,7 +156,7 @@ namespace NAnt.Core.Filters {
 
             // the physicalTextReader must be the base filter (Based on a physical stream)
             if (!physicalTextReader.Base) {
-                throw new BuildException("A base filter must be used", Location);
+                throw new BuildException(ResourceUtils.GetString("String_UseBaseFilter"), Location);
             }
 
             // build the chain and place the base filter at the beginning.

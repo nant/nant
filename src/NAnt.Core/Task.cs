@@ -17,7 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
-// Ian MacLean (ian_maclean@another.com)
+// Ian MacLean (imaclean@gmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
 // Gert Driesen (gert.driesen@ardatis.com)
 
