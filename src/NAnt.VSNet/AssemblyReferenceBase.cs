@@ -217,11 +217,18 @@ namespace NAnt.VSNet {
         /// in <paramref name="folderList" />; otherwise, <see langword="null" />.
         /// </returns>
         protected string ResolveFromFolderList(StringCollection folderList, string fileName) {
+            Log(Level.Debug, "Attempting to resolve \"{0}\" in AssemblyFolders...",
+                fileName);
+
             foreach (string path in folderList) {
+                Log(Level.Debug, "Checking \"{0}\"...", path);
                 try {
                     string assemblyFile = FileUtils.CombinePaths(path, fileName);
                     if (File.Exists(assemblyFile)) {
+                        Log(Level.Debug, "Assembly found in \"{0}\".", path);
                         return assemblyFile;
+                    } else {
+                        Log(Level.Debug, "Assembly not found in \"{0}\".", path);
                     }
                 } catch (Exception ex) {
                     Log(Level.Verbose, "Error resolving reference to \"{0}\""

@@ -331,6 +331,8 @@ namespace NAnt.VSNet.Tasks {
                     foreach (string folder in AssemblyFolders.DirectoryNames) {
                         if (!_assemblyFolderList.Contains(folder)) {
                             _assemblyFolderList.Add(folder);
+                                Log(Level.Debug, "Added \"{0}\" to AssemblyFolders.",
+                                folder);
                         }
                     }
 
@@ -339,6 +341,8 @@ namespace NAnt.VSNet.Tasks {
                         foreach (string folder in vsAssemblyFolders) {
                             if (!_assemblyFolderList.Contains(folder)) {
                                 _assemblyFolderList.Add(folder);
+                                Log(Level.Debug, "Added \"{0}\" to AssemblyFolders.",
+                                    folder);
                             }
                         }
                     }
