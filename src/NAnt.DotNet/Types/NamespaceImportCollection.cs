@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -298,21 +299,29 @@ namespace NAnt.DotNet.Types {
         /// A comma-delimited list of namespace imports, or an empty 
         /// <see cref="string" /> if there are no namespace imports.
         /// </returns>
+        /// <remarks>
+        /// Each namespace import is quoted individually.
+        /// </remarks>
         public override string ToString() {
-            string imports = string.Empty;
+            StringBuilder sb = new StringBuilder();
 
             foreach (NamespaceImport import in base.List) {
                 if (import.IfDefined && !import.UnlessDefined) {
                     // add comma delimited if its not the first import
-                    if (!StringUtils.IsNullOrEmpty(imports)) {
-                        imports += ",";
+                    if (sb.Length > 0) {
+                        sb.Append(',');
                     }
 
-                    imports += import.Namespace;
+                    // users might using a single NamespaceImport element to 
+                    // import multiple namespaces
+                    string imports = import.Namespace.Split(',');
+                    foreach (string ns in imports) {
+                        sb.AppendFormat("\"{0}\"", ns);
+                    }
                 }
             }
 
-            return imports;
+            return sb.ToString();
         }
 
         #endregion Override implementation of Object
