@@ -57,7 +57,7 @@ namespace NAnt.VSNet {
         protected override void WriteProjectOptions(StreamWriter sw) {
             // write namespace imports
             if (_imports.Count > 0) {
-                sw.WriteLine("/imports:\"{0}\"", _imports.ToString());
+                sw.WriteLine("/imports:{0}", _imports.ToString());
             }
         }
 
