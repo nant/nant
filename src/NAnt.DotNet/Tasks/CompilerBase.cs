@@ -1015,10 +1015,19 @@ namespace NAnt.DotNet.Tasks {
         /// </summary>
         /// <param name="writer">The <see cref="TextWriter" /> to which the compiler options should be written.</param>
         /// <param name="name">The name of the option which should be passed to the compiler.</param>
-        /// <param name="arg">The value of the option which should be passed to the compiler.</param>
-        protected virtual void WriteOption(TextWriter writer, string name, string arg) {
-            // always quote arguments
-            writer.WriteLine("\"/{0}:{1}\"", name, arg);
+        /// <param name="value">The value of the option which should be passed to the compiler.</param>
+        /// <remarks>
+        /// The combination of <paramref name="option" /> and 
+        /// <paramref name="value" /> (separated by a colon) is quoted
+        /// unless <paramref name="value" /> is already surrounded by quotes.
+        /// </remarks>
+        protected virtual void WriteOption(TextWriter writer, string name, string value) {
+            // quote argument if value is not already quoted
+            if (!value.StartsWith("\"") || !value.EndsWith("\"")) {
+                writer.WriteLine("\"/{0}:{1}\"", name, value);
+            } else {
+                writer.WriteLine("/{0}:{1}", name, value);
+            }
         }
 
         /// <summary>
