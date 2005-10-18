@@ -45,6 +45,10 @@ namespace Tests.NAnt.DotNet.Tasks {
         private const string _format = @"<?xml version='1.0'?>
             <project>
                 <vbc target='exe' output='{0}.exe' {2}>
+                    <imports>
+                        <import namespace='System,System.Collections' />
+                        <import namespace='System.Data' />
+                    </imports>
                     <sources basedir='{1}'>
                         <include name='{0}'/>
                     </sources>
@@ -55,10 +59,10 @@ namespace Tests.NAnt.DotNet.Tasks {
             </project>";
 
         private const string _sourceCode = @"
-            Imports System
-
             Public Class HelloWorld
                 Shared Sub Main()
+                    Dim table as DataTable = new DataTable()
+                    Dim list as ArrayList = new ArrayList();
                     Console.WriteLine(""Hello World using VB.NET"")
                     Return
                 End Sub
