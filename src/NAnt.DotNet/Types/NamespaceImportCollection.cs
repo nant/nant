@@ -314,7 +314,7 @@ namespace NAnt.DotNet.Types {
 
                     // users might using a single NamespaceImport element to 
                     // import multiple namespaces
-                    string imports = import.Namespace.Split(',');
+                    string[] imports = import.Namespace.Split(',');
                     foreach (string ns in imports) {
                         sb.AppendFormat("\"{0}\"", ns);
                     }
