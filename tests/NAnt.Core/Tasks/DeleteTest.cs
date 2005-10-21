@@ -670,5 +670,23 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
             Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
+
+        [Test]
+        public void Test_NonExistingFile() {
+            string xmlProject = @"
+                <project>
+                    <delete file='nonexistingfile.txt' />
+                </project>";
+            RunBuild(xmlProject);
+        }
+
+        [Test]
+        public void Test_NonExistingDirectory() {
+            string xmlProject = @"
+                <project>
+                    <delete dir='nonexistingdir' />
+                </project>";
+            RunBuild(xmlProject);
+        }
     }
 }

@@ -573,10 +573,6 @@
         <value>Cannot delete file '{0}'.</value>
         <comment>Cannot delete file '{0}'.</comment>
     </data>
-    <data name="NA1115">
-        <value>Cannot delete directory '{0}'. The directory does not exist.</value>
-        <comment>Cannot delete directory '{0}'. The directory does not exist.</comment>
-    </data>
     <!--Messages From: \NAnt.Core/Tasks/DescriptionTask.cs-->
     <!--Messages From: \NAnt.Core/Tasks/EchoTask.cs-->
     <data name="NA1116">

@@ -34,11 +34,16 @@ namespace NAnt.Core.Tasks {
     ///   Deletes either a single file, all files in a specified directory and 
     ///   its sub-directories, or a set of files specified by one or more filesets.
     ///   </para>
-    ///   <note>
-    ///   If the <see cref="File" /> attribute is set then the fileset contents 
-    ///   will be ignored. To delete the files in the fileset ommit the 
-    ///   <see cref="File" /> attribute in the <c>&lt;delete&gt;</c> element.
-    ///   </note>
+    ///   <para>
+    ///   If the <see cref="File" /> or <see cref="Directory" /> attribute is 
+    ///   set then the fileset contents will be ignored. To delete the files 
+    ///   in the fileset ommit the <see cref="File" /> and <see cref="Directory" />
+    ///   attributes in the <c>&lt;delete&gt;</c> element.
+    ///   </para>
+    ///   <para>
+    ///   If the specified file or directory does not exist, no error is 
+    ///   reported.
+    ///   </para>
     ///   <note>
     ///   Read-only files cannot be deleted.  Use the <see cref="AttribTask" /> 
     ///   first to remove the read-only attribute.
@@ -55,18 +60,17 @@ namespace NAnt.Core.Tasks {
     /// <example>
     ///   <para>
     ///   Delete a directory and the contents within. If the directory does not 
-    ///   exist, the task does nothing.
+    ///   exist, no error is reported.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <delete dir="${build.dir}" failonerror="false" />
+    /// <delete dir="${build.dir}" />
     ///     ]]>
     ///   </code>
     /// </example>
     /// <example>
     ///   <para>
-    ///   Delete a set of files.  Note the lack of <see cref="File" /> attribute 
-    ///   in the <c>&lt;delete&gt;</c> element.
+    ///   Delete a set of files.
     ///   </para>
     ///   <code>
     ///     <![CDATA[
@@ -135,6 +139,17 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         /// <summary>
+        /// Controls whether to show the name of each deleted file or directory.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("verbose")]
+        [BooleanValidator()]
+        public override bool Verbose {
+            get { return base.Verbose; }
+            set { base.Verbose = value; }
+        }
+
+        /// <summary>
         /// Ensures the supplied attributes are valid.
         /// </summary>
         /// <param name="taskNode">Xml node used to define this task instance.</param>
@@ -164,10 +179,11 @@ namespace NAnt.Core.Tasks {
                 // delete the file in verbose mode
                 DeleteFile(File.FullName, true);
             } else if (Directory != null) { // delete the directory
+                // explicitly check if directory exist here (while the same
+                // check is performed in RecursiveDeleteDirectory), to avoid
+                // output of Info message below
                 if (!Directory.Exists) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                                           ResourceUtils.GetString("NA1115"), 
-                        Directory.FullName), Location);
+                    return;
                 }
                 // log message here if we're not in verbose mode, otherwise the 
                 // RecursiveDeleteDirectory method will output verbose message 
@@ -259,18 +275,17 @@ namespace NAnt.Core.Tasks {
         private void DeleteFile(string path, bool verbose) {
             try {
                 FileInfo deleteInfo = new FileInfo(path);
-                if (deleteInfo.Exists) {
-                    if (verbose) {
-                        Log(Level.Info, "Deleting file {0}.", path);
-                    }
-                    if (deleteInfo.Attributes != FileAttributes.Normal) {
-                        System.IO.File.SetAttributes(deleteInfo.FullName, 
-                            FileAttributes.Normal);
-                    }
-                    System.IO.File.Delete(path);
-                } else {
-                    throw new FileNotFoundException();
+                if (!deleteInfo.Exists) {
+                    return;
                 }
+                if (verbose) {
+                    Log(Level.Info, "Deleting file {0}.", path);
+                }
+                if (deleteInfo.Attributes != FileAttributes.Normal) {
+                    System.IO.File.SetAttributes(deleteInfo.FullName, 
+                        FileAttributes.Normal);
+                }
+                System.IO.File.Delete(path);
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1114"), path);
