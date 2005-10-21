@@ -73,7 +73,7 @@ namespace NAnt.Core {
         /// </summary>
         [TaskAttribute("verbose")]
         [BooleanValidator()]
-        public bool Verbose {
+        public virtual bool Verbose {
             get { return (_verbose || Project.Verbose); }
             set { _verbose = value; }
         }
