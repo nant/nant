@@ -307,15 +307,15 @@ namespace NAnt.DotNet.Types {
 
             foreach (NamespaceImport import in base.List) {
                 if (import.IfDefined && !import.UnlessDefined) {
-                    // add comma delimited if its not the first import
-                    if (sb.Length > 0) {
-                        sb.Append(',');
-                    }
-
                     // users might using a single NamespaceImport element to 
                     // import multiple namespaces
                     string[] imports = import.Namespace.Split(',');
                     foreach (string ns in imports) {
+                        // add comma delimited if its not the first import
+                        if (sb.Length > 0) {
+                            sb.Append(',');
+                        }
+
                         sb.AppendFormat("\"{0}\"", ns);
                     }
                 }

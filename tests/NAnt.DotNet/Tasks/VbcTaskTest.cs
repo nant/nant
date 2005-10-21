@@ -62,7 +62,7 @@ namespace Tests.NAnt.DotNet.Tasks {
             Public Class HelloWorld
                 Shared Sub Main()
                     Dim table as DataTable = new DataTable()
-                    Dim list as ArrayList = new ArrayList();
+                    Dim list as ArrayList = new ArrayList()
                     Console.WriteLine(""Hello World using VB.NET"")
                     Return
                 End Sub
