@@ -53,7 +53,7 @@ namespace Tests.NAnt.DotNet.Tasks {
                         <include name='{0}'/>
                     </sources>
                     <references>
-                        <include name='System.Data' />
+                        <include name='System.Data.dll' />
                     </references>
                     <resources basedir='{1}'>
                         <include name='**/*.resx' />
