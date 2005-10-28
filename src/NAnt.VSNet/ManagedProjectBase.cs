@@ -298,7 +298,9 @@ namespace NAnt.VSNet {
             // add type library
             if (projectConfig.RegisterForComInterop) {
                 string typelib = Path.ChangeExtension(projectConfig.BuildPath, ".tlb");
-                outputFiles.Add(typelib, Path.GetFileName(typelib));
+				if (!outputFiles.ContainsKey(typelib)) {
+					outputFiles.Add(typelib, Path.GetFileName(typelib));
+				}
             }
 
             // add satellite assemblies
