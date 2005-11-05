@@ -39,7 +39,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
         string _binDir;
         string _objDir;
         string _sourceDir;
-        string _sourcePathName;
+
         const string _test_build = @"<?xml version='1.0'?>
                 <project>
                     <cl outputdir=""objs""
@@ -67,7 +67,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
             _binDir = CreateTempDir("bin");
             _objDir = CreateTempDir("objs");
             _sourceDir = CreateTempDir("src");
-            _sourcePathName = CreateTempFile(Path.Combine(_sourceDir, "HelloWorld.cpp"), _helloWorld_cpp);
+            CreateTempFile(Path.Combine(_sourceDir, "HelloWorld.cpp"), _helloWorld_cpp);
         }
 
         /// <summary>Test to make sure simple compile works.</summary>
