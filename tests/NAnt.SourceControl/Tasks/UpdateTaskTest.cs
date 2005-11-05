@@ -192,7 +192,6 @@ namespace Tests.NAnt.SourceControl.Tasks {
             object[] args = {TestUseSharpCvsLib.ToString(), TestModule, TestCvsRoot, checkoutPath, 
                                 buildDirs, pruneEmpty, overwriteLocal, recursive, checkFilePath};
             string formattedBuildFile = FormatBuildFile(this._updateOptionsXML, args);
-            System.Console.WriteLine(formattedBuildFile);
             this.RunBuild(formattedBuildFile, 
                 Level.Info);
 
