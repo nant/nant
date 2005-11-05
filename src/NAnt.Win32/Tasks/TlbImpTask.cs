@@ -22,6 +22,7 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using NAnt.DotNet.Types;
 
@@ -383,6 +384,32 @@ namespace NAnt.Win32.Tasks {
 
         #endregion Override implementation of ExternalProgramBase
 
+		#region Public Static Methods
+
+		/// <summary>
+		/// Returns the path of the type library, removing the identifier of 
+		/// the type library from the specified string.
+		/// </summary>
+		/// <param name="path">The path from which to extract the path of the type library.</param>
+		/// <returns>
+		/// The path of the type library without the type library identifier.
+		/// </returns>
+		/// <remarks>
+		/// An example of a path which includes the identifier of the type 
+		/// library (in this case &quot;2&quot;) is
+		/// <c>C:\WINDOWS\system32\msvidctl.dll\2</c>.
+		/// </remarks>
+		public static string ExtractTypeLibPath(string path) {
+			Regex regex = new Regex(@"^.*\\\d+$", RegexOptions.IgnorePatternWhitespace 
+				| RegexOptions.Multiline | RegexOptions.IgnoreCase);
+			if (regex.IsMatch(path)) {
+				return path.Substring(0, path.LastIndexOf("\\"));
+			}
+			return path;
+		}
+
+		#endregion Public Static Methods
+
         #region Protected Instance Methods
 
         /// <summary>
@@ -400,8 +427,10 @@ namespace NAnt.Win32.Tasks {
                 return true;
             }
 
+			string typeLibPath = ExtractTypeLibPath(TypeLib.FullName);
+
             // check if the type library was updated since the interop assembly was generated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(TypeLib.FullName, OutputFile.LastWriteTime);
+            string fileName = FileSet.FindMoreRecentLastWriteTime(typeLibPath, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, "'{0}' has been updated, recompiling.", 
                     fileName);
