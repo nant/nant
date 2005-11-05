@@ -650,8 +650,6 @@ namespace NAnt.VSNet {
         /// The <c>regasm</c> tool is used to generate the type library.
         /// </remarks>
         private void RegisterFromComInterop(string buildPath, string typelibPath) {
-            MemoryStream ms = new MemoryStream();
-
             ExecTask exec = new ExecTask();
             exec.Parent = exec.Project = SolutionTask.Project;
             exec.InitializeTaskConfiguration();
