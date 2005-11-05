@@ -24,7 +24,6 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 using Microsoft.Win32;
@@ -533,41 +532,15 @@ namespace NAnt.VSNet {
                 }
 
                 // extract path to type library from reg value
-                string typeLib = ExtractTypeLibPath(typeLibValue);
+                string typeLibPath = TlbImpTask.ExtractTypeLibPath(typeLibValue);
                 // check if the typelib actually exists
-                if (!File.Exists(typeLib)) {
+                if (!File.Exists(typeLibPath)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         "Type library \"{0}\", referenced by project \"{1}\", no"
                         + " longer exists at registered path \"{2}\".", Name, 
-                        Parent.Name, typeLib), Location.UnknownLocation);
+                        Parent.Name, typeLibPath), Location.UnknownLocation);
                 }
-                return typeLib;
-            }
-        }
-
-        /// <summary>
-        /// Extracts the path of the type library or the file containing the type 
-        /// libary.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// If the path refers to a DLL, then it is possible that the DLL
-        /// contains more than one type library resource.  The number of the 
-        /// resource is appended to the Win32 value.
-        /// </para>
-        /// <para>
-        /// We required the path to the DLL without the trailing resource 
-        /// identifier.
-        /// </para>
-        /// </remarks>
-        private string ExtractTypeLibPath(string typeLibraryWin32Value) {
-            string regex = "([A-Z]:\\\\[^/:\\*\\?<>\\|]+\\.\\w{2,6})|(\\\\{2}[^/:\\*\\?<>\\|]+\\.\\w{2,6})";
-            Regex reg = new Regex(regex, RegexOptions.IgnorePatternWhitespace 
-                | RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            if (reg.IsMatch(typeLibraryWin32Value)) {
-                return reg.Match(typeLibraryWin32Value).Value;
-            } else {
-                return typeLibraryWin32Value;
+                return typeLibValue;
             }
         }
 
