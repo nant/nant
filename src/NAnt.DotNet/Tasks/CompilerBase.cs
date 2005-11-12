@@ -54,6 +54,8 @@ namespace NAnt.DotNet.Tasks {
         private CompilerWarningCollection _suppressWarnings = new CompilerWarningCollection();
         private bool _forceRebuild;
         private string _mainType;
+        private string _keyContainer;
+        private FileInfo _keyFile;
         private AssemblyFileSet _references = new AssemblyFileSet();
         private FileSet _lib = new FileSet();
         private AssemblyFileSet _modules = new AssemblyFileSet();
@@ -262,6 +264,24 @@ namespace NAnt.DotNet.Tasks {
         public string MainType {
             get { return _mainType; }
             set { _mainType = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies the key pair container used to strongname the assembly.
+        /// </summary>
+        [TaskAttribute("keycontainer")]
+        public string KeyContainer {
+            get { return _keyContainer; }
+            set { _keyContainer = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Specifies a strong name key file.
+        /// </summary>
+        [TaskAttribute("keyfile")]
+        public FileInfo KeyFile {
+            get { return _keyFile; }
+            set { _keyFile = value; }
         }
 
         /// <summary>
@@ -484,8 +504,16 @@ namespace NAnt.DotNet.Tasks {
                     // writes the option that specifies the class containing 
                     // the Main method that should be called when the program 
                     // starts.
-                    if (this.MainType != null) {
-                        WriteOption(writer, "main", this.MainType);
+                    if (MainType != null) {
+                        WriteOption(writer, "main", MainType);
+                    }
+
+                    if (KeyContainer != null) {
+                        WriteOption(writer, "keycontainer", KeyContainer);
+                    }
+
+                    if (KeyFile != null) {
+                        WriteOption(writer, "keyfile", KeyFile.FullName);
                     }
 
                     // writes package references to the response file
@@ -1049,6 +1077,14 @@ namespace NAnt.DotNet.Tasks {
             // check if sources were updated
             string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
+                return true;
+            }
+
+            // check if key file was updated
+            if (KeyFile != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
                 Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                     fileName);
                 return true;
