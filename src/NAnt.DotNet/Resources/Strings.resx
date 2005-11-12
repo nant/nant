@@ -239,8 +239,8 @@
     <!--Message from:\NAnt.DotNet\Tasks\CompilerBase.cs-->
     <!--Message from:\NAnt.DotNet\Tasks\IlAsmTask.cs-->
     <data name="String_CompilingFiles">
-        <value>Compiling {0} files to '{1}'."</value>
-        <comment>Compiling {0} files to '{1}'."</comment>
+        <value>Compiling {0} files to '{1}'.</value>
+        <comment>Compiling {0} files to '{1}'.</comment>
     </data>
     <data name="String_ContentsOf">
         <value>Contents of {0}.</value>
@@ -352,8 +352,8 @@
         <comment>Finding or creating COM+ application '{0}'.</comment>
     </data>
     <data name="String_UninstallingCOM+Application">
-        <value>Uninstalling COM+ application '{0}'."</value>
-        <comment>Uninstalling COM+ application '{0}'."</comment>
+        <value>Uninstalling COM+ application '{0}'.</value>
+        <comment>Uninstalling COM+ application '{0}'.</comment>
     </data>
 
     <!--Message from:\NAnt.DotNet\Tasks\ResGenTask.cs-->

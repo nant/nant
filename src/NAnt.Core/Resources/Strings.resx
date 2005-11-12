@@ -835,7 +835,7 @@
         <comment>Duplicate value '{0}' for command-line argument '-{1}'.</comment>
     </data>
     <data name="NA1173">
-        <value>The signature of the Add method for the collection-based command-line argument '-{0}' is not supported."</value>
+        <value>The signature of the Add method for the collection-based command-line argument '-{0}' is not supported.</value>
     </data>
     <data name="NA1174">
         <value>Duplicate property named '{0}' for command-line argument '{1}'.</value>
