@@ -25,6 +25,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 using NAnt.Core;
@@ -1192,7 +1193,7 @@ namespace NAnt.DotNet.Tasks {
   
             try {
                 // open matching source file
-                sr = File.OpenText(dependentFile);
+                sr = new StreamReader(dependentFile, Encoding.Default, true);
                 // get resource linkage
                 resourceLinkage = PerformSearchForResourceLinkage(sr);
                 // set resource culture
