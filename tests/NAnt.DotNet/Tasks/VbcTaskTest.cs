@@ -121,6 +121,33 @@ namespace Tests.NAnt.DotNet.Tasks {
         }
 
         [Test]
+        public void Test_Define() {
+            string sourceCode = @"
+                Public Class HelloWorld
+                #If CONSOLE Then
+                    Shared Sub Main()
+                #Else
+                    Public Sub Whatever ()
+                #End If
+                #If Not ABC Then
+                        SomeError
+                #End If
+                        Dim table as DataTable = new DataTable()
+                        Dim list as ArrayList = new ArrayList()
+                        Console.WriteLine(""Hello World using VB.NET"")
+                #if DEF Then
+                        AnotherError
+                #End If
+                        Return
+                    End Sub
+                End Class";
+
+            TempFile.CreateWithContents(sourceCode, _sourceFileName);
+
+            RunBuild(FormatBuildFile("define='CONSOLE=True,DEF=False,ABC=True'"));
+        }
+
+        [Test]
         [ExpectedException(typeof(BuildException))]
         public void Test_ManifestResourceName_NonExistingResource() {
             VbcTask vbcTask = new VbcTask();

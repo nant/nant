@@ -110,6 +110,27 @@ namespace Tests.NAnt.DotNet.Tasks {
         }
 
         [Test]
+        public void Test_Define() {
+            string sourceCode = @"
+                public class HelloWorld {
+                #if CONSOLE
+                    static void Main() {
+                #else
+                    public void Whatever () {
+                #endif
+                #if !ABC
+                        SomeError
+                #endif
+                        System.Console.WriteLine(""Hello World using C#""); 
+                     }
+                }";
+
+            TempFile.CreateWithContents(sourceCode, _sourceFileName);
+
+            RunBuild(FormatBuildFile("define='CONSOLE,ABC'"));
+        }
+
+        [Test]
         [ExpectedException(typeof(BuildException))]
         public void Test_ManifestResourceName_NonExistingResource() {
             CscTask cscTask = new CscTask();
