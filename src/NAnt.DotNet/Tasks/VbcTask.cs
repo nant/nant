@@ -336,6 +336,20 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Writes conditional compilation constants to the specified
+        /// <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the conditional compilation constants should be written.</param>
+        protected override void WriteConditionalCompilationConstants(TextWriter writer) {
+            if (Define != null) {
+                string[] constants = Define.Split(',');
+                foreach (string constant in constants) {
+                    WriteOption(writer, "define", constant);
+                }
+            }
+        }
+
+        /// <summary>
         /// Writes the compiler options to the specified <see cref="TextWriter" />.
         /// </summary>
         /// <param name="writer"><see cref="TextWriter" /> to which the compiler options should be written.</param>

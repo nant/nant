@@ -490,9 +490,7 @@ namespace NAnt.DotNet.Tasks {
                     // specify output file format
                     WriteOption(writer, "target", OutputTarget);
 
-                    if (Define != null) {
-                        WriteOption(writer, "define", Define);
-                    }
+                    WriteConditionalCompilationConstants(writer);
 
                     // the name of the output file
                     WriteOption(writer, "out", OutputFile.FullName);
@@ -1008,6 +1006,17 @@ namespace NAnt.DotNet.Tasks {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportWarningsToSuppress"),
                         Project.TargetFramework.Description);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Writes conditional compilation constants to the specified
+        /// <see cref="TextWriter" />.
+        /// </summary>
+        /// <param name="writer">The <see cref="TextWriter" /> to which the conditional compilation constants should be written.</param>
+        protected virtual void WriteConditionalCompilationConstants(TextWriter writer) {
+            if (Define != null) {
+                WriteOption(writer, "define", Define);
             }
         }
 
