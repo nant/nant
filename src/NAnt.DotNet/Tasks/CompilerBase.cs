@@ -68,6 +68,8 @@ namespace NAnt.DotNet.Tasks {
         private bool _supportsPackageReferences;
         private bool _supportsWarnAsErrorList;
         private bool _supportsNoWarnList;
+        private bool _supportsKeyContainer;
+        private bool _supportsKeyFile;
 
         #endregion Private Instance Fields
 
@@ -271,7 +273,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies the key pair container used to strongname the assembly.
         /// </summary>
         [TaskAttribute("keycontainer")]
-        public string KeyContainer {
+        public virtual string KeyContainer {
             get { return _keyContainer; }
             set { _keyContainer = StringUtils.ConvertEmptyToNull(value); }
         }
@@ -280,7 +282,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies a strong name key file.
         /// </summary>
         [TaskAttribute("keyfile")]
-        public FileInfo KeyFile {
+        public virtual FileInfo KeyFile {
             get { return _keyFile; }
             set { _keyFile = value; }
         }
@@ -398,6 +400,26 @@ namespace NAnt.DotNet.Tasks {
             set { _supportsNoWarnList = value; }
         }
 
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "keycontainer" option. The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportskeycontainer")]
+        public virtual bool SupportsKeyContainer {
+            get { return _supportsKeyContainer; }
+            set { _supportsKeyContainer = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "keyfile" option. The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportskeyfile")]
+        public virtual bool SupportsKeyFile {
+            get { return _supportsKeyFile; }
+            set { _supportsKeyFile = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Protected Instance Properties
@@ -508,11 +530,21 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     if (KeyContainer != null) {
-                        WriteOption(writer, "keycontainer", KeyContainer);
+                        if (SupportsKeyContainer) {
+                            WriteOption(writer, "keycontainer", KeyContainer);
+                        } else {
+                            Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportKeyContainer"),
+                                Project.TargetFramework.Description);
+                        }
                     }
 
                     if (KeyFile != null) {
-                        WriteOption(writer, "keyfile", KeyFile.FullName);
+                        if (SupportsKeyFile) {
+                            WriteOption(writer, "keyfile", KeyFile.FullName);
+                        } else {
+                            Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportKeyFile"),
+                                Project.TargetFramework.Description);
+                        }
                     }
 
                     // writes package references to the response file
