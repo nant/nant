@@ -135,6 +135,62 @@ namespace NAnt.DotNet.Tasks {
             set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
+        /// <summary>
+        /// Specifies the key pair container used to strongname the assembly.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override string KeyContainer {
+            get { return base.KeyContainer; }
+            set { base.KeyContainer = value; }
+        }
+
+        /// <summary>
+        /// Specifies a strong name key file.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override FileInfo KeyFile {
+            get { return base.KeyFile; }
+            set { base.KeyFile = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "keycontainer" option. The default is <see langword="false" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override bool SupportsKeyContainer {
+            get { return false; }
+            set { }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "keyfile" option. The default is <see langword="false" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override bool SupportsKeyFile {
+            get { return false; }
+            set { }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
