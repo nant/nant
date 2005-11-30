@@ -297,9 +297,9 @@ namespace NAnt.VSNet {
 
             // add type library
             if (projectConfig.RegisterForComInterop) {
-                string typelib = Path.ChangeExtension(projectConfig.BuildPath, ".tlb");
-				if (!outputFiles.ContainsKey(typelib)) {
-					outputFiles.Add(typelib, Path.GetFileName(typelib));
+                string typeLib = GetTypeLibraryPath(projectConfig);
+				if (!outputFiles.ContainsKey(typeLib)) {
+					outputFiles.Add(typeLib, Path.GetFileName(typeLib));
 				}
             }
 
@@ -333,6 +333,18 @@ namespace NAnt.VSNet {
                     // no longer bother trying to build the project and do not
                     // execute any post-build events
                     return BuildResult.Failed;
+                }
+
+                // check if we need to unregister previous project output
+                if (cs.RegisterForComInterop) {
+                    // if the previous project output exists, then unregister it
+                    if (File.Exists(cs.OutputPath)) {
+                        // get path of type library
+                        string typeLibPath = GetTypeLibraryPath(cs);
+                        // unregister types exposed to COM, and unregister type
+                        // library (if it exists)
+                        UnregisterForComInterop(cs.OutputPath, typeLibPath);
+                    }
                 }
 
                 // ensure temp directory exists
@@ -425,14 +437,6 @@ namespace NAnt.VSNet {
                     outputUpdated = true;
                 }
 
-                // check if we need to build typelib
-                if (cs.RegisterForComInterop) {
-                    string typelibPath = Path.ChangeExtension(cs.BuildPath, ".tlb");
-                    if (outputUpdated || !File.Exists(typelibPath)) {
-                        RegisterFromComInterop(cs.BuildPath, typelibPath);
-                    }
-                }
-
                 #region Process culture-specific resource files
 
                 Log(Level.Verbose, "Building satellite assemblies...");
@@ -492,6 +496,24 @@ namespace NAnt.VSNet {
                 }
 
                 #endregion Process culture-specific resource files
+
+                #region Register project output for COM Interop
+
+                // check if we need to build type library
+                if (cs.RegisterForComInterop) {
+                    // create type library in output dir, and register it using 
+                    // that path to match VS.NET
+                    string typeLibPath = GetTypeLibraryPath(cs);
+                    RegisterForComInterop(cs.BuildPath, typeLibPath);
+
+                    // copy generated type library to object directory to match
+                    // VS.NET
+                    string objTypeLibPath = Path.ChangeExtension(cs.BuildPath, ".tlb");
+                    CopyFile(new FileInfo(typeLibPath), new FileInfo (objTypeLibPath), 
+                        SolutionTask);
+                }
+
+                #endregion Register project output for COM Interop
 
                 #region Deploy project and configuration level output files
 
@@ -642,14 +664,31 @@ namespace NAnt.VSNet {
         #region Private Instance Methods
 
         /// <summary>
-        /// Generates a type library for the specified assembly, and register it.
+        /// Gets the absolute path of the type library for the project 
+        /// output.
         /// </summary>
-        /// <param name="buildPath">The path to the assembly for which a type library must be generated.</param>
+        /// <param name="config">The configuration to build.</param>
+        /// <returns>
+        /// The absolute path of the type library for the project output.
+        /// </returns>
+        private string GetTypeLibraryPath(ConfigurationSettings config) {
+            if (config == null) {
+                throw new ArgumentNullException("config");
+            }
+            return Path.ChangeExtension(config.OutputPath, ".tlb");
+        }
+
+        /// <summary>
+        /// Generates a type library for the specified assembly, registers it.
+        /// </summary>
+        /// <param name="outputPath">The path to the assembly for which a type library must be generated.</param>
         /// <param name="typelibPath">The path of the type library to generate.</param>
         /// <remarks>
         /// The <c>regasm</c> tool is used to generate the type library.
         /// </remarks>
-        private void RegisterFromComInterop(string buildPath, string typelibPath) {
+        private void RegisterForComInterop(string outputPath, string typelibPath) {
+            Log(Level.Verbose, "Registering project output for COM Interop...");
+
             ExecTask exec = new ExecTask();
             exec.Parent = exec.Project = SolutionTask.Project;
             exec.InitializeTaskConfiguration();
@@ -657,9 +696,55 @@ namespace NAnt.VSNet {
                 Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
 
             exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "\"{0}\"", buildPath)));
+                "\"{0}\"", outputPath)));
             exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
                 "/tlb:\"{0}\"", typelibPath)));
+            exec.Arguments.Add(new Argument("/nologo"));
+            if (SolutionTask.Verbose) {
+                exec.Arguments.Add(new Argument("/verbose"));
+            } else {
+                exec.Arguments.Add(new Argument("/silent"));
+            }
+
+            // increment indentation level
+            SolutionTask.Project.Indent();
+            try {
+                exec.Execute();
+            } finally {
+                // restore indentation level
+                SolutionTask.Project.Unindent();
+            }
+        }
+
+        /// <summary>
+        /// Unregister a type library for the specified assembly, and the types
+        /// in that assembly.
+        /// </summary>
+        /// <param name="outputPath">The path to the assembly for which to remove the COM registration.</param>
+        /// <param name="typeLibPath">The path of the type library to unregister.</param>
+        /// <remarks>
+        /// The <c>regasm</c> tool is used to unregister the type library, and
+        /// remove the COM registration for types in the specified assembly.
+        /// </remarks>
+        private void UnregisterForComInterop(string outputPath, string typeLibPath) {
+            Log(Level.Verbose, "Unregistering project output for COM Interop...");
+
+            ExecTask exec = new ExecTask();
+            exec.Parent = exec.Project = SolutionTask.Project;
+            exec.InitializeTaskConfiguration();
+            exec.FileName = FileUtils.CombinePaths(SolutionTask.
+                Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
+
+            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                "\"{0}\"", outputPath)));
+            exec.Arguments.Add(new Argument("/unregister"));
+
+            // if the type library exists, unregister it
+            if (File.Exists(typeLibPath)) {
+                exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                    "/tlb:\"{0}\"", typeLibPath)));
+            }
+
             exec.Arguments.Add(new Argument("/nologo"));
             if (SolutionTask.Verbose) {
                 exec.Arguments.Add(new Argument("/verbose"));
