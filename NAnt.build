@@ -211,6 +211,16 @@
             <arg value="self-test-sourcecontrol" />
         </exec>
     </target>
+    <target name="test-compression" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-test-compression" />
+        </exec>
+    </target>
     <target name="prepare-self-test" depends="init">
         <copy file="${path::combine(nant.location, 'NAnt.exe.config')}" tofile="${path::combine(nant.location, 'nant.tests.config')}" />
         <!-- make sure the config file is writable -->
@@ -233,6 +243,13 @@
         <nant target="test">
             <buildfiles basedir="tests">
                 <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
+            </buildfiles>
+        </nant>
+    </target>
+    <target name="self-test-compression" depends="prepare-self-test">
+        <nant target="test">
+            <buildfiles basedir="tests">
+                <include name="NAnt.Compression/NAnt.Compression.build" />
             </buildfiles>
         </nant>
     </target>
