@@ -81,6 +81,11 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "Functions\CygpathFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\AxImpTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
