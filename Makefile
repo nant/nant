@@ -31,7 +31,7 @@ endif
 NANT=$(MONO) bootstrap/NAnt.exe
 
 
-all: build-bootstrap build-nant
+all: bootstrap build-nant
 
 build-nant: 
 	$(NANT) -f:NAnt.build build
@@ -39,10 +39,10 @@ build-nant:
 clean:
 	rm -fR build bootstrap
 
-install: build-bootstrap
+install: bootstrap
 	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
 
-run-test: build-bootstrap
+run-test: bootstrap
 	$(NANT) -f:NAnt.build test
 	
 bootstrap/NAnt.exe:
@@ -50,7 +50,7 @@ bootstrap/NAnt.exe:
 		-recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 	
 
-build-bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
+bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
 	
 
 setup:

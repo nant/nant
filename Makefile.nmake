@@ -11,22 +11,22 @@ DEFINE = NET
 FRAMEWORK_DIR = net
 !endif
 
-all:  build-bootstrap build-nant
+all:  bootstrap build-nant
 
-build-nant: build-bootstrap
+build-nant: bootstrap
 	$(NANT) -f:NAnt.build build
 
 clean:
 	if exist bootstrap rmdir /S /Q bootstrap
 	if exist build rmdir /S /Q build
 
-install: build-bootstrap
+install: bootstrap
 	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
 
-run-test: build-bootstrap
+run-test: bootstrap
 	$(NANT) -f:NAnt.build test
 	
-build-bootstrap: setup bootstrap\NAnt.exe bootstrap\NAnt.Core.dll bootstrap\NAnt.DotNetTasks.dll bootstrap\NAnt.CompressionTasks.dll bootstrap\NAnt.Win32Tasks.dll
+bootstrap: setup bootstrap\NAnt.exe bootstrap\NAnt.Core.dll bootstrap\NAnt.DotNetTasks.dll bootstrap\NAnt.CompressionTasks.dll bootstrap\NAnt.Win32Tasks.dll
 	
 setup:
 	if not exist bootstrap md bootstrap
