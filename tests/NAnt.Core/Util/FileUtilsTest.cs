@@ -94,6 +94,18 @@ namespace Tests.NAnt.Core.Util {
         }
 
         [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_CombinePaths_Path1_Null() {
+            FileUtils.CombinePaths((string) null, "whatever");
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_CombinePaths_Path2_Null() {
+            FileUtils.CombinePaths("whatever", (string) null);
+        }
+
+        [Test]
         public void Test_CombinePaths() {
             if (!PlatformHelper.IsWin32) {
                 return;
@@ -131,6 +143,22 @@ namespace Tests.NAnt.Core.Util {
             // skip single dot parts
             Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"whatever\.\test.txt"), "#14");
             Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"whatever/./test.txt"), "#15");
+
+            // trailing path seperators
+            Assert.AreEqual(@"c:\test\whatever\test.txt", FileUtils.CombinePaths(@"c:\test\whatever\", @"..\whatever\test.txt"), "#16");
+            Assert.AreEqual(@"c:\whatever\test.txt", FileUtils.CombinePaths(@"c:\", @"whatever\test.txt"), "#17");
+            Assert.AreEqual(@"c:\..\whatever\test.txt", FileUtils.CombinePaths(@"c:\", @"..\whatever\test.txt"), "#18");
+
+            // handle zero-length paths and paths containing only directoy separator char
+            Assert.AreEqual(@"..\whatever\test.txt", FileUtils.CombinePaths(@"", @"..\whatever\test.txt"), "#19");
+            Assert.AreEqual(@"\..\whatever\test.txt", FileUtils.CombinePaths(@"", @"\..\whatever\test.txt"), "#20");
+            Assert.AreEqual(@"c:\test\whatever", FileUtils.CombinePaths(@"c:\test\whatever", @""), "#21");
+            Assert.AreEqual(@"\", FileUtils.CombinePaths(@"c:\test\whatever", @"\"), "#22");
+            Assert.AreEqual(@"\..\whatever\test.txt", FileUtils.CombinePaths(@"\", @"..\whatever\test.txt"), "#23");
+            Assert.AreEqual(@"\..\whatever\test.txt", FileUtils.CombinePaths(@"\", @"\..\whatever\test.txt"), "#24");
+
+            Assert.AreEqual(@"c:\whatever\test.txt", FileUtils.CombinePaths(@"c:\test", @"..\whatever\test.txt"), "#25");
+            Assert.AreEqual(@"c:\whatever\test.txt", FileUtils.CombinePaths(@"c:\test\", "../whatever/test.txt"), "#26");
         }
     }
 }

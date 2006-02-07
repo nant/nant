@@ -212,7 +212,17 @@ namespace NAnt.Core.Util {
                 }
             }
 
-            string[] path1Parts = path1.Split(splitChars);
+            bool trailingSeparator = (path1.Length > 0 && path1.IndexOfAny(splitChars, path1.Length - 1) != -1);
+            
+            // if the first path ends in directory seperator character, then 
+            // we need to omit that trailing seperator when we split the path
+            string[] path1Parts;
+            if (trailingSeparator) {
+                path1Parts = path1.Substring(0, path1.Length - 1).Split(splitChars);
+            } else {
+                path1Parts = path1.Split(splitChars);
+            }
+            
             int counter = path1Parts.Length;
 
             // if the second path starts with parts to move up the directory tree, 
@@ -227,7 +237,8 @@ namespace NAnt.Core.Util {
             //     path2 = test
             ArrayList arList2 = (ArrayList) arList.Clone();
             for (int i = 0; i < arList2.Count; i++) {
-                if ((string) arList2[i] != ".." || counter < 3) {
+                // never discard first part of path1
+                if ((string) arList2[i] != ".." || counter < 2) {
                     break;
                 }
 
@@ -238,6 +249,14 @@ namespace NAnt.Core.Util {
             }
 
             string separatorString = separatorChar.ToString(CultureInfo.InvariantCulture);
+
+            // if path1 only has one remaining part, and the original path had
+            // a trailing separator character or the remaining path had multiple
+            // parts (which were discarded by a relative path in path2), then
+            // add separator to remaining part
+            if (counter == 1 && (trailingSeparator || path1Parts.Length > 1)) {
+                path1Parts[0] += separatorString;
+            }
 
             string combinedPath = Path.Combine(string.Join(separatorString, path1Parts,
                 0, counter), string.Join(separatorString, (String[]) arList.ToArray(typeof(String))));
