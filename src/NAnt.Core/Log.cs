@@ -1239,29 +1239,36 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Writes a character array to the text stream.
+        /// Writes a character array to the buffer.
         /// </summary>
         /// <param name="chars">The character array to write to the text stream.</param>
         public override void Write(char[] chars) {
-            _message += new string(chars, 0, chars.Length -1);
+            Write(new string(chars, 0, chars.Length -1));
         }
 
+        /// <summary>
+        /// Writes a string to the buffer.
+        /// </summary>
+        /// <param name="value"></param>
         public override void Write(string value) {
             _message += value;
         }
 
+        /// <summary>
+        /// Writes an empty string to the logging infrastructure.
+        /// </summary>
         public override void WriteLine() {
             WriteLine(string.Empty);
         }
 
 
         /// <summary>
-        /// Writes a string followed by a line terminator to the text stream.
+        /// Writes a string to the logging infrastructure.
         /// </summary>
         /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
         public override void WriteLine(string value) {
-            _task.Log(OutputLevel, _message + value);
-            _message = string.Empty;
+            _message += value;
+            Flush();
         }
 
         /// <summary>
@@ -1271,16 +1278,26 @@ namespace NAnt.Core {
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
-            _task.Log(OutputLevel, _message + string.Format(
-                CultureInfo.InvariantCulture, line, args));
-            _message = string.Empty;
-        }   
+            _message += string.Format(CultureInfo.InvariantCulture, line, args);
+            Flush();
+        }
 
-        public override void Close() {
+        /// <summary>
+        /// Causes any buffered data to be written to the logging infrastructure.
+        /// </summary>
+        public override void Flush() {
             if (_message.Length != 0) {
                 _task.Log(OutputLevel, _message);
                 _message = string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Closes the current writer and releases any system resources 
+        /// associated with the writer.
+        /// </summary>
+        public override void Close() {
+            Flush();
             base.Close();
         }
 
