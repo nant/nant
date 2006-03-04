@@ -139,6 +139,11 @@ namespace NAnt.VSNet {
                             Path.GetDirectoryName(fileName), subProjectFilename));
                     }
 
+                    // check if project file actually exists
+                    if (!System.IO.File.Exists(fullPath)) {
+                        throw CreateProjectDoesNotExistException(fullPath);
+                    }
+
                     if (ManagedProjectBase.IsEnterpriseTemplateProject(fullPath)) {
                         RecursiveLoadTemplateProject(fullPath);
                     } else {
@@ -726,6 +731,11 @@ namespace NAnt.VSNet {
             return referencesFailedProject;
         }
 
+        protected BuildException CreateProjectDoesNotExistException(string projectPath) {
+            return new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Project '{0}' does not exist.", projectPath));
+        }
+
         #endregion Protected Instance Methods
 
         #region Private Instance Methods
@@ -748,27 +758,6 @@ namespace NAnt.VSNet {
             }
             return false;
         }
-
-/*
-        /// <summary>
-        /// Determines whether any of the project dependencies of the specified
-        /// project has failed to build.
-        /// </summary>
-        /// <param name="project">The <see cref="ProjectBase" /> to analyze.</param>
-        /// <param name="failedProjects"><see cref="Hashtable" /> containing list of projects that failed to build.</param>
-        /// <returns>
-        /// <see langword="true" /> if one of the project dependencies has
-        /// failed to build; otherwise, <see langword="false" />.
-        /// </returns>
-        private bool HasFailedProjectDependency(ProjectBase project, Hashtable failedProjects) {
-            foreach (ProjectBase projectDependency in project.ProjectDependencies) {
-                if (failedProjects.ContainsKey(projectDependency.Guid)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-*/
 
         private void SetProjectBuildConfiguration(ProjectBase project) {
             if (!_htProjectBuildConfigurations.Contains(project.Guid)) {

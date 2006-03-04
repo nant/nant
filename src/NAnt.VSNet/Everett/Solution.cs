@@ -51,6 +51,11 @@ namespace NAnt.VSNet.Everett {
                 string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
                     project);
 
+                // check if project file actually exists
+                if (!System.IO.File.Exists(fullProjectPath)) {
+                    throw CreateProjectDoesNotExistException(fullProjectPath);
+                }
+
                 if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
