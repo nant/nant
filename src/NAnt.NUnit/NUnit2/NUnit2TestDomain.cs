@@ -35,9 +35,11 @@ namespace NAnt.NUnit2.Tasks {
     internal class NUnit2TestDomain {
         #region Public Instance Constructors
 
-        public NUnit2TestDomain(TextWriter outStream, TextWriter errorStream) {
-            _outStream = outStream;
-            _errorStream = errorStream;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NUnit2TestDomain" />
+        /// class.
+        /// </summary>
+        public NUnit2TestDomain() {
         }
 
         #endregion Public Instance Constructors
@@ -84,12 +86,7 @@ namespace NAnt.NUnit2.Tasks {
                     AppDomain.CurrentDomain.Evidence);     
             
             // create testrunner
-            RemoteTestRunner runner = CreateTestRunner(_domain);
-
-            runner.Out = _outStream;
-            runner.Error = _errorStream;
-
-            return runner;
+            return CreateTestRunner(_domain);
         }
 
         public void Unload() {
@@ -158,8 +155,6 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Fields
 
-        private TextWriter _outStream;
-        private TextWriter _errorStream;
         private AppDomain _domain;
 
         #endregion Private Instance Fields

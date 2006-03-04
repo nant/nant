@@ -31,6 +31,8 @@ using System.Xml.Xsl;
 using System.Xml.XPath;
 
 using NUnit.Core;
+using TestCase = NUnit.Core.TestCase;
+using TestOutput = NUnit.Core.TestOutput;
 using NUnit.Framework;
 using NUnit.Util;
 
@@ -179,10 +181,10 @@ namespace NAnt.NUnit2.Tasks {
                     " to ensure forward compatibility with future revisions of NAnt.");
             }
 
-            Version nunitVersion = typeof(TestResult).Assembly.GetName().Version;
+            LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
+            EventListener listener = new EventCollector(logWriter, logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
-                EventListener listener = new NullListener();
                 IFilter categoryFilter = null;
 
                 // include or exclude specific categories
@@ -197,8 +199,7 @@ namespace NAnt.NUnit2.Tasks {
                 }
 
                 foreach (string testAssembly in testElement.TestAssemblies) {
-                    LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-                    NUnit2TestDomain domain = new NUnit2TestDomain(logWriter, logWriter);
+                    NUnit2TestDomain domain = new NUnit2TestDomain();
 
                     try {
                         TestRunner runner = domain.CreateRunner(new FileInfo(testAssembly), testElement.AppConfigFile);
@@ -210,30 +211,22 @@ namespace NAnt.NUnit2.Tasks {
                             test = runner.Load(testAssembly);
                         }
 
-                        if (test == null || runner.FrameworkVersion == null) {
-                            Log(Level.Warning, "Assembly \"{0}\" was not built"
-                                + " with the NUnit framework and/or contains no tests.",
+                        if (test == null) {
+                            Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
                                 testAssembly);
                             continue;
                         }
 
-                        if (runner.FrameworkVersion != nunitVersion) {
-                            Log(Level.Warning, "Assembly \"{0}\" is using version"
-                                + " {1} of the NUnit framework. If any problems"
-                                + " arise, then either rebuild this assembly using"
-                                + " version {2} of the NUnit Framework or use a"
-                                + " binding redirect from version {1} to version"
-                                + " {2} of the NUnit Framework.", testAssembly, 
-                                runner.FrameworkVersion, nunitVersion);
-                        }
-
                         // set category filter
                         if (categoryFilter != null) {
-                            runner.SetFilter(categoryFilter);
+                            runner.Filter = categoryFilter;
                         }
 
                         // run test
                         TestResult result = runner.Run(listener);
+
+                        // flush test output to log
+                        logWriter.Flush();
 
                         // format test results using specified formatters
                         FormatResult(testElement, result);
@@ -251,6 +244,8 @@ namespace NAnt.NUnit2.Tasks {
                             continue;
                         }
 
+                        Version nunitVersion = typeof(TestResult).Assembly.GetName().Version;
+
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             "Failure executing test(s). If you assembly is not built using"
                             + " NUnit version {0}, then ensure you have redirected assembly"
@@ -258,6 +253,9 @@ namespace NAnt.NUnit2.Tasks {
                             + " for more information.", nunitVersion), Location, ex);
                     } finally {
                         domain.Unload();
+
+                        // flush test output to log
+                        logWriter.Flush();
                     }
                 }
             }
@@ -372,5 +370,57 @@ namespace NAnt.NUnit2.Tasks {
         }
         
         #endregion Private Instance Methods
+
+        private class EventCollector : LongLivingMarshalByRefObject, EventListener {
+            private TextWriter outWriter;
+            private TextWriter errorWriter;
+            private string currentTestName;
+
+            public EventCollector(TextWriter outWriter, TextWriter errorWriter) {
+                this.outWriter = outWriter;
+                this.errorWriter = errorWriter;
+                this.currentTestName = string.Empty;
+             }
+
+            public void RunStarted(Test[] tests) {
+            }
+
+            public void RunFinished(TestResult[] results) {
+            }
+
+            public void RunFinished(Exception exception) {
+            }
+
+            public void TestFinished(TestCaseResult testResult) {
+                currentTestName = string.Empty;
+            }
+
+            public void TestStarted(TestCase testCase) {
+                currentTestName = testCase.FullName;
+            }
+
+            public void SuiteStarted(TestSuite suite) {
+            }
+
+            public void SuiteFinished(TestSuiteResult suiteResult) {
+            }
+
+            public void UnhandledException( Exception exception ) {
+                string msg = string.Format("##### Unhandled Exception while running {0}", currentTestName);
+                errorWriter.WriteLine(msg);
+                errorWriter.WriteLine(exception.ToString());
+            }
+
+            public void TestOutput(TestOutput output) {
+                switch (output.Type) {
+                    case TestOutputType.Out:
+                        outWriter.Write(output.Text);
+                        break;
+                    case TestOutputType.Error:
+                        errorWriter.Write(output.Text);
+                        break;
+                }
+            }
+        }
     }
 }
