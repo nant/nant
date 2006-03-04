@@ -75,14 +75,8 @@ namespace NAnt.VSNet {
                 _htPlatformConfigurations[config.FullName] = config;
             }
 
-            XmlNodeList projectReferences = xmlDefinition.SelectNodes("//References/ProjectReference");
-            foreach (XmlElement referenceElem in projectReferences) {
-                ReferenceBase reference = CreateReference(solution, referenceElem);
-                _references.Add(reference);
-            }
-
-            XmlNodeList assemblyReferences = xmlDefinition.SelectNodes("//References/AssemblyReference");
-            foreach (XmlElement referenceElem in assemblyReferences) {
+            XmlNodeList references = xmlDefinition.SelectNodes("//References/child::*");
+            foreach (XmlElement referenceElem in references) {
                 ReferenceBase reference = CreateReference(solution, referenceElem);
                 _references.Add(reference);
             }
@@ -464,6 +458,10 @@ namespace NAnt.VSNet {
                 case "AssemblyReference":
                     // assembly reference
                     return new VcAssemblyReference(xmlDefinition, ReferencesResolver, 
+                        this, GacCache);
+                case "ActiveXReference":
+                    // ActiveX reference
+                    return new VcWrapperReference(xmlDefinition, ReferencesResolver, 
                         this, GacCache);
                 default:
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,

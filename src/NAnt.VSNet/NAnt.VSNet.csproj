@@ -157,6 +157,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ManagedWrapperReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.VSNet.build"
                     BuildAction = "None"
                 />
@@ -246,12 +251,17 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "VcWrapperReference.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "WebDavClient.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "WrapperReference.cs"
+                    RelPath = "WrapperReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -590,7 +590,7 @@ namespace NAnt.VSNet {
                     solution, ProjectSettings.TemporaryFiles, GacCache, OutputDir);
             } else if (xmlDefinition.Attributes["WrapperTool"] != null) {
                 // wrapper
-                return new WrapperReference(xmlDefinition, ReferencesResolver, 
+                return new ManagedWrapperReference(xmlDefinition, ReferencesResolver, 
                     this, GacCache, ProjectSettings);
             } else {
                 // assembly reference
