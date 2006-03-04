@@ -70,8 +70,8 @@ namespace NAnt.NUnit2.Tasks {
     ///         <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
     ///             <dependentAssembly>
     ///                 <assemblyIdentity name="nunit.framework" publicKeyToken="96d09a1eb7f44a77" culture="Neutral" /> 
-    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.2.0.0" /> 
-    ///                 <bindingRedirect oldVersion="2.1.4.0" newVersion="2.2.0.0" /> 
+    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.2.7.0" /> 
+    ///                 <bindingRedirect oldVersion="2.1.4.0" newVersion="2.2.7.0" /> 
     ///             </dependentAssembly>
     ///         </assemblyBinding>
     ///     </runtime>
