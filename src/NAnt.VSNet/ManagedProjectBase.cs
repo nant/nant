@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core;
@@ -1070,8 +1071,14 @@ namespace NAnt.VSNet {
 
         public static bool IsEnterpriseTemplateProject(string fileName) {
             try {
-                XmlDocument doc = LoadXmlDocument(fileName);
-                return doc.DocumentElement.Name.ToString(CultureInfo.InvariantCulture) == "EFPROJECT";
+                using (StreamReader sr = new StreamReader(fileName, Encoding.Default, true)) {
+                    XmlTextReader xtr = new XmlTextReader(sr);
+                    xtr.MoveToContent();
+                    if (xtr.NodeType == XmlNodeType.Element && xtr.LocalName == "EFPROJECT") {
+                        return true;
+                    }
+                }
+                return false;
             } catch (XmlException) {
                 // when the project isn't a valid XML document, it definitely
                 // isn't an enterprise template project
