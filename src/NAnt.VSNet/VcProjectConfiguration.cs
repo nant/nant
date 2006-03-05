@@ -765,9 +765,14 @@ namespace NAnt.VSNet {
             /// </value>
             public FileInfo ImportLibrary {
                 get {
+                    string defaultImportLibrary = null;
+                    if (!Project.IsManaged(_projectConfig.Name)) {
+                        defaultImportLibrary = "$(OutDir)/$(TargetName).lib";
+                    }
+
                     string importLibrary = StringUtils.ConvertEmptyToNull(
                         _projectConfig.GetToolSetting(VcConfigurationBase.LinkerTool, 
-                        "ImportLibrary"));
+                        "ImportLibrary", defaultImportLibrary));
                     if (importLibrary == null) {
                         // no import library must be generated
                         return null;
