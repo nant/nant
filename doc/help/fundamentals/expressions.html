@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+﻿<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Language" content="en-ca" />
@@ -93,21 +93,21 @@
             process. Expressions can access project <a href="properties.html">properties</a>
             and call builtin or user-defined <a href="../functions/index.html">functions</a>.</p>
         <p>
-        NAnt provides a rich set of bulitin functions, that allow you to:<p>
-            <ul>
-                <li>
-                    manipulate strings</li>
-                <li>
-                    manipulate date/time values</li>
-                <li>
-                    manipulate path names</li>
-                <li>
-                    read the properties of files/directories</li>
-                <li>
-                    access current build information and more</li>
-                <li>
-                    and more</li>
-            </ul>
+        NAnt provides a rich set of bulitin functions, that allow you to:</p>
+        <ul>
+            <li>
+                manipulate strings</li>
+            <li>
+                manipulate date/time values</li>
+            <li>
+                manipulate path names</li>
+            <li>
+                read the properties of files/directories</li>
+            <li>
+                access current build information and more</li>
+            <li>
+                and more</li>
+        </ul>
         <p>For a full list of supported functions, click <a href="../functions/index.html">here</a>.</p>
         <h2><a id="expression-syntax" />2 Expression Syntax</h2>
         <p>Expressions can be used in all task arguments, by using <code>${...}</code> notation. 
@@ -117,11 +117,16 @@
             functions, use <code>prefix::function-name(argument1, ..., argumentN)</code> syntax. 
             To access properties, you simply use their names without any prefix or suffix. 
             See the examples section below for more information.</p>
+        <p><b>NOTE</b>: Expressions are often used in XML attributes. The grammar specified in this 
+            section applies to the attribute value after XML 1.0 normalization. So, for 
+            example, if the grammar uses the character <code>&lt;</code>, this must not 
+            appear in the XML source as <code>&lt;</code> but must be quoted according to 
+            XML 1.0 rules by, for example, entering it as <code>&amp;lt;</code>.
+        </p>
         <h3>Examples:</h3>
         <ol>
             <li>
                 Accessing a property:
-                <p>
                 <p>
                     <code>&lt;property name="build.version" value="3" /&gt;</code><br />
                     <code>&lt;echo message="The current date is:
@@ -131,7 +136,6 @@
             </li>
             <li>
                 Calling a function
-                <p>
                 <p>
                     <code>&lt;echo message="The current date is:
                         <span class="expression">${<a href="../functions/datetime.now.html">datetime::now</a>()}</span>" 
@@ -161,7 +165,7 @@
                         &nbsp;&nbsp;&nbsp;&nbsp;&lt;echo message="The version file
                         <span class="expression">${filename}</span>
                         doesn't exist or is empty!" /&gt;<br />
-                        &lt;/if&gt;</br> </code>
+                        &lt;/if&gt;<br/> </code>
                 </p>
                 <p>This will check for the existence of a file <i>version.txt</i>
                 in a directory specified by myprj.basedir. Note that this makes use of the 
@@ -169,6 +173,7 @@
                 of the file and check its length in the same expression. ( ie like C, NAnt will 
                 not evaluate the second part of an 'or' expression if the first evaluates to 
                 <b>true</b> )
+                </p>
             </li>
             <li>
                 Using expressions to conditionally execute tasks
@@ -188,17 +193,17 @@
                     This will rebuild the C# library only if it was last rebuilt more than an hour 
                     ago.
                 </p>
+            </li>
         </ol>
         <h2><a id="datatypes" />3 Data types</h2>
         <p>Expressions can access, pass and return values of the following types:</p>
         <div class="table">
             <table>
                 <tr>
-                </tr>
-                <th>
-                    Type</th>
-                <th>
-                    Allowed values</th>
+                    <th>
+                        Type</th>
+                    <th>
+                        Allowed values</th>
                 </tr>
                 <tr>
                     <td>int</td>
@@ -255,7 +260,7 @@
         <p><b>NOTE</b>: Because NAnt supports properties whose names can contain dashes, 
             there's a possible ambiguity between the subtraction of two properties and 
             accessing a single property with a name containing a dash:</p>
-        <p></p>
+        <p>
         <code>aaa-bbb</code> - this is ambiguous. It could either be <u>property <code>aaa</code>
             MINUS property <code>bbb</code></u> or <u>property <code>aaa-bbb</code></u>.</p>
         <p>To avoid confusion, it's recommended to surround the subtraction operator (or 
@@ -1609,7 +1614,7 @@
         </p>
         <h5>Operands</h5>
         <div class="table">
-            <table ID="Table1">
+            <table>
                 <colgroup>
                     <col />
                     <col />
