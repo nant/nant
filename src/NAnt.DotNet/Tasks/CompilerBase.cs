@@ -1284,9 +1284,9 @@ namespace NAnt.DotNet.Tasks {
             foreach (string manifestname in resourceFiles.Keys) {
                 string resourcefile = (string) resourceFiles[manifestname];
                 // add resources to embed 
-                Argument arg = new Argument();
-                arg.Value = string.Format(CultureInfo.InvariantCulture, "/embed:\"{0}\",{1}", resourcefile, manifestname);
-                alink.Arguments.Add(arg);
+                EmbeddedResource embeddedResource = new EmbeddedResource(
+                    resourcefile, manifestname);
+                alink.EmbeddedResources.Add(embeddedResource);
             }
             
             // increment indentation level

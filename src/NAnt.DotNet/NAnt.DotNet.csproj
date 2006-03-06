@@ -224,6 +224,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\EmbeddedResource.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\EmbeddedResourceCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\NamespaceImport.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -81,6 +81,7 @@ namespace NAnt.DotNet.Tasks {
         private string _product;
         private string _productVersion;
         private FileSet _resources = new FileSet();
+        private EmbeddedResourceCollection _embeddedResources = new EmbeddedResourceCollection();
         private FileInfo _templateFile;
         private string _title;
         private string _trademark;
@@ -346,6 +347,17 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// The set of compiled resources to embed.
+        /// </summary>
+        /// <remarks>
+        /// Do not yet expose this to build authors.
+        /// </remarks>
+        public EmbeddedResourceCollection EmbeddedResources {
+            get { return _embeddedResources; }
+            set { _embeddedResources = value; }
+        }
+
+        /// <summary>
         /// Indicates whether the assembly linker for a given target framework
         /// supports the "template" option, which takes an assembly from which
         /// to get all options except the culture field.
@@ -468,7 +480,8 @@ namespace NAnt.DotNet.Tasks {
 
                 try {
                     Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
-                        Resources.FileNames.Count, OutputFile.FullName);
+                        Resources.FileNames.Count + EmbeddedResources.Count, 
+                        OutputFile.FullName);
 
                     // write output target
                     writer.WriteLine("/target:\"{0}\"", OutputTarget);
@@ -592,6 +605,12 @@ namespace NAnt.DotNet.Tasks {
                         writer.WriteLine("/embed:\"{0}\"", resourceFile);
                     }
 
+                    // write embedded resources to response file
+                    foreach (EmbeddedResource embeddedResource in EmbeddedResources) {
+                        writer.WriteLine("/embed:\"{0}\",{1}", embeddedResource.File,
+                            embeddedResource.ManifestResourceName);
+                    }
+
                     // suppresses display of the sign-on banner
                     writer.WriteLine("/nologo");
 
@@ -690,6 +709,17 @@ namespace NAnt.DotNet.Tasks {
             // check if win32 resource file was updated
             if (Win32Res != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Res.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
+                    return true;
+                }
+            }
+
+            // check if embedded resource files were updated
+            foreach (EmbeddedResource embeddedResource in EmbeddedResources) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(embeddedResource.File, 
+                    OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                         fileName);
