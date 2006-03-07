@@ -26,6 +26,16 @@
         </table>
         <h1>Tasks</h1>
         <!-- @PRELIMINARY_NOTICE@ -->
+        <h2><a id="contents" />Contents</h2>
+        <div>
+            1 <a href="#introduction">Introduction</a><br />
+            2 <a href="#taskloader">Loading custom tasks</a><br />
+            <div style="margin-left: 20px;">
+                2.1 <a href="#taskloader-implicitly">Implictly</a><br/>            
+                2.2 <a href="#taskloader-explicitly">Explicitly</a><br/>
+            </div>
+        </div>
+        <h2><a id="introduction" />1 Introduction</h2>        
         <p>A task is a piece of code that can be executed.</p>
         <p>A task can have multiple attributes (or arguments, if you prefer).&nbsp; The 
             value of an attribute may contain references to a <a href="properties.html">property</a>.&nbsp; 
@@ -37,5 +47,104 @@
             name, and <i>value#</i> is the value for this attribute.</p>
         <p><img height="9" alt=">" src="../images/bullet.gif" width="5" />&nbsp;For 
             more information see the <a href="../tasks/index.html">Task Reference</a>.</p>
+        <h2><a id="taskloader" />2 Loading custom tasks</h2>
+        <h3><a id="taskloader-implicitly" />4.1 Implictly</h3>
+        <p>
+            When starting NAnt, the set of assemblies that will automatically be scanned for tasks can be devided into the following categories:
+        </p>
+        <ol>
+            <li>
+                OS-specific assemblies
+                <p>
+                    Depending on the OS, assemblies matching the following patterns will be scanned:
+                </p>
+                <div style="margin-left: 20px;">
+                    <p>
+                    <b>Windows</b>
+                    </p>
+                    <div style="margin-left: 20px;">                 
+                        include<br/><br/>
+                        *Tasks.dll<br/>
+                        *Tests.dll<br/>
+                        tasks/*.dll<br/><br/>
+                        exclude<br/><br/>
+                        NAnt.MSNetTasks.dll<br/>
+                        NAnt.MSNet.Tests.dll<br/>
+                    </div>
+                </div>
+                <div style="margin-left: 20px;">
+                    <p>
+                    <b>Unix</b>
+                    </p>
+                    <div style="margin-left: 20px;">
+                        TODO
+                    </div>
+                </div>
+                <br />
+            </li>
+            <li>
+                Runtime framework specific assemblies
+                <p>
+                    Depending on the runtime framework on which NAnt is running, some additional directories are scanned.
+                </p>
+                <p>
+                    In general, the following pattern applies:
+                </p>
+                <div style="margin-left: 20px;">                
+                    tasks/&lt;framework family&gt;/*.dll<br/>
+                    tasks/&lt;framework family&gt;/&lt;framework version&gt;/**/*.dll<br/>
+                </div>
+                <p>
+                    So, for .NET 1.0 you'd get the following pattern:
+                </p>
+                <div style="margin-left: 20px;">                                
+                    tasks/net/*.dll<br />
+                    tasks/net/1.0/**/*.dll
+                </div>
+                <p>
+                    Note:
+                </p>
+                <p>
+                    For all .NET framework versions the following additional patterns are also added to include a task assembly (and its corresponding test assembly) which is specific for Microsoft NET:
+                </p>                    
+                <div style="margin-left: 20px;">                                
+                    NAnt.MSNetTasks.dll</br/>
+                    NAnt.MSNet.Tests.dll<br />
+                </div>
+            </li>
+           
+        </ol>
+        <p>
+           Finally, whenever a project is started NAnt will scan the following directories for assemblies that match the *.dll pattern:
+        </p>
+        <ul>
+            <li>
+                &lt;Project Base Directory&gt;\
+            </li>
+            <li>
+                &lt;Project Base Directory&gt;\&lt;framework family&gt;\
+            </li>
+            <li>
+                &lt;Project Base Directory&gt;\&lt;framework family&gt;\&lt;framework version&gt;
+            </li>
+        </ul>
+        <p>
+            For a project file located in &quot;c:\projects\log4net&quot; with NAnt running on the Microsoft .NET 2.0 runtime, NAnt would end-up scanning the following project-level directories:
+        </p>
+        <ul>
+            <li>
+                c:\projects\log4net
+            </li>
+            <li>
+                c:\projects\log4net\net\
+            </li>
+            <li>
+                c:\projects\log4net\net\2.0
+            </li>
+        </ul>
+        <h3><a id="taskloader-explicitly" />4.1 Explicitly</h3>
+        <p>
+            TO-DO
+        </p>
     </body>
 </html>
