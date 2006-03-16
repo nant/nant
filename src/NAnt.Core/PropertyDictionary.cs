@@ -280,6 +280,9 @@ namespace NAnt.Core {
         #region Internal Instance Methods
 
         internal string GetPropertyValue(string propertyName) {
+            // check whether (built-in) property is deprecated
+            CheckDeprecation(propertyName);
+
             return (string) Dictionary[propertyName];
         }
 
