@@ -39,7 +39,8 @@ namespace NAnt.Core {
     public sealed class TypeFactory {
         #region Private Static Fields
 
-        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);        private static TaskBuilderCollection _taskBuilders = new TaskBuilderCollection();
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static TaskBuilderCollection _taskBuilders = new TaskBuilderCollection();
         private static DataTypeBaseBuilderCollection _dataTypeBuilders = new DataTypeBaseBuilderCollection();
         private static FilterBuilderCollection _filterBuilders = new FilterBuilderCollection();
         private static Hashtable _methodInfoCollection = new Hashtable();
@@ -430,7 +431,11 @@ namespace NAnt.Core {
             // add a true property for each task (use in build to test for task existence).
             // add a property for each task with the assembly location.
             p.Properties.AddReadOnly("nant.tasks." + tb.TaskName, Boolean.TrueString);
-            p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.Assembly.Location);
+            try {
+                p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.Assembly.Location);
+            } catch (NotSupportedException) {
+                // Assembly.Location is not supported in dynamic assemblies
+            }
         }
 
         #endregion Internal Static Methods
@@ -460,7 +465,7 @@ namespace NAnt.Core {
                     if (TaskBuilders[tb.TaskName] == null) {
                         task.Log(Level.Debug, string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("String_AddingTask"), tb.TaskName, 
-                            tb.Assembly.Location, tb.ClassName));
+                            GetAssemblyLocation(tb.Assembly), tb.ClassName));
 
                         TaskBuilders.Add(tb);
                         foreach(WeakReference wr in _projects) {
@@ -512,7 +517,7 @@ namespace NAnt.Core {
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
-                            dtb.Assembly.Location, dtb.ClassName));
+                            GetAssemblyLocation(dtb.Assembly), dtb.ClassName));
 
                         DataTypeBuilders.Add(dtb);
                     }
@@ -629,7 +634,7 @@ namespace NAnt.Core {
                         FilterBuilders.Add(builder);
 
                         task.Log(Level.Debug, "Adding filter \"{0}\" from {1}:{2}.", 
-                            builder.FilterName, builder.Assembly.Location, 
+                            builder.FilterName, GetAssemblyLocation(builder.Assembly), 
                             builder.ClassName);
                     }
 
@@ -643,6 +648,16 @@ namespace NAnt.Core {
                 task.Log(Level.Error, "Failure scanning \"{0}\" for filters.", 
                     type.AssemblyQualifiedName);
                 throw;
+            }
+        }
+
+        private static string GetAssemblyLocation(Assembly assembly) {
+            try {
+                return assembly.Location;
+            } catch (NotSupportedException) {
+                // Location is not supported in dynamic assemblies, so instead
+                // return name
+                return assembly.GetName().Name;
             }
         }
 
