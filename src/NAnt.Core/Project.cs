@@ -174,7 +174,7 @@ namespace NAnt.Core {
             _configurationNode = GetConfigurationNode();
 
             // initialize project
-            CtorHelper(doc, threshold, indentLevel);
+            CtorHelper(doc, threshold, indentLevel, Optimizations.None);
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace NAnt.Core {
             _configurationNode = configurationNode;
 
             // initialize project
-            CtorHelper(doc, threshold, indentLevel);
+            CtorHelper(doc, threshold, indentLevel, Optimizations.None);
         }
 
         /// <summary>
@@ -214,30 +214,13 @@ namespace NAnt.Core {
         /// If the source is a uri of form 'file:///path' then use the path part.
         /// </remarks>
         public Project(string uriOrFilePath, Level threshold, int indentLevel) {
-            string path = uriOrFilePath;
-
-            //if the source is not a valid uri, pass it thru.
-            //if the source is a file uri, pass the localpath of it thru.
-            try {
-                Uri testURI = new Uri(uriOrFilePath);
-
-                if (testURI.IsFile) {
-                    path = testURI.LocalPath;
-                }
-            } catch (Exception ex) {
-                logger.Debug("Error creating URI in project constructor. Moving on... ", ex);
-            } finally {
-                if (path == null) {
-                    path = uriOrFilePath;
-                }
-            }
-
             // use NAnt settings from application configuration file for loading 
             // internal configuration settings
             _configurationNode = GetConfigurationNode();
 
             // initialize project
-            CtorHelper(LoadBuildFile(path), threshold, indentLevel);
+            CtorHelper(LoadBuildFile(uriOrFilePath), threshold, indentLevel,
+                Optimizations.None);
         }
 
         /// <summary>
@@ -258,33 +241,75 @@ namespace NAnt.Core {
         /// If the source is a uri of form 'file:///path' then use the path part.
         /// </remarks>
         public Project(string uriOrFilePath, Level threshold, int indentLevel, XmlNode configurationNode) {
-            string path = uriOrFilePath;
-
-            //if the source is not a valid uri, pass it thru.
-            //if the source is a file uri, pass the localpath of it thru.
-            try {
-                Uri testURI = new Uri(uriOrFilePath);
-
-                if (testURI.IsFile) {
-                    path = testURI.LocalPath;
-                }
-            } catch (Exception ex) {
-                logger.Debug("Error creating URI in project constructor. Moving on... ", ex);
-            } finally {
-                if (path == null) {
-                    path = uriOrFilePath;
-                }
-            }
-
             // set configuration node to use for loading internal configuration 
             // settings
             _configurationNode = configurationNode;
 
             // initialize project
-            CtorHelper(LoadBuildFile(path), threshold, indentLevel);
+            CtorHelper(LoadBuildFile(uriOrFilePath), threshold, indentLevel,
+                Optimizations.None);
         }
 
         #endregion Public Instance Constructors
+
+        #region Internal Instance Constructors
+
+        /// <summary>
+        /// Initializes a <see cref="Project" /> as subproject of the specified
+        /// <see cref="Project" />.
+        /// </summary>
+        /// <param name="uriOrFilePath">
+        /// <para>The full path to the build file.</para>
+        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// </param>
+        /// <param name="parent">The parent <see cref="Project" />.</param>
+        /// <remarks>
+        /// Optimized for framework initialization projects, by skipping automatic
+        /// discovery of extension assemblies and framework configuration.
+        /// </remarks>
+        internal Project(string uriOrFilePath, Project parent) {
+            // set configuration node to use for loading internal configuration 
+            // settings
+            _configurationNode = parent.ConfigurationNode;
+
+            // initialize project
+            CtorHelper(LoadBuildFile(uriOrFilePath), parent.Threshold, 
+                parent.IndentationLevel + 1, Optimizations.SkipFrameworkConfiguration);
+
+            // add listeners of current project to new project
+            AttachBuildListeners(parent.BuildListeners);
+
+            // inherit discovered frameworks from current project
+            foreach (FrameworkInfo framework in parent.Frameworks) {
+                Frameworks.Add(framework.Name, framework);
+            }
+
+            // have the new project inherit the runtime framework from the 
+            // current project
+            RuntimeFramework = parent.RuntimeFramework;
+
+            // have the new project inherit the current framework from the 
+            // current project 
+            TargetFramework = parent.TargetFramework;
+        }
+
+        /// <summary>
+        /// Initializes a <see cref="Project" /> with <see cref="Threshold" />
+        /// set to <see cref="Level.None" />, and <see cref="IndentationLevel" />
+        /// set to 0.
+        /// </summary>
+        /// <param name="doc">An <see cref="XmlDocument" /> containing the build script.</param>
+        /// <remarks>
+        /// Optimized for framework initialization projects, by skipping automatic
+        /// discovery of extension assemblies and framework configuration.
+        /// </remarks>
+        internal Project(XmlDocument doc) {
+            // initialize project
+            CtorHelper(doc, Level.None, 0, Optimizations.SkipAutomaticDiscovery |
+                Optimizations.SkipFrameworkConfiguration);
+        }
+    
+        #endregion Internal Instance Constructors
 
         #region Public Instance Properties
 
@@ -1177,8 +1202,9 @@ namespace NAnt.Core {
         /// <param name="doc">An <see cref="XmlDocument" /> representing the project definition.</param>
         /// <param name="threshold">The project message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
+        /// <param name="optimization">Optimization flags.</param>
         /// <exception cref="ArgumentNullException"><paramref name="doc" /> is <see langword="null" />.</exception>
-        protected void CtorHelper(XmlDocument doc, Level threshold, int indentLevel) {
+        private void CtorHelper(XmlDocument doc, Level threshold, int indentLevel, Optimizations optimization) {
             if (doc == null) {
                 throw new ArgumentNullException("doc");
             }
@@ -1199,9 +1225,6 @@ namespace NAnt.Core {
 
             // set the project message threshold
             Threshold = threshold;
-
-            // load project-level extensions assemblies
-            TypeFactory.AddProject(this);
 
             // add default logger
             CreateDefaultLogger();
@@ -1267,9 +1290,15 @@ namespace NAnt.Core {
             // base directory must be rooted.
             BaseDirectory = newBaseDir;
 
-            // load settings out of settings file
-            ProjectSettingsLoader psl = new ProjectSettingsLoader(this);
-            psl.ProcessSettings();
+            // load project-level extensions assemblies
+            bool scan = ((optimization & Optimizations.SkipAutomaticDiscovery) == 0);
+            TypeFactory.AddProject(this, scan);
+
+            if ((optimization & Optimizations.SkipFrameworkConfiguration) == 0) {
+                // load settings out of settings file
+                ProjectSettingsLoader psl = new ProjectSettingsLoader(this);
+                psl.ProcessSettings();
+            }
 
             // set here and in nant:Main
             Assembly ass = Assembly.GetExecutingAssembly();
@@ -1354,23 +1383,42 @@ namespace NAnt.Core {
         /// Creates a new <see cref="XmlDocument" /> based on the project 
         /// definition.
         /// </summary>
-        /// <param name="source">The source of the document.<para>Any form that is valid for <see cref="XmlDocument.Load(string)" /> can be used here.</para></param>
+        /// <param name="uriOrFilePath">
+        /// <para>The full path to the build file.</para>
+        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// </param>
         /// <returns>
         /// An <see cref="XmlDocument" /> based on the specified project 
         /// definition.
         /// </returns>
-        private XmlDocument LoadBuildFile(string source) {
+        private XmlDocument LoadBuildFile(string uriOrFilePath) {
+            string path = uriOrFilePath;
+
+            //if the source is not a valid uri, pass it thru.
+            //if the source is a file uri, pass the localpath of it thru.
+            try {
+                Uri testURI = new Uri(uriOrFilePath);
+
+                if (testURI.IsFile) {
+                    path = testURI.LocalPath;
+                }
+            } catch (Exception ex) {
+                logger.Debug("Error creating URI in project constructor. Moving on... ", ex);
+            } finally {
+                if (path == null) {
+                    path = uriOrFilePath;
+                }
+            }
+
             XmlDocument doc = new XmlDocument();
 
             try {
-                doc.Load(source);
+                doc.Load(path);
             } catch (XmlException ex) {
-                Location location = new Location(source, ex.LineNumber, ex.LinePosition);
-
+                Location location = new Location(path, ex.LineNumber, ex.LinePosition);
                 throw new BuildException("Error loading buildfile.", location, ex);
             } catch (Exception ex) {
-                Location location = new Location(source);
-
+                Location location = new Location(path);
                 throw new BuildException("Error loading buildfile.", location, ex);
             }
             return doc;
@@ -1591,5 +1639,30 @@ namespace NAnt.Core {
 
             return new BuildException(sb.ToString());
         }
+    }
+
+    /// <summary>
+    /// Allow the project construction to be optimized.
+    /// </summary>
+    /// <remarks>
+    /// Use this with care!
+    /// </remarks>
+    internal enum Optimizations {
+        /// <summary>
+        /// Do not perform any optimizations.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// The project base directory must not be automatically scanned 
+        /// for extension assemblies.
+        /// </summary>
+        SkipAutomaticDiscovery = 1,
+
+        /// <summary>
+        /// Do not scan the project configuration for frameworks, and 
+        /// do not configure the runtime and target framework.
+        /// </summary>
+        SkipFrameworkConfiguration = 2,
     }
 }

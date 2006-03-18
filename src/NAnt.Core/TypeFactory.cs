@@ -208,8 +208,26 @@ namespace NAnt.Core {
         /// and its <c>tasks</c> subdirectory.
         /// </summary>
         /// <param name="project">The project to work from.</param>
-        public static void AddProject(Project project) {
-            if (!StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
+        internal static void AddProject(Project project) {
+            AddProject(project, true);
+        }
+
+        /// <summary>
+        /// Registers the project with <see cref="TypeFactory" />, and optionally
+        /// scan the <see cref="Project.BaseDirectory" /> for extension assemblies.
+        /// </summary>
+        /// <param name="project">The project to work from.</param>
+        /// <param name="scan">Specified whether to scan the <see cref="Project.BaseDirectory" /> for extension assemblies.</param>
+        internal static void AddProject(Project project, bool scan) {
+            // create weakref to project. It is possible that project may go 
+            // away, we don't want to hold it
+            _projects.Add(new WeakReference(project));
+
+            foreach (TaskBuilder tb in TaskBuilders) {
+                UpdateProjectWithBuilder(project, tb);
+            }
+
+            if (scan && !StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
                 LoadTasksTask loadTasks = new LoadTasksTask();
                 loadTasks.Project = project;
                 loadTasks.NamespaceManager = project.NamespaceManager;
@@ -217,9 +235,6 @@ namespace NAnt.Core {
                 loadTasks.FailOnError = false;
                 loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
                     Level.Debug : Level.Warning;
-
-                // scan project base directory
-                ScanDir(project.BaseDirectory, loadTasks, false);
 
                 // scan framework-neutral assemblies
                 ScanDir(Path.Combine(project.BaseDirectory, "tasks"), loadTasks,
@@ -239,14 +254,6 @@ namespace NAnt.Core {
                 ScanDir(Path.Combine(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
                     project.RuntimeFramework.Family), project.RuntimeFramework.Version.ToString()), 
                     loadTasks, false);
-            }
-
-            // create weakref to project. It is possible that project may go 
-            // away, we don't want to hold it
-            _projects.Add(new WeakReference(project));
-
-            foreach (TaskBuilder tb in TaskBuilders) {
-                UpdateProjectWithBuilder(project, tb);
             }
         }
 

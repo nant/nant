@@ -255,7 +255,7 @@ namespace NAnt.Core {
                             projectDoc.Load(sr);
 
                             // create and execute project
-                            frameworkProject = new Project(projectDoc, Level.None, 0, (XmlNode) null);
+                            frameworkProject = new Project(projectDoc);
                             frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                             frameworkProject.Execute();
                         }
