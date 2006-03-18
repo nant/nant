@@ -20,6 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.Zip;
@@ -50,6 +51,7 @@ namespace NAnt.Compression.Tasks {
         private FileInfo _zipfile;
         private DirectoryInfo _toDir;
         private bool _overwrite = true;
+        private Encoding _encoding;
 
         #endregion Private Instance Fields
 
@@ -88,6 +90,21 @@ namespace NAnt.Compression.Tasks {
             set { _overwrite = value; }
         }
 
+        /// <summary>
+        /// The character encoding that has been used for filenames inside the
+        /// zip file. The default is the system's OEM code page.
+        /// </summary>
+        [TaskAttribute("encoding")]
+        public Encoding Encoding {
+            get {
+                if (_encoding == null) {
+                    _encoding = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
+                }
+                return _encoding; 
+            }
+            set { _encoding = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -103,6 +120,9 @@ namespace NAnt.Compression.Tasks {
                         "Zip file '{0}' does not exist.", ZipFile.FullName),
                         Location);
                 }
+
+                // set encoding of filenames and comment
+                ZipConstants.DefaultCodePage = Encoding.CodePage;
 
                 using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
                     Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 

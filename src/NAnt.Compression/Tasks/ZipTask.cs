@@ -22,6 +22,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
@@ -69,6 +70,7 @@ namespace NAnt.Compression.Tasks {
         private string _comment;
         private bool _includeEmptyDirs;
         private DuplicateHandling _duplicateHandling = DuplicateHandling.Add;
+        private Encoding _encoding;
         private Hashtable _addedDirs = new Hashtable();
         private Hashtable _fileEntries = new Hashtable();
 
@@ -145,6 +147,21 @@ namespace NAnt.Compression.Tasks {
             set { _duplicateHandling = value; }
         }
 
+        /// <summary>
+        /// The character encoding to use for filenames and comment inside the
+        /// zip file. The default is the system's OEM code page.
+        /// </summary>
+        [TaskAttribute("encoding")]
+        public Encoding Encoding {
+            get {
+                if (_encoding == null) {
+                    _encoding = Encoding.GetEncoding(CultureInfo.CurrentCulture.TextInfo.OEMCodePage);
+                }
+                return _encoding; 
+            }
+            set { _encoding = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -159,6 +176,9 @@ namespace NAnt.Compression.Tasks {
                 ZipFileSets.FileCount, ZipFile.FullName);
 
             try {
+                // set encoding to use for filenames and comment
+                ZipConstants.DefaultCodePage = Encoding.CodePage;
+
                 zOutstream = new ZipOutputStream(ZipFile.Create());
 
                 // set compression level
@@ -223,7 +243,7 @@ namespace NAnt.Compression.Tasks {
                                     throw new BuildException(string.Format(
                                         CultureInfo.InvariantCulture, 
                                         "Duplicate file '{0}' was found.", 
-                                        entryName), Location);
+                                        entryName), Location.UnknownLocation);
                                 case DuplicateHandling.Preserve:
                                     // skip current entry
                                     continue;
@@ -231,7 +251,8 @@ namespace NAnt.Compression.Tasks {
                                     throw new BuildException(string.Format(
                                         CultureInfo.InvariantCulture, 
                                         "Duplicate value '{0}' is not supported.", 
-                                        DuplicateHandling.ToString()), Location);
+                                        DuplicateHandling.ToString()), 
+                                        Location.UnknownLocation);
                             }
                         }
 
