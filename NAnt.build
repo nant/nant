@@ -222,7 +222,7 @@
         </exec>
     </target>
     <target name="prepare-self-test" depends="init">
-        <copy file="${path::combine(nant::get-base-directory(), 'NAnt.exe.config')}" tofile="${path::combine(nant.location, 'nant.tests.config')}" />
+        <copy file="${path::combine(nant::get-base-directory(), 'NAnt.exe.config')}" tofile="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
         <!-- make sure the config file is writable -->
         <attrib file="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" readonly="false" />
         <!-- ensure the tests target the current framework -->
