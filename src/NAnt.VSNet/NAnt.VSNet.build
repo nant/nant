@@ -8,7 +8,7 @@
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}Tasks.dll" doc="${build.dir}/bin/${nant.project.name}Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}Tasks.dll" doc="${build.dir}/bin/${project::get-name()}Tasks.xml">
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />

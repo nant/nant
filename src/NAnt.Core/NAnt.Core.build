@@ -8,7 +8,7 @@
     -->
     <target name="build">
         <!-- build NAnt.Core -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.dll" doc="${build.dir}/bin/${nant.project.name}.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.dll" doc="${build.dir}/bin/${project::get-name()}.xml">
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />

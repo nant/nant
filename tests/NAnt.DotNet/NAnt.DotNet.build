@@ -11,7 +11,7 @@
         <property name="vjc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'vjc.exe')}"  />
         <property name="jsc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'jsc.exe')}"  />
         
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${nant.project.name}.Tests.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.Tests.dll">
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />
@@ -32,7 +32,7 @@
                 <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll"/>
                 <include name="${build.dir}/bin/NAnt.Core.Tests.dll"/>
-                <include name="${build.dir}/bin/${nant.project.name}Tasks.dll"/>
+                <include name="${build.dir}/bin/${project::get-name()}Tasks.dll"/>
                 <include name="${lib.framework.dir}/nunit.framework.dll"/>
             </references>
         </csc>
@@ -40,7 +40,7 @@
     <target name="test" depends="build">
          <nunit2>
             <formatter type="Plain" />
-            <test assemblyname="${build.dir}/bin/${nant.project.name}.Tests.dll" appconfig="${path::combine(nant.location, 'nant.tests.config')}" />
+            <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
          </nunit2>
     </target>
 </project>
