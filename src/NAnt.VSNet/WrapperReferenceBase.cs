@@ -25,6 +25,9 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+#if NET_2_0
+using System.Runtime.InteropServices.ComTypes;
+#endif
 using System.Xml;
 
 using Microsoft.Win32;
@@ -310,6 +313,12 @@ namespace NAnt.VSNet {
                 TypeLibLocale);
 
             using (RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(typeLibKey)) {
+                // TODO: if there's no direct match, then use a type library 
+                // with the same major version, and the highest minor version
+
+                // TODO: check if the library identifier matches the one of the
+                // reference
+
                 if (registryKey == null) {
                     throw CreateTypeLibraryNotRegisteredException();
                 }
@@ -344,7 +353,12 @@ namespace NAnt.VSNet {
                     "Type library \"{0}\" could not be loaded.", typeLibraryPath),
                     Location.UnknownLocation);
             }
+
+#if NET_2_0
+            return Marshal.GetTypeLibName((ITypeLib) typeLib);
+#else
             return Marshal.GetTypeLibName((UCOMITypeLib) typeLib);
+#endif
         }
 
         #endregion Protected Instance Methods
