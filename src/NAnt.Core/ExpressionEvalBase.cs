@@ -201,6 +201,18 @@ namespace NAnt.Core {
                             return o.Equals(o2);
                         } else if (o is TimeSpan && o2 is TimeSpan) {
                             return o.Equals(o2);
+                        } else if (o.GetType().IsEnum) {
+                            if (o2 is string) {
+                                return o.Equals(Enum.Parse(o.GetType(), (string) o2, false));
+                            } else {
+                                return o.Equals(Enum.ToObject(o.GetType(), o2));
+                            }
+                        } else if (o2.GetType().IsEnum) {
+                            if (o is string) {
+                                return o2.Equals(Enum.Parse(o2.GetType(), (string) o, false));
+                            } else {
+                                return o2.Equals(Enum.ToObject(o2.GetType(), o));
+                            }
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -234,6 +246,18 @@ namespace NAnt.Core {
                             return !o.Equals(o2);
                         } else if (o is TimeSpan && o2 is TimeSpan) {
                             return !o.Equals(o2);
+                        } else if (o.GetType().IsEnum) {
+                            if (o2 is string) {
+                                return !o.Equals(Enum.Parse(o.GetType(), (string) o2, false));
+                            } else {
+                                return !o.Equals(Enum.ToObject(o.GetType(), o2));
+                            }
+                        } else if (o2.GetType().IsEnum) {
+                            if (o is string) {
+                                return !o2.Equals(Enum.Parse(o2.GetType(), (string) o, false));
+                            } else {
+                                return !o2.Equals(Enum.ToObject(o2.GetType(), o));
+                            }
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
