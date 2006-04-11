@@ -270,7 +270,7 @@ namespace NAnt.Core.Tasks {
                     request.Proxy = Proxy.GetWebProxy();
                 }
 
-                HttpWebResponse response = response = (HttpWebResponse) request.GetResponse();
+                HttpWebResponse response = (HttpWebResponse) request.GetResponse();
                 if (response.StatusCode != HttpStatusCode.OK) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1149"), XsltFile), 
