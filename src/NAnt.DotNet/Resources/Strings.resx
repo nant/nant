@@ -258,7 +258,7 @@
 
     <!--Message from:\NAnt.DotNet\Tasks\LicenseTask.cs-->
     <data name="String_CompilingLicenseUsingTarget">
-        <value>"Compiling license file '{0}' to '{1}' using target '{2}'.</value>
+        <value>Compiling license file '{0}' to '{1}' using target '{2}'.</value>
     </data>
     <data name="String_LoadingAssemblies">
         <value>Loading assemblies ...</value>
@@ -278,7 +278,7 @@
         <value>Writing project settings to '{0}'.</value>
     </data>
     <data name="String_NDocProjectFile">
-        <value>NDoc project file: file://{0}"</value>
+        <value>NDoc project file: file://{0}</value>
     </data>
     <data name="String_PercentageComplete">
         <value>% complete</value>
