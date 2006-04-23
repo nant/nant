@@ -52,6 +52,10 @@ namespace NAnt.DotNet.Tasks {
 
         private string _warningLevel;
         private string _codepage;
+        private string _platform;
+
+        // framework configuration settings
+        private bool _supportsPlatform;
 
         #endregion Private Instance Fields
 
@@ -63,6 +67,25 @@ namespace NAnt.DotNet.Tasks {
         #endregion Private Static Fields
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Specifies which platform version of common language runtime (CLR)
+        /// can run the output file.
+        /// </summary>
+        /// <value>
+        /// The platform version of common language runtime (CLR) that can run
+        /// the output file.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/platform</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("platform")]
+        public string Platform {
+            get { return _platform; }
+            set { _platform = StringUtils.ConvertEmptyToNull(value); }
+        }
 
         /// <summary>
         /// Specifies the warning level for the compiler to display. Valid 
@@ -191,6 +214,17 @@ namespace NAnt.DotNet.Tasks {
             set { }
         }
 
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
+        /// supports limiting the platform on which the compiled code can run.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsplatform")]
+        public bool SupportsPlatform {
+            get { return _supportsPlatform; }
+            set { _supportsPlatform = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
@@ -234,6 +268,16 @@ namespace NAnt.DotNet.Tasks {
 
             if (Codepage != null) {
                 WriteOption(writer, "codepage", Codepage);
+            }
+
+            // platform
+            if (Platform != null) {
+                if (SupportsPlatform) {
+                    WriteOption(writer, "platform", Platform);
+                } else {
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportPlatform"),
+                        Project.TargetFramework.Description);
+                }
             }
         }
 

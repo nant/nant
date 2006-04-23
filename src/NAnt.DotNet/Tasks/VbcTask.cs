@@ -93,10 +93,12 @@ namespace NAnt.DotNet.Tasks {
         private bool _optionOptimize;
         private bool _removeintchecks;
         private string _rootNamespace;
+        private string _platform;
         private NamespaceImportCollection _imports = new NamespaceImportCollection();
 
         // framework configuration settings
         private bool _supportsDocGeneration;
+        private bool _supportsPlatform;
 
         #endregion Private Instance Fields
 
@@ -261,6 +263,25 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Specifies which platform version of common language runtime (CLR)
+        /// can run the output file.
+        /// </summary>
+        /// <value>
+        /// The platform version of common language runtime (CLR) that can run
+        /// the output file.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/platform</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("platform")]
+        public string Platform {
+            get { return _platform; }
+            set { _platform = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
         /// Specifies whether the <c>/removeintchecks</c> option gets passed to 
         /// the compiler. The default is <see langword="false" />.
         /// </summary>
@@ -300,6 +321,17 @@ namespace NAnt.DotNet.Tasks {
         public bool SupportsDocGeneration {
             get { return _supportsDocGeneration; }
             set { _supportsDocGeneration = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
+        /// supports limiting the platform on which the compiled code can run.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsplatform")]
+        public bool SupportsPlatform {
+            get { return _supportsPlatform; }
+            set { _supportsPlatform = value; }
         }
 
         #endregion Public Instance Properties
@@ -365,6 +397,16 @@ namespace NAnt.DotNet.Tasks {
                     WriteOption(writer, "doc", DocFile.FullName);
                 } else {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportXmlDoc"),
+                        Project.TargetFramework.Description);
+                }
+            }
+
+            // platform
+            if (Platform != null) {
+                if (SupportsPlatform) {
+                    WriteOption(writer, "platform", Platform);
+                } else {
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportPlatform"),
                         Project.TargetFramework.Description);
                 }
             }
