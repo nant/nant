@@ -58,8 +58,8 @@ namespace NAnt.NUnit2.Tasks {
     ///   ignore any errors and continue the build.
     ///   </para>
     ///   <para>
-    ///   In order to run a test assembly built with NUnit 2.0 or 2.1 using the 
-    ///   NAnt <see cref="NUnit2Task" />, you must add the following node to your 
+    ///   In order to run a test assembly built with NUnit 2.0 or 2.1 using 
+    ///   <see cref="NUnit2Task" />, you must add the following node to your
     ///   test config file :
     ///   </para>
     ///   <code>
@@ -70,8 +70,8 @@ namespace NAnt.NUnit2.Tasks {
     ///         <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
     ///             <dependentAssembly>
     ///                 <assemblyIdentity name="nunit.framework" publicKeyToken="96d09a1eb7f44a77" culture="Neutral" /> 
-    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.2.7.0" /> 
-    ///                 <bindingRedirect oldVersion="2.1.4.0" newVersion="2.2.7.0" /> 
+    ///                 <bindingRedirect oldVersion="2.0.6.0" newVersion="2.2.8.0" /> 
+    ///                 <bindingRedirect oldVersion="2.1.4.0" newVersion="2.2.8.0" /> 
     ///             </dependentAssembly>
     ///         </assemblyBinding>
     ///     </runtime>
