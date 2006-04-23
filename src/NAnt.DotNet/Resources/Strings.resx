@@ -247,6 +247,12 @@
     <data name="String_CompilerDoesNotSupportXmlDoc">
         <value>The compiler for "{0}" does not support generation of XML Documentation file.</value>
     </data>
+    <data name="String_CompilerDoesNotSupportPlatform">
+        <value>The compiler for "{0}" does not support limiting the platform on which the compiled code can run.</value>
+    </data>
+    <data name="String_CompilerDoesNotSupportLangVersion">
+        <value>The compiler for "{0}" does not support accepting only a specific language syntax.</value>
+    </data>
     <data name="String_DocFileDoesNotExist">
         <value>Doc file '{0}' does not exist, recompiling.</value>
     </data>
