@@ -86,9 +86,13 @@ namespace NAnt.DotNet.Tasks {
         private string _warningLevel;
         private string _codepage;
         private string _baseAddress;
+        private string _platform;
+        private string _langVersion;
 
         // framework configuration settings
         private bool _supportsDocGeneration = true;
+        private bool _supportsPlatform;
+        private bool _supportsLangVersion;
 
         #endregion Private Instance Fields
 
@@ -235,6 +239,21 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Causes the compiler to only accept syntax that is included in a
+        /// given specification.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/langversion</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("langversion")]
+        public string LangVersion {
+            get { return _langVersion; }
+            set { _langVersion = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
         /// Specifies whether the compiler should perform optimizations to the 
         /// make output files smaller, faster, and more effecient. The default 
         /// is <see langword="false" />.
@@ -253,6 +272,25 @@ namespace NAnt.DotNet.Tasks {
         public bool Optimize {
             get { return _optimize; }
             set { _optimize = value; }
+        }
+
+        /// <summary>
+        /// Specifies which platform version of common language runtime (CLR)
+        /// can run the output file.
+        /// </summary>
+        /// <value>
+        /// The platform version of common language runtime (CLR) that can run
+        /// the output file.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/platform</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("platform")]
+        public string Platform {
+            get { return _platform; }
+            set { _platform = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
@@ -300,6 +338,28 @@ namespace NAnt.DotNet.Tasks {
             set { _supportsDocGeneration = value; }
         }
 
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
+        /// supports limiting the platform on which the compiled code can run.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsplatform")]
+        public bool SupportsPlatform {
+            get { return _supportsPlatform; }
+            set { _supportsPlatform = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
+        /// supports accepting only a specific language syntax.
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportslangversion")]
+        public bool SupportsLangVersion {
+            get { return _supportsLangVersion; }
+            set { _supportsLangVersion = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of CompilerBase
@@ -324,6 +384,26 @@ namespace NAnt.DotNet.Tasks {
                     WriteOption(writer, "doc", DocFile.FullName);
                 } else {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportXmlDoc"),
+                        Project.TargetFramework.Description);
+                }
+            }
+
+            // langversion
+            if (LangVersion != null) {
+                if (SupportsLangVersion) {
+                    WriteOption(writer, "langversion", LangVersion);
+                } else {
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportLangVersion"),
+                        Project.TargetFramework.Description);
+                }
+            }
+
+            // platform
+            if (Platform != null) {
+                if (SupportsPlatform) {
+                    WriteOption(writer, "platform", Platform);
+                } else {
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportPlatform"),
                         Project.TargetFramework.Description);
                 }
             }
