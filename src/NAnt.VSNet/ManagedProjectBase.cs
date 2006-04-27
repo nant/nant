@@ -51,7 +51,8 @@ namespace NAnt.VSNet {
             }
 
             _references = new ArrayList();
-            _resources = new ArrayList();
+            _neutralResources = new ArrayList();
+            _localizedResources = new ArrayList();
             _sourceFiles = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _projectPath = projectPath;
             _projectLocation = DetermineProjectLocation(xmlDefinition);
@@ -346,6 +347,9 @@ namespace NAnt.VSNet {
                     Directory.CreateDirectory(TemporaryFiles.BasePath);
                 }
 
+                // compile neutral and localized resx files
+                CompileResXFiles(solutionConfiguration);
+
                 // check if project output needs to be rebuilt
                 if (CheckUpToDate(solutionConfiguration)) {
                     Log(Level.Verbose, "Project is up-to-date.");
@@ -620,8 +624,8 @@ namespace NAnt.VSNet {
                     ProjectSettings.ApplicationIcon.FullName);
             }
 
-            if (_resources.Count > 0) {
-                WriteResourceOptions(sw, solutionConfiguration);
+            if (_neutralResources.Count > 0) {
+                WriteNeutralResourceOptions(sw, solutionConfiguration);
             }
 
             // before writing files to response file, allow project specific
@@ -784,32 +788,45 @@ namespace NAnt.VSNet {
             } else {
                 string dependentOn = (elemFile.Attributes["DependentUpon"] != null) ? FileUtils.CombinePaths(fi.DirectoryName, elemFile.Attributes["DependentUpon"].Value) : null;
                 Resource r = new Resource(this, fi, elemFile.Attributes["RelPath"].Value, dependentOn, SolutionTask, GacCache);
-                _resources.Add(r);
+                if (r.Culture != null) {
+                    _localizedResources.Add(r);
+                } else {
+                    _neutralResources.Add(r);
+                }
             }
         }
 
-        private void WriteResourceOptions(StreamWriter sw, string solutionConfiguration) {
+        private void CompileResXFiles(string solutionConfiguration) {
             Log(Level.Verbose, "Compiling resources:");
 
             Hashtable resxResources = new Hashtable();
 
-            foreach (Resource resource in _resources) {
+            // neutral resources
+            foreach (Resource resource in _neutralResources) {
+                if (!resource.IsResX) {
+                    continue;
+                }
+
                 Log(Level.Verbose, " - {0}", resource.InputFile);
 
-                if (resource.IsResX) {
-                    // determine filename of output file
-                    FileInfo compiledResxFile = resource.GetCompiledResourceFile(solutionConfiguration);
-                    // add to list of resx files to compile
-                    resxResources.Add(resource, compiledResxFile);
-                } else if (resource.Culture == null) { // only compile non-localized non-resx files here
-                    // compile resource
-                    FileInfo compiledResourceFile = resource.Compile(
-                        solutionConfiguration);
-                    // write option to response file
-                    sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
-                        "/res:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
-                        resource.GetManifestResourceName(solutionConfiguration)));
+                // determine filename of output file
+                FileInfo compiledResxFile = resource.GetCompiledResourceFile(solutionConfiguration);
+                // add to list of resx files to compile
+                resxResources.Add(resource, compiledResxFile);
+            }
+
+            // localized resources
+            foreach (Resource resource in _localizedResources) {
+                if (!resource.IsResX) {
+                    continue;
                 }
+
+                Log(Level.Verbose, " - {0}", resource.InputFile);
+
+                // determine filename of output file
+                FileInfo compiledResxFile = resource.GetCompiledResourceFile(solutionConfiguration);
+                // add to list of resx files to compile
+                resxResources.Add(resource, compiledResxFile);
             }
 
             // no further processing required if there are no resx files to 
@@ -877,24 +894,37 @@ namespace NAnt.VSNet {
                 // restore indentation level
                 rt.Project.Unindent();
             }
+        }
 
-            // finally write the resx options to response file
-            foreach (DictionaryEntry entry in resxResources) {
-                Resource resource = (Resource) entry.Key;
+        private void WriteNeutralResourceOptions(StreamWriter sw, string solutionConfiguration) {
+            // no further processing required if there are no neutral resource
+            // files
+            if (_neutralResources.Count == 0) {
+                return;
+            }
 
-                if (resource.Culture != null) {
-                    // ignore resource files associated with a culture
-                    continue;
+            foreach (Resource resource in _neutralResources) {
+                Log(Level.Verbose, " - {0}", resource.InputFile);
+
+                if (resource.IsResX) {
+                    // determine filename of compiled file
+                    FileInfo compiledResxFile = resource.GetCompiledResourceFile(solutionConfiguration);
+                    // determine manifest resource name
+                    string manifestResourceName = resource.GetManifestResourceName(
+                        solutionConfiguration);
+                    // write option to response file
+                    sw.WriteLine(string.Format(CultureInfo.InvariantCulture, 
+                        "/res:\"{0}\",\"{1}\"", compiledResxFile.FullName,
+                        manifestResourceName));
+                } else {
+                    // compile resource
+                    FileInfo compiledResourceFile = resource.Compile(
+                        solutionConfiguration);
+                    // write option to response file
+                    sw.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                        "/res:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
+                        resource.GetManifestResourceName(solutionConfiguration)));
                 }
-
-                FileInfo outputFile = (FileInfo) entry.Value;
-                string manifestResourceName = resource.GetManifestResourceName(
-                    solutionConfiguration);
-
-                // write option to response file
-                sw.WriteLine(string.Format(CultureInfo.InvariantCulture, 
-                    "/res:\"{0}\",\"{1}\"", outputFile.FullName,
-                    manifestResourceName));
             }
         }
 
@@ -1000,13 +1030,7 @@ namespace NAnt.VSNet {
             }
 
             // check all culture-neutral resources
-            foreach (Resource resource in _resources) {
-                // we're only interested in culture neutral resources, as these
-                // are the only resources that are embedded in the output assembly
-                if (resource.Culture != null) {
-                    continue;
-                }
-
+            foreach (Resource resource in _neutralResources) {
                 // check if input file was updated since last compile
                 if (dtOutputTimeStamp < resource.InputFile.LastWriteTime) {
                     return false;
@@ -1058,13 +1082,8 @@ namespace NAnt.VSNet {
         private Hashtable GetLocalizedResources() {
             Hashtable localizedResourceSets = new Hashtable();
 
-            foreach (Resource resource in _resources) {
+            foreach (Resource resource in _localizedResources) {
                 CultureInfo resourceCulture = resource.Culture;
-
-                // ignore resource files NOT associated with a culture
-                if (resourceCulture == null) {
-                    continue;
-                }
 
                 LocalizedResourceSet resourceSet = (LocalizedResourceSet) 
                     localizedResourceSets[resourceCulture];
@@ -1237,7 +1256,8 @@ namespace NAnt.VSNet {
         /// </remarks>
         private readonly Hashtable _sourceFiles;
 
-        private readonly ArrayList _resources;
+        private readonly ArrayList _neutralResources;
+        private readonly ArrayList _localizedResources;
         private readonly string _projectPath;
         private readonly DirectoryInfo _projectDirectory;
         private readonly string _webProjectBaseUrl;
