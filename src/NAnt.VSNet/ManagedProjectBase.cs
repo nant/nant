@@ -691,7 +691,13 @@ namespace NAnt.VSNet {
             exec.FileName = FileUtils.CombinePaths(SolutionTask.
                 Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
 
-            // inherit assembly references from project
+            // bug #1477827: regasm cannot located references to types in other
+            // assemblies
+            //
+            // as a quick fix, we inherit assembly references from other projects
+            // but we'll modify it to work like the resgen task (which copied all
+            // referenced assemblies and the tool itself to a temporary directory
+            // and run the tool from there)
             foreach (ReferenceBase reference in References) {
                 // skip references that should not be copied locally
                 if (!reference.CopyLocal) {
