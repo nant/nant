@@ -33,6 +33,7 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet.Tasks;
+using NAnt.DotNet.Types;
 
 using NAnt.VSNet.Tasks;
 
@@ -336,17 +337,9 @@ namespace NAnt.VSNet {
                     return BuildResult.Failed;
                 }
 
-                // check if we need to unregister previous project output
-                if (cs.RegisterForComInterop) {
-                    // if the previous project output exists, then unregister it
-                    if (File.Exists(cs.OutputPath)) {
-                        // get path of type library
-                        string typeLibPath = GetTypeLibraryPath(cs);
-                        // unregister types exposed to COM, and unregister type
-                        // library (if it exists)
-                        UnregisterForComInterop(cs.OutputPath, typeLibPath);
-                    }
-                }
+                // unregister types exposed to COM, and unregister type
+                // library (if it exists)
+                UnregisterForComInterop(cs);
 
                 // ensure temp directory exists
                 if (!Directory.Exists(TemporaryFiles.BasePath)) {
@@ -476,12 +469,10 @@ namespace NAnt.VSNet {
                             compiledResourceFile = resource.Compile(solutionConfiguration);
                         }
 
-                        // add resources to embed 
-                        Argument arg = new Argument();
-                        arg.Value = string.Format(CultureInfo.InvariantCulture, 
-                            "/embed:\"{0}\",\"{1}\"", compiledResourceFile.FullName, 
-                            resource.GetManifestResourceName(solutionConfiguration));
-                        al.Arguments.Add(arg);
+                        // add resources to embed
+                        EmbeddedResource embeddedResource = new EmbeddedResource(
+                            compiledResourceFile.FullName, resource.GetManifestResourceName(solutionConfiguration));
+                        al.EmbeddedResources.Add(embeddedResource);
                     }
 
                     // increment indentation level
@@ -505,7 +496,7 @@ namespace NAnt.VSNet {
                     // create type library in output dir, and register it using 
                     // that path to match VS.NET
                     string typeLibPath = GetTypeLibraryPath(cs);
-                    RegisterForComInterop(cs.BuildPath, typeLibPath);
+                    RegisterForComInterop(cs, typeLibPath);
 
                     // copy generated type library to object directory to match
                     // VS.NET
@@ -682,12 +673,12 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Generates a type library for the specified assembly, registers it.
         /// </summary>
-        /// <param name="outputPath">The path to the assembly for which a type library must be generated.</param>
+        /// <param name="config">The project configuration that is built.</param>
         /// <param name="typelibPath">The path of the type library to generate.</param>
         /// <remarks>
         /// The <c>regasm</c> tool is used to generate the type library.
         /// </remarks>
-        private void RegisterForComInterop(string outputPath, string typelibPath) {
+        private void RegisterForComInterop(ConfigurationSettings config, string typelibPath) {
             Log(Level.Verbose, "Registering project output for COM Interop...");
 
             ExecTask exec = new ExecTask();
@@ -696,8 +687,23 @@ namespace NAnt.VSNet {
             exec.FileName = FileUtils.CombinePaths(SolutionTask.
                 Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
 
+            // inherit assembly references from project
+            foreach (ReferenceBase reference in References) {
+                // skip references that should not be copied locally
+                if (!reference.CopyLocal) {
+                    continue;
+                }
+
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    config.Name);
+                foreach (string assemblyFile in assemblyReferences) {
+                    exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
+                        "\"{0}\"", assemblyFile)));
+                }
+            }
+
             exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "\"{0}\"", outputPath)));
+                "\"{0}\"", config.BuildPath)));
             exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
                 "/tlb:\"{0}\"", typelibPath)));
             exec.Arguments.Add(new Argument("/nologo"));
@@ -721,13 +727,18 @@ namespace NAnt.VSNet {
         /// Unregister a type library for the specified assembly, and the types
         /// in that assembly.
         /// </summary>
-        /// <param name="outputPath">The path to the assembly for which to remove the COM registration.</param>
-        /// <param name="typeLibPath">The path of the type library to unregister.</param>
+        /// <param name="config">The project configuration that is built.</param>
         /// <remarks>
         /// The <c>regasm</c> tool is used to unregister the type library, and
         /// remove the COM registration for types in the specified assembly.
         /// </remarks>
-        private void UnregisterForComInterop(string outputPath, string typeLibPath) {
+        private void UnregisterForComInterop(ConfigurationSettings config) {
+            // if COM interop registration is not enabled or the previous project
+            // output does not exist, then there's nothing to do
+            if (!config.RegisterForComInterop || !File.Exists(config.OutputPath)) {
+                return;
+            }
+
             Log(Level.Verbose, "Unregistering project output for COM Interop...");
 
             ExecTask exec = new ExecTask();
@@ -737,9 +748,11 @@ namespace NAnt.VSNet {
                 Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
 
             exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "\"{0}\"", outputPath)));
+                "\"{0}\"", config.OutputPath)));
             exec.Arguments.Add(new Argument("/unregister"));
 
+            // determine path for type library
+            string typeLibPath = GetTypeLibraryPath(config);
             // if the type library exists, unregister it
             if (File.Exists(typeLibPath)) {
                 exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,

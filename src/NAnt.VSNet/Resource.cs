@@ -38,7 +38,6 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _culture = CompilerBase.GetResourceCulture(resourceSourceFile.FullName, 
                 dependentFile);
-            //_gacCache = gacCache;
         }
 
         #endregion Public Instance Constructors
@@ -309,6 +308,8 @@ namespace NAnt.VSNet {
         }
 
         private FileInfo CompileResx(string solutionConfiguration) {
+            // for performance reasons, compilation of resx files is done in
+            // batch using the ResGen task in ManagedProjectBase
             throw new InvalidOperationException();
         }
 
@@ -322,7 +323,6 @@ namespace NAnt.VSNet {
         private string _resourceSourceFileRelativePath;
         private ManagedProjectBase _project;
         private SolutionTask _solutionTask;
-        //private GacCache _gacCache;
 
         #endregion Private Instance Fields
     }
