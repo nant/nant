@@ -317,12 +317,12 @@ namespace NAnt.VSNet {
 
         #region Private Instance Fields
 
-        private CultureInfo _culture;
-        private FileInfo _resourceSourceFile;
-        private string _dependentFile;
-        private string _resourceSourceFileRelativePath;
-        private ManagedProjectBase _project;
-        private SolutionTask _solutionTask;
+        private readonly CultureInfo _culture;
+        private readonly FileInfo _resourceSourceFile;
+        private readonly string _dependentFile;
+        private readonly string _resourceSourceFileRelativePath;
+        private readonly ManagedProjectBase _project;
+        private readonly SolutionTask _solutionTask;
 
         #endregion Private Instance Fields
     }
