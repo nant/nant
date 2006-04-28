@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Language" content="en-ca" />
@@ -26,8 +26,7 @@
                 </td>
             </tr>
         </table>
-        <h1>Installation</h1>
-        <!-- @PRELIMINARY_NOTICE@ -->
+        <h1>Installation</h1> <!-- @PRELIMINARY_NOTICE@ -->
         <p>NAnt is available in either a source or binary distribution. The binary 
             distribution is all you need to use NAnt to build your projects, including 
             creating your own custom tasks, types and functions.</p>
@@ -46,11 +45,13 @@
                 Extract the contents of the archive to the location you wish to install NAnt 
                 (eg: C:\Program Files\NAnt in windows, or /usr/local/nant in Linux)
             </li>
-            <li>Depending on your environment, create a wrapper script to run NAnt:
+            <li>
+                Depending on your environment, create a wrapper script to run NAnt:
                 <h3>Run NAnt using Microsoft.NET</h3>
                 <ul>
                     <li>
-                        Create a file called <code>nant.bat</code> in a directory that is included in the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
+                        Create a file called <code>nant.bat</code> in a directory that is included in 
+                        the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
                     </li>
                     <li>
                         Add the following to <code>nant.bat</code>:
@@ -63,41 +64,43 @@
                 <h3>Run NAnt using Mono</h3>
                 <ul style="list-style-type: none;">
                     <li>
-                <h4>Windows</h4>
-                <ul>
-                    <li>
-                        Create a file called <code>nant.bat</code> in a directory that is included in the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
-                    </li>
-                    <li>
-                        Add the following to <code>nant.bat</code>:
-                        <pre>
+                        <h4>Windows</h4>
+                        <ul>
+                            <li>
+                                Create a file called <code>nant.bat</code> in a directory that is included in 
+                                the <code>PATH</code> system environment variable. (eg. <i>C:\WINDOWS</i>).
+                            </li>
+                            <li>
+                                Add the following to <code>nant.bat</code>:
+                                <pre>
 @echo off
 mono "C:\Program Files\NAnt\bin\NAnt.exe" %*
                                 </pre>
-                    </li>
-                </ul>
-                </li>
-                <li>
-                <h4>Linux / Cygwin</h4>
-                <ul>
-                    <li>
-                        Create a file called <code>nant</code> in a suitable location in your filesystem (eg. <i>/usr/local/bin</i>).
+                            </li>
+                        </ul>
                     </li>
                     <li>
-                        Add the following to <code>nant</code>:
-                        <pre>
+                        <h4>Linux / Cygwin</h4>
+                        <ul>
+                            <li>
+                                Create a file called <code>nant</code> in a suitable location in your 
+                                filesystem (eg. <i>/usr/local/bin</i>).
+                            </li>
+                            <li>
+                                Add the following to <code>nant</code>:
+                                <pre>
 #!/bin/sh
 exec mono /usr/local/nant/bin/NAnt.exe "$@"
                         </pre>
-                    </li>
-                    <li>
-                        Ensure <code>nant</code> has permission to execute, eg:
-                        <pre>
+                            </li>
+                            <li>
+                                Ensure <code>nant</code> has permission to execute, eg:
+                                <pre>
 chmod a+x /usr/local/bin/nant
                         </pre>
+                            </li>
+                        </ul>
                     </li>
-                </ul>
-                </li>
                 </ul>
             </li>
             <li>
@@ -150,9 +153,8 @@ chmod a+x /usr/local/bin/nant
                     </li>
                 </ul>
                 <p>
-                    This will first build a bootstrap version of NAnt, and then 
-                    use that to build and install the full version to 
-                    <code><i>installation-path</i>/NAnt</code>.
+                    This will first build a bootstrap version of NAnt, and then use that to build 
+                    and install the full version to <code><i>installation-path</i>/NAnt</code>.
                 </p>
             </li>
             <li>

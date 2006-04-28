@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//w3c//dtd xhtml 1.1 strict//en" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Language" content="en-ca" />
@@ -261,8 +261,8 @@
             there's a possible ambiguity between the subtraction of two properties and 
             accessing a single property with a name containing a dash:</p>
         <p>
-        <code>aaa-bbb</code> - this is ambiguous. It could either be <u>property <code>aaa</code>
-            MINUS property <code>bbb</code></u> or <u>property <code>aaa-bbb</code></u>.</p>
+        <code>aaa-bbb</code> - this is ambiguous. It could either be <span style="text-decoration: underline;">property <code>aaa</code>
+            MINUS property <code>bbb</code></span> or <span style="text-decoration: underline;">property <code>aaa-bbb</code></span>.</p>
         <p>To avoid confusion, it's recommended to surround the subtraction operator (or 
             even better, all binary operators) with spaces. The expression <code>aaa - bbb</code>
             always evaluates as a subtraction.</p>
@@ -297,10 +297,10 @@
                 >= operator
             </li>
             <li>
-                < operator
+                &lt; operator
             </li>
             <li>
-                <= operator
+                &lt;= operator
             </li>
             <li>
                 unary plus
@@ -1121,63 +1121,63 @@
                     <td>int</td>
                     <td>int</td>
                     <td>
-                        <code>5 < 3</code> evaluates to <b>false</b>
+                        <code>5 &lt; 3</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>long</td>
                     <td>
-                        <code>5 < 6666666667</code> evaluates to <b>true</b>
+                        <code>5 &lt; 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>double</td>
                     <td>
-                        <code>6 < 7.0</code> evaluates to <b>true</b>
+                        <code>6 &lt; 7.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>long</td>
                     <td>
-                        <code>6666666667 < 6666666667</code> evaluates to <b>false</b>
+                        <code>6666666667 &lt; 6666666667</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>int</td>
                     <td>
-                        <code>6666666667 < 665</code> evaluates to <b>false</b>
+                        <code>6666666667 &lt; 665</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>double</td>
                     <td>
-                        <code>6666666667 < 6666666667.0</code> evaluates to <b>false</b>
+                        <code>6666666667 &lt; 6666666667.0</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>double</td>
                     <td>
-                        <code>9.5 < 9.5</code> evaluates to <b>false</b>
+                        <code>9.5 &lt; 9.5</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>int</td>
                     <td>
-                        <code>8.3 < 9</code> evaluates to <b>true</b>
+                        <code>8.3 &lt; 9</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>long</td>
                     <td>
-                        <code>8.5 < 6666666667</code> evaluates to <b>true</b>
+                        <code>8.5 &lt; 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -1208,63 +1208,63 @@
                     <td>int</td>
                     <td>int</td>
                     <td>
-                        <code>5 <= 3</code> evaluates to <b>false</b>
+                        <code>5 &lt;= 3</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>long</td>
                     <td>
-                        <code>5 <= 6666666667</code> evaluates to <b>true</b>
+                        <code>5 &lt;= 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>int</td>
                     <td>double</td>
                     <td>
-                        <code>6 <= 7.0</code> evaluates to <b>true</b>
+                        <code>6 &lt;= 7.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>long</td>
                     <td>
-                        <code>6666666667 <= 6666666667</code> evaluates to <b>true</b>
+                        <code>6666666667 &lt;= 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>int</td>
                     <td>
-                        <code>6666666667 <= 665</code> evaluates to <b>false</b>
+                        <code>6666666667 &lt;= 665</code> evaluates to <b>false</b>
                     </td>
                 </tr>
                 <tr>
                     <td>long</td>
                     <td>double</td>
                     <td>
-                        <code>6666666667 <= 6666666667.0</code> evaluates to <b>true</b>
+                        <code>6666666667 &lt;= 6666666667.0</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>double</td>
                     <td>
-                        <code>9.5 <= 9.5</code> evaluates to <b>true</b>
+                        <code>9.5 &lt;= 9.5</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>int</td>
                     <td>
-                        <code>8.3 <= 9</code> evaluates to <b>true</b>
+                        <code>8.3 &lt;= 9</code> evaluates to <b>true</b>
                     </td>
                 </tr>
                 <tr>
                     <td>double</td>
                     <td>long</td>
                     <td>
-                        <code>8.5 <= 6666666667</code> evaluates to <b>true</b>
+                        <code>8.5 &lt;= 6666666667</code> evaluates to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -1368,10 +1368,10 @@
                 >= operator
             </li>
             <li>
-                < operator
+                &lt; operator
             </li>
             <li>
-                <= operator
+                &lt;= operator
             </li>          
             <li>
             	and operator
@@ -1465,10 +1465,10 @@
                 >= operator
             </li>
             <li>
-                < operator
+                &lt; operator
             </li>
             <li>
-                <= operator
+                &lt;= operator
             </li>
         </ul>                
         <h4><a id="op-string-concat" />4.4.1 Concat</h4>
@@ -1559,10 +1559,10 @@
                 >= operator
             </li>
             <li>
-                < operator
+                &lt; operator
             </li>
             <li>
-                <= operator
+                &lt;= operator
             </li>
         </ul>
         <h4><a id="op-datetime-add" />4.5.1 Add</h4>
@@ -1840,7 +1840,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() < (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() &lt; (datetime::now()+timespan::from-days(10))</code> evaluates 
                         to <b>true</b>
                     </td>
                 </tr>
@@ -1848,7 +1848,7 @@
                     <td>timespan</td>
                     <td>timespan</td>
                     <td>
-                        <code>timespan::from-seconds(30) < timespan::from-seconds(30)</code> evaluates 
+                        <code>timespan::from-seconds(30) &lt; timespan::from-seconds(30)</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
@@ -1880,7 +1880,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() <= (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() &lt;= (datetime::now()+timespan::from-days(10))</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
@@ -1888,7 +1888,7 @@
                     <td>timespan</td>
                     <td>timespan</td>
                     <td>
-                        <code>timespan::from-seconds(30) <= timespan::from-seconds(30)</code> evaluates 
+                        <code>timespan::from-seconds(30) &lt;= timespan::from-seconds(30)</code> evaluates 
                         to <b>true</b>
                     </td>
                 </tr>
