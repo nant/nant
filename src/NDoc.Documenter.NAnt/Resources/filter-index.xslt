@@ -28,7 +28,7 @@
         indent="yes" 
         encoding="utf-8" 
         version="1.0" 
-        doctype-public="-//w3c//dtd xhtml 1.1 strict//en" 
+        doctype-public="-//W3C//DTD XHTML 1.1//EN" 
         doctype-system="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" 
         omit-xml-declaration="yes"
         standalone="yes"
