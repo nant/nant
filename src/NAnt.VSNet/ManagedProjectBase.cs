@@ -35,6 +35,8 @@ using NAnt.Core.Util;
 using NAnt.DotNet.Tasks;
 using NAnt.DotNet.Types;
 
+using NAnt.Win32.Tasks;
+
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
@@ -685,51 +687,29 @@ namespace NAnt.VSNet {
         private void RegisterForComInterop(ConfigurationSettings config, string typelibPath) {
             Log(Level.Verbose, "Registering project output for COM Interop...");
 
-            ExecTask exec = new ExecTask();
-            exec.Parent = exec.Project = SolutionTask.Project;
-            exec.InitializeTaskConfiguration();
-            exec.FileName = FileUtils.CombinePaths(SolutionTask.
-                Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
-
-            // bug #1477827: regasm cannot located references to types in other
-            // assemblies
-            //
-            // as a quick fix, we inherit assembly references from other projects
-            // but we'll modify it to work like the resgen task (which copied all
-            // referenced assemblies and the tool itself to a temporary directory
-            // and run the tool from there)
+            // create and initialize regasm task
+            RegAsmTask regasm = CreateRegAsmTask();
+            // add assembly references
             foreach (ReferenceBase reference in References) {
-                // skip references that should not be copied locally
-                if (!reference.CopyLocal) {
-                    continue;
-                }
-
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
                     config.Name);
                 foreach (string assemblyFile in assemblyReferences) {
-                    exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                        "\"{0}\"", assemblyFile)));
+                    regasm.References.Includes.Add(assemblyFile);
                 }
             }
-
-            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "\"{0}\"", config.BuildPath)));
-            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "/tlb:\"{0}\"", typelibPath)));
-            exec.Arguments.Add(new Argument("/nologo"));
-            if (SolutionTask.Verbose) {
-                exec.Arguments.Add(new Argument("/verbose"));
-            } else {
-                exec.Arguments.Add(new Argument("/silent"));
-            }
+            // assembly to register for COM interop
+            regasm.AssemblyFile = new FileInfo(config.BuildPath);
+            // type library to create
+            regasm.TypeLib = new FileInfo(typelibPath);
 
             // increment indentation level
-            SolutionTask.Project.Indent();
+            regasm.Project.Indent();
             try {
-                exec.Execute();
+                // execute task
+                regasm.Execute();
             } finally {
                 // restore indentation level
-                SolutionTask.Project.Unindent();
+                regasm.Project.Unindent();
             }
         }
 
@@ -751,38 +731,34 @@ namespace NAnt.VSNet {
 
             Log(Level.Verbose, "Unregistering project output for COM Interop...");
 
-            ExecTask exec = new ExecTask();
-            exec.Parent = exec.Project = SolutionTask.Project;
-            exec.InitializeTaskConfiguration();
-            exec.FileName = FileUtils.CombinePaths(SolutionTask.
-                Project.TargetFramework.FrameworkDirectory.FullName, "regasm.exe");
-
-            exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                "\"{0}\"", config.OutputPath)));
-            exec.Arguments.Add(new Argument("/unregister"));
-
+            // create and initialize regasm task
+            RegAsmTask regasm = CreateRegAsmTask();
+            // add assembly references
+            foreach (ReferenceBase reference in References) {
+                StringCollection assemblyReferences = reference.GetAssemblyReferences(
+                    config.Name);
+                foreach (string assemblyFile in assemblyReferences) {
+                    regasm.References.Includes.Add(assemblyFile);
+                }
+            }
+            // unregister types
+            regasm.Unregister = true;
+            // assembly to unregister
+            regasm.AssemblyFile = new FileInfo(config.OutputPath);
             // determine path for type library
             string typeLibPath = GetTypeLibraryPath(config);
             // if the type library exists, unregister it
             if (File.Exists(typeLibPath)) {
-                exec.Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture,
-                    "/tlb:\"{0}\"", typeLibPath)));
-            }
-
-            exec.Arguments.Add(new Argument("/nologo"));
-            if (SolutionTask.Verbose) {
-                exec.Arguments.Add(new Argument("/verbose"));
-            } else {
-                exec.Arguments.Add(new Argument("/silent"));
+                regasm.TypeLib = new FileInfo(typeLibPath);
             }
 
             // increment indentation level
-            SolutionTask.Project.Indent();
+            regasm.Project.Indent();
             try {
-                exec.Execute();
+                regasm.Execute();
             } finally {
                 // restore indentation level
-                SolutionTask.Project.Unindent();
+                regasm.Project.Unindent();
             }
         }
 
@@ -1101,6 +1077,48 @@ namespace NAnt.VSNet {
                 resourceSet.Resources.Add(resource);
             }
             return localizedResourceSets;
+        }
+
+        /// <summary>
+        /// Creates and initializes a <see cref="RegAsmTask" /> instance.
+        /// </summary>
+        /// <returns>
+        /// An initialized <see cref="RegAsmTask" /> instance.
+        /// </returns>
+        private RegAsmTask CreateRegAsmTask() {
+            RegAsmTask regasm = new RegAsmTask();
+            // parent is solution task
+            regasm.Parent = SolutionTask;
+            // inherit project from solution task
+            regasm.Parent = regasm.Project = SolutionTask.Project;
+            // inherit verbose setting from solution task
+            regasm.Verbose = SolutionTask.Verbose;
+            // inherit namespace manager from solution task
+            regasm.NamespaceManager = SolutionTask.NamespaceManager;
+            // initialize framework configuration
+            regasm.InitializeTaskConfiguration();
+            // inherit project from parent task
+            regasm.Assemblies.Project = regasm.Project;
+            // set parent of child elements
+            regasm.Assemblies.Parent = regasm;
+            // inherit namespace manager from parent task
+            regasm.Assemblies.NamespaceManager = regasm.NamespaceManager;
+            // set base directory for filesets
+            regasm.Assemblies.BaseDirectory = ProjectDirectory;
+            // inherit project from parent task
+            regasm.References.Project = regasm.Project;
+            // set parent of child elements
+            regasm.References.Parent = regasm;
+            // inherit namespace manager from parent task
+            regasm.References.NamespaceManager = regasm.NamespaceManager;
+            // set base directory for filesets
+            regasm.References.BaseDirectory = ProjectDirectory;
+            // only output warning messages or higher, unless 
+            // we're running in verbose mode
+            if (!regasm.Verbose) {
+                regasm.Threshold = Level.Warning;
+            }
+            return regasm;
         }
 
         #endregion Private Instance Methods
