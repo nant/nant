@@ -18,6 +18,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -99,6 +100,56 @@ namespace Tests.NAnt.Core.Tasks {
 
             // run the build
             RunBuild(_xml);
+        }
+
+        [Test]
+        public void Test_Cascade() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // set-up build file
+            string _xml = @"
+                <project default='rebuild'>
+	                <target name='clean' />
+                    <target name='init' />
+	                <target name='compile' depends='init' />
+	                <target name='build'>
+		                <call target='compile' {0} />
+		                <call target='compile' {0} />
+	                </target>
+	                <target name='rebuild' depends='clean, build' />
+                </project>";
+
+            // run the build
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xml, ""), 
+                listener);
+            // check whether 'compile' target has been executed twice
+            Assert.AreEqual(2, listener.GetTargetExecutionCount("compile"), "#A1");
+            // check whether 'clean' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("clean"), "#A2");
+            // check whether 'build' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("build"), "#A3");
+            // check whether 'init' target has been executed once
+            Assert.AreEqual(2, listener.GetTargetExecutionCount("init"), "#A4");
+            // check whether 'call' task has been executed twice
+            Assert.AreEqual(2, listener.GetTaskExecutionCount("call"), "#A5");
+
+            // construct new listener for tracking build events
+            listener = new TestBuildListener();
+
+            // run the build with cascade set to "false"
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xml,
+                "cascade=\"false\""), listener);
+            // check whether 'compile' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("compile"), "#B1");
+            // check whether 'clean' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("clean"), "#B2");
+            // check whether 'build' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("build"), "#B3");
+            // check whether 'init' target has been executed once
+            Assert.AreEqual(1, listener.GetTargetExecutionCount("init"), "#B4");
+            // check whether 'call' task has been executed twice
+            Assert.AreEqual(2, listener.GetTaskExecutionCount("call"), "#B5");
         }
     }
 }
