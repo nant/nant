@@ -76,7 +76,7 @@ namespace NAnt.VSNet.Types {
                 if (value != null) {
                     // Try to locate instance using Value
                     foreach (WebMap WebMap in base.List) {
-                        if ((WebMap.CaseSensitive && value.Equals(WebMap.Url)) || (!WebMap.CaseSensitive && value.ToUpper(CultureInfo.InvariantCulture) == WebMap.Url.ToUpper(CultureInfo.InvariantCulture))) {
+                        if (string.Compare(WebMap.Url, value, !WebMap.CaseSensitive, CultureInfo.InvariantCulture) == 0) {
                             return WebMap;
                         }
                     }
