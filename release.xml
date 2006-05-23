@@ -101,7 +101,7 @@
             <arg value="chgrp nant ${sf.net.web.path}/release/${project.version.full}/${project.name}.xsd" />
         </exec>
     </target>
-    <!-- copy online docs (manual & sdk) to sourceforge -->
+    <!-- copy online docs (manual) to sourceforge -->
     <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, release, package-doc">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
@@ -124,18 +124,10 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="chmod -R 775 ${sf.net.web.path}/release/${project.version.full}/help" />
         </exec>
-        <exec program="ssh" failonerror="false">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chmod -R 775 ${sf.net.web.path}/release/${project.version.full}/sdk" />
-        </exec>
         <!-- make sure group is set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chgrp -R nant ${sf.net.web.path}/release/${project.version.full}/help" />
-        </exec>
-        <exec program="ssh">
-            <arg value="${sf.net.ssh.server}" />
-            <arg value="chgrp -R nant ${sf.net.web.path}/release/${project.version.full}/sdk" />
         </exec>
     </target>
     <!-- copy website to sourceforge -->

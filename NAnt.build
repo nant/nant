@@ -601,8 +601,6 @@
         <tar destfile="${project.gzip-path.doc}" compression="GZip">
             <fileset basedir="${build.dir}/doc">
                 <include name="help/**/*" />
-                <include name="sdk/*" />
-                <exclude name="sdk/NAnt-SDK.chm" />
             </fileset>
         </tar>
         <echo message="Created '${project.config}' doc package at file://${project::get-base-directory()}/build/" />
