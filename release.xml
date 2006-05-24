@@ -9,7 +9,7 @@
     <!-- perform a 'release' package and upload to sf.net -->
     <target name="build-release" depends="deploy-sf, install" description="Perform a 'release' package, uploads to sf.net and installs it" />
     <!-- deploy content to sourceforge -->
-    <target name="deploy-sf" depends="deploy-distributions-sf, deploy-schema-sf, deploy-doc-sf, deploy-web-sf">
+    <target name="deploy-sf" depends="deploy-releasenotes-sf, deploy-schema-sf, deploy-doc-sf, deploy-web-sf">
         <!-- remove existing symlink, if it exists -->
         <exec program="ssh" failonerror="false">
             <arg value="${sf.net.ssh.server}" />
@@ -31,32 +31,12 @@
             <arg value="chgrp -R nant ${sf.net.web.path}/release/latest" />
         </exec>
     </target>
-    <!-- copy the release distributions, release notes and license to sourceforge -->
-    <target name="deploy-distributions-sf" depends="set-net-1.0-framework-configuration, release, package">
+    <!-- copy the release notes and license to sourceforge -->
+    <target name="deploy-releasenotes-sf" depends="set-net-1.0-framework-configuration, release, package">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 --parents ${sf.net.web.path}/release/${project.version.full}" />
-        </exec>
-        <!-- copy the source zip distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.zip-path.src)}" program="scp">
-            <arg value="${path::get-file-name(project.zip-path.src)}" />
-            <arg value="${serverpart}/release/${project.version.full}/" />
-        </exec>
-        <!-- copy the source gzipped tar distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.gzip-path.src)}" program="scp">
-            <arg value="${path::get-file-name(project.gzip-path.src)}" />
-            <arg value="${serverpart}/release/${project.version.full}/" />
-        </exec>
-        <!-- copy the binary zip distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.zip-path.bin)}" program="scp">
-            <arg value="${path::get-file-name(project.zip-path.bin)}" />
-            <arg value="${serverpart}/release/${project.version.full}/" />
-        </exec>
-        <!-- copy the binary gzipped tar distribution to sourceforge -->
-        <exec workingdir="${path::get-directory-name(project.gzip-path.bin)}" program="scp">
-            <arg value="${path::get-file-name(project.gzip-path.bin)}" />
-            <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
         <!-- copy the release notes and license to sourceforge -->
         <exec workingdir="${build.dir}/doc" program="scp">
@@ -64,7 +44,7 @@
             <arg value="*.html" />
             <arg value="${serverpart}/release/${project.version.full}/" />
         </exec>
-        <echo message="Copied distributions and release notes over to SF.Net" />
+        <echo message="Copied release notes and license over to SF.Net" />
         <!-- make sure permissions are set right -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
