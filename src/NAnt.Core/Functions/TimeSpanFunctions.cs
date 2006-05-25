@@ -114,6 +114,19 @@ namespace NAnt.Core.Functions {
         /// The number of whole days represented by the given 
         /// <see cref="TimeSpan" />.
         /// </returns>
+        /// <example>
+        ///   <para>
+        ///   Remove all files that have not been modified in the last 7 days from directory "binaries".</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <foreach item="File" in="binaries" property="filename">
+        ///     <if test="${timespan::get-days(datetime::now() - file::get-last-write-time(filename)) >= 7}">
+        ///         <delete file="${filename}" />
+        ///     </if>
+        /// </foreach>
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-days")]
         public static int GetDays(TimeSpan value) {
             return value.Days;
