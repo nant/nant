@@ -799,6 +799,22 @@ namespace NAnt.Core {
     ///         <term>MailLogger.body.encoding</term>
     ///         <description>The encoding type of the body of the e-mail message. [default: system's ANSI code page]</description>
     ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.smtp.username</term>
+    ///         <description>The name of the user to login to the SMTP server.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.smtp.password</term>
+    ///         <description>The password of the specified user.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.smtp.enablessl</term>
+    ///         <description>Specifies whether to use SSL to encrypt the connection. [default: false]</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>MailLogger.smtp.port</term>
+    ///         <description>The SMTP server port to connect to. [default: 25]</description>
+    ///     </item>
     /// </list>
     /// </remarks>
     [Serializable()]
@@ -839,6 +855,8 @@ namespace NAnt.Core {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public override void BuildFinished(object sender, BuildEventArgs e) {
+            const string cdoNamespaceURI = "http://schemas.microsoft.com/cdo/configuration/";
+
             base.BuildFinished(sender, e);
 
             // remove an item from the project stack
@@ -859,7 +877,7 @@ namespace NAnt.Core {
             string prefix = success ? "success" : "failure";
 
             try {
-                string propertyValue = GetPropertyValue(properties, prefix + ".notify", "true");
+                string propertyValue = GetPropertyValue(properties, prefix + ".notify", "true", false);
 
                 bool notify = true;
 
@@ -869,10 +887,10 @@ namespace NAnt.Core {
                     notify = true;
                 }
 
-                propertyValue = GetPropertyValue(properties, "body.encoding", "");
+                propertyValue = GetPropertyValue(properties, "body.encoding", null, false);
 
                 try {
-                    if (propertyValue != null && propertyValue.Length > 0) {
+                    if (propertyValue != null) {
                         bodyEncoding = Encoding.GetEncoding(propertyValue);
                     }
                 } catch {
@@ -885,15 +903,36 @@ namespace NAnt.Core {
 
                 // create message to send
                 MailMessage mailMessage = new MailMessage();
-                mailMessage.From = GetPropertyValue(properties, "from", null);
-                mailMessage.To = GetPropertyValue(properties, prefix + ".to", null);
+                mailMessage.From = GetPropertyValue(properties, "from", null, true);
+                mailMessage.To = GetPropertyValue(properties, prefix + ".to", null, true);
                 mailMessage.Subject = GetPropertyValue(properties, prefix + ".subject",
-                    (success) ? "Build Success" : "Build Failure");
+                    (success) ? "Build Success" : "Build Failure", false);
                 mailMessage.Body = _buffer.ToString();
+
+                string smtpUsername = GetPropertyValue(properties, "smtp.username", null, false);
+                if (smtpUsername != null) {
+                    mailMessage.Fields[cdoNamespaceURI + "smtpauthenticate"] = 1;
+                    mailMessage.Fields[cdoNamespaceURI + "sendusername"] = smtpUsername;
+                }
+
+                string smtpPassword = GetPropertyValue(properties, "smtp.password", null, false);
+                if (smtpPassword == null) {
+                    mailMessage.Fields[cdoNamespaceURI + "sendpassword"] = smtpPassword;
+                }
+
+                string smtpPort = GetPropertyValue(properties, "smtp.port", null, false);
+                if (smtpPort != null) {
+                    mailMessage.Fields[cdoNamespaceURI + "smtpserverport"] = smtpPort;
+                }
+
+                string enableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
+                if (enableSSL != null) {
+                    mailMessage.Fields[cdoNamespaceURI + "smtpusessl"] = enableSSL;
+                }
                 
                 // attach files in fileset to message
                 AttachFiles(mailMessage, project, GetPropertyValue(properties, 
-                    prefix + ".attachments", ""));
+                    prefix + ".attachments", null, false));
 
                 // set encoding of body
                 if (bodyEncoding != null) {
@@ -901,7 +940,7 @@ namespace NAnt.Core {
                 }
 
                 // send the message
-                SmtpMail.SmtpServer = GetPropertyValue(properties, "mailhost", "localhost");
+                SmtpMail.SmtpServer = GetPropertyValue(properties, "mailhost", "localhost", false);
                 SmtpMail.Send(mailMessage);
             } catch (Exception ex) {
                 Console.Error.WriteLine("[MailLogger] E-mail could not be sent!");
@@ -927,12 +966,13 @@ namespace NAnt.Core {
         /// <param name="properties">Properties to obtain value from.</param>
         /// <param name="name">Suffix of property name.  "MailLogger" will be prepended internally.</param>
         /// <param name="defaultValue">Value returned if property is not present in <paramref name="properties" />.</param>
+        /// <param name="required">Value indicating whether the property should exist, or have a default value set.</param>
         /// <returns>
         /// The value of the specified property; or the default value if the 
         /// property is not present in <paramref name="properties" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException">The specified property is not present and no default value has been given.</exception>
-        private string GetPropertyValue(PropertyDictionary properties, string name, string defaultValue) {
+        /// <exception cref="ArgumentNullException"><paramref name="required" /> is <see langword="true" />, and the specified property is not present and no default value has been given.</exception>
+        private string GetPropertyValue(PropertyDictionary properties, string name, string defaultValue, bool required) {
             string propertyName = "MailLogger." + name;
             string value = (string) properties[propertyName];
 
@@ -940,7 +980,7 @@ namespace NAnt.Core {
                 value = defaultValue;
             }
 
-            if (value == null) {
+            if (required && value == null) {
                 throw new ArgumentNullException(string.Format(CultureInfo.InvariantCulture, "Missing required parameter {0}.", propertyName));
             }
 
