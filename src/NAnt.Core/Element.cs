@@ -1058,7 +1058,10 @@ namespace NAnt.Core {
                     try {
                         // set the member array to our newly created array
                         propertyInfo.SetValue(Element, list, null);
-                    } catch (Exception ex) {
+                    } catch (TargetInvocationException ex) {
+                        if (ex.InnerException is BuildException) {
+                            throw ex.InnerException;
+                        }
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("NA1012"), 
                             elementType.FullName, propertyInfo.PropertyType.FullName, 
