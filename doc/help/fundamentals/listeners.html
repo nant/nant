@@ -166,7 +166,7 @@
                     </tr>
                     <tr>
                         <td>MailLogger.mailhost</td>
-                        <td>The mail server to use.</td>
+                        <td>The SMTP server to use.</td>
                         <td>No, default is "localhost"</td>
                     </tr>
                     <tr>
@@ -218,6 +218,26 @@
                         <td>MailLogger.body.encoding</td>
                         <td>The encoding type of the body of the e-mail message.</td>
                         <td>No, default is system's ANSI code page.</td>
+                    </tr>
+                    <tr>
+                        <td>MailLogger.smtp.username</td>
+                        <td>The name of the user to login to the SMTP server.</td>
+                        <td>No.</td>
+                    </tr>
+                    <tr>
+                        <td>MailLogger.smtp.password</td>
+                        <td>The password of the specified user.</td>
+                        <td>No.</td>
+                    </tr>
+                    <tr>
+                        <td>MailLogger.smtp.enablessl</td>
+                        <td>Specifies whether to use SSL to encrypt the connection.</td>
+                        <td>No, default is "false".</td>
+                    </tr>
+                    <tr>
+                        <td>MailLogger.smtp.port</td>
+                        <td>The SMTP server port to connect to.</td>
+                        <td>No, default is "25".</td>
                     </tr>
                 </tbody>
             </table>

@@ -251,6 +251,20 @@
                     &quot;MailLogger.failure.attachments&quot; properties to allow a set of files 
                     to be attached to the message that is sent.
                 </li>
+                <li>
+                    Support for SMTP authentication was introduced, and is exposed
+                    using the &quot;MailLogger.smtp.username&quot; and 
+                    &quot;MailLogger.smtp.password&quot; properties.
+                </li>
+                <li>
+                    The port of the SMTP server can be set using the
+                    &quot;MailLogger.smtp.port&quot; property.
+                </li>
+                <li>
+                    SSL can be used to encrypt the connection to the SMTP
+                    server by setting the &quot;MailLogger.smtp.enablessl&quot;
+                    property to &quot;true&quot;.
+                </li>
             </ul>
             <h5>Define types in task containers.</h5>
             <div style="margin-left: 20px;">
