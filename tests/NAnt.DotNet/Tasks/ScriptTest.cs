@@ -30,6 +30,7 @@ namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
     public class ScriptTest : BuildTestBase {
         [Test]
+        [Category ("NotMono")]
         public void Test_VB() {
             string _xml = @"
             <project>

@@ -10,7 +10,7 @@
         <!-- build test assembly -->
         <property name="vjc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'vjc.exe')}"  />
         <property name="jsc.location" value="${path::combine(framework::get-sdk-directory(framework::get-target-framework()), 'jsc.exe')}"  />
-        
+
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.Tests.dll">
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
@@ -20,7 +20,7 @@
                 <include name="**/*.cs"/>
                 <!-- common assembly-level attributes -->
                 <include name="../../src/CommonAssemblyInfo.cs" />
-                
+
                 <!-- exclude these tests if no j# or jsc compilers present -->
                 <exclude name="Tasks/VjcTaskTest.cs" unless="${file::exists(vjc.location)}" />
                 <exclude name="Tasks/JscTaskTest.cs" unless="${file::exists(jsc.location)}" />
@@ -40,7 +40,11 @@
     <target name="test" depends="build">
          <nunit2>
             <formatter type="Plain" />
-            <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
+            <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}">
+                <categories>
+                    <exclude name="NotMono" if="${framework::get-family(framework::get-target-framework())=='mono'}" />
+                </categories>
+            </test>
          </nunit2>
     </target>
 </project>

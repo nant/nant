@@ -103,6 +103,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// Test to make sure debug option works.
         /// </summary>
         [Test]
+        [Category ("NotMono")]
         public void Test_DebugBuild() {
             RunBuild(FormatBuildFile("debug='true'"));
             Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
@@ -114,13 +115,15 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// Test to make sure debug option works.
         /// </summary>
         [Test]
-        public void Test_ReleaseBuild() {   
+        [Category ("NotMono")]
+        public void Test_ReleaseBuild() {
             RunBuild(FormatBuildFile("debug='false'"));
             Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");
             Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
         [Test]
+        [Category ("NotMono")]
         public void Test_Define() {
             string sourceCode = @"
                 Public Class HelloWorld
@@ -882,11 +885,12 @@ namespace Tests.NAnt.DotNet.Tasks {
         }
 
         #endregion Private Instance Methods
+
         /// <summary>
         /// Unit tests for FileParser
         /// </summary>
         [TestFixture]
-            public class TestResourceLinkage {
+        public class TestResourceLinkage {
             /// <summary>
             /// Uses a representative sampling of classname inputs to verify that the classname line can be found
             /// </summary>
