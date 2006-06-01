@@ -911,23 +911,47 @@ namespace NAnt.Core {
 
                 string smtpUsername = GetPropertyValue(properties, "smtp.username", null, false);
                 if (smtpUsername != null) {
+#if (NET_1_1 || MONO_1_0)
                     mailMessage.Fields[cdoNamespaceURI + "smtpauthenticate"] = 1;
                     mailMessage.Fields[cdoNamespaceURI + "sendusername"] = smtpUsername;
+#else
+                    Console.Error.WriteLine("[MailLogger] MailLogger.smtp.username"
+                        + " is not supported if NAnt is built targeting .NET"
+                        + " Framework 1.0.");
+#endif
                 }
 
                 string smtpPassword = GetPropertyValue(properties, "smtp.password", null, false);
                 if (smtpPassword == null) {
+#if (NET_1_1 || MONO_1_0)
                     mailMessage.Fields[cdoNamespaceURI + "sendpassword"] = smtpPassword;
+#else
+                    Console.Error.WriteLine("[MailLogger] MailLogger.smtp.password"
+                        + " is not supported if NAnt is built targeting .NET"
+                        + " Framework 1.0.");
+#endif
                 }
 
                 string smtpPort = GetPropertyValue(properties, "smtp.port", null, false);
                 if (smtpPort != null) {
+#if (NET_1_1 || MONO_1_0)
                     mailMessage.Fields[cdoNamespaceURI + "smtpserverport"] = smtpPort;
+#else
+                    Console.Error.WriteLine("[MailLogger] MailLogger.smtp.port"
+                        + " is not supported if NAnt is built targeting .NET"
+                        + " Framework 1.0.");
+#endif
                 }
 
                 string enableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
                 if (enableSSL != null) {
+#if (NET_1_1 || MONO_1_0)
                     mailMessage.Fields[cdoNamespaceURI + "smtpusessl"] = enableSSL;
+#else
+                    Console.Error.WriteLine("[MailLogger] MailLogger.smtp.enablessl"
+                        + " is not supported if NAnt is built targeting .NET"
+                        + " Framework 1.0.");
+#endif
                 }
                 
                 // attach files in fileset to message
