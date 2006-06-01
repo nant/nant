@@ -855,7 +855,9 @@ namespace NAnt.Core {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public override void BuildFinished(object sender, BuildEventArgs e) {
+#if (NET_1_1 || MONO_1_0)
             const string cdoNamespaceURI = "http://schemas.microsoft.com/cdo/configuration/";
+#endif
 
             base.BuildFinished(sender, e);
 
