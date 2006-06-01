@@ -1507,16 +1507,19 @@ namespace NAnt.Core {
                 }
 
                 private BuildException CreateBuildException(XmlNode attributeNode, Element parent, PropertyInfo property, string value) {
-                    string message = string.Format(CultureInfo.InvariantCulture, 
-                       ResourceUtils.GetString("NA1022") + ResourceUtils.GetString("String_ValidValues"), 
-                        value, attributeNode.Name, parent.Name);
+                    StringBuilder sb = new StringBuilder();
 
                     foreach (object field in Enum.GetValues(property.PropertyType)) {
-                        message += field.ToString() + ", ";
+                        if (sb.Length > 0) {
+                            sb.Append(", ");
+                        }
+                        sb.Append(field.ToString());
                     }
 
-                    // strip last ,
-                    message = message.Substring(0, message.Length - 2);
+                    string message = string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("NA1023"),  value, attributeNode.Name, 
+                        parent.Name, sb.ToString());
+
                     return new BuildException(message, parent.Location);
                 }
             }

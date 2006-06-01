@@ -105,6 +105,9 @@
     <data name="NA1022">
         <value>'{0}' is not a valid value for attribute '{1}' of &lt;{2} ... /&gt;.</value>
     </data>
+    <data name="NA1023">
+        <value>'{0}' is not a valid value for attribute '{1}' of &lt;{2} ... /&gt;. Valid values are: {3}.</value>
+    </data>
     <data name="NA1025">
         <value>BuildElementArrayAttribute and BuildElementCollectionAttribute  should have an element type assigned that derives from Element for &lt;{0} .../&gt;.</value>
     </data>
@@ -776,9 +779,6 @@
     </data>
     <data name="String_CreatingTaskBuilder">
         <value>Creating TaskBuilder for {0}</value>
-    </data>
-    <data name="String_ValidValues">
-        <value> Valid values are: </value>
     </data>
     <data name="String_CannotReadPastStream">
         <value>Cannot read past end of stream.</value>
