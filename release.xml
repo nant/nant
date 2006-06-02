@@ -111,7 +111,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web-sf">
+    <target name="deploy-web-sf" depends="set-net-1.0-framework-configuration, release">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
