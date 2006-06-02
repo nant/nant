@@ -55,7 +55,6 @@
     </fileset>
     
     <fileset id="tas.core" basedir="src">
-        <include name="NAnt.Resources/NAnt.Resources.build" />
         <include name="NAnt.DotNet/NAnt.DotNet.build" />
         <include name="NAnt.Compression/NAnt.Compression.build" />
         <include name="NAnt.NUnit/NAnt.NUnit.build" />
