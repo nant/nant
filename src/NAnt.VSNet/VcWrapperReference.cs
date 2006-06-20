@@ -36,8 +36,6 @@ namespace NAnt.VSNet {
         #region Public Instance Constructors
 
         public VcWrapperReference(XmlElement xmlDefinition, ReferencesResolver referencesResolver, ProjectBase parent, GacCache gacCache) : base(xmlDefinition, referencesResolver, parent, gacCache) {
-            string typeLibrary = GetTypeLibrary();
-
             // determine name of type library
             _name = GetTypeLibraryName(GetTypeLibrary());
 
