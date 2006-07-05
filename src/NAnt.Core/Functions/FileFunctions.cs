@@ -207,18 +207,10 @@ namespace NAnt.Core.Functions {
                 AssemblyName.GetAssemblyName(Project.GetFullPath(assemblyFile));
                 //no exception occurred, this is an assembly
                 return true;
-            } catch (FileLoadException fle) {
-                if (fle.InnerException != null && fle.InnerException.GetType() == typeof(BadImageFormatException)) {
-                    // this is probably not an assembly, or it has invalid headers / metadata
-                    return false;
-                }
-                // other exceptions should be thrown to the end-user
-                throw;
+            } catch (FileLoadException) {
+                return false;
             } catch (BadImageFormatException) {
                 return false;
-            } catch (Exception) {
-                // other exceptions should be thrown to the end-user
-                throw;
             }
         }
 
