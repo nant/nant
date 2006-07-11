@@ -328,11 +328,9 @@ namespace NAnt.VSNet {
             string rcw = PrimaryInteropAssembly;
             if (rcw == null) {
                 // if no primary interop assembly is provided for ActiveX control,
-                // trust the fact that VS.NET uses Interop.<name of the tlbimp reference>.dll
-                // for the imported typelibrary
+                // then use the imported type library (if available)
                 rcw = FileUtils.CombinePaths(Parent.ObjectDir.FullName, 
-                    "Interop." + TypeLibraryName.Substring(2, TypeLibraryName.Length - 2) 
-                    + ".dll");
+                    "Interop." + TypeLibraryName + ".dll");
             }
             if (File.Exists(rcw)) {
                 axImp.RcwFile = new FileInfo(rcw);
