@@ -53,7 +53,7 @@ namespace NAnt.DotNet.Types {
     ///       <description>DEBUG</description>
     ///     </item>
     ///     <item>
-    ///       <description>TRUE</description>
+    ///       <description>TRACE</description>
     ///     </item>
     ///   </list>
     /// </remarks>
