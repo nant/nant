@@ -71,12 +71,37 @@
         <h4>Tasks</h4>        
         <div style="margin-left: 20px;">
             <h5>
+                <a class="heading" href="help/tasks/aximp.html">&lt;aximp&gt;</a></h5>
+            <ul>
+                <li>
+                    The value of the &quot;rcw&quot; attribute should be ignored when
+                    targeting .NET 1.0.
+                </li>
+            </ul>
+            <h5>
                 <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
             <ul>
                 <li>
                     Runtime callable wrapper is not used when generating Windows 
                     Forms control for ActiveX component that has no Primary 
                     Interop Assembly.
+                </li>
+                <li>
+                    When importing a type library, [out, retval] parameters of 
+                    methods on dispatch-only interfaces (dispinterfaces) are
+                    not transformed into return values.
+                </li>
+            </ul>
+        </div>
+        <h3>Changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/tlbimp.html">&lt;tlbimp&gt;</a></h5>
+            <ul>
+                <li>
+                    Added &quot;transform&quot; attribute which sets the name
+                    of transform to use for transforming the metadata [.NET 1.1 or higher].
                 </li>
             </ul>
         </div>
