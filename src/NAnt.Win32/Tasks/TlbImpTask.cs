@@ -53,6 +53,23 @@ namespace NAnt.Win32.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Generate an assembly named &quot;Interop.MSVidCtlLib.dll&quot; for the
+    ///   MS Video Control 1.0 Type Library, transforming any [out, retval]
+    ///   parameters of methods on dispinterfaces in the type library into 
+    ///   return values in the managed library.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <tlbimp typelib="msvidctl.dll" output="Interop.MSVidCtlLib.dll" transform="dispret">
+    ///     <references basedir="Interop">
+    ///         <include name="Interop.TunerLib.dll" />
+    ///     </references>
+    /// </tlbimp>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("tlbimp")]
     [ProgramLocation(LocationType.FrameworkSdkDir)]
     public class TlbImpTask : ExternalProgramBase {
@@ -69,9 +86,13 @@ namespace NAnt.Win32.Tasks {
         private AssemblyFileSet _references = new AssemblyFileSet();
         private bool _strictref;
         private bool _sysarray;
+        private string _transform;
         private bool _unsafe;
         private FileInfo _typelib;
         private StringBuilder _argumentBuilder;
+
+        // framework configuration settings
+        private bool _supportsTransform = true;
 
         #endregion Private Instance Fields
 
@@ -250,6 +271,15 @@ namespace NAnt.Win32.Tasks {
         }
 
         /// <summary>
+        /// Specifies how to transform the metadata [.NET 1.1 or higher].
+        /// </summary>
+        [TaskAttribute("transform")]
+        public string Transform {
+            get { return _transform; }
+            set { _transform = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
         /// Specifies the source type library that gets passed to the type 
         /// library importer.
         /// </summary>
@@ -278,6 +308,16 @@ namespace NAnt.Win32.Tasks {
         public bool Unsafe {
             get { return _unsafe; }
             set { _unsafe = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether <c>tlbimp</c> supports transforming metadata for
+        /// a given target framework. The default is <see langword="true" />.
+        /// </summary>
+        [FrameworkConfigurable("supportstransform")]
+        public bool SupportsTransform {
+            get { return _supportsTransform; }
+            set { _supportsTransform = value; }
         }
 
         #endregion Public Instance Properties
@@ -326,11 +366,11 @@ namespace NAnt.Win32.Tasks {
                 _argumentBuilder.Append(" /nologo");
 
                 if (AsmVersion != null) {
-                    _argumentBuilder.AppendFormat(" /asmversion:{0}", AsmVersion);
+                    _argumentBuilder.AppendFormat(" /asmversion:\"{0}\"", AsmVersion);
                 }
 
                 if (Namespace != null) {
-                    _argumentBuilder.AppendFormat(" /namespace:{0}", Namespace);
+                    _argumentBuilder.AppendFormat(" /namespace:\"{0}\"", Namespace);
                 }
 
                 if (Primary) {
@@ -354,7 +394,7 @@ namespace NAnt.Win32.Tasks {
                 }
 
                 if (KeyContainer != null) {
-                    _argumentBuilder.AppendFormat(" /keycontainer:{0}", KeyContainer);
+                    _argumentBuilder.AppendFormat(" /keycontainer:\"{0}\"", KeyContainer);
                 }
 
                 if (StrictRef) {
@@ -363,6 +403,12 @@ namespace NAnt.Win32.Tasks {
 
                 if (SysArray) {
                     _argumentBuilder.Append(" /sysarray");
+                }
+
+                if (Transform != null) {
+                    if (SupportsTransform) {
+                        _argumentBuilder.AppendFormat(" /transform:\"{0}\"", Transform);
+                    }
                 }
 
                 if (Verbose) {
@@ -384,31 +430,31 @@ namespace NAnt.Win32.Tasks {
 
         #endregion Override implementation of ExternalProgramBase
 
-		#region Public Static Methods
+        #region Public Static Methods
 
-		/// <summary>
-		/// Returns the path of the type library, removing the identifier of 
-		/// the type library from the specified string.
-		/// </summary>
-		/// <param name="path">The path from which to extract the path of the type library.</param>
-		/// <returns>
-		/// The path of the type library without the type library identifier.
-		/// </returns>
-		/// <remarks>
-		/// An example of a path which includes the identifier of the type 
-		/// library (in this case &quot;2&quot;) is
-		/// <c>C:\WINDOWS\system32\msvidctl.dll\2</c>.
-		/// </remarks>
-		public static string ExtractTypeLibPath(string path) {
-			Regex regex = new Regex(@"^.*\\\d+$", RegexOptions.IgnorePatternWhitespace 
-				| RegexOptions.Multiline | RegexOptions.IgnoreCase);
-			if (regex.IsMatch(path)) {
-				return path.Substring(0, path.LastIndexOf("\\"));
-			}
-			return path;
-		}
+        /// <summary>
+        /// Returns the path of the type library, removing the identifier of 
+        /// the type library from the specified string.
+        /// </summary>
+        /// <param name="path">The path from which to extract the path of the type library.</param>
+        /// <returns>
+        /// The path of the type library without the type library identifier.
+        /// </returns>
+        /// <remarks>
+        /// An example of a path which includes the identifier of the type 
+        /// library (in this case &quot;2&quot;) is
+        /// <c>C:\WINDOWS\system32\msvidctl.dll\2</c>.
+        /// </remarks>
+        public static string ExtractTypeLibPath(string path) {
+            Regex regex = new Regex(@"^.*\\\d+$", RegexOptions.IgnorePatternWhitespace 
+                | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            if (regex.IsMatch(path)) {
+                return path.Substring(0, path.LastIndexOf("\\"));
+            }
+            return path;
+        }
 
-		#endregion Public Static Methods
+        #endregion Public Static Methods
 
         #region Protected Instance Methods
 
@@ -427,7 +473,7 @@ namespace NAnt.Win32.Tasks {
                 return true;
             }
 
-			string typeLibPath = ExtractTypeLibPath(TypeLib.FullName);
+            string typeLibPath = ExtractTypeLibPath(TypeLib.FullName);
 
             // check if the type library was updated since the interop assembly was generated
             string fileName = FileSet.FindMoreRecentLastWriteTime(typeLibPath, OutputFile.LastWriteTime);
