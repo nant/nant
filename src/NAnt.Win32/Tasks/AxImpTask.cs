@@ -54,6 +54,9 @@ namespace NAnt.Win32.Tasks {
         private bool _delaySign;
         private bool _generateSource;
 
+        // framework configuration settings
+        private bool _supportsRcw = true;
+
         #endregion Private Instance Fields
 
         #region Public Instance Properties
@@ -142,12 +145,23 @@ namespace NAnt.Win32.Tasks {
 
         /// <summary>
         /// Assembly to use for Runtime Callable Wrapper rather than generating 
-        /// new one. Only supported on .NET 1.1 or higher.
+        /// new one [.NET 1.1 or higher].
         /// </summary>
         [TaskAttribute("rcw")]
         public FileInfo RcwFile {
             get { return _rcwFile; }
             set { _rcwFile = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether <c>aximp</c> supports using an existing Runtime
+        /// Callable Wrapper for a given target framework. The default is 
+        /// <see langword="true" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsrcw")]
+        public bool SupportsRcw {
+            get { return _supportsRcw; }
+            set { _supportsRcw = value; }
         }
 
         #endregion Public Instance Properties
@@ -210,8 +224,10 @@ namespace NAnt.Win32.Tasks {
             }
 
             if (RcwFile != null) {
-                Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture, 
-                    "/rcw:\"{0}\"", RcwFile.FullName)));
+                if (SupportsRcw) {
+                    Arguments.Add(new Argument(string.Format(CultureInfo.InvariantCulture, 
+                        "/rcw:\"{0}\"", RcwFile.FullName)));
+                }
             }
 
             // suppresses display of the sign-on banner
