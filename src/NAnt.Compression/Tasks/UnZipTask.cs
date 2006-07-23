@@ -125,8 +125,8 @@ namespace NAnt.Compression.Tasks {
                 ZipConstants.DefaultCodePage = Encoding.CodePage;
 
                 using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
-                    Log(Level.Info, "Unzipping '{0}' to '{1}' ({2} bytes).", 
-                        ZipFile.FullName, ToDirectory.FullName, s.Length);
+                    Log(Level.Info, "Unzipping '{0}' to '{1}'.", 
+                        ZipFile.FullName, ToDirectory.FullName);
 
                     ZipEntry entry;
 
@@ -135,7 +135,7 @@ namespace NAnt.Compression.Tasks {
                         if (entry.IsDirectory) {
                             ExtractDirectory(s, entry.Name, entry.DateTime);
                         } else {
-                            ExtractFile(s, entry.Name, entry.DateTime);
+                            ExtractFile(s, entry.Name, entry.DateTime, entry.Size);
                         }
                     }
 
@@ -162,6 +162,7 @@ namespace NAnt.Compression.Tasks {
         /// <param name="inputStream">The <see cref="Stream" /> containing the compressed entry.</param>
         /// <param name="entryName">The name of the entry including directory information.</param>
         /// <param name="entryDate">The date of the entry.</param>
+        /// <param name="entrySize">The uncompressed size of the entry.</param>
         /// <exception cref="BuildException">
         ///   <para>The destination directory for the entry could not be created.</para>
         ///   <para>-or-</para>
@@ -172,7 +173,7 @@ namespace NAnt.Compression.Tasks {
         /// is created before the file is extracted, so we should create the
         /// directory if it doesn't yet exist.
         /// </remarks>
-        protected void ExtractFile(Stream inputStream, string entryName, DateTime entryDate) {
+        protected void ExtractFile(Stream inputStream, string entryName, DateTime entryDate, long entrySize) {
             // determine destination file
             FileInfo destFile = new FileInfo(Path.Combine(ToDirectory.FullName,
                 entryName));
@@ -206,12 +207,16 @@ namespace NAnt.Compression.Tasks {
                     int size = 2048;
                     byte[] data = new byte[2048];
 
-                    while (true) {
-                        size = inputStream.Read(data, 0, data.Length);
-                        if (size > 0) {
-                            sw.Write(data, 0, size);
-                        } else {
-                            break;
+                    // workaround for SharpZipLib issue related to zero-length files:
+                    // http://community.sharpdevelop.net/forums/thread/10051.aspx
+                    if (entrySize > 0L) {
+                        while (true) {
+                            size = inputStream.Read(data, 0, data.Length);
+                            if (size > 0) {
+                                sw.Write(data, 0, size);
+                            } else {
+                                break;
+                            }
                         }
                     }
 
