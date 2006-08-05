@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
+// Gert Driesen (gert.driesen@ardatis.com)
 // Mike Krueger (mike@icsharpcode.net)
 // Aaron A. Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
@@ -87,6 +88,7 @@ namespace NAnt.DotNet.Tasks {
         private string _baseAddress;
         private DebugOutput _debugOutput = DebugOutput.None;
         private FileInfo _docFile;
+        private bool _nostdlib;
         private string _optionCompare;
         private bool _optionExplicit;
         private bool _optionStrict;
@@ -98,6 +100,7 @@ namespace NAnt.DotNet.Tasks {
 
         // framework configuration settings
         private bool _supportsDocGeneration;
+        private bool _supportsNoStdLib;
         private bool _supportsPlatform;
 
         #endregion Private Instance Fields
@@ -196,6 +199,24 @@ namespace NAnt.DotNet.Tasks {
         public NamespaceImportCollection Imports {
             get { return _imports; }
             set { _imports = value; }
+        }
+
+        /// <summary>
+        /// Instructs the compiler not to reference standard libraries
+        /// (system.dll and VBC.RSP). The default is <see langword="false" />.
+        /// Only supported when targeting .NET 2.0 (or higher).
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/nostdlib</c> flag.
+        /// </para>
+        /// </remarks>
+        [FrameworkConfigurable("nostdlib")]
+        [TaskAttribute("nostdlib")]
+        [BooleanValidator()]
+        public bool NoStdLib {
+            get { return _nostdlib; }
+            set { _nostdlib = value; }
         }
 
         /// <summary>
@@ -325,6 +346,17 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the compiler for the active target framework
+        /// supports NOT referencing standard libraries (system.dll and VBC.RSP).
+        /// The default is <see langword="false" />.
+        /// </summary>
+        [FrameworkConfigurable("supportsnostdlib")]
+        public bool SupportsNoStdLib {
+            get { return _supportsNoStdLib; }
+            set { _supportsNoStdLib = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether the compiler for the active target framework
         /// supports limiting the platform on which the compiled code can run.
         /// The default is <see langword="false" />.
         /// </summary>
@@ -397,6 +429,15 @@ namespace NAnt.DotNet.Tasks {
                     WriteOption(writer, "doc", DocFile.FullName);
                 } else {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportXmlDoc"),
+                        Project.TargetFramework.Description);
+                }
+            }
+
+            if (NoStdLib) {
+                if (SupportsNoStdLib) {
+                    WriteOption(writer, "nostdlib");
+                } else {
+                    Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportNoStdLib"),
                         Project.TargetFramework.Description);
                 }
             }
