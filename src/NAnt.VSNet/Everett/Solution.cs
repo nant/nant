@@ -56,7 +56,8 @@ namespace NAnt.VSNet.Everett {
                     throw CreateProjectDoesNotExistException(fullProjectPath);
                 }
 
-                if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
+                bool isEnterpriseTemplateProject = ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath);
+                if (isEnterpriseTemplateProject) {
                     RecursiveLoadTemplateProject(fullProjectPath);
                 } else {
                     // add project entry to collection
@@ -69,11 +70,21 @@ namespace NAnt.VSNet.Everett {
 
                 foreach (Match dependencyMatch in dependencyMatches) {
                     string dependency = dependencyMatch.Groups["dep"].Value;
+                    // bug #1534864: an Enterprise Template project actually 
+                    // defines dependencies for the projects it contains, and
+                    // is not added as a project itself
+                    //
+                    // Note: for non-ET projects both the "guid" and "dep" group
+                    // have the same value, which is the guid of the project 
+                    // that the project containing the dependencies section 
+                    // depends upon
+                    string projectGuid = isEnterpriseTemplateProject ? 
+                        dependencyMatch.Groups["guid"].Value : guid;
 
-                    if (!explicitProjectDependencies.ContainsKey(guid)) {
-                        explicitProjectDependencies[guid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                    if (!explicitProjectDependencies.ContainsKey(projectGuid)) {
+                        explicitProjectDependencies[projectGuid] = CollectionsUtil.CreateCaseInsensitiveHashtable();
                     }
-                    ((Hashtable) explicitProjectDependencies[guid])[dependency] = null;
+                    ((Hashtable) explicitProjectDependencies[projectGuid])[dependency] = null;
                 }
 
                 // set-up project configuration 
