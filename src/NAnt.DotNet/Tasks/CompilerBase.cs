@@ -1127,8 +1127,9 @@ namespace NAnt.DotNet.Tasks {
             // check if key file was updated
             if (KeyFile != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(KeyFile.FullName, OutputFile.LastWriteTime);
-                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
-                    fileName);
+                if (fileName != null) {
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                 return true;
             }
 
