@@ -1130,7 +1130,8 @@ namespace NAnt.DotNet.Tasks {
                 if (fileName != null) {
                     Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                         fileName);
-                return true;
+                    return true;
+                }
             }
 
             // check if reference assemblies were updated
