@@ -122,7 +122,9 @@ namespace NAnt.Core.Types {
         public override string ToString() {
             if (File != null) {
                 return QuoteArgument(File.FullName);
-            } else if (Path != null) {
+            } else if (Directory != null) {
+                return QuoteArgument(Directory.FullName);
+            }  else if (Path != null) {
                 return QuoteArgument(Path.ToString());
             } else if (Value != null) {
                 return QuoteArgument(Value);
