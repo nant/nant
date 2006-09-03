@@ -235,7 +235,7 @@ namespace Tests.NAnt.VisualCpp {
                                                                                  "windows.h"
                                                                              };
 
-        private static readonly bool _compilerPresent = _compilerPresent = CheckCompilerPresent();
+        private static readonly bool _compilerPresent = CheckCompilerPresent();
         private static readonly bool _libsPresent = CheckLibsPresent();
         private static readonly bool _headerFilesPresent = CheckHeaderFilesPresent();
         private static readonly bool _supportedCompiler = CheckSupportedCompiler();
