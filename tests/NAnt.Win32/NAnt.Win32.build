@@ -25,7 +25,7 @@
             </references>
         </csc>
     </target>
-    <target name="test" depends="build">
+    <target name="test" depends="build" if="${platform::is-win32()}">
         <nunit2>
             <formatter type="Plain" />
             <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
