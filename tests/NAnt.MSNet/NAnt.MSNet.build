@@ -6,7 +6,7 @@
             * build.debug           - (true|false) debug build?
             * current.build.defines - framework-specific build defines
     -->
-    <target name="build"> 
+    <target name="build" if="${framework::get-family(framework::get-target-framework()) == 'net'}"> 
         <!-- build test assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.Tests.dll">
             <nowarn>
@@ -25,7 +25,7 @@
             </references>
         </csc>
     </target>
-    <target name="test" depends="build">
+    <target name="test" depends="build" if="${framework::get-family(framework::get-target-framework()) == 'net'}">
         <nunit2>
             <formatter type="Plain" />
             <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
