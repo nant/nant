@@ -121,6 +121,19 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Performs additional custom processes before removing an element
+        /// from the <see cref="DictionaryBase" /> instance.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
+        /// <param name="value">The value of the element to remove.</param>
+        protected override void OnRemove(object key, object value) {
+            string propertyName = key as string;
+            if (propertyName != null && _readOnlyProperties.Contains (propertyName)) {
+                _readOnlyProperties.Remove (propertyName);
+            }
+        }
+
+        /// <summary>
         /// Performs additional custom processes when validating the element 
         /// with the specified key and value.
         /// </summary>
