@@ -351,18 +351,29 @@ namespace NAnt.DotNet.Tasks {
             // add (and load) assemblies specified by user
             foreach (string assemblyFile in References.FileNames) {
                 try {
-                    // load assemblies into current AppDomain to ensure assemblies
-                    // are available when executing the emitted assembly
-                    Assembly.LoadFrom(assemblyFile);
+                    // fetch name of assembly
+                    AssemblyName aname = AssemblyName.GetAssemblyName(assemblyFile);
 
-                    // make assembly available to compiler
-                    options.ReferencedAssemblies.Add(assemblyFile);
+                    // don't bother adding assemblies that are already loaded
+                    // in the AppDomain as they have already been added
+                    if (IsAssemblyLoaded (aname)) {
+                        continue;
+                    }
+
+                    // load the assembly into current AppDomain to ensure it is
+                    // are available when executing the emitted assembly
+                    Assembly asm = Assembly.LoadFrom(assemblyFile);
+
+                    // add the location of the loaded assembly
+                    if (!StringUtils.IsNullOrEmpty(asm.Location)) {
+                        options.ReferencedAssemblies.Add(asm.Location);
+                    }
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("NA2028"), assemblyFile), Location, ex);
                 }
             }
-            
+
             StringCollection imports = new StringCollection();
 
             foreach (NamespaceImport import in Imports) {
@@ -527,6 +538,15 @@ namespace NAnt.DotNet.Tasks {
                     ResourceUtils.GetString("NA2038"), providerType.FullName));
             }
             return (CodeDomProvider) provider;
+        }
+
+        private static bool IsAssemblyLoaded (AssemblyName aname) {
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
+                if (asm.FullName == aname.FullName) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #endregion Private Static Methods
