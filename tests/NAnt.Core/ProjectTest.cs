@@ -179,6 +179,20 @@ namespace Tests.NAnt.Core {
             Assert.IsTrue(b._taskFinished);
         }
 
+        [Test] // bug #1556326 
+        public void Remove_Readonly_Property () {
+            Project p = CreateFilebasedProject("<project />");
+            p.Properties.AddReadOnly ("test", "value1");
+            Assert.IsTrue (p.Properties.IsReadOnlyProperty ("test"), "#1");
+            Assert.IsTrue (p.Properties.Contains ("test"), "#2");
+            p.Properties.Remove ("test");
+            Assert.IsFalse (p.Properties.IsReadOnlyProperty ("test"), "#3");
+            Assert.IsFalse (p.Properties.Contains ("test"), "#4");
+            p.Properties.Add ("test", "value2");
+            Assert.IsFalse (p.Properties.IsReadOnlyProperty ("test"), "#5");
+            Assert.IsTrue (p.Properties.Contains ("test"), "#6");
+        }
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
