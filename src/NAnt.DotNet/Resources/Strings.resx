@@ -244,6 +244,9 @@
 
     <!--Message from:\NAnt.DotNet\Tasks\CscTask.cs-->
     <!--Message from:\NAnt.DotNet\Tasks\VbcTask.cs-->
+    <data name="String_CompilerDoesNotSupportNoStdLib">
+        <value>The compiler for "{0}" does not support the /nostdlib option.</value>
+    </data>
     <data name="String_CompilerDoesNotSupportXmlDoc">
         <value>The compiler for "{0}" does not support generation of XML Documentation file.</value>
     </data>
