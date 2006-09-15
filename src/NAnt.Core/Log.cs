@@ -855,7 +855,7 @@ namespace NAnt.Core {
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="BuildEventArgs" /> object that contains the event data.</param>
         public override void BuildFinished(object sender, BuildEventArgs e) {
-#if (NET_1_1 || MONO_1_0)
+#if (NET_1_1)
             const string cdoNamespaceURI = "http://schemas.microsoft.com/cdo/configuration/";
 #endif
 
@@ -913,7 +913,7 @@ namespace NAnt.Core {
 
                 string smtpUsername = GetPropertyValue(properties, "smtp.username", null, false);
                 if (smtpUsername != null) {
-#if (NET_1_1 || MONO_1_0)
+#if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "smtpauthenticate"] = 1;
                     mailMessage.Fields[cdoNamespaceURI + "sendusername"] = smtpUsername;
 #else
@@ -925,7 +925,7 @@ namespace NAnt.Core {
 
                 string smtpPassword = GetPropertyValue(properties, "smtp.password", null, false);
                 if (smtpPassword == null) {
-#if (NET_1_1 || MONO_1_0)
+#if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "sendpassword"] = smtpPassword;
 #else
                     Console.Error.WriteLine("[MailLogger] MailLogger.smtp.password"
@@ -936,7 +936,7 @@ namespace NAnt.Core {
 
                 string smtpPort = GetPropertyValue(properties, "smtp.port", null, false);
                 if (smtpPort != null) {
-#if (NET_1_1 || MONO_1_0)
+#if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "smtpserverport"] = smtpPort;
 #else
                     Console.Error.WriteLine("[MailLogger] MailLogger.smtp.port"
@@ -947,7 +947,7 @@ namespace NAnt.Core {
 
                 string enableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
                 if (enableSSL != null) {
-#if (NET_1_1 || MONO_1_0)
+#if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "smtpusessl"] = enableSSL;
 #else
                     Console.Error.WriteLine("[MailLogger] MailLogger.smtp.enablessl"
