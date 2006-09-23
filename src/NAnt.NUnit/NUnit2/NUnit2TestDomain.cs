@@ -65,19 +65,17 @@ namespace NAnt.NUnit2.Tasks {
             
             if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
                 string [] privateBinPaths = AppDomain.CurrentDomain.SetupInformation.PrivateBinPath.Split(Path.PathSeparator);
-                probePaths = new string [privateBinPaths.Length];
+                probePaths = new string [privateBinPaths.Length + 1];
                 for (int i = 0; i < privateBinPaths.Length; i++) {
                     probePaths[i] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                         privateBinPaths[i]);
                 }
-            }
-
-            if (probePaths == null) {
-                probePaths = new string[0];
+            } else {
+                probePaths = new string[1];
             }
 
             // add base directory of current AppDomain as probe path
-            probePaths.Add(AppDomain.CurrentDomain.BaseDirectory);
+            probePaths [probePaths.Length - 1] = AppDomain.CurrentDomain.BaseDirectory;
 
             // create an instance of our custom Assembly Resolver in the target domain.
             _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
@@ -85,7 +83,7 @@ namespace NAnt.NUnit2.Tasks {
                     false, 
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
-                    new object[] {probe},
+                    new object[] {probePaths},
                     CultureInfo.InvariantCulture,
                     null,
                     AppDomain.CurrentDomain.Evidence);
