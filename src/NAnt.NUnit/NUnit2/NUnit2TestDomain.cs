@@ -61,14 +61,19 @@ namespace NAnt.NUnit2.Tasks {
 
             // assemble directories which can be probed for missing unresolved 
             // assembly references
-            StringCollection probePaths = new StringCollection();
+            string[] probePaths = null;
             
             if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
-                foreach (string path in AppDomain.CurrentDomain.SetupInformation.PrivateBinPath.Split(';')) {
-                    // path is relative to base directory of AppDomain, so 
-                    // resolve to full path
-                    probePaths.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path));
+                string [] privateBinPaths = AppDomain.CurrentDomain.SetupInformation.PrivateBinPath.Split(Path.PathSeparator);
+                probePaths = new string [privateBinPaths.Length];
+                for (int i = 0; i < privateBinPaths.Length; i++) {
+                    probePaths[i] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                        privateBinPaths[i]);
                 }
+            }
+
+            if (probePaths == null) {
+                probePaths = new string[0];
             }
 
             // add base directory of current AppDomain as probe path
@@ -80,11 +85,11 @@ namespace NAnt.NUnit2.Tasks {
                     false, 
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
-                    new object[] {probePaths},
+                    new object[] {probe},
                     CultureInfo.InvariantCulture,
                     null,
-                    AppDomain.CurrentDomain.Evidence);     
-            
+                    AppDomain.CurrentDomain.Evidence);
+
             // create testrunner
             return CreateTestRunner(_domain);
         }
@@ -115,7 +120,7 @@ namespace NAnt.NUnit2.Tasks {
             // configuration file for given assembly file
             string configurationFile = null;
             if (configFile != null) {
-                configurationFile = configFile.FullName;                    
+                configurationFile = configFile.FullName;
             } else {
                 configurationFile = assemblyFile.FullName + ".config";
             }
@@ -170,7 +175,7 @@ namespace NAnt.NUnit2.Tasks {
             /// Initializes an instanse of the <see cref="AssemblyResolveHandler" /> 
             /// class.
             /// </summary>
-            public AssemblyResolveHandler(StringCollection probePaths) {
+            public AssemblyResolveHandler(string[] probePaths) {
                 _assemblyCache = new Hashtable();
                 _probePaths = probePaths;
             
@@ -261,12 +266,12 @@ namespace NAnt.NUnit2.Tasks {
             /// Holds the list of directories that will be scanned for missing
             /// assembly references.
             /// </summary>
-            private StringCollection _probePaths;
+            private readonly string[] _probePaths;
 
             /// <summary>
             /// Holds the loaded assemblies.
             /// </summary>
-            private Hashtable _assemblyCache;
+            private readonly Hashtable _assemblyCache;
 
             #endregion Private Instance Fields
         }
