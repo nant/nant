@@ -514,7 +514,7 @@ namespace NAnt.Core {
             // DefaultLogger, or if logfile was specified on command-line. 
             // Setting the OutputWriter of the DefaultLogger to Console.Out 
             // would cause issues with unit tests.
-            if (!typeof(DefaultLogger).IsAssignableFrom(buildLogger.GetType()) || outputWriter is StreamWriter) {
+            if (!typeof(DefaultLogger).IsAssignableFrom(buildLogger.GetType()) || cmdlineOptions.LogFile != null) {
                 buildLogger.OutputWriter = outputWriter;
             }
 
