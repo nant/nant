@@ -364,11 +364,6 @@ namespace NAnt.DotNet.Tasks {
                 // using assemblies stored in the same directory
                 _programFileName = Path.Combine(BaseDirectory.FullName, 
                     Path.GetFileName(base.ProgramFileName));
-            } else {
-                foreach (string assembly in Assemblies.FileNames) {
-                    _arguments.Insert(0, string.Format(CultureInfo.InvariantCulture,
-                        " /r:\"{0}\" ", assembly));
-                }
             }
 
             // further delegate preparation to base class
@@ -664,72 +659,88 @@ namespace NAnt.DotNet.Tasks {
         }
 
         private void WriteCommandLineOptions(FileInfo inputFile, FileInfo outputFile) {
-            if (NeedsCompiling(inputFile, outputFile)) {
-                // ensure output directory exists
-                if (!outputFile.Directory.Exists) {
-                    outputFile.Directory.Create();
-                }
-
-                string cmdLineArg = string.Format(CultureInfo.InvariantCulture, 
-                    " \"{0},{1}\"", inputFile, outputFile.FullName);
-
-                // check if adding arguments to compile current resx to 
-                // total command line would cause it to exceed maximum
-                // length
-                bool maxCmdLineExceeded = (_arguments.Length + cmdLineArg.Length > _maxCmdLineLength);
-
-                // if this is the first resx that we're compiling, or the
-                // first one of the next execution of the resgen tool, then
-                // add options to command line
-                if (_arguments.Length == 0 || maxCmdLineExceeded) {
-                    if (UseSourcePath) {
-                        if (SupportsExternalFileReferences) {
-                            cmdLineArg = " /useSourcePath /compile" + cmdLineArg;
-                        } else {
-                            cmdLineArg = " /compile" + cmdLineArg;
-
-                            Log(Level.Warning, ResourceUtils.GetString(
-                                "String_ResourceCompilerDoesNotSupportExternalReferences"), 
-                                Project.TargetFramework.Description);
-                        }
-                    } else {
-                        cmdLineArg = "/compile" + cmdLineArg;
-                    }
-                }
-
-                // if maximum length would have been exceeded by compiling
-                // the current resx file, then first execute the resgen
-                // tool
-                if (maxCmdLineExceeded) {
-                    try {
-                        // call base class to do the work
-                        base.ExecuteTask();
-                    } catch {
-                        // we only need to remove temporary directory when 
-                        // an error occurred and if it was actually created
-                        if (_workingDirectory != null) {
-                            // delete temporary directory and all files in it
-                            DeleteTask deleteTask = new DeleteTask();
-                            deleteTask.Project = Project;
-                            deleteTask.Parent = this;
-                            deleteTask.InitializeTaskConfiguration();
-                            deleteTask.Directory = _workingDirectory;
-                            deleteTask.Threshold = Level.None; // no output in build log
-                            deleteTask.Execute();
-                        }
-
-                        // rethrow exception
-                        throw;
-                    }
-
-                    // reset command line arguments as we've processed them
-                    _arguments.Length = 0;
-                }
-
-                // append command line arguments to compile current resx
-                // file to the total command line
-                _arguments.Append(cmdLineArg);
+            if (!NeedsCompiling(inputFile, outputFile)) {
+                return;
             }
+
+            // ensure output directory exists
+            if (!outputFile.Directory.Exists) {
+                outputFile.Directory.Create();
+            }
+
+            string cmdLineArg = string.Format(CultureInfo.InvariantCulture, 
+                "\"{0},{1}\" ", inputFile, outputFile.FullName);
+
+            // check if adding arguments to compile current resx to 
+            // total command line would cause it to exceed maximum
+            // length
+            bool maxCmdLineExceeded = (_arguments.Length + cmdLineArg.Length > _maxCmdLineLength);
+
+            // if this is the first resx that we're compiling, or the
+            // first one of the next execution of the resgen tool, then
+            // add options to command line
+            if (_arguments.Length == 0 || maxCmdLineExceeded) {
+                if (UseSourcePath) {
+                    if (SupportsExternalFileReferences) {
+                        cmdLineArg = "/useSourcePath /compile " + cmdLineArg;
+                    } else {
+                        cmdLineArg = "/compile " + cmdLineArg;
+
+                        Log(Level.Warning, ResourceUtils.GetString(
+                            "String_ResourceCompilerDoesNotSupportExternalReferences"), 
+                            Project.TargetFramework.Description);
+                    }
+                } else {
+                    StringBuilder sb = new StringBuilder ();
+
+                    // bug #1415272: first write assembly references, to make sure these
+                    // are taken into account when calculating the length of the command
+                    // line
+                    if (SupportsAssemblyReferences) {
+                        foreach (string assembly in Assemblies.FileNames) {
+                            sb.AppendFormat (CultureInfo.InvariantCulture,
+                                "/r:\"{0}\" ", assembly);
+                        }
+                    }
+                    sb.Append ("/compile ");
+                    sb.Append (cmdLineArg);
+
+                    cmdLineArg = sb.ToString ();
+                }
+            }
+
+            // if maximum length would have been exceeded by compiling
+            // the current resx file, then first execute the resgen
+            // tool
+            if (maxCmdLineExceeded) {
+                try {
+                    // call base class to do the work
+                    base.ExecuteTask();
+                } catch {
+                    // we only need to remove temporary directory when 
+                    // an error occurred and if it was actually created
+                    if (_workingDirectory != null) {
+                        // delete temporary directory and all files in it
+                        DeleteTask deleteTask = new DeleteTask();
+                        deleteTask.Project = Project;
+                        deleteTask.Parent = this;
+                        deleteTask.InitializeTaskConfiguration();
+                        deleteTask.Directory = _workingDirectory;
+                        deleteTask.Threshold = Level.None; // no output in build log
+                        deleteTask.Execute();
+                    }
+
+                    // rethrow exception
+                    throw;
+                }
+
+                // reset command line arguments as we've processed them
+                _arguments.Length = 0;
+            }
+
+            // append command line arguments to compile current resx
+            // file to the total command line
+            _arguments.Append(cmdLineArg);
         }
 
         #endregion Private Instance Methods
