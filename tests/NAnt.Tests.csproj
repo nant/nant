@@ -240,6 +240,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Functions\FileFunctionsTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Functions\TargetFunctionsTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
