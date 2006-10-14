@@ -200,7 +200,6 @@ namespace NAnt.Core.Functions {
         /// <exception cref="ArgumentException"><paramref name="assemblyFile" /> is an empty <see cref="string"/>.</exception>
         /// <exception cref="FileNotFoundException"><paramref name="assemblyFile" /> is not found, or the file you are trying to check does not specify a filename extension.</exception>
         /// <exception cref="SecurityException">The caller does not have path discovery permission.</exception>
-        /// <exception cref="FileLoadException">The file could not be loaded for some reason.</exception>
         [Function("is-assembly")]
         public bool IsAssembly(string assemblyFile) {
             try {
