@@ -17,9 +17,11 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
+using System.IO;
+
 using NUnit.Framework;
 
-//using NAnt.Core;
+using NAnt.Core;
 
 namespace Tests.NAnt.Core.Functions {
     [TestFixture]
@@ -77,13 +79,20 @@ namespace Tests.NAnt.Core.Functions {
         public void IsAssembly_AssemblyDoesNotExist() {
             string buildFragment =
                 "<project>" +
-                "   <echo file=\"doesnotexist.dll\">test</echo>" +
                 "   <if test=\"${file::is-assembly('doesnotexist.dll')}\">" +
                 "       <fail>#1</fail>" +
                 "   </if>" +
                 "</project>";
 
-            RunBuild(buildFragment);
+            try {
+                RunBuild(buildFragment);
+                Assert.Fail ("#1");
+            } catch (TestBuildException ex) {
+                Assert.IsNotNull (ex.InnerException, "#2");
+                Assert.AreEqual (typeof (BuildException), ex.InnerException.GetType(), "#3");
+                Assert.IsNotNull (ex.InnerException.InnerException, "#4");
+                Assert.AreEqual (typeof (FileNotFoundException), ex.InnerException.InnerException.GetType(), "#5");
+            }
         }
 
         #endregion Public Instance Methods
