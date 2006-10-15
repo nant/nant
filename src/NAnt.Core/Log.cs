@@ -109,9 +109,6 @@ namespace NAnt.Core {
         /// class.
         /// </summary>
         public BuildEventArgs() {
-            _project = null;
-            _target = null;
-            _task = null;
         }
 
         /// <summary>
@@ -121,8 +118,6 @@ namespace NAnt.Core {
         /// <param name="project">The <see cref="Project" /> that emitted the event.</param>
         public BuildEventArgs(Project project) {
             _project = project;
-            _target = null;
-            _task = null;
         }
     
         /// <summary>
@@ -133,7 +128,6 @@ namespace NAnt.Core {
         public BuildEventArgs(Target target) {
             _project = target.Project;
             _target = target;
-            _task = null;
         }
     
         /// <summary>
@@ -642,7 +636,7 @@ namespace NAnt.Core {
         /// logger.
         /// </summary>
         /// <param name="e">The event to output.</param>
-        /// <param name="indentationLength">TODO</param>
+        /// <param name="indentationLength">The number of characters that the message should be indented.</param>
         private void OutputMessage(BuildEventArgs e, int indentationLength) {
             if (e.MessageLevel >= Threshold) {
                 string txt = e.Message;
@@ -704,16 +698,12 @@ namespace NAnt.Core {
         private TextWriter _outputWriter;
         private bool _emacsMode;
 
-        #endregion Private Instance Fields
-
-        #region Private Static Fields
-
         /// <summary>
         /// Holds a stack of reports for all running builds.
         /// </summary>
-        private Stack _buildReports = new Stack();
+        private readonly Stack _buildReports = new Stack();
 
-        #endregion Private Static Fields
+        #endregion Private Instance Fields
     }
 
     /// <summary>
@@ -735,7 +725,7 @@ namespace NAnt.Core {
         /// <summary>
         /// The start time of the build process.
         /// </summary>
-        public DateTime StartTime;
+        public readonly DateTime StartTime;
 
         public BuildReport(DateTime startTime) {
             StartTime = startTime;
@@ -1334,7 +1324,8 @@ namespace NAnt.Core {
         /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
         public override void WriteLine(string value) {
             _message += value;
-            Flush();
+            _task.Log(OutputLevel, _message);
+            _message = string.Empty;
         }
 
         /// <summary>
@@ -1345,7 +1336,8 @@ namespace NAnt.Core {
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
             _message += string.Format(CultureInfo.InvariantCulture, line, args);
-            Flush();
+            _task.Log(OutputLevel, _message);
+            _message = string.Empty;
         }
 
         /// <summary>
@@ -1405,8 +1397,8 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private Task _task;
-        private Level _outputLevel;
+        private readonly Task _task;
+        private readonly Level _outputLevel;
         private string _message = string.Empty;
 
         #endregion Private Instance Fields
