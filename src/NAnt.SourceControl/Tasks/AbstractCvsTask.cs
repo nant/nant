@@ -463,7 +463,7 @@ namespace NAnt.SourceControl.Tasks {
             }
 
             if (this.UseSharpCvsLib) {
-                UseRuntimeEngine = true;
+                Managed = true;
             }
 
             // Set verbose logging on the #cvslib client if used.
