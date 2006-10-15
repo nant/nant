@@ -155,7 +155,7 @@
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
@@ -165,7 +165,7 @@
         </exec>
     </target>
     <target name="test-dotnet" depends="build">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
@@ -175,7 +175,7 @@
         </exec>
     </target>
     <target name="test-sourcecontrol" depends="build">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
@@ -185,7 +185,7 @@
         </exec>
     </target>
     <target name="test-compression" depends="build">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
@@ -275,7 +275,7 @@
             </resources>
         </csc>
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
@@ -344,7 +344,7 @@
     </target>
     <target name="sdkdoc" depends="build" description="Builds SDK documentation">
         <echo message="Creating SDK Documentation for ${build.dir}/bin/${nant.console.name}.exe" />
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-indent:1" />
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
@@ -417,7 +417,7 @@
                 <!-- temporary directory -->
                 <include name="ndoc_msdn_temp" />
             </fileset>
-        </delete>        
+        </delete>
     </target>
     
     <target name="self-schema" depends="init">
@@ -436,7 +436,7 @@
     </target>
 
     <target name="schema" depends="build">
-        <exec program="${build.dir}/bin/${nant.console.name}.exe" useruntimeengine="true">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
             <arg value="-D:project.version=${project.version}" />
             <arg value="-D:project.release.type=${project.release.type}" />
