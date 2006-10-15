@@ -977,19 +977,6 @@ namespace NAnt.Core {
                     endTarget = Properties[NAntPropertyOnFailure];
                 }
 
-                // TO-DO : remove this after release of NAnt 0.8.4 or so
-                string deprecatedFailureTarget = Properties["nant.failure"];
-
-                if (!StringUtils.IsNullOrEmpty(deprecatedFailureTarget)) {
-                    Log(Level.Warning, "The 'nant.failure' property has been deprecated." + 
-                        " You should use '{0}' to designate the target that should be" + 
-                        " executed when the build fails." + Environment.NewLine, 
-                        Project.NAntPropertyOnFailure);
-                    if (error != null) {
-                        Execute(deprecatedFailureTarget);
-                    }
-                }
-
                 if (!StringUtils.IsNullOrEmpty(endTarget)) {
                     // executing the target identified by the 'nant.onsuccess' 
                     // or 'nant.onfailure' properties should not affect the 
