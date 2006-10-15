@@ -489,12 +489,6 @@ namespace NAnt.Core {
                         + " function instead.", name);
                     break;
                 default:
-                    if (name.StartsWith("nant.tasks.")) {
-                        Project.Log(Level.Warning, "Built-in property '{0}' is"
-                            + " deprecated. Use the task::exists(string) function"
-                            + " instead.", 
-                            name);
-                    }
                     break;
             }
         }

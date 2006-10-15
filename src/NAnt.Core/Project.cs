@@ -1195,8 +1195,6 @@ namespace NAnt.Core {
         ///         <item>nant.project.buildfile (if doc has baseuri)</item>
         ///         <item>nant.project.basedir</item>
         ///         <item>nant.project.default = defaultTarget</item>
-        ///         <item>nant.tasks.[name] = true</item>
-        ///         <item>nant.tasks.[name].location = AssemblyFileName</item>
         ///     </list>
         /// </summary>
         /// <param name="doc">An <see cref="XmlDocument" /> representing the project definition.</param>

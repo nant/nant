@@ -223,10 +223,6 @@ namespace NAnt.Core {
             // away, we don't want to hold it
             _projects.Add(new WeakReference(project));
 
-            foreach (TaskBuilder tb in TaskBuilders) {
-                UpdateProjectWithBuilder(project, tb);
-            }
-
             if (scan && !StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
                 LoadTasksTask loadTasks = new LoadTasksTask();
                 loadTasks.Project = project;
@@ -432,21 +428,6 @@ namespace NAnt.Core {
 
         #endregion Public Static Methods
 
-        #region Internal Static Methods
-
-        internal static void UpdateProjectWithBuilder(Project p, TaskBuilder tb) {
-            // add a true property for each task (use in build to test for task existence).
-            // add a property for each task with the assembly location.
-            p.Properties.AddReadOnly("nant.tasks." + tb.TaskName, Boolean.TrueString);
-            try {
-                p.Properties.AddReadOnly("nant.tasks." + tb.TaskName + ".location", tb.Assembly.Location);
-            } catch (NotSupportedException) {
-                // Assembly.Location is not supported in dynamic assemblies
-            }
-        }
-
-        #endregion Internal Static Methods
-
         #region Private Static Methods
 
         /// <summary>
@@ -475,19 +456,6 @@ namespace NAnt.Core {
                             GetAssemblyLocation(tb.Assembly), tb.ClassName));
 
                         TaskBuilders.Add(tb);
-                        foreach(WeakReference wr in _projects) {
-                            if (!wr.IsAlive) {
-                                task.Log(Level.Debug, "WeakReference for project is dead.");
-                                continue;
-                            }
-                            Project p = wr.Target as Project;
-                            if (p == null) {
-                                task.Log(Level.Debug, "WeakReference is not a"
-                                    + " project! This should not be possible.");
-                                continue;
-                            }
-                            UpdateProjectWithBuilder(p, tb);
-                        }
                     }
 
                     // specified type represents a task
