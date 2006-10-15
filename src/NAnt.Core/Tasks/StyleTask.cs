@@ -209,27 +209,6 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
-        protected override void InitializeTask(XmlNode taskNode) {
-            // deprecated as of NAnt 0.8.4
-            // TO-DO : remove this after NAnt 0.8.5 or so
-            // Load parameters
-            foreach (XmlNode node in taskNode) {
-                if (node.LocalName.Equals("param")) {
-                    Log(Level.Warning, "The usage of the <param> element is" 
-                        + " deprecated. Please use the <parameters> collection" 
-                        + " instead.");
-
-                    // create and fill XsltParameter
-                    XsltParameter xsltParameter = new XsltParameter();
-                    xsltParameter.ParameterName = Project.ExpandProperties(node.Attributes["name"].Value, Location);
-                    xsltParameter.Value = Project.ExpandProperties(node.Attributes["expression"].Value, Location);
-
-                    // add parameter to collection
-                    _xsltParameters.Add(xsltParameter);
-                }
-            }
-        }
-
         protected override void ExecuteTask() {
             // ensure base directory is set, even if fileset was not initialized
             // from XML
