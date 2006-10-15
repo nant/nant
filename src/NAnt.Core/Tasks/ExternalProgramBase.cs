@@ -44,7 +44,7 @@ namespace NAnt.Core.Tasks {
         private StreamReader _stdError;
         private StreamReader _stdOut;
         private ArgumentCollection _arguments = new ArgumentCollection();
-        private bool _useRuntimeEngine;
+        private bool _managed;
         private string _exeName;
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
@@ -178,17 +178,34 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Specifies whether the external program should be executed using a 
-        /// runtime engine, if configured. The default is <see langword="false" />.
+        /// Specifies whether the external program is a managed application
+        /// which should be executed using a runtime engine, if configured. 
+        /// The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if the external program should be executed 
         /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [FrameworkConfigurable("useruntimeengine")]
+        [Obsolete("Use the managed attribute and Managed property instead.", false)]
         public virtual bool UseRuntimeEngine {
-            get { return _useRuntimeEngine; }
-            set { _useRuntimeEngine = value; }
+            get { return Managed; }
+            set { Managed = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether the external program is a managed application
+        /// which should be executed using a runtime engine, if configured. 
+        /// The default is <see langword="false" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the external program should be executed 
+        /// using a runtime engine; otherwise, <see langword="false" />.
+        /// </value>
+        [FrameworkConfigurable("managed")]
+        public virtual bool Managed {
+            get { return _managed; }
+            set { _managed = value; }
         }
 
         /// <summary>
@@ -369,7 +386,7 @@ namespace NAnt.Core.Tasks {
         /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected virtual void PrepareProcess(Process process){
             // create process (redirect standard output to temp buffer)
-            if (Project.TargetFramework != null && UseRuntimeEngine && Project.TargetFramework.RuntimeEngine != null) {
+            if (Project.TargetFramework != null && Managed && Project.TargetFramework.RuntimeEngine != null) {
                 process.StartInfo.FileName = Project.TargetFramework.RuntimeEngine.FullName;
                 process.StartInfo.Arguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\" {1}", ProgramFileName, CommandLine);
             } else {
@@ -387,7 +404,7 @@ namespace NAnt.Core.Tasks {
             // set framework-specific environment variables if executing the 
             // external process using the runtime engine of the currently
             // active framework
-            if (Project.TargetFramework != null && UseRuntimeEngine) {
+            if (Project.TargetFramework != null && Managed) {
                 foreach (EnvironmentVariable environmentVariable in Project.TargetFramework.EnvironmentVariables) {
                     if (environmentVariable.IfDefined && !environmentVariable.UnlessDefined) {
                         if (environmentVariable.Value == null) {

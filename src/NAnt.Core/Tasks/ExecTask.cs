@@ -86,7 +86,7 @@ namespace NAnt.Core.Tasks {
         private FileInfo _output;
         private bool _outputAppend;
         private EnvironmentSet _environmentSet = new EnvironmentSet();
-        private bool _useRuntimeEngine;
+        private bool _managed;
         private string _resultProperty;
 
         #endregion Private Instance Fields
@@ -180,9 +180,26 @@ namespace NAnt.Core.Tasks {
         /// </value>
         [TaskAttribute("useruntimeengine")]
         [FrameworkConfigurable("useruntimeengine")]
+        [Obsolete("Use the managed attribute and Managed property instead.", false)]
         public override bool UseRuntimeEngine {
-            get { return _useRuntimeEngine; }
-            set { _useRuntimeEngine = value; }
+            get { return Managed; }
+            set { Managed = value; }
+        }
+
+        /// <summary>
+        /// Specifies whether the external program is a managed application
+        /// which should be executed using a runtime engine, if configured. 
+        /// The default is <see langword="false" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if the external program should be executed 
+        /// using a runtime engine; otherwise, <see langword="false" />.
+        /// </value>
+        [TaskAttribute("managed")]
+        [FrameworkConfigurable("managed")]
+        public override bool Managed {
+            get { return _managed; }
+            set { _managed = value; }
         }
 
         /// <summary>
