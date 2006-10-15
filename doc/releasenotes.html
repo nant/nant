@@ -54,6 +54,100 @@
             </tr>
         </table>
         <h2>
+            0.86-beta 1 (TBD)</h2>
+        <h3>
+            Breaking changes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">nant.tasks properties</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Prior to NAnt 0.85, build authors would use a &quot;nant.tasks.*&quot;
+                    property to check whether a given task was available.
+                </p>
+                <p>
+                    With the introduction of expression support in NAnt 0.85, we
+                    provided a more powerful alternative through the 
+                    <a href="help/functions/task.exists.html">task::exists</a>
+                    function.
+                </p>
+                <p>
+                    As of this release, the &quot;nant.tasks.*&quot; properties are 
+                    therefore no longer set by NAnt.
+                </p>
+            </div>
+            <h5>
+                <a class="heading">nant.failure</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Removed support for the &quot;nant.failure&quot; property to
+                    set the target that should be executed when the build fails.
+                </p>
+                <p>
+                    This property was deprecated in NAnt 0.83 in favor of the
+                    &quot;nant.onfailure&quot; attribute.
+                </p>
+                <p>
+                    As of this release, setting the &quot;nant.failure&quot;
+                    attribute will no longer have any effect.
+                </p>
+            </div>
+        </div>
+        <h4>Expressions</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">= operator</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    In NAnt 0.85, support for the '=' operator to check for equality was 
+                    deprecated in favor of the '==' operator. 
+                </p>
+                <p>
+                    As from this release, the '=' operator is no longer 
+                    recognized.
+                </p>
+            </div>
+        </div>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/style.html">&lt;style&gt;</a></h5>
+            <ul>
+                <li>
+                    Removed support for &lt;param&quot; child element, which was
+                    deprecated in NAnt 0.84 in favor of a &lt;parameters&gt;
+                    element.
+                </li>
+            </ul>
+        </div>
+        <h3>
+            Bug fixes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
+            <ul>
+                <li>
+                    Empty lines written to standard output or standard error by
+                    external program are ignored.
+                </li>
+            </ul>
+        </div>
+        <h3>Changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
+            <ul>
+                <li>
+                    The &quot;useruntimeengine&quot; property has been deprecated
+                    in favor of a &quot;managed&quot; property (with the same 
+                    semantics).
+                </li>
+            </ul>
+        </div>
+        <h2>
             0.85 (October 14, 2006)</h2>
         <h3>
             Bug fixes</h3>
