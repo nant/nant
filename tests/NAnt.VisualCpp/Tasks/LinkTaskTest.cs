@@ -74,7 +74,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_HelloWorld() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             RunBuild(_test_build);
@@ -182,7 +183,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildAll() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             CleanAllObjs();
@@ -195,7 +197,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildNothingChanged() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             string result;
@@ -211,7 +214,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildSourceChanged() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             Test_BuildAll();
@@ -232,7 +236,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_LibDirsContainingSpaces() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             CleanAllObjs();

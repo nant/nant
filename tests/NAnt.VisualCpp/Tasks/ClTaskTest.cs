@@ -28,8 +28,7 @@ using NUnit.Framework;
 using Tests.NAnt.Core;
 using Tests.NAnt.Core.Util;
 
-namespace Tests.NAnt.VisualCpp.Tasks
-{
+namespace Tests.NAnt.VisualCpp.Tasks {
     [TestFixture]
     public class ClTaskTest_HelloWorld : VisualCppTestBase {
         string _objDir;
@@ -169,7 +168,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildNothingChanged() {
             if (!CanCompileAndLink) {
-                return;
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
             }
 
             string result;
@@ -184,6 +184,8 @@ namespace Tests.NAnt.VisualCpp.Tasks
         [Test]
         public void Test_BuildSourceChanged() {
             if (!CanCompileAndLink) {
+                Assert.Ignore ("Compiler, linker or header files are not available"
+                    + " or do not match the expected version.");
                 return;
             }
 
