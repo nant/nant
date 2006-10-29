@@ -368,6 +368,11 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // run custom build steps
+            if (!RunCustomBuildStep(solutionConfiguration, projectConfig)) {
+                return BuildResult.Failed;
+            }
+
             // perform post-build actions
             if (!PostBuild(projectConfig)) {
                 return BuildResult.Failed;
@@ -1101,6 +1106,83 @@ namespace NAnt.VSNet {
                 // execute the task
                 ExecuteInProjectDirectory(midlTask);
             }
+        }
+
+        private bool RunCustomBuildStep(string solutionConfiguration, VcProjectConfiguration projectConfig) {
+            // check if a custom build step is configured
+            string commandLine = projectConfig.GetToolSetting(VcConfigurationBase.CustomBuildTool,
+                "CommandLine");
+            if (StringUtils.IsNullOrEmpty(commandLine)) {
+                return true;
+            }
+
+            DateTime oldestOutputFile = DateTime.MinValue;
+
+            string outputs = projectConfig.GetToolSetting(VcConfigurationBase.CustomBuildTool,
+                "Outputs");
+            if (!StringUtils.IsNullOrEmpty(outputs)) {
+                foreach (string output in outputs.Split(';')) {
+                    if (output.Length == 0) {
+                        continue;
+                    }
+
+                    string outputFile = Path.Combine (ProjectDirectory.FullName,
+                        output);
+                    if (File.Exists(outputFile)) {
+                        DateTime lastWriteTime = File.GetLastWriteTime(outputFile);
+                        if (lastWriteTime < oldestOutputFile || oldestOutputFile == DateTime.MinValue) {
+                            oldestOutputFile = lastWriteTime;
+                        }
+                    }
+                }
+            }
+
+            bool runCustomBuildStep = false;
+
+            // when at least one of the output files of the custom build step
+            // does not exist or is older than the project output file, then
+            // the custom build step must be executed
+            string projectOutputFile = GetOutputPath(solutionConfiguration);
+            if (projectOutputFile != null && File.Exists (projectOutputFile)) {
+                DateTime lastWriteTime = File.GetLastWriteTime(projectOutputFile);
+                if (lastWriteTime > oldestOutputFile) {
+                    runCustomBuildStep = true;
+                }
+            }
+
+            // if one of the additional dependencies was updated after the oldest
+            // output file of the custom build step, then the custom build step
+            // must also be executed
+            if (!runCustomBuildStep) {
+                string additionalDependencies = projectConfig.GetToolSetting(
+                    VcConfigurationBase.CustomBuildTool, "AdditionalDependencies");
+                if (!StringUtils.IsNullOrEmpty(additionalDependencies)) {
+                    foreach (string dependency in additionalDependencies.Split(';')) {
+                        if (dependency.Length == 0) {
+                            continue;
+                        }
+
+                        string dependencyFile = Path.Combine (ProjectDirectory.FullName,
+                            dependency);
+                        if (File.Exists (dependencyFile)) {
+                            DateTime lastWriteTime  = File.GetLastWriteTime(dependencyFile);
+                            if (lastWriteTime > oldestOutputFile) {
+                                runCustomBuildStep = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!runCustomBuildStep) {
+                return true;
+            }
+
+            string description = projectConfig.GetToolSetting(VcConfigurationBase.CustomBuildTool,
+                "Description", "Performing Custom Build Step");
+            Log(Level.Info, description);
+            return ExecuteBuildEvent("Custom-Build", commandLine, projectConfig);
         }
 
         private void RunLibrarian(VcProjectConfiguration projectConfig) {
