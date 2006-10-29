@@ -184,6 +184,16 @@
             <arg value="self-test-sourcecontrol" />
         </exec>
     </target>
+    <target name="test-visualcpp" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-test-visualcpp" />
+        </exec>
+    </target>
     <target name="test-compression" depends="build">
         <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
@@ -216,6 +226,13 @@
         <nant target="test">
             <buildfiles basedir="tests">
                 <include name="NAnt.SourceControl/NAnt.SourceControl.build" />
+            </buildfiles>
+        </nant>
+    </target>
+    <target name="self-test-visualcpp" depends="prepare-self-test">
+        <nant target="test">
+            <buildfiles basedir="tests">
+                <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
             </buildfiles>
         </nant>
     </target>
