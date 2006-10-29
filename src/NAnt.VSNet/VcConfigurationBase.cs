@@ -330,6 +330,7 @@ namespace NAnt.VSNet {
         #region Internal Static Fields
 
         internal const string CLCompilerTool = "VCCLCompilerTool";
+        internal const string CustomBuildTool = "VCCustomBuildTool";
         internal const string LinkerTool = "VCLinkerTool";
         internal const string LibTool = "VCLibrarianTool";
         internal const string ResourceCompilerTool = "VCResourceCompilerTool";
