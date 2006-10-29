@@ -74,7 +74,7 @@ namespace Tests.NAnt.Core {
 
             CheckCommon(p);
 
-            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
+            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${task::exists('fail')}.", null));
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace Tests.NAnt.Core {
 
             CheckCommon(p);
 
-            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${nant.tasks.fail}.", null));
+            Assert.AreEqual("The value is " + Boolean.TrueString + ".", p.ExpandProperties("The value is ${task::exists('fail')}.", null));
         }
 
         [Test]
@@ -208,32 +208,36 @@ namespace Tests.NAnt.Core {
         #region Private Instance Methods
         
         private void CheckCommon(Project p) {
-            Assert.AreEqual("ProjectTest", p.Properties["nant.project.name"]);
-
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.al"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.attrib"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.call"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.copy"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.delete"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.echo"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.exec"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.fail"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.include"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.mkdir"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.move"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nant"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nunit"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.nunit2"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.property"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.sleep"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.style"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.sysinfo"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.touch"]);
-            Assert.AreEqual(Boolean.TrueString, p.Properties["nant.tasks.tstamp"]);
+            Assert.AreEqual("ProjectTest", p.Properties["nant.project.name"], "#1");
+            Assert.IsTrue(TaskExists(p, "al"), "#2");
+            Assert.IsTrue(TaskExists(p, "attrib"), "#3");
+            Assert.IsTrue(TaskExists(p, "call"), "#4");
+            Assert.IsTrue(TaskExists(p, "copy"), "#5");
+            Assert.IsTrue(TaskExists(p, "delete"), "#6");
+            Assert.IsTrue(TaskExists(p, "echo"), "#7");
+            Assert.IsTrue(TaskExists(p, "exec"), "#8");
+            Assert.IsTrue(TaskExists(p, "fail"), "#9");
+            Assert.IsTrue(TaskExists(p, "include"), "#10");
+            Assert.IsTrue(TaskExists(p, "mkdir"), "#11");
+            Assert.IsTrue(TaskExists(p, "move"), "#12");
+            Assert.IsTrue(TaskExists(p, "nant"), "#13");
+            Assert.IsTrue(TaskExists(p, "nunit2"), "#14");
+            Assert.IsTrue(TaskExists(p, "property"), "#15");
+            Assert.IsTrue(TaskExists(p, "sleep"), "#16");
+            Assert.IsTrue(TaskExists(p, "style"), "#17");
+            Assert.IsTrue(TaskExists(p, "sysinfo"), "#18");
+            Assert.IsTrue(TaskExists(p, "touch"), "#19");
+            Assert.IsTrue(TaskExists(p, "tstamp"), "#20");
         }
 
         private string FormatBuildFile(string globalTasks, string targetTasks) {
             return string.Format(CultureInfo.InvariantCulture, _format, TempDirName, globalTasks, targetTasks);
+        }
+
+        private bool TaskExists (Project p, string taskName) {
+            string val = p.ExpandProperties("${task::exists('" + taskName + "')}", 
+                Location.UnknownLocation);
+            return val == Boolean.TrueString;
         }
 
         #endregion Private Instance Methods
