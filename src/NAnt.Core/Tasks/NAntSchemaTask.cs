@@ -122,11 +122,32 @@ namespace NAnt.Core.Tasks {
                 dataTypes = new ArrayList();
             }
             
-            FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName);             FilePermission.Assert();
-            using (FileStream file = File.Open(OutputFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
-                WriteSchema(file, (Type[]) taskTypes.ToArray(typeof(Type)), 
-                    (Type[]) dataTypes.ToArray(typeof(Type)), TargetNamespace);
+            MemoryStream ms = new MemoryStream();
+            WriteSchema(ms, (Type[]) taskTypes.ToArray(typeof(Type)), 
+                (Type[]) dataTypes.ToArray(typeof(Type)), TargetNamespace);
 
+            // reset position of memorystream
+            ms.Position = 0;
+
+            // let's validate whether we emitted a valid XML Schema
+            try {
+                XmlSchema schema = XmlSchema.Read(ms, null);
+                schema.Compile(null);
+            } catch (XmlSchemaException ex) {
+                throw new BuildException ("The generated XML schema is not valid.", 
+                    Location, ex);
+            }
+            // reset position of memorystream
+            ms.Position = 0;
+            FileIOPermission FilePermission = new FileIOPermission(FileIOPermissionAccess.AllAccess, OutputFile.FullName); 
+            FilePermission.Assert();
+            using (FileStream file = File.Open(OutputFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead = ms.Read(buffer, 0, buffer.Length);
+                while (bytesRead != 0) {
+                    file.Write(buffer, 0, bytesRead);
+                    bytesRead = ms.Read(buffer, 0, buffer.Length);
+                }
                 file.Flush();
                 file.Close();
             }
@@ -416,21 +437,13 @@ namespace NAnt.Core.Tasks {
                     choice.Items.Add(targetElement);
                 }
 
-                // allow elements from other namespace
+                // allow elements from other namespaces
                 XmlSchemaAny otherNamespaceAny = new XmlSchemaAny();
                 otherNamespaceAny.MinOccurs = 0;
                 otherNamespaceAny.MaxOccurs = Decimal.MaxValue;
                 otherNamespaceAny.Namespace = "##other";
                 otherNamespaceAny.ProcessContents = XmlSchemaContentProcessing.Strict;
                 choice.Items.Add(otherNamespaceAny);
-
-                // allow elements from local namespace
-                XmlSchemaAny localNamespaceAny = new XmlSchemaAny();
-                localNamespaceAny.MinOccurs = 0;
-                localNamespaceAny.MaxOccurs = Decimal.MaxValue;
-                localNamespaceAny.Namespace = "##local";
-                localNamespaceAny.ProcessContents = XmlSchemaContentProcessing.Strict;
-                choice.Items.Add(localNamespaceAny);
 
                 return tasklistCT;
             }
