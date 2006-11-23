@@ -343,8 +343,10 @@ namespace NAnt.DotNet.Tasks {
                     ct.CopyFileSet.Includes.Add(file);
                 }
 
-                // copy command line tool to working directory
-                ct.CopyFileSet.Includes.Add(base.ProgramFileName);
+                // copy command line tool (and related files) to working directory, eg.:
+                //      <framework SDK dir>/resgen.exe
+                //      <framework SDK dir>/resgen.exe.manifest
+                ct.CopyFileSet.Includes.Add(base.ProgramFileName + "*");
 
                 // set destination directory
                 ct.ToDirectory = BaseDirectory;
