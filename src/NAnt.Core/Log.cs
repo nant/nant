@@ -902,6 +902,18 @@ namespace NAnt.Core {
                 mailMessage.Body = _buffer.ToString();
 
                 string smtpUsername = GetPropertyValue(properties, "smtp.username", null, false);
+                string smtpPort = GetPropertyValue(properties, "smtp.port", null, false);
+                string smtpEnableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
+
+#if (NET_1_1)
+                // when either a user name or a specific port is specified, or
+                // SSL is enabled, then send the message must be sent using the 
+                // network (instead of using the local SMTP pickup directory)
+                if (smtpUsername != null || smtpPort != null || IsSSLEnabled(properties)) {
+                    mailMessage.Fields[cdoNamespaceURI + "sendusing"] = 2; // cdoSendUsingPort
+                }
+#endif
+
                 if (smtpUsername != null) {
 #if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "smtpauthenticate"] = 1;
@@ -924,7 +936,6 @@ namespace NAnt.Core {
 #endif
                 }
 
-                string smtpPort = GetPropertyValue(properties, "smtp.port", null, false);
                 if (smtpPort != null) {
 #if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "smtpserverport"] = smtpPort;
@@ -935,10 +946,9 @@ namespace NAnt.Core {
 #endif
                 }
 
-                string enableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
-                if (enableSSL != null) {
+                if (smtpEnableSSL != null) {
 #if (NET_1_1)
-                    mailMessage.Fields[cdoNamespaceURI + "smtpusessl"] = enableSSL;
+                    mailMessage.Fields[cdoNamespaceURI + "smtpusessl"] = smtpEnableSSL;
 #else
                     Console.Error.WriteLine("[MailLogger] MailLogger.smtp.enablessl"
                         + " is not supported if NAnt is built targeting .NET"
@@ -1001,6 +1011,20 @@ namespace NAnt.Core {
             }
 
             return value;
+        }
+
+        private bool IsSSLEnabled (PropertyDictionary properties) {
+            string enableSSL = GetPropertyValue(properties, "smtp.enablessl", null, false);
+            if (enableSSL != null) {
+                try {
+                    return bool.Parse (enableSSL);
+                } catch (FormatException) {
+                    throw new ArgumentException (string.Format (CultureInfo.InvariantCulture,
+                        "Invalid value '{0}' for MailLogger.smtp.enablessl property.",
+                        enableSSL));
+                }
+            }
+            return false;
         }
 
         private void AttachFiles(MailMessage mail, Project project, string filesetID) {
