@@ -1,0 +1,1403 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List
+href="Reference%20Resolution%20in%20Visual%20Studio_files/filelist.xml">
+<title>References in Visual Studio</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="PersonName" downloadurl="http://www.microsoft.com"/>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Jomo Fisher</o:Author>
+  <o:LastAuthor>jomof</o:LastAuthor>
+  <o:Revision>102</o:Revision>
+  <o:TotalTime>413</o:TotalTime>
+  <o:Created>2003-11-16T20:34:00Z</o:Created>
+  <o:LastSaved>2004-03-08T17:17:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>3119</o:Words>
+  <o:Characters>17784</o:Characters>
+  <o:Company>Microsoft Corporation</o:Company>
+  <o:Lines>148</o:Lines>
+  <o:Paragraphs>41</o:Paragraphs>
+  <o:CharactersWithSpaces>20862</o:CharactersWithSpaces>
+  <o:Version>10.4219</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:UseFELayout/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if !mso]><object
+ classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
+<style>
+st1\:*{behavior:url(#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Courier;
+	panose-1:2 7 4 9 2 2 5 2 4 4;
+	mso-font-charset:0;
+	mso-generic-font-family:modern;
+	mso-font-format:other;
+	mso-font-pitch:fixed;
+	mso-font-signature:3 0 0 0 1 0;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;
+	mso-font-alt:\5B8B\4F53;
+	mso-font-charset:134;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:3 135135232 16 0 262145 0;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;
+	mso-font-charset:134;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:3 135135232 16 0 262145 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:SimSun;}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;}
+h2
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p.CourierNew, li.CourierNew, div.CourierNew
+	{mso-style-name:"Courier New";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:SimSun;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:1703624752;
+	mso-list-type:hybrid;
+	mso-list-template-ids:192445202 608485674 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-start-at:13;
+	mso-level-number-format:bullet;
+	mso-level-text:-;
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:SimSun;}
+@list l0:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l0:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:1766993805;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-216789036 -1338367294 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l1:level1
+	{mso-level-text:"\(%1\)";
+	mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l1:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:2006660363;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1527773842 825652498 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-text:"\(%1\)";
+	mso-level-tab-stop:57.0pt;
+	mso-level-number-position:left;
+	margin-left:57.0pt;
+	text-indent:-.25in;}
+@list l2:level2
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level3
+	{mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level4
+	{mso-level-tab-stop:2.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level5
+	{mso-level-tab-stop:2.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level6
+	{mso-level-tab-stop:3.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level7
+	{mso-level-tab-stop:3.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level8
+	{mso-level-tab-stop:4.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l2:level9
+	{mso-level-tab-stop:4.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1>References in Visual Studio</h1>
+
+<p class=MsoNormal><span class=GramE>by</span> <st1:PersonName>Jomo Fisher</st1:PersonName>
+</p>
+
+<p class=MsoNormal><span class=GramE>last</span> updated <span
+style='mso-field-code:" DATE  \\\@ \0022d MMMM yyyy\0022  \\* MERGEFORMAT "'><span
+style='mso-no-proof:yes'>8 March 2004</span></span></p>
+
+<p class=MsoNormal>This document is provided &quot;AS IS&quot; with no
+warranties, and confers no rights.<o:p></o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>When a project depends on external components such as
+assemblies, COM\ActiveX classes or other project outputs it uses a <a
+href="#_Reference">Reference</a> to tell the build system where to find those
+components.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>A C#, VB or J# Project in Visual Studio Project may contain
+three kinds of References:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><a
+href="#_Rules_for_Resolving_Assembly_Refere"><span class=GramE>Assembly
+References</span></a><span class=GramE> – references to assemblies.</span></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+class=GramE>Project References – references to other projects.</span></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+class=GramE>COM References – references to COM classes.</span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><a href="#_Resolution">Resolution</a> is the process of
+turning a <a href="#_Reference">Reference</a> into a path to an actual file
+that can be passed to the compiler.</p>
+
+<h1><a name="_Rules_for_Resolving_Assembly_Refere">Assembly References</a></h1>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>An
+assembly reference looks something like this in a project file:</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+style='mso-tab-count:1'>            </span><span style='mso-spacerun:yes'>   
+</span>&lt;Item </span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>Type=&quot;Reference&quot;
+</span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>Include=&quot;System,
+Version=2.0.3500.0, Culture=neutral, <span class=SpellE>PublicKeyToken</span>=<span
+class=GramE>b77a5c561934e089 &quot;</span> </span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span><a
+href="#_Reference_HintPath"><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>HintPath</span><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span></a><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>=&quot;C:\WINNT\Microsoft.NET\Framework\v2.0.x86dbg\System.dll&quot;
+</span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span><a
+href="#_CopyLocal_Determination"><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>Private</span><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span></a><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>=&quot;false&quot;</span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span><a
+href="#_Assembly_Name_Matching_Rules_1"><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+class=SpellE>SpecificVersion</span></span><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span></a><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>=&quot;true&quot;</span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>/&gt;</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>Where
+the fields are:</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+style='mso-tab-count:1'>            </span>Type (Required) – When this is
+“Reference” then this is treated as an assembly reference and the assembly
+reference resolution rules will be used.</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+style='mso-tab-count:1'>            </span>Include (Required) – This is the
+fusion name for the assembly desired. This may be a strong name like in the
+example or a weak name like “System”</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+style='mso-tab-count:1'>            </span><span class=SpellE><span
+class=GramE>HintPath</span></span><span class=GramE> (Optional) – Clue about
+where to find the file.</span></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+style='mso-tab-count:1'>            </span><span class=GramE>Private (Optional)
+– Whether to copy this file to the output directory or not.</span> </span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><span
+class=SpellE>SpecificVersion</span> (Optional) – Whether to use the complete
+name for matching (like System, Version=2.0.3500.0, Culture=neutral, <span
+class=SpellE>PublicKeyToken</span>=b77a5c561934e089) or just the simple name
+(like System). See </span><a href="#_Assembly_Name_Matching_Rules"><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>Assembly Name
+Matching Rules</span><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span></a><span
+style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'> for more
+information.</span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'>This
+information is used to resolve the assembly reference. </span></p>
+
+<span style='mso-bookmark:_Rules_for_Resolving_Assembly_Refere'></span>
+
+<h2>Rules for Resolving Assembly References</h2>
+
+<h3><a name="_Search_Order"></a>Search Order</h3>
+
+<p class=MsoNormal>Given the information in the reference item, the build
+process needs to find the actual assembly file that best matches. It does this
+by searching the following locations in order:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>Any files in the project of type <a
+href="#_Content_or_None_Project_Items">Content or None</a>.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>The semicolon delimited list of directories in
+the <a href="#_Reference_Paths_from_the_.USER_File">$(<span class=SpellE>ReferencePath</span>)
+property</a>. This property is typically defined in the .USER file.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>The target frameworks directory.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(4)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>Directories found in the registry that use <a
+href="#_Algorithm_for_Resolving_References_"><span class=SpellE>AssemblyFoldersEx</span>
+Registration</a>.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(5)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>Directories found in the registry that use
+Visual Studio .NET 2003 <span class=SpellE>AssemblyFolders</span> Registration.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(6)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>The file in the <a href="#_Reference_HintPath"><span
+class=SpellE>HintPath</span></a> attribute of the reference itself.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l1 level1 lfo2;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(7)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]>The GAC.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The first assembly found that <span class=GramE>matches
+according to the <a href="#_Assembly_Name_Matching_Rules_1">Assembly Name
+Matching Rules</a> is</span> used as the <a href="#_Resolved_Assembly">Resolved
+Assembly</a> for this <a href="#_Reference">Reference</a>.</p>
+
+<h3><a name="_Computing_the_Dependency_Closure"></a>Computing the Dependency
+Closure</h3>
+
+<p class=MsoNormal>Each <a href="#_Reference">Reference</a> may <a
+href="#_Dependency">Dependencies</a> on other assemblies. A dependency may, in
+turn, have its own dependencies. Cycles in the dependency graph are also
+possible.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The resolution process will find the complete closure of
+assemblies by walking the dependency graph. Once a dependency is discovered,
+then its <a href="#_Resolved_Assembly">Resolved Assembly Path</a> is found by
+looking through the assemblies in <a href="#_Search_Order">Search Order</a>.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>It’s possible that different versions of the same assembly
+will be discovered. For example, dependencies on two versions of System.DLL
+might be found. </p>
+
+<h3><a name="_Resolving_Conflicts"></a>Resolving Conflicts</h3>
+
+<p class=MsoNormal>If two assemblies in the <a
+href="#_Computing_the_Dependency_Closure">Dependency Closure Graph</a> have the
+same <a href="#_Base_Assembly_Name">Base Assembly Name</a> then they may
+potentially conflict with each other if they need to be copied to the output
+directory. In this case, the conflict resolution process is used to decide
+which assembly would be the winner. This table describes what happens in each
+case:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>For each conflicting
+pair of assemblies A1 and A2:<o:p></o:p></b></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:4'>                                                </span>A1
+is <a href="#_Equivalent_Assemblies">Equivalent</a><span style='mso-tab-count:
+1'>         </span>A1 has a higher <o:p></o:p></b></p>
+
+<p class=MsoNormal><b style='mso-bidi-font-weight:normal'>A1 Primary<span
+style='mso-tab-count:1'>     </span>A2 Primary<span style='mso-tab-count:1'>     </span>to
+A2<span style='mso-tab-count:3'>                           </span>version than
+A2<span style='mso-tab-count:1'>          </span>Resolution<o:p></o:p></b></p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>No<span
+style='mso-tab-count:2'>                   </span>Yes<span style='mso-tab-count:
+3'>                              </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A2 because it has a higher version.</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>No<span
+style='mso-tab-count:2'>                   </span>Yes<span style='mso-tab-count:
+3'>                              </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A1 because it has a higher version.</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>Yes<span
+style='mso-tab-count:2'>                  </span>No<span style='mso-tab-count:
+3'>                               </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A2 and issue a warning.</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>Yes<span
+style='mso-tab-count:2'>                  </span>No<span style='mso-tab-count:
+3'>                               </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A2 and issue a warning.</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>Yes<span
+style='mso-tab-count:2'>                  </span>Yes<span style='mso-tab-count:
+3'>                              </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A2.</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>Yes<span
+style='mso-tab-count:2'>                  </span>Yes<span style='mso-tab-count:
+3'>                              </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A2.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>No<span
+style='mso-tab-count:2'>                   </span>No<span style='mso-tab-count:
+3'>                               </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A1 and issue a warning.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>No<span
+style='mso-tab-count:2'>                   </span>No<span style='mso-tab-count:
+3'>                               </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A1 and issue a warning.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>No<span
+style='mso-tab-count:2'>                   </span>Yes<span style='mso-tab-count:
+3'>                              </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A1 because it’s primary.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>No<span
+style='mso-tab-count:2'>                   </span>Yes<span style='mso-tab-count:
+3'>                              </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A1 because it’s primary.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>Yes<span
+style='mso-tab-count:2'>                  </span>Yes<span style='mso-tab-count:
+3'>                              </span>No<span style='mso-tab-count:3'>                               </span>Choose
+A2 because it has a higher version.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>Yes<span
+style='mso-tab-count:2'>                  </span>Yes<span style='mso-tab-count:
+3'>                              </span>Yes<span style='mso-tab-count:3'>                              </span>Choose
+A1 because it has a higher version.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:2'>                   </span>No<span
+style='mso-tab-count:2'>                   </span>No<span style='mso-tab-count:
+3'>                               </span>Yes/No<span style='mso-tab-count:2'>                        </span>Choose
+A1 or A2 arbitrarily and issue a warning.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:2'>                  </span>Yes<span
+style='mso-tab-count:2'>                  </span>No<span style='mso-tab-count:
+3'>                               </span>Yes/No<span style='mso-tab-count:2'>                        </span>Choose
+A1 or A2 arbitrarily and issue a warning.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The bulk of this work is done by the <a
+href="#_Assembly_Comparison_API">Assembly Comparison API</a>.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Assemblies that lose the conflict are not removed until a <a
+href="#_CopyLocal_Determination"><span class=SpellE>CopyLocal</span>
+Determination</a> is made. This is because assemblies that aren’t <span
+class=SpellE>CopyLocal</span> may peacefully coexist in a side-by-side manner.</p>
+
+<h3><a name="_CopyLocal_Determination"></a><span class=SpellE>CopyLocal</span>
+Determination</h3>
+
+<p class=MsoNormal>Some assemblies in the <a
+href="#_Computing_the_Dependency_Closure">Dependency Closure Graph</a> may need
+to be copied to the final output directory for the application to run
+correctly. The following rules describe how the <span class=SpellE>CopyLocal</span>
+determination is made:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:4'>                                                </span><b
+style='mso-bidi-font-weight:normal'>Value of Private</b></p>
+
+<p class=MsoNormal><span class=GramE><b style='mso-bidi-font-weight:normal'>Primary
+Reference?</b></span><b style='mso-bidi-font-weight:normal'><span
+style='mso-tab-count:2'>              </span>Attribute on Reference<span
+style='mso-tab-count:1'>          </span>Frameworks File?<span
+style='mso-tab-count:1'>      </span>Resulting <span class=SpellE>CopyLocalState</span><o:p></o:p></b></p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:4'>                                           </span>Absent<span
+style='mso-tab-count:4'>                                     </span>No<span
+style='mso-tab-count:3'>                               </span><span
+class=SpellE>CopyLocal</span> is <span class=GramE>True</span></p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:4'>                                           </span>Absent<span
+style='mso-tab-count:4'>                                     </span>Yes<span
+style='mso-tab-count:3'>                              </span><span
+class=SpellE>CopyLocal</span> is False</p>
+
+<p class=MsoNormal>No<span style='mso-tab-count:4'>                                           </span>“True”/”False”<span
+style='mso-tab-count:3'>                          </span>Yes/No<span
+style='mso-tab-count:2'>                        </span>Impossible, second order
+dependencies can’t have Private Attribute.</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:4'>                                          </span>Absent<span
+style='mso-tab-count:4'>                                     </span>No<span
+style='mso-tab-count:3'>                               </span><span
+class=SpellE>CopyLocal</span> is <span class=GramE>True</span></p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:4'>                                          </span>Absent<span
+style='mso-tab-count:4'>                                     </span>Yes<span
+style='mso-tab-count:3'>                              </span><span
+class=SpellE>CopyLocal</span> is False</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:4'>                                          </span>“False”<span
+style='mso-tab-count:4'>                                     </span>Yes/No<span
+style='mso-tab-count:2'>                        </span><span class=SpellE>CopyLocal</span>
+is False</p>
+
+<p class=MsoNormal>Yes<span style='mso-tab-count:4'>                                          </span>“True”<span
+style='mso-tab-count:4'>                                      </span>Yes/No<span
+style='mso-tab-count:2'>                        </span><span class=SpellE>CopyLocal</span>
+is <span class=GramE>True</span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>If an item is <span class=SpellE>CopyLocal</span> true and
+was determined to be a conflict victim according to the <a
+href="#_Resolving_Conflicts">Conflict Resolution Process</a> then the item is
+removed and a conflict message is issued.</p>
+
+<h2><a name="_Content_or_None_Project_Items"></a>Content or None Project Items</h2>
+
+<p class=MsoNormal>The resolution process looks at each of the items in the
+project of type Content or None. If an item is an assembly and it matches the
+reference according to the <a href="#_Assembly_Name_Matching_Rules_1">Assembly
+Name Matching Rules</a>, then the path to this assembly will be used as the <a
+href="#_Resolved_Assembly">Resolved Assembly</a> for this <a href="#_Reference">Reference</a>.</p>
+
+<h2><a name="_Reference_Paths_from_the_.USER_File"></a>Reference Paths from the
+.USER File</h2>
+
+<p class=MsoNormal>The user can add new assembly search locations by going to
+the project’s properties and adding new items to the Reference Paths list
+there. These paths are stored in the .USER file that’s in the same directory as
+the project file. The .USER file is particular to the current user on the
+current machine, so paths added here won’t be seen by other users when a
+project is shared by Source Control.</p>
+
+<h2><a name="_Algorithm_for_Resolving_References_"></a><span class=SpellE>AssemblyFoldersEx</span>
+Registration</h2>
+
+<p class=MsoNormal><span class=SpellE>AssemblyFoldersEx</span> Registration is
+a way for component vendors to register their components so that they can be
+discovered at build time. This scheme applies only when resolving <a
+href="#_Rules_for_Resolving_Assembly_Refere">Assembly References</a>.</p>
+
+<h3><a name="_Registration_Schema"></a>Registration Schema</h3>
+
+<p class=MsoNormal>Assembly directories can be added to the registry so that
+the build process can resolve references to assemblies in those directories.
+Here’s an example of the registry schema.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>   </span>[HKLM | HKCU]\SOFTWARE\MICROSOFT\.<span
+class=SpellE>NetFramework</span>\ <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>       </span>v2.0.30101 <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>         </span><span class=SpellE>AssemblyFoldersEx</span>
+<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>             </span>ControlVendor.GridControl.1.0<span
+style='mso-spacerun:yes'>  </span><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>                 </span>@Default = c:\program files\<span
+class=SpellE>ControlVendor</span>\grid control\1.0\bin <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>                 </span>@Description = Grid Control
+for .NET version 1.0 <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>                 </span>9466 <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>                     </span>@Default = c:\program
+files\<span class=SpellE>ControlVendor</span>\grid control\1.0sp1\bin <o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>                     </span>@Description = SP1 for
+Grid Control for .NET version 1.0<span style='mso-spacerun:yes'>     </span><o:p></o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>In the above example, there are several interesting fields.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:57.0pt;text-indent:-.25in;mso-list:l2 level1 lfo4;
+tab-stops:list 57.0pt'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE>AssemblyFolderBase</span> –
+The registry path &quot;\SOFTWARE\MICROSOFT\.<span class=SpellE>NetFramework</span>&quot;
+indicates the target framework platform. Typical values for this property are:</p>
+
+<p class=MsoNormal style='margin-left:1.0in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:1.0in'>\SOFTWARE\MICROSOFT\.<span
+class=SpellE>NetFramework</span> <b style='mso-bidi-font-weight:normal'>(default)</b>
+– for the .NET Framework</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>\SOFTWARE\MICROSOFT\.<span
+class=SpellE>NetCompactFramework</span>– for the .NET Compact Framework</p>
+
+<p class=MsoNormal style='margin-left:1.0in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:57.0pt;text-indent:-.25in;mso-list:l2 level1 lfo4;
+tab-stops:list 57.0pt'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE>FrameworkVersion</span> – The
+version of the frameworks that this component is meant to work against.</p>
+
+<p class=MsoNormal style='margin-left:57.0pt;text-indent:-.25in;mso-list:l2 level1 lfo4;
+tab-stops:list 57.0pt'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE>AssemblyFoldersSuffix</span>
+– Describes the sub-target, examples include:</p>
+
+<p class=MsoNormal style='margin-left:39.0pt'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:1.0in'><span class=SpellE>AssemblyFoldersEx</span>
+<b style='mso-bidi-font-weight:normal'>(default)</b> – for the .NET Framework</p>
+
+<p class=MsoNormal style='margin-left:1.0in'><span class=SpellE>PocketPC\AssemblyFoldersEx</span>
+– for the .NET Compact Framework for Pocket PC</p>
+
+<p class=MsoNormal style='margin-left:1.0in'><span class=SpellE>SmartPhone\AssemblyFoldersEx</span>
+– for the .NET Compact Framework for <span class=SpellE>SmartPhone</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in'><span class=SpellE>WindowsCE\AssemblyFoldersEx</span>
+– for the .NET Compact Framework for <span class=SpellE>WindowsCE</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:57.0pt;text-indent:-.25in;mso-list:l2 level1 lfo4;
+tab-stops:list 57.0pt'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(4)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE>ControlName</span> – The name
+of the control. In the example above, “ControlVendor.GridControl.1.0”. The
+control vendor chooses this name.</p>
+
+<p class=MsoNormal style='margin-left:57.0pt;text-indent:-.25in;mso-list:l2 level1 lfo4;
+tab-stops:list 57.0pt'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>(5)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span></span><![endif]><span class=SpellE>ServicingCode</span> – For
+service packs that update the same component. In the above example, “9466”. The
+control vendor chooses this name.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h3>Resolution Algorithm</h3>
+
+<p class=MsoNormal>Given the <a href="#_Registration_Schema"><span
+class=SpellE>AssemblyFolderEx</span> Registration Schema</a> the following
+algorithm is used to search for <a href="#_Reference">references</a> in order.
+The first match found is the one that’s chosen.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Inputs to the algorithm:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span class=SpellE><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'>AssemblyFolderBase</i></b></span>
+-- for standard .NET projects this will be “SOFTWARE\MICROSOFT\.<span
+class=SpellE>NetFramework</span>” but for other target framework types this may
+be different.<span style='mso-spacerun:yes'>  </span>See <a
+href="#_Searching_for_other_Framework_Types">Searching for other Framework
+Types</a>.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><span class=SpellE><span
+class=GramE><b style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:
+normal'>TargetFrameworkVersion</i></b></span></span><span class=GramE> – the
+version of the framework that this build is targeting.</span> This is typically
+“v2.0”<span class=GramE>,</span> in this case the build is targeting any 2.0
+version of the frameworks.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><span class=SpellE><b
+style='mso-bidi-font-weight:normal'><i style='mso-bidi-font-style:normal'>AssemblyFoldersSuffix</i></b></span>
+– The sub-target identifier. Like “<span class=SpellE>AssemblyFoldersEx</span>”
+or “<span class=SpellE>PocketPC\AssemblyFoldersEx</span>”.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Algorithm:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(1) Build the base registry <span
+class=GramE>key,</span> Get the <span class=SpellE>TargetFrameworkVersion</span>
+from the project. This is typically “v2.0”.</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(2) Look in HKCU<span class=GramE>\{</span><span
+class=SpellE>AssemblyFolderBase</span>}. For example,</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>HKCU\SOFTWARE\MICROSOFT\.<span
+class=SpellE>NetFramework</span> <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(3) Build a list of all <span
+class=SpellE>subkeys</span> that contain valid version numbers.</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(4) Remove all <span class=SpellE>subkeys</span>
+from <span class=GramE>the that</span> don’t match one of the following
+criteria:</p>
+
+<p class=MsoNormal style='margin-left:.75in'>(a) They are lower (using Version
+ordering) than <span class=SpellE>TargetFrameworkVersion</span>.</p>
+
+<p class=MsoNormal style='margin-left:.75in'>(b) Their first few characters
+match <span class=SpellE>TargetFrameworkVersion</span> exactly. Extra trailing
+characters in the <span class=SpellE>subkey</span> are ignored.</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(5) Sort the list of version
+numbers in descending order (using Version ordering)</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(6) Get the first or next version <span
+class=SpellE>subkey</span> and build the registry key HKCU<span class=GramE>\{</span><span
+class=SpellE>AssemblyFolderBase</span>}\{<span class=SpellE>FrameworkVersion</span>}\{<span
+class=SpellE>AssemblyFoldersSuffix</span>} </p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>HKCU\SOFTWARE\MICROSOFT\.NetFramework\v2.0.30101\AssemblyFoldersEx<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(7) Build a list of <span
+class=SpellE>subkeys</span> under the versions specific <span class=SpellE>subkey</span>
+generated in the step above. These are the components.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>HKCU\SOFTWARE\MICROSOFT\.NetFramework\v2.0.30101\AssemblyFoldersEx\ControlVendor.GridControl.1.0<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(8) For the first or next
+component, build a list of <span class=SpellE>subkeys</span> and sort them
+alphabetically. These are the component servicing packs. An example,</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(9) For each component servicing
+pack, look at the default registry value. This is expected to be a string
+containing a directory. Is our component in that directory according to the <a
+href="#_Assembly_Name_Matching_Rules">Assembly Name Matching Rules</a>? If so
+we’re done. Example,</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-size:10.0pt;
+font-family:"Courier New"'><span style='mso-spacerun:yes'>   </span></span><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>HKCU\SOFTWARE\MICROSOFT\.NetFramework\v2.0.30101\AssemblyFoldersEx\ControlVendor.GridControl.1.0\9466
+<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-size:8.0pt;
+font-family:"Courier New";color:#339966'><span style='mso-tab-count:2'>          </span>@=c<span
+class=GramE>:\</span>MyComponents\SP1<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(10) Look in the default key for the
+component. Is our component in that directory according to the <a
+href="#_Assembly_Name_Matching_Rules">Assembly Name Matching Rules</a>? If so
+we’re done. Example,</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'><span style='font-size:10.0pt;
+font-family:"Courier New"'><span style='mso-spacerun:yes'>   </span></span><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>HKCU\SOFTWARE\MICROSOFT\.NetFramework\v2.0.30101\AssemblyFoldersEx\ControlVendor.GridControl.1.0<span
+style='mso-tab-count:2'>          </span><o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'>@=c<span
+class=GramE>:\</span>MyComponents<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in;text-indent:.25in'><span
+style='font-size:8.0pt;font-family:"Courier New";color:#339966'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.25in'>(11) Move to the next component
+and go to step (8).</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(12) Move to the next target
+version <span class=SpellE>subkey</span> and go to step (6)</p>
+
+<p class=MsoNormal style='margin-left:.25in'>(13) Start over at step to, but
+use the HKLM hive.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The algorithm gives the following rules of precedence:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'><b style='mso-bidi-font-weight:
+normal'><i style='mso-bidi-font-style:normal'>Components in HKCU are preferred
+over HKLM</i></b> – this is so that component vendors can support installs by
+non-Administrators. Administrator-level access is required to write to HKLM.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><b style='mso-bidi-font-weight:
+normal'><i style='mso-bidi-font-style:normal'>Current frameworks target version
+is preferred over older target version</i></b> – this is so that components
+better suited for the current target frameworks can be found first.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><b style='mso-bidi-font-weight:
+normal'><i style='mso-bidi-font-style:normal'>Alphabetically lower component
+names are preferred</i></b> – this is arbitrary and is only intended to <span
+class=GramE>provided</span> repeatability.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><b style='mso-bidi-font-weight:
+normal'><i style='mso-bidi-font-style:normal'>Alphabetically higher service
+packs are preferred over lower</i></b> – this is so that multiple service packs
+can exist alongside each other.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><b style='mso-bidi-font-weight:
+normal'><i style='mso-bidi-font-style:normal'>Service packs are preferred over
+base versions</i></b> – this is to support service packs that retain the same
+assembly identities.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h3><a name="_Searching_for_other_Framework_Types"></a>Searching for other Framework
+Types</h3>
+
+<p class=MsoNormal><a name="_Assembly_Name_Matching_Rules"></a>For C#\VB and J#
+project types, the Visual Studio build system respects three property values
+which drive the <span class=SpellE>AssemblyFoldersEx</span> process. For the
+default (non-devices) project types these values are:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
+style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>    </span>&lt;Property <span class=SpellE>FrameworkRegistryBase</span>=&quot;Software\Microsoft\.<span
+class=SpellE>NetFramework</span>&quot;/&gt;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
+style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>    </span>&lt;Property <span class=SpellE>TargetFrameworkVersion</span>=&quot;v2.0&quot;/&gt;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
+style='font-size:10.0pt;font-family:"Courier New"'><span
+style='mso-spacerun:yes'>    </span>&lt;Property <span class=SpellE>AssemblyFoldersSuffix</span>=&quot;<span
+class=SpellE>AssemblyFoldersEx</span>&quot;/&gt;<o:p></o:p></span></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Devices projects, and possibly other project types, override
+these values.</p>
+
+<h2><a name="_Reference_HintPath"></a>Reference <span class=SpellE>HintPath</span>
+Attribute</h2>
+
+<p class=MsoNormal>A reference may optionally have a <span class=SpellE>HintPath</span>
+attribute. If this attribute is present it must point to a file with a relative
+or absolute path. It may not point to a folder.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span><span
+style='mso-spacerun:yes'>    </span>&lt;Item </p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'>Type=&quot;Reference&quot;
+</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'>Include=&quot;System,
+Version=2.0.3500.0, Culture=neutral, <span class=SpellE>PublicKeyToken</span>=b77a5c561934e089&quot;
+</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><a
+href="#_Reference_HintPath">HintPath</a>=&quot;C:\WINNT\Microsoft.NET\Framework\v2.0.x86dbg\System.dll&quot;
+</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><a
+href="#_CopyLocal_Determination">Private</a>=&quot;false&quot;</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'><a
+href="#_Assembly_Name_Matching_Rules_1"><span class=SpellE>SpecificVersion</span></a>=&quot;true&quot;</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:.5in'>/&gt;</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <span class=SpellE>HintPath</span> file will be
+considered during the <a href="#_Resolution">Resolution</a> process. If the
+identity of the given assembly matches according to the <a
+href="#_Assembly_Name_Matching_Rules_1">Assembly Name Matching Rules</a> then
+this assembly will be used as the <a href="#_Resolved_Assembly">Resolved
+Assembly</a>.</p>
+
+<h2><a name="_Assembly_Name_Matching_Rules_1"></a>Assembly Name Matching Rules</h2>
+
+<p class=MsoNormal>The <span class=SpellE>SpecificVersion</span> attribute
+modifies how the <a href="#_Resolution">Resolution</a> process treats the name
+in the Include attribute. Here are the rules:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in'>(1) If the “Include” attribute is a
+weak Fusion name then resolve using <a href="#_Weak_Name_Matching">weak
+matching</a>. </p>
+
+<p class=MsoNormal style='margin-left:.5in'>(2) If the “Include” attribute is a
+strong Fusion name then: </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>a.<span
+style='mso-spacerun:yes'>      </span>Resolve using <a
+href="#_Strong_Name_Matching">strong matching</a> if <span class=SpellE>SpecificVersion</span>
+attribute is not there. </p>
+
+<p class=MsoNormal style='margin-left:1.0in'>b.<span
+style='mso-spacerun:yes'>      </span>Resolve using <a
+href="#_Weak_Name_Matching">weak matching</a> if <span class=SpellE>SpecificVersion</span>=False.
+</p>
+
+<p class=MsoNormal style='margin-left:1.0in'>c.<span
+style='mso-spacerun:yes'>      </span>Resolve using <a
+href="#_Strong_Name_Matching">strong matching</a> if <span class=SpellE>SpecificVersion</span>=True.</p>
+
+<h3><a name="_Strong_Name_Matching"></a>Strong Name Matching</h3>
+
+<p class=MsoNormal>When Strong Name matching is used, two assembly names match
+if their <u>all</u> of the following match each other exactly:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><a href="#_Reference">Base Assembly Name</a> </p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Version</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Public key token</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Culture</p>
+
+<h3><a name="_Weak_Name_Matching"></a>Weak Name Matching</h3>
+
+<p class=MsoNormal>When Weak Name matching is used, two assembly names match if
+only their <span class=SpellE>BaseName</span> matches. The values of Version,
+Public key token and Culture are ignored.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h2>Definitions</h2>
+
+<h3><a name="_Reference"></a><a name="_Dependency"></a><a
+name="_Base_Assembly_Name"></a>Base Assembly Name</h3>
+
+<p class=MsoNormal>If an assembly is named “System, Version=2.0.3500.0,
+Culture=neutral, <span class=SpellE>PublicKeyToken</span>=b77a5c561934e089”
+then its base assembly name is “System”.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h3><a name="_Assembly_Comparison_API"></a>Assembly Comparison API</h3>
+
+<p class=MsoNormal>Mscorwks.dll exposes an API that is used for comparing two
+assemblies to each other:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'>STDAPI <span class=SpellE><span class=GramE>CompareAssemblyIdentity</span></span><span
+class=GramE>(</span>LPCWSTR pwzAssemblyIdentity1, <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span
+style='mso-spacerun:yes'>                               </span>BOOL fUnified1, <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span
+style='mso-spacerun:yes'>                               </span>LPCWSTR
+pwzAssemblyIdentity2, <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span
+style='mso-spacerun:yes'>                               </span>BOOL fUnified2, <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span
+style='mso-spacerun:yes'>                               </span>BOOL *<span
+class=SpellE>pfEquivalent</span>, <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span
+style='mso-spacerun:yes'>                               </span><span
+class=SpellE>AssemblyComparisonResult</span> *<span class=SpellE>pResult</span>);<b><o:p></o:p></b></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span class=SpellE><span class=GramE><span
+style='font-size:10.0pt;font-family:Courier;mso-bidi-font-family:Courier'>typedef</span></span></span><span
+style='font-size:10.0pt;font-family:Courier;mso-bidi-font-family:Courier'> <span
+class=SpellE>enum</span> _<span class=SpellE>tagAssemblyComparisonResult</span>
+<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'>{<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_EquivalentFullMatch</span>,<span
+style='mso-spacerun:yes'>        </span>// all fields match<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_EquivalentFXUnified</span>,<span
+style='mso-spacerun:yes'>        </span>// match based on FX-unification of version
+numbers<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_EquivalentUnified</span>,<span
+style='mso-spacerun:yes'>          </span>// match based on legacy-unification
+of version numbers<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_EquivalentWeakNamed</span>,<span
+style='mso-spacerun:yes'>        </span>// match based on weak-name, version
+numbers ignored<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_NonEquivalentVersion</span>,<span
+style='mso-spacerun:yes'>       </span>// all fields match except version field<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in;mso-layout-grid-align:none;
+text-autospace:none'><span style='font-size:10.0pt;font-family:Courier;
+mso-bidi-font-family:Courier'><span style='mso-spacerun:yes'>    </span><span
+class=SpellE>ACR_NonEquivalent</span><span
+style='mso-spacerun:yes'>               </span>// no match<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:10.0pt;
+font-family:Courier;mso-bidi-font-family:Courier'>} <span class=SpellE>AssemblyComparisonResult</span>;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Parameters:</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>in</span>] LPCWSTR <span class=GramE>pwzAssemblyIdentity1 :</span>
+Textual identity of the first assembly to be compared</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>in</span>] BOOL fUnified1<span
+style='mso-spacerun:yes'>                            </span>: Flag to indicate
+user-specified unification for pwzAssemblyIdentity1 (see below)</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>in</span>] LPCWSTR <span class=GramE>pwzAssemblyIdentity2 :</span>
+Textual identity of the second assembly to be compared</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>in</span>] BOOL fUnified2<span
+style='mso-spacerun:yes'>                            </span>: Flag to <span
+class=SpellE>inidcate</span> user-specified unification for
+pwzAssemblyIdentity2 (see below)</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>out</span>] BOOL *<span class=SpellE>pfEquivalent</span><span
+style='mso-spacerun:yes'>                    </span>: Boolean indicating
+whether the identities are equivalent</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>[<span
+class=GramE>out</span>] <span class=SpellE>AssemblyComparisonResult</span> *<span
+class=SpellE><span class=GramE>pResult</span></span><span class=GramE> :</span>
+Contains detailed information about the comparison result</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>This API will check whether or not pwzAssemblyIdentity1 and
+pwzAssemblyIdentity2 are equivalent. Both of these identities must be
+full-specified (name, version, <span class=SpellE>pkt</span>, culture). The <span
+class=SpellE>pfEquivalent</span> parameter will be set to TRUE if one (or more)
+of the following conditions is true:</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>a) The assembly identities are equivalent. For
+strongly-named assemblies this means full match on (name, version, <span
+class=SpellE>pkt</span>, culture); for simply-named assemblies this means a
+match on (name, culture)</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>b) The assemblies being compared are FX assemblies (even if
+the version numbers are not the same, these will compare as equivalent by way
+of unification)</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>c) The assemblies are not FX assemblies but are equivalent
+because fUnified1 and/or fUnified2 were set.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <span class=SpellE>fUnified</span> flag is used to
+indicate that all versions up to the version number of the strongly-named
+assembly are considered equivalent to itself. For example, if
+pwzAssemblyIdentity1 is &quot;<span class=SpellE>foo</span>, version=5.0.0.0,
+culture=neutral, <span class=SpellE>publicKeyToken</span>=....&quot; and
+fUnified1==TRUE, then this means to treat all versions of the assembly in the
+range 0.0.0.0-5.0.0.0 to be equivalent to &quot;<span class=SpellE>foo</span>,
+version=5.0.0.0, culture=neutral, <span class=SpellE>publicKeyToken</span>=...<span
+class=GramE>&quot;.</span> If pwzAssemblyIdentity2 is the same as
+pwzAssemblyIdentity1, except has a lower version number (e.g. version range
+0.0.0.0-5.0.0.0), then the API will return that the identities are equivalent.
+If pwzAssemblyIdentity2 is the same as pwzAssemblyIdentity1, but has a greater
+version number than 5.0.0.0 then the two identities will only be equivalent if
+fUnified2 is set.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>The <span class=SpellE>AssemblyComparisonResult</span> gives
+you information about why the identities compared as equal or not equal. The
+description of the meaning of each ACR_* return value is described in the
+declaration above.</p>
+
+<h3>Dependency</h3>
+
+<p class=MsoNormal>An Assembly may contain in its metadata one or more
+dependencies on other assemblies.</p>
+
+<h3><a name="_Equivalent_Assemblies"></a>Equivalent Assemblies</h3>
+
+<p class=MsoNormal>Two assemblies can be equivalent for one of the following
+reasons:</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Their names match exactly using <a
+href="#_Strong_Name_Matching">Strong Name Matching</a>.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>They are FX-unified based on an internal fusion
+table of assemblies that match. For example, older versions of System.DLL are
+considered equivalent to newer versions of System.DLL.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>They are strongly named assemblies and they
+differ only by version number.</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l0 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-fareast-font-family:
+"Times New Roman"'><span style='mso-list:Ignore'>-<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>They are weakly named and their <a
+href="#_Reference">Base Assembly Name</a> matches.</p>
+
+<h3><a name="_Reference_(aka_Primary_Reference)"></a><a
+name="_Reference_(aka_Primary_Reference_ak"></a>Reference (<span class=SpellE>aka</span>
+Primary Reference <span class=SpellE>aka</span> Direct Reference)</h3>
+
+<p class=MsoNormal>A Reference is a tag within the project that describes the
+project’s dependency on an external component such as an assembly, a COM
+component or another project.</p>
+
+<h3><a name="_Resolution"></a>Resolution</h3>
+
+<p class=MsoNormal>Resolution is the process of turning a <a href="#_Reference">Reference</a>
+into a path to an assembly that can be passed into the compiler. In the case of
+COM components, the resolution process may create <span class=SpellE>interop</span>
+assemblies since the C#, VB and J# compilers can’t directly consume COM <span
+class=SpellE>dlls</span> or <span class=SpellE>TypeLibs</span>.</p>
+
+<h3><a name="_Resolved_Assembly"></a>Resolved Assembly</h3>
+
+<p class=MsoNormal><span class=GramE>A full or relative path to an assembly
+file that was produced by the <a href="#_Resolution">Resolution</a> process.</span>
+This can be either a .DLL or an .EXE.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+</div>
+
+</body>
+
+</html>
