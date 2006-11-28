@@ -736,7 +736,7 @@
     </target>
     <target name="set-net-2.0-framework-configuration">
         <property name="nant.settings.currentframework" value="net-2.0" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_0,NET_2_0,ONLY_NET_2_0" dynamic="true" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0,NET_1_1,NET_2_0,ONLY_NET_2_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
