@@ -766,7 +766,7 @@ namespace NAnt.VSNet {
             public FileInfo ImportLibrary {
                 get {
                     string defaultImportLibrary = null;
-                    if (!Project.IsManaged(_projectConfig.Name)) {
+                    if (!Project.IsManaged(_projectConfig.SolutionTask.Configuration)) {
                         defaultImportLibrary = "$(OutDir)/$(TargetName).lib";
                     }
 
