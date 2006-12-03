@@ -926,7 +926,7 @@ namespace NAnt.Core {
                 }
 
                 string smtpPassword = GetPropertyValue(properties, "smtp.password", null, false);
-                if (smtpPassword == null) {
+                if (smtpPassword != null) {
 #if (NET_1_1)
                     mailMessage.Fields[cdoNamespaceURI + "sendpassword"] = smtpPassword;
 #else
