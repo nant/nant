@@ -20,6 +20,7 @@
 
 using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Reflection;
@@ -29,10 +30,12 @@ using Microsoft.Win32;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Extensibility;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
+using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Types;
 
 namespace NAnt.VSNet.Tasks {
@@ -182,7 +185,9 @@ namespace NAnt.VSNet.Tasks {
     /// </example>
     [Serializable()]
     [TaskName("solution")]
-    public class SolutionTask : Task {
+    [PluginConsumer(typeof(IProjectBuildProvider))]
+    [PluginConsumer(typeof(ISolutionBuildProvider))]
+    public class SolutionTask : Task, IPluginConsumer {
         #region Public Instance Constructors
 
         /// <summary>
@@ -194,6 +199,8 @@ namespace NAnt.VSNet.Tasks {
             _excludeProjects = new FileSet();
             _assemblyFolders = new FileSet();
             _webMaps = new WebMapCollection();
+            _projectFactory = ProjectFactory.Create(this);
+            _solutionFactory = SolutionFactory.Create();
         }
 
         #endregion Public Instance Constructors
@@ -253,6 +260,22 @@ namespace NAnt.VSNet.Tasks {
             get { return _configuration; }
             set { _configuration = StringUtils.ConvertEmptyToNull(value); }
         }
+
+        /*
+        /// <summary>
+        /// Set of properties set at solution level. Builders for projects in solution may or may not use them.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// TODO: some documentataion which properties could be defined here.
+        /// </para>
+        /// </remarks>
+        [BuildElementArray("property", ElementType = typeof(PropertyTask))]
+        public ArrayList CustomProperties
+        {
+            get { return _customproperties; }
+        }
+        */
 
         /// <summary>
         /// The directory where compiled targets will be placed.  This
@@ -353,6 +376,30 @@ namespace NAnt.VSNet.Tasks {
         }
 
         #endregion Public Instance Properties
+
+        #region Internal Instance Properties
+
+        internal ProjectFactory ProjectFactory {
+            get { return _projectFactory; }
+        }
+
+        internal SolutionFactory SolutionFactory {
+            get { return _solutionFactory; }
+        }
+
+        #endregion Internal Instance Properties
+
+        #region Implementation of IPluginConsumer
+
+        void IPluginConsumer.ConsumePlugin(Type type) {
+            object plugin = Activator.CreateInstance(type);
+            if (plugin is IProjectBuildProvider)
+                ProjectFactory.RegisterProvider((IProjectBuildProvider) plugin);
+            if (plugin is ISolutionBuildProvider)
+                SolutionFactory.RegisterProvider((ISolutionBuildProvider) plugin);
+        }
+
+        #endregion Implementation of IPluginConsumer
 
         #region Override implementation of Task
 
@@ -575,6 +622,9 @@ namespace NAnt.VSNet.Tasks {
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
+        private ArrayList _customproperties = new ArrayList();
+        private readonly SolutionFactory _solutionFactory;
+        private readonly ProjectFactory _projectFactory;
 
         #endregion Private Instance Fields
     }

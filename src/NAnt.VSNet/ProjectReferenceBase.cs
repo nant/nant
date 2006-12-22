@@ -209,8 +209,9 @@ namespace NAnt.VSNet {
                 ProjectStack.Push(projectFile);
 
                 Log(Level.Verbose, "Loading referenced project '{0}'.", projectFile);
-                return ProjectFactory.LoadProject(solution, SolutionTask, tfc, 
-                    gacCache, ReferencesResolver, outputDir, projectFile);
+                return SolutionTask.ProjectFactory.LoadProject(solution, 
+                    SolutionTask, tfc,  gacCache, ReferencesResolver, outputDir,
+                    projectFile);
             } finally {
                 ProjectStack.Pop();
             }

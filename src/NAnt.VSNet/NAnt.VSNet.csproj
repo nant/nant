@@ -74,7 +74,6 @@
                 <Reference
                     Name = "System.XML"
                     AssemblyName = "System.Xml"
-                    HintPath = "C:\WINNT2\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
                 />
                 <Reference
                     Name = "NAnt.Win32Tasks"
@@ -127,6 +126,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "CSharpProjectProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "EverettSolution.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "EverettSolutionProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "FileReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -138,6 +152,11 @@
                 />
                 <File
                     RelPath = "JSharpProject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "JSharpProjectProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -186,6 +205,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "RainierSolution.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "RainierSolutionProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ReferenceBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -212,6 +241,11 @@
                 />
                 <File
                     RelPath = "VBProject.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "VBProjectProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -246,6 +280,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "VCProjectProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "VcProjectReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -266,12 +305,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Everett\Solution.cs"
+                    RelPath = "Extensibility\IProjectBuildProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Rainier\Solution.cs"
+                    RelPath = "Extensibility\ISolutionBuildProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

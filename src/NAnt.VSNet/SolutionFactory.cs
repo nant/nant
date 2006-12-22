@@ -29,13 +29,14 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Util;
 
+using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     /// <summary>
     /// Factory class for VS.NET solutions.
     /// </summary>
-    public sealed class SolutionFactory {
+    internal sealed class SolutionFactory {
         #region Private Instance Constructor
 
         /// <summary>
@@ -47,9 +48,17 @@ namespace NAnt.VSNet {
 
         #endregion Private Instance Constructor
 
-        #region Public Static Methods
+        #region Internal Static Methods
 
-        public static SolutionBase LoadSolution(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
+        internal static SolutionFactory Create () {
+            return new SolutionFactory();
+        }
+
+        #endregion Internal Static Methods
+
+        #region Public Instance Methods
+
+        public SolutionBase LoadSolution(SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
             if (solutionTask.SolutionFile == null) {
                 return new GenericSolution(solutionTask, tfc, gacCache, refResolver);
             } else {
@@ -62,36 +71,39 @@ namespace NAnt.VSNet {
                     fileContents = sr.ReadToEnd();
                 }
 
-                Regex reSolutionFormat = new Regex(@"^\s*Microsoft Visual Studio Solution File, Format Version\s+(?<formatVersion>[0-9]+\.[0-9]+?)", RegexOptions.Singleline);
-                MatchCollection matches = reSolutionFormat.Matches(fileContents);
-
-                if (matches.Count == 0) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "The format version of solution file '{0}' could not"
-                        + " be determined.", solutionTask.SolutionFile.FullName), 
-                        Location.UnknownLocation);
-                } else {
-                    string formatVersion = matches[0].Groups["formatVersion"].Value;
-                    switch (formatVersion) {
-                        case "7.0":
-                            return new Rainier.Solution(fileContents, solutionTask, 
-                                tfc, gacCache, refResolver);
-                        case "8.0":
-                            return new Everett.Solution(fileContents, solutionTask, 
-                                tfc, gacCache, refResolver);
-                        case "9.0":
-                            throw new BuildException("Microsoft Visual Studio.NET"
-                                + " 2005 solutions are not supported.", 
-                                Location.UnknownLocation);
-                        default:
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "Visual Studio Solution format version '{0}' is"
-                                + " not supported.", formatVersion), Location.UnknownLocation);
-                    }
+                ISolutionBuildProvider provider = FindProvider(fileContents);
+                if (provider != null) {
+                    return provider.GetInstance(fileContents, solutionTask, tfc, gacCache, refResolver);
                 }
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Solution format of file '{0}' is not supported.", solutionTask.SolutionFile),
+                    Location.UnknownLocation);
             }
         }
 
-        #endregion Public Static Methods
+        public void RegisterProvider(ISolutionBuildProvider provider) {
+            _projectProviders.Add(provider);
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private ISolutionBuildProvider FindProvider(string fileContents) {
+            int max = 0;
+            ISolutionBuildProvider res = null;
+            foreach (ISolutionBuildProvider provider in _projectProviders) {
+                int pri = provider.IsSupported(fileContents);
+                if (pri > max) {
+                    max = pri;
+                    res = provider;
+                }
+            }
+            return res;
+        }
+
+        #endregion Private Instance Methods
+
+        private readonly ArrayList _projectProviders = new ArrayList();
     }
 }

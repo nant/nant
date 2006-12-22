@@ -1146,33 +1146,39 @@ namespace NAnt.VSNet {
             }
         }
 
-        public static string LoadGuid(string fileName) {
+        public static string LoadGuid(XmlElement xmlDefinition)
+        {
+            XmlReader guidReader = new XmlNodeReader(xmlDefinition);
+            return LoadGuid(guidReader);
+        }
+
+        private static string LoadGuid(string fileName) {
             try {
-                using (StreamReader sr = new StreamReader(fileName))
-                {
+                using (StreamReader sr = new StreamReader(fileName)) {
                     XmlTextReader guidReader = new XmlTextReader(sr);
-                    
-                    while (guidReader.Read()) {
-                        if (guidReader.NodeType == XmlNodeType.Element) {
-                            while (guidReader.Read()) {
-                                if (guidReader.NodeType == XmlNodeType.Element) {
-                                    if (guidReader.MoveToAttribute( "ProjectGuid" ))
-                                        return guidReader.Value;
-                                }
-                            }
-                        }
-                    }
+                    return LoadGuid(guidReader);
                 }
-
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Couldn't locate ProjectGuid in project '{0}'", fileName),
-                    Location.UnknownLocation);
-
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Error loading GUID of project '{0}'.", fileName), 
                     Location.UnknownLocation, ex);
             }
+        }
+
+        private static string LoadGuid(XmlReader guidReader) {
+            while (guidReader.Read()) {
+                if (guidReader.NodeType == XmlNodeType.Element) {
+                    while (guidReader.Read()) {
+                        if (guidReader.NodeType == XmlNodeType.Element) {
+                            if (guidReader.MoveToAttribute( "ProjectGuid" ))
+                                return guidReader.Value;
+                        }
+                    }
+                }
+            }
+
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Couldn't locate project GUID."), Location.UnknownLocation);
         }
 
         #endregion Public Static Methods

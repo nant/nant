@@ -754,14 +754,6 @@ namespace NAnt.VSNet {
 
         #endregion Protected Instance Methods
 
-        #region Protected Static Methods
-
-        protected static XmlDocument LoadXmlDocument(string fileName) {
-            return ProjectFactory.LoadProjectXml(fileName);
-        }
-
-        #endregion Protected Static Methods
-
         #region Private Instance Fields
 
         private readonly ProductVersion _productVersion;
@@ -800,7 +792,12 @@ namespace NAnt.VSNet {
         /// <summary>
         /// A Visual J# project.
         /// </summary>
-        JSharp = 3
+        JSharp = 3,
+
+        /// <summary>
+        /// MSBuild project.
+        /// </summary>
+        MSBuild = 4
     }
 
     /// <summary>
@@ -832,6 +829,11 @@ namespace NAnt.VSNet {
         /// Visual Studio.NET 2003
         /// </summary>
         Everett = 2,
+
+        /// <summary>
+        /// Visual Studio 2005
+        /// </summary>
+        Whidbey =3,
     }
 
     /// <summary>
@@ -839,7 +841,7 @@ namespace NAnt.VSNet {
     /// </summary>
     public enum ProjectLocation {
         /// <summary>
-        /// A local project. 
+        /// A local project.
         /// </summary>
         Local = 1,
 

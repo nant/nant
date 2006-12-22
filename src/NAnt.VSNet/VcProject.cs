@@ -1783,15 +1783,8 @@ namespace NAnt.VSNet {
 
         #region Public Static Methods
 
-        public static string LoadGuid(string fileName) {
-            try {
-                XmlDocument doc = LoadXmlDocument(fileName);
-                return doc.DocumentElement.GetAttribute("ProjectGUID");
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Error loading GUID of project '{0}'.", fileName), 
-                    Location.UnknownLocation, ex);
-            }
+        public static string LoadGuid(XmlElement xmlDefinition) {
+            return xmlDefinition.GetAttribute("ProjectGUID");
         }
 
         /// <summary>

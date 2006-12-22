@@ -29,41 +29,48 @@ using System.Text;
 using NAnt.Core;
 using NAnt.Core.Util;
 
+using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     /// <summary>
     /// Factory class for VS.NET projects.
     /// </summary>
-    public sealed class ProjectFactory {
+    internal sealed class ProjectFactory {
         #region Private Instance Constructor
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectFactory" />
         /// class.
         /// </summary>
-        private ProjectFactory() {
+        private ProjectFactory(SolutionTask solutionTask) {
+            _cachedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _cachedProjectXml = CollectionsUtil.CreateCaseInsensitiveHashtable();
+            _solutionTask = solutionTask;
         }
 
         #endregion Private Instance Constructor
 
-        #region Static Constructor
-
-        static ProjectFactory() {
-            ClearCache();
-        }
-
-        #endregion Static Constructor
-
         #region Public Static Methods
 
-        public static void ClearCache() {
-            _cachedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _cachedProjectXml = CollectionsUtil.CreateCaseInsensitiveHashtable();
+        public static ProjectFactory Create(SolutionTask solutionTask) {
+            return new ProjectFactory(solutionTask);
         }
 
-        public static XmlDocument LoadProjectXml(string path) {
+        public static bool IsUrl(string fileName) {
+            if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion Public Static Methods
+
+        #region Public Instance Methods
+
+        public XmlDocument LoadProjectXml(string path) {
             if (!_cachedProjectXml.Contains(path)) {
                 XmlDocument doc = new XmlDocument();
 
@@ -88,7 +95,7 @@ namespace NAnt.VSNet {
             return (XmlDocument) _cachedProjectXml[path];
         }    
 
-        public static ProjectBase LoadProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string path) {
+        public ProjectBase LoadProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string path) {
             // check if this a new project
             if (!_cachedProjects.Contains(path)) {
                 ProjectBase project = CreateProject(solution, solutionTask, 
@@ -99,57 +106,46 @@ namespace NAnt.VSNet {
             return (ProjectBase) _cachedProjects[path];
         }
 
-        public static bool IsUrl(string fileName) {
-            if (fileName.StartsWith(Uri.UriSchemeFile) || fileName.StartsWith(Uri.UriSchemeHttp) || fileName.StartsWith(Uri.UriSchemeHttps)) {
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool IsSupportedProjectType(string path) {
-            string projectFileName = ProjectFactory.GetProjectFileName(path);
-            string projectExt = Path.GetExtension(projectFileName).ToLower(
-                CultureInfo.InvariantCulture);
-            return projectExt == ".vbproj" || projectExt == ".csproj" 
-                || projectExt == ".vcproj" || projectExt == ".vjsproj";
-        }
-
-        public static string LoadGuid(string fileName) {
+        public string LoadGuid(string fileName) {
             // check if a project with specified file is already cached
             if (_cachedProjects.ContainsKey(fileName)) {
                 // return the guid of the cached project
                 return ((ProjectBase) _cachedProjects[fileName]).Guid;
             }
-
             string projectFileName = ProjectFactory.GetProjectFileName(fileName);
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
 
-            // check if GUID of project is already cached
-            if (!_cachedProjectGuids.Contains(fileName)) {
-                if (projectExt == ".vbproj" || projectExt == ".csproj" || projectExt == ".vjsproj") {
-                    // add project GUID to cache
-                    _cachedProjectGuids[fileName] = ManagedProjectBase.LoadGuid(fileName);
-                } else if (projectExt == ".vcproj") {
-                    // add project GUID to cache
-                    _cachedProjectGuids[fileName] = VcProject.LoadGuid(fileName);
-                } else {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Unknown project file extension '{0}'.", projectExt,
-                        Location.UnknownLocation));
-                }
+            // holds the XML definition of the project
+            XmlElement xmlDefinition;
+
+            try {
+                XmlDocument doc = LoadProjectXml(fileName);
+                xmlDefinition = doc.DocumentElement;
+            } catch (Exception ex) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Error loading project '{0}'.", fileName), Location.UnknownLocation,
+                    ex);
+            }
+
+            IProjectBuildProvider provider = FindProvider(projectExt, xmlDefinition);
+            if (provider != null) {
+                _cachedProjectGuids[fileName] = provider.LoadGuid(xmlDefinition);
             }
 
             // return project GUID from cache
             return (string) _cachedProjectGuids[fileName];
         }
 
-        #endregion Public Static Methods
+        public void RegisterProvider(IProjectBuildProvider provider) {
+            _projectprovs.Add(provider);
+        }
 
-        #region Private Static Methods
+        #endregion Public Instance Methods
 
-        private static ProjectBase CreateProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string projectPath) {
+        #region Private Instance Methods
+
+        private ProjectBase CreateProject(SolutionBase solution, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver referencesResolver, DirectoryInfo outputDir, string projectPath) {
             // determine the filename of the project
             string projectFileName = ProjectFactory.GetProjectFileName(projectPath);
 
@@ -169,38 +165,9 @@ namespace NAnt.VSNet {
                     ex);
             }
 
-            // first identify project based on known file extensions
-            switch (projectExt) {
-                case ".vbproj":
-                    return new VBProject(solution, projectPath, xmlDefinition, 
-                        solutionTask, tfc, gacCache, referencesResolver, 
-                        outputDir);
-                case ".csproj":
-                    return new CSharpProject(solution, projectPath, xmlDefinition, 
-                        solutionTask, tfc, gacCache, referencesResolver, 
-                        outputDir);
-                case ".vjsproj":
-                    return new JSharpProject(solution, projectPath, xmlDefinition,
-                        solutionTask, tfc, gacCache, referencesResolver,
-                        outputDir);
-                case ".vcproj":
-                    return new VcProject(solution, projectPath, xmlDefinition, 
-                        solutionTask, tfc, gacCache, referencesResolver, 
-                        outputDir);
-            }
-
-            // next, identify project based on XML definition
-            if (VBProject.IsSupported(xmlDefinition)) {
-                return new VBProject(solution, projectPath, xmlDefinition, 
-                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
-            } else if (CSharpProject.IsSupported(xmlDefinition)) {
-                return new CSharpProject(solution, projectPath, xmlDefinition, 
-                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
-            } else if (JSharpProject.IsSupported(xmlDefinition)) {
-                return new JSharpProject(solution, projectPath, xmlDefinition, 
-                    solutionTask, tfc, gacCache, referencesResolver, outputDir);
-            } else if (VcProject.IsSupported(xmlDefinition)) {
-                return new VcProject(solution, projectPath, xmlDefinition, 
+            IProjectBuildProvider provider = FindProvider(projectExt, xmlDefinition);
+            if (provider != null) {
+                return provider.GetInstance(solution, projectPath, xmlDefinition,
                     solutionTask, tfc, gacCache, referencesResolver, outputDir);
             }
 
@@ -209,6 +176,23 @@ namespace NAnt.VSNet {
                 "Project '{0}' is invalid or not supported (at this time).",
                 projectPath), Location.UnknownLocation);
         }
+
+        private IProjectBuildProvider FindProvider(string projectExt, XmlElement xmlDefinition) {
+            int max = 0;
+            IProjectBuildProvider res = null;
+            foreach (IProjectBuildProvider provider in _projectprovs) {
+                int pri = provider.IsSupported(projectExt, xmlDefinition);
+                if (pri > max) {
+                    max = pri;
+                    res = provider;
+                }
+            }
+            return res;
+        }
+
+        #endregion Private Instance Methods
+
+        #region Private Static Methods
 
         private static string GetProjectFileName(string fileName) {
             string projectPath = null;
@@ -225,12 +209,12 @@ namespace NAnt.VSNet {
             }
 
             // return filename part
-            return Path.GetFileName(projectPath); 
+            return Path.GetFileName(projectPath);
         }
 
         #endregion Private Static Methods
 
-        #region Private Static Fields
+        #region Private Instance Fields
 
         /// <summary>
         /// Holds a case-insensitive list of cached projects.
@@ -240,7 +224,7 @@ namespace NAnt.VSNet {
         /// file (for web projects this can be a URL) and the value is a 
         /// <see cref="Project" /> instance.
         /// </remarks>
-        private static Hashtable _cachedProjects;
+        private readonly Hashtable _cachedProjects;
 
         /// <summary>
         /// Holds a case-insensitive list of cached project GUIDs.
@@ -250,7 +234,7 @@ namespace NAnt.VSNet {
         /// file (for web projects this can be a URL) and the value is the GUID
         /// of the project.
         /// </remarks>
-        private static Hashtable _cachedProjectGuids;
+        private readonly Hashtable _cachedProjectGuids;
 
         /// <summary>
         /// Holds a case-insensitive list of cached project GUIDs.
@@ -260,8 +244,11 @@ namespace NAnt.VSNet {
         /// file (for web projects this can be a URL) and the value is the Xml
         /// of the project.
         /// </remarks>
-        private static Hashtable _cachedProjectXml;
+        private readonly Hashtable _cachedProjectXml;
 
-        #endregion Private Static Fields
+        private readonly ArrayList _projectprovs = new ArrayList();
+        private readonly SolutionTask _solutionTask;
+
+        #endregion Private Instance Fields
     }
 }

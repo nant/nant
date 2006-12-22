@@ -58,7 +58,6 @@ namespace NAnt.VSNet {
             _solutionTask = solutionTask;
             _outputDir = solutionTask.OutputDir;
             _webMaps = solutionTask.WebMaps;
-            ProjectFactory.ClearCache();
         }
 
         #endregion Private Instance Constructors
@@ -94,7 +93,7 @@ namespace NAnt.VSNet {
         #region Public Instance Methods
 
         public void RecursiveLoadTemplateProject(string fileName) {
-            XmlDocument doc = ProjectFactory.LoadProjectXml(fileName);
+            XmlDocument doc = _solutionTask.ProjectFactory.LoadProjectXml(fileName);
 
             foreach (XmlNode node in doc.SelectNodes("//Reference")) {
                 XmlNode projectGuidNode = node.SelectSingleNode("GUIDPROJECTID");
@@ -332,7 +331,7 @@ namespace NAnt.VSNet {
 
         protected void LoadProjectGuids(ArrayList projects, bool isReferenceProject) {
             foreach (string projectFileName in projects) {
-                string projectGuid = ProjectFactory.LoadGuid(projectFileName);
+                string projectGuid = _solutionTask.ProjectFactory.LoadGuid(projectFileName);
 
                 // locate project entry using the project guid
                 ProjectEntry projectEntry = ProjectEntries[projectGuid];
@@ -393,18 +392,14 @@ namespace NAnt.VSNet {
                     continue;
                 }
 
-                // check if project type is supported
-                if (!ProjectFactory.IsSupportedProjectType(projectPath)) {
-                    // output a warning message in the build log
-                    Log(Level.Warning, "Only C#, J#, VB.NET and C++ projects" +
-                        " are supported.  Skipping project '{0}'.", projectPath);
+                Log(Level.Verbose, "Loading project '{0}'.", projectPath);
+                ProjectBase p = _solutionTask.ProjectFactory.LoadProject(this, _solutionTask, 
+                    _tfc, gacCache, refResolver, _outputDir, projectPath);
+                if (p == null) {
+                    Log(Level.Warning, "Project '{0}' is of unsupported type. Skipping.", projectPath);
                     // skip the project
                     continue;
                 }
-
-                Log(Level.Verbose, "Loading project '{0}'.", projectPath);
-                ProjectBase p = ProjectFactory.LoadProject(this, _solutionTask, 
-                    _tfc, gacCache, refResolver, _outputDir, projectPath);
                 if (p.Guid == null || p.Guid == string.Empty) {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
