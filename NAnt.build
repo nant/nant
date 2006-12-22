@@ -143,6 +143,8 @@
         <nant target="build">
             <buildfiles refid="ext.core" />
         </nant>
+        <!-- build NAnt.MSBuild assembly -->
+        <nant buildfile="src/NAnt.MSBuild/NAnt.MSBuild.build" target="build" />        
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
         <!-- build NAnt.Console.Tests assembly -->
