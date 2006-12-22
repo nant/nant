@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.MSNet", "src\NAnt.MSNe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.VSNet", "src\NAnt.VSNet\NAnt.VSNet.csproj", "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAnt.MSBuild", "src\NAnt.MSBuild\NAnt.MSBuild.csproj", "{318C04B2-D982-4243-9C6A-CA7E035E927D}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
