@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Security.Permissions;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Extensibility;
 
 namespace NAnt.Core {
     public class TaskBuilder {
@@ -91,7 +92,7 @@ namespace NAnt.Core {
 
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public Task CreateTask() {
-            return (Task) Assembly.CreateInstance(
+            Task task = (Task) Assembly.CreateInstance(
                 ClassName, 
                 true, 
                 BindingFlags.Public | BindingFlags.Instance,
@@ -99,6 +100,11 @@ namespace NAnt.Core {
                 null,
                 CultureInfo.InvariantCulture,
                 null);
+            IPluginConsumer pluginConsumer = task as IPluginConsumer;
+            if (pluginConsumer != null) {
+                TypeFactory.PluginScanner.RegisterPlugins(pluginConsumer);
+            }
+            return task;
         }
 
         #endregion Public Instance Methods

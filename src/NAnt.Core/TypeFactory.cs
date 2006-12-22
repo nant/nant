@@ -27,6 +27,7 @@ using System.Security.Permissions;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Extensibility;
 using NAnt.Core.Filters;
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
@@ -45,6 +46,7 @@ namespace NAnt.Core {
         private static FilterBuilderCollection _filterBuilders = new FilterBuilderCollection();
         private static Hashtable _methodInfoCollection = new Hashtable();
         private static ArrayList _projects = new ArrayList();
+        private static PluginScanner _pluginScanner = new PluginScanner();
 
         #endregion Private Static Fields
 
@@ -78,6 +80,10 @@ namespace NAnt.Core {
         /// </value>
         public static FilterBuilderCollection FilterBuilders {
             get { return _filterBuilders; }
+        }
+
+        internal static PluginScanner PluginScanner {
+            get { return _pluginScanner; }
         }
 
         #endregion Internal Static Properties
@@ -133,6 +139,11 @@ namespace NAnt.Core {
 
                 if (!extensionFound) {
                     extensionFound = ScanTypeForFilters(type, task);
+                }
+
+                if (!extensionFound)
+                {
+                    extensionFound = _pluginScanner.ScanTypeForPlugins(type, task);
                 }
 
                 // if extension is found in type, then mark assembly as

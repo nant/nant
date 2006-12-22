@@ -361,6 +361,26 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Extensibility\IPlugin.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Extensibility\IPluginConsumer.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Extensibility\PluginConsumerAttribute.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Extensibility\PluginScanner.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Filters\ExpandProperties.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
