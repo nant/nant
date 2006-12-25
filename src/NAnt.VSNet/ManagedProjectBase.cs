@@ -1152,19 +1152,6 @@ namespace NAnt.VSNet {
             return LoadGuid(guidReader);
         }
 
-        private static string LoadGuid(string fileName) {
-            try {
-                using (StreamReader sr = new StreamReader(fileName)) {
-                    XmlTextReader guidReader = new XmlTextReader(sr);
-                    return LoadGuid(guidReader);
-                }
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Error loading GUID of project '{0}'.", fileName), 
-                    Location.UnknownLocation, ex);
-            }
-        }
-
         private static string LoadGuid(XmlReader guidReader) {
             while (guidReader.Read()) {
                 if (guidReader.NodeType == XmlNodeType.Element) {
@@ -1177,8 +1164,8 @@ namespace NAnt.VSNet {
                 }
             }
 
-            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                "Couldn't locate project GUID."), Location.UnknownLocation);
+            throw new BuildException("Couldn't locate project GUID.",
+                Location.UnknownLocation);
         }
 
         #endregion Public Static Methods

@@ -622,7 +622,7 @@ namespace NAnt.VSNet.Tasks {
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
-        private ArrayList _customproperties = new ArrayList();
+//        private ArrayList _customproperties = new ArrayList();
         private readonly SolutionFactory _solutionFactory;
         private readonly ProjectFactory _projectFactory;
 

@@ -47,7 +47,6 @@ namespace NAnt.VSNet {
             _cachedProjects = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _cachedProjectGuids = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _cachedProjectXml = CollectionsUtil.CreateCaseInsensitiveHashtable();
-            _solutionTask = solutionTask;
         }
 
         #endregion Private Instance Constructor
@@ -247,7 +246,6 @@ namespace NAnt.VSNet {
         private readonly Hashtable _cachedProjectXml;
 
         private readonly ArrayList _projectprovs = new ArrayList();
-        private readonly SolutionTask _solutionTask;
 
         #endregion Private Instance Fields
     }
