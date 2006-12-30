@@ -50,6 +50,8 @@ namespace NAnt.Core.Tasks {
         private TextWriter _outputWriter;
         private TextWriter _errorWriter;
         private int _exitCode = UnknownExitCode;
+        private bool _spawn;
+        private int _processId = 0;
 
         #endregion Private Instance Fields
 
@@ -266,6 +268,32 @@ namespace NAnt.Core.Tasks {
             get { return _exitCode; }
         }
 
+        /// <summary>
+        /// Gets the unique identifier for the spawned application.
+        /// </summary>
+        protected int ProcessId {
+            get {
+                if (!Spawn) {
+                    throw new InvalidOperationException ("The unique identifier" +
+                        " only applies to spawned applications.");
+                }
+                if (_processId == 0) {
+                    throw new InvalidOperationException ("The application was not started.");
+                }
+                return _processId;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the application should be
+        /// spawned. If you spawn an application, its output will not be logged
+        /// by NAnt. The default is <see langword="false" />.
+        /// </summary>
+        public virtual bool Spawn {
+            get { return _spawn; }
+            set { _spawn = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -285,6 +313,12 @@ namespace NAnt.Core.Tasks {
             try {
                 // Start the external process
                 Process process = StartProcess();
+
+                if (Spawn) {
+                    _processId = process.Id;
+                    return;
+                }
+
                 outputThread = new Thread(new ThreadStart(StreamReaderThread_Output));
                 errorThread = new Thread(new ThreadStart(StreamReaderThread_Error));
 
@@ -393,9 +427,11 @@ namespace NAnt.Core.Tasks {
                 process.StartInfo.FileName = ProgramFileName;
                 process.StartInfo.Arguments = CommandLine;
             }
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            //required to allow redirects
+            if (!Spawn) {
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+            }
+            // required to allow redirects
             process.StartInfo.UseShellExecute = false;
             // do not start process in new window
             process.StartInfo.CreateNoWindow = true;

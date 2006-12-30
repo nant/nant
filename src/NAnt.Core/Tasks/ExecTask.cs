@@ -88,6 +88,7 @@ namespace NAnt.Core.Tasks {
         private EnvironmentSet _environmentSet = new EnvironmentSet();
         private bool _managed;
         private string _resultProperty;
+        private string _processIdProperty;
 
         #endregion Private Instance Fields
 
@@ -288,7 +289,7 @@ namespace NAnt.Core.Tasks {
         /// <remarks>
         /// By default, the standard output is redirected to the console.
         /// </remarks>
-        [TaskAttribute("output", Required=false)]
+        [TaskAttribute("output")]
         public override FileInfo Output {
             get { return _output; }
             set { _output = value; }
@@ -302,10 +303,33 @@ namespace NAnt.Core.Tasks {
         /// <see langword="true" /> if output should be appended to the <see cref="Output" />; 
         /// otherwise, <see langword="false" />.
         /// </value>
-        [TaskAttribute("append", Required=false)]
+        [TaskAttribute("append")]
         public override bool OutputAppend {
             get { return _outputAppend; }
             set { _outputAppend = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the application should be
+        /// spawned. If you spawn an application, its output will not be logged
+        /// by NAnt. The default is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("spawn")]
+        public override bool Spawn {
+            get { return base.Spawn; }
+            set { base.Spawn = value; }
+        }
+
+        /// <summary>
+        /// The name of a property in which the unique identifier of the spawned
+        /// application should be stored. Only of interest if <see cref="Spawn" />
+        /// is <see langword="true" />.
+        /// </summary>
+        [TaskAttribute("pidproperty")]
+        [StringValidator(AllowEmpty=false)]
+        public string ProcessIdProperty {
+            get { return _processIdProperty; }
+            set { _processIdProperty = value; }
         }
 
         /// <summary>
@@ -315,6 +339,10 @@ namespace NAnt.Core.Tasks {
             base.ExecuteTask();
             if (ResultProperty != null) {
                 Properties[ResultProperty] = base.ExitCode.ToString(
+                    CultureInfo.InvariantCulture);
+            }
+            if (Spawn && ProcessIdProperty != null) {
+                Properties[ProcessIdProperty] = base.ProcessId.ToString(
                     CultureInfo.InvariantCulture);
             }
         }
