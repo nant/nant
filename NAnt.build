@@ -10,7 +10,7 @@
         <property name="project.version.full" value="${project.version + '-nightly-' + build.date}" />
     </if>
     <if test="${project.release.type != 'nightly'}">
-        <property name="project.version.full" value="${project.version + if(project.release.type == 'release', '', '-' + project.release.type)}" dynamic="true" />    
+        <property name="project.version.full" value="${project.version + if(project.release.type == 'release', '', '-' + project.release.type)}" dynamic="true" />
     </if>
 
     <!-- 
@@ -144,7 +144,7 @@
             <buildfiles refid="ext.core" />
         </nant>
         <!-- build NAnt.MSBuild assembly -->
-        <nant buildfile="src/NAnt.MSBuild/NAnt.MSBuild.build" target="build" />        
+        <nant buildfile="src/NAnt.MSBuild/NAnt.MSBuild.build" target="build" />
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
         <!-- build NAnt.Console.Tests assembly -->
@@ -261,13 +261,13 @@
             <fileset>
                 <include name="examples/**" />
             </fileset>
-        </copy>    
+        </copy>
         <nant target="build clean">
             <buildfiles basedir="${build.dir}/examples">
                 <include name="examples.build" />
             </buildfiles>
         </nant>
-    </target>    
+    </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
@@ -490,7 +490,7 @@
                 <parameter name="start-date" value="${start.date}" />
                 <parameter name="end-date" value="${end.date}" />
             </parameters>
-        </style> 
+        </style>
         <delete file="${build.dir}/${changes.name-without-extension}.xml" />
     </target>
     
@@ -506,7 +506,7 @@
         <readregistry property="vs2003.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.1\InstallDir" hive="LocalMachine" failonerror="false" />
         <if test="${property::exists('vs2003.xml.schemas')}">
             <!-- deploy schema to VS.NET 2002 schema store -->
-            <copy file="${schema.output}" todir="${vs2003.xml.schemas}..\\Packages\schemas\xml" />        
+            <copy file="${schema.output}" todir="${vs2003.xml.schemas}..\\Packages\schemas\xml" />
         </if>
     </target>
 
