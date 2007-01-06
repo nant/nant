@@ -115,6 +115,13 @@ namespace NAnt.Console {
             string frameworkFamilyLibDir = Path.Combine("lib", FrameworkFamily);
             string frameworkVersionLibDir = Path.Combine(frameworkFamilyLibDir, 
                 FrameworkVersion);
+            string frameworkNeutralLibDir = Path.Combine(frameworkFamilyLibDir, 
+                "neutral");
+
+            string commonLibDir = Path.Combine("lib", "common");
+            string commonVersionLibDir = Path.Combine(commonLibDir,
+                Environment.Version.ToString(2));
+            string commonNeutralLibDir = Path.Combine (commonLibDir, "neutral");
 
             string privateBinPath = null;
 
@@ -124,10 +131,22 @@ namespace NAnt.Console {
                     + frameworkVersionLibDir : frameworkVersionLibDir;
             }
 
-            // add lib/<family> dir to privatebinpath if it exists
-            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkFamilyLibDir))) {
+            // add lib/<family>/neutral dir to privatebinpath if it exists
+            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkNeutralLibDir))) {
                 privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
-                    + frameworkFamilyLibDir : frameworkFamilyLibDir;
+                    + frameworkNeutralLibDir : frameworkNeutralLibDir;
+            }
+
+            // add lib/common>/<version> dir to privatebinpath if it exists
+            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, commonVersionLibDir))) {
+                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
+                    + commonVersionLibDir : commonVersionLibDir;
+            }
+
+            // add lib/common>/neutral dir to privatebinpath if it exists
+            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, commonNeutralLibDir))) {
+                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
+                    + commonNeutralLibDir : commonNeutralLibDir;
             }
 
             // add privatebinpath of current domain to privatebinpath 

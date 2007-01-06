@@ -6,18 +6,25 @@
             * build.debug           - (true|false) debug build?
             * current.build.defines - framework-specific build defines
     -->
-    <target name="build" if="${framework::exists('net-2.0')}">
+    <target name="build" if="${framework::exists('net-2.0') or framework::exists('mono-2.0')}">
         <!-- save original target framework -->
         <property name="original.targetframework" value="${framework::get-target-framework()}" />
 
-        <!-- modify target framework to .NET 2.0 -->
-        <property name="nant.settings.currentframework" value="net-2.0" />
+        <!-- modify target framework to .NET 2.0 or Mono 2.0 -->
+        <if test="${framework::exists('net-2.0')}">
+            <!-- modify target framework to .NET 2.0 -->
+            <property name="nant.settings.currentframework" value="net-2.0" />
+        </if>
+        <if test="${not(framework::exists('net-2.0'))}">
+            <!-- modify target framework to Mono 2.0 -->
+            <property name="nant.settings.currentframework" value="mono-2.0" />
+        </if>
 
         <!-- ensure build directory exists -->
-        <mkdir dir="${build.dir}/bin/tasks/net/2.0" />
+        <mkdir dir="${build.dir}/bin/extensions/common/2.0" />
 
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/tasks/net/2.0/${project::get-name()}.dll" doc="${build.dir}/bin/tasks/net/2.0/${project::get-name()}.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/extensions/common/2.0/${project::get-name()}.dll" doc="${build.dir}/bin/extensions/common/2.0/${project::get-name()}.xml">
             <sources>
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->

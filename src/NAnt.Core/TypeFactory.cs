@@ -243,8 +243,11 @@ namespace NAnt.Core {
                 loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
                     Level.Debug : Level.Warning;
 
-                // scan framework-neutral assemblies
-                ScanDir(Path.Combine(project.BaseDirectory, "tasks"), loadTasks,
+                string tasksDir = Path.Combine(project.BaseDirectory, "extensions");
+                string commonTasksDir = Path.Combine(tasksDir, "common");
+
+                // scan framework-neutral and version-neutral assemblies
+                ScanDir(Path.Combine(commonTasksDir, "neutral"), loadTasks,
                     false);
 
                 // skip further processing if runtime framework has not yet 
@@ -253,14 +256,20 @@ namespace NAnt.Core {
                     return;
                 }
 
-                // scan framework-specific assemblies
-                ScanDir(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
-                    project.RuntimeFramework.Family), loadTasks, false);
+                // scan framework-neutral but version-specific assemblies
+                ScanDir(Path.Combine(commonTasksDir, project.RuntimeFramework.
+                    ClrVersion.ToString (2)), loadTasks, false);
 
-                // scan framework version specific assemblies
-                ScanDir(Path.Combine(Path.Combine(Path.Combine(project.BaseDirectory, "tasks"), 
-                    project.RuntimeFramework.Family), project.RuntimeFramework.Version.ToString()), 
-                    loadTasks, false);
+                string frameworkTasksDir = Path.Combine(tasksDir, 
+                    project.RuntimeFramework.Family);
+
+                // scan framework-specific but version-neutral assemblies
+                ScanDir(Path.Combine(frameworkTasksDir, "neutral"), loadTasks,
+                    false);
+
+                // scan framework-specific and version-specific assemblies
+                ScanDir(Path.Combine(frameworkTasksDir, project.RuntimeFramework
+                    .Version.ToString()), loadTasks, false);
             }
         }
 
