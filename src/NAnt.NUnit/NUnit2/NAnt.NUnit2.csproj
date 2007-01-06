@@ -74,19 +74,16 @@
                     Name = "nunit.util"
                     AssemblyName = "nunit.util"
                     HintPath = "..\..\..\lib\net\1.0\nunit.util.dll"
-                    Private = "True"
                 />
                 <Reference
                     Name = "nunit.core"
                     AssemblyName = "nunit.core"
                     HintPath = "..\..\..\lib\net\1.0\nunit.core.dll"
-                    Private = "True"
                 />
                 <Reference
                     Name = "nunit.framework"
                     AssemblyName = "nunit.framework"
                     HintPath = "..\..\..\lib\net\1.0\nunit.framework.dll"
-                    Private = "True"
                 />
             </References>
         </Build>

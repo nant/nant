@@ -81,20 +81,17 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\lib\log4net.dll"
-                    Private = "True"
+                    HintPath = "..\..\lib\common\neutral\log4net.dll"
                 />
                 <Reference
                     Name = "ICSharpCode.SharpCvsLib"
                     AssemblyName = "ICSharpCode.SharpCvsLib"
-                    HintPath = "..\..\lib\ICSharpCode.SharpCvsLib.dll"
-                    Private = "True"
+                    HintPath = "..\..\lib\common\neutral\ICSharpCode.SharpCvsLib.dll"
                 />
                 <Reference
                     Name = "ICSharpCode.SharpZipLib"
                     AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
-                    Private = "True"
+                    HintPath = "..\..\lib\common\neutral\ICSharpCode.SharpZipLib.dll"
                 />
             </References>
         </Build>

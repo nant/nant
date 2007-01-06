@@ -90,12 +90,6 @@
                     AssemblyName = "System.Xml"
                 />
                 <Reference
-                    Name = "log4net"
-                    AssemblyName = "log4net"
-                    HintPath = "..\..\lib\log4net.dll"
-                    Private = "True"
-                />
-                <Reference
                     Name = "NAnt.Compression"
                     Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
@@ -155,10 +149,19 @@
                     Project = "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
+                <Reference
+                    Name = "log4net"
+                    AssemblyName = "log4net"
+                    HintPath = "..\..\lib\common\neutral\log4net.dll"
+                />
             </References>
         </Build>
         <Files>
             <Include>
+                <File
+                    RelPath = "App.config"
+                    BuildAction = "Content"
+                />
                 <File
                     RelPath = "AssemblyInfo.cs"
                     SubType = "Code"
@@ -178,10 +181,6 @@
                 <File
                     RelPath = "NAnt.Console.build"
                     BuildAction = "None"
-                />
-                <File
-                    RelPath = "App.config"
-                    BuildAction = "Content"
                 />
             </Include>
         </Files>

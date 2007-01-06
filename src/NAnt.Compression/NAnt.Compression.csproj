@@ -1,8 +1,8 @@
 <VisualStudioProject>
     <CSHARP
         ProjectType = "Local"
-        ProductVersion = "7.0.9466"
-        SchemaVersion = "1.0"
+        ProductVersion = "7.10.3077"
+        SchemaVersion = "2.0"
         ProjectGuid = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
     >
         <Build>
@@ -73,7 +73,7 @@
                 <Reference
                     Name = "ICSharpCode.SharpZipLib"
                     AssemblyName = "ICSharpCode.SharpZipLib"
-                    HintPath = "..\..\lib\ICSharpCode.SharpZipLib.dll"
+                    HintPath = "..\..\lib\common\neutral\ICSharpCode.SharpZipLib.dll"
                 />
             </References>
         </Build>

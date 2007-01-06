@@ -37,7 +37,7 @@
                 <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
-                <include name="${lib.dir}/NUnitCore.dll" />
+                <include name="${lib.dir}/common/neutral/NUnitCore.dll" />
             </references>
             <resources>
                 <include name="*.resx"/>
