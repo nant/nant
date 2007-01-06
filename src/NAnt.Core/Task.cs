@@ -400,7 +400,10 @@ namespace NAnt.Core {
         #region Protected Instance Methods
 
         /// <summary><note>Deprecated (to be deleted).</note></summary>
+#if !MONO
+        // avoid warning CS0809: Obsolete member overrides non-obsolete member
         [Obsolete("Deprecated- Use InitializeTask instead")]
+#endif
         protected override void InitializeElement(XmlNode elementNode) {
             // Just defer for now so that everything just works
             InitializeTask(elementNode);
