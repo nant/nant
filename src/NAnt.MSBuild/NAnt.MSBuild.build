@@ -33,6 +33,7 @@
             <references>
                 <include name="Microsoft.Build.Engine.dll" />
                 <include name="Microsoft.Build.Framework.dll" />
+                <include name="Microsoft.Build.Utilities.dll" />
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
                 <include name="${build.dir}/bin/NAnt.VSNetTasks.dll" />

@@ -20,6 +20,8 @@
 using System;
 using System.Text;
 
+using Microsoft.Build.Utilities;
+
 using NAnt.Core;
 using NAnt.Core.Tasks;
 
@@ -31,13 +33,16 @@ namespace NAnt.MSBuild {
             if (_msbuild!=null) {
                 return _msbuild;
             }
-            // use the framework assembly directory (instead of framework dir) to
-            // ensure we're pointing to the directory holding the MSBuild engine
-            // on Linux (we hardcode framework dir to the 1.0 dir on Mono, since
-            // there are almost no 2.0 tools)
-            _msbuild = new Microsoft.Build.BuildEngine.Engine(
-                solutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName
-                );
+
+            // map current target framework to TargetDotNetFrameworkVersion
+            TargetDotNetFrameworkVersion frameworkVersion = GetTargetDotNetFrameworkVersion(
+                solutionTask.Project.TargetFramework);
+
+            // use the framework directory as BinPath
+            string frameworkDir = ToolLocationHelper.GetPathToDotNetFramework(
+                frameworkVersion);
+
+            _msbuild = new Microsoft.Build.BuildEngine.Engine(frameworkDir);
             _msbuild.UnregisterAllLoggers();
 
             _msbuild.RegisterLogger(
@@ -60,6 +65,18 @@ namespace NAnt.MSBuild {
             */
 
             return _msbuild;
+        }
+
+        private static TargetDotNetFrameworkVersion GetTargetDotNetFrameworkVersion (FrameworkInfo framework) {
+            switch (framework.ClrVersion.ToString (2)) {
+                case "1.1":
+                    return TargetDotNetFrameworkVersion.Version11;
+                case "2.0":
+                    return TargetDotNetFrameworkVersion.Version20;
+                default:
+                    throw new BuildException ("Current target framework is not supported.",
+                        Location.UnknownLocation);
+            }
         }
     }
 }
