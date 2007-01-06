@@ -32,7 +32,7 @@ setup:
 	if not exist bootstrap md bootstrap
 	if not exist bootstrap\lib md bootstrap\lib
 	xcopy lib bootstrap\lib /S /Y /Q
-	copy lib\log4net.dll bootstrap
+	copy lib\common\neutral\log4net.dll bootstrap
 	copy src\NAnt.Console\App.config bootstrap\NAnt.exe.config
 
 bootstrap\NAnt.exe:
@@ -53,7 +53,7 @@ bootstrap\NAnt.DotNetTasks.dll:
 	
 bootstrap\NAnt.CompressionTasks.dll:
 	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll \
-		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\ICSharpCode.SharpZipLib.dll \
+		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\common\neutral\ICSharpCode.SharpZipLib.dll \
 		-recurse:src\NAnt.Compression\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Win32Tasks.dll:
