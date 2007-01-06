@@ -31,8 +31,12 @@ namespace NAnt.MSBuild {
             if (_msbuild!=null) {
                 return _msbuild;
             }
+            // use the framework assembly directory (instead of framework dir) to
+            // ensure we're pointing to the directory holding the MSBuild engine
+            // on Linux (we hardcode framework dir to the 1.0 dir on Mono, since
+            // there are almost no 2.0 tools)
             _msbuild = new Microsoft.Build.BuildEngine.Engine(
-                solutionTask.Project.TargetFramework.FrameworkDirectory.FullName
+                solutionTask.Project.TargetFramework.FrameworkAssemblyDirectory.FullName
                 );
             _msbuild.UnregisterAllLoggers();
 
