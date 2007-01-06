@@ -120,7 +120,7 @@
             </fileset>
         </copy>
         <copy todir="${build.dir}/bin">
-            <fileset basedir="lib">
+            <fileset basedir="lib/common/neutral">
                 <!-- copy log4net assembly, workaround for Mono bug #57602 -->
                 <include name="log4net.dll" />
                 <!-- #ziplib command line client -->
@@ -131,8 +131,8 @@
         <copy todir="${build.dir}/bin/lib">
             <fileset basedir="lib">
                 <include name="**/*" />
-                <exclude name="log4net.dll" />
-                <exclude name="scvs.exe" />
+                <exclude name="common/neutral/log4net.dll" />
+                <exclude name="common/neutral/scvs.exe" />
             </fileset>
         </copy>
         <!-- build NAnt.Core assembly -->
