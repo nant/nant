@@ -63,7 +63,7 @@
                 />
                 <Reference
                     Name = "System.XML"
-                    AssemblyName = "System.XML"
+                    AssemblyName = "System.Xml"
                 />
             </References>
         </Build>
@@ -114,6 +114,10 @@
                     RelPath = "MSBuildReference.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "NAnt.MSBuild.build"
+                    BuildAction = "None"
                 />
                 <File
                     RelPath = "NAntLogger.cs"

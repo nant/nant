@@ -78,8 +78,7 @@
                 <Reference
                     Name = "log4net"
                     AssemblyName = "log4net"
-                    HintPath = "..\..\lib\log4net.dll"
-                    Private = "True"
+                    HintPath = "..\..\lib\common\neutral\log4net.dll"
                 />
             </References>
         </Build>
