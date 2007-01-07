@@ -360,12 +360,27 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Extensibility\ExtensionAssembly.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Extensibility\ExtensionBuilder.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Extensibility\IPlugin.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Extensibility\IPluginConsumer.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Extensibility\PluginBuilder.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
