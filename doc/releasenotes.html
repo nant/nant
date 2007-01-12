@@ -147,9 +147,17 @@
                     using the SMTP protocol over the network. [.NET 1.1 or higher]
                 </li>
             </ul>
-        </div>        
+        </div>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a></h5>
+            <ul>
+                <li>
+                    Satellite assemblies are not signed when signing key is 
+                    specified using &quot;keyfile&quot; attribute (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1587739&amp;group_id=31650&amp;atid=402868">1587739</a>).
+                </li>
+            </ul>
             <h5>
                 <a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
             <ul>
@@ -181,12 +189,39 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
+                <a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a></h5>
+            <ul>
+                <li>
+                    Added &quot;delaysign&quot attribute which specified whether
+                    to delay sign the assembly using only the public portion of 
+                    the strong name key.
+                </li>
+            </ul>
+            <h5>
                 <a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h5>
             <ul>
                 <li>
-                    The &quot;useruntimeengine&quot; property has been deprecated
-                    in favor of a &quot;managed&quot; property (with the same 
+                    The &quot;useruntimeengine&quot; attribute has been deprecated
+                    in favor of a &quot;managed&quot; attribute (with the same 
                     semantics).
+                </li>
+            </ul>
+            <h5>
+                <a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a></h5>
+            <ul>
+                <li>
+                    Added &quot;delaysign&quot attribute which specified whether
+                    to delay sign the assembly using only the public portion of 
+                    the strong name key.
+                </li>
+            </ul>
+            <h5>
+                <a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
+            <ul>
+                <li>
+                    Added &quot;delaysign&quot attribute which specified whether
+                    to delay sign the assembly using only the public portion of 
+                    the strong name key.
                 </li>
             </ul>
         </div>
@@ -1511,10 +1546,12 @@
             <a class="heading" href="help/tasks/exec.html">&lt;exec&gt;</a></h4>
         <ul>
             <li>
-                Fixed internal error when "program" attribute was assigned invalid file name.</li>
+                Fixed internal error when "program" attribute was assigned invalid file name.
+            </li>
             <li>
-                Added "resultproperty", which can be set to a name of a property in which the 
-                exit code of the program can be stored.</li>
+                Added &quot;resultproperty&quot; attribute, which can be set to a 
+                name of a property in which the exit code of the program can be stored.
+            </li>
             <li>
                 The <a href="help/elements/NAnt.Core.Types.Argument.html">&lt;arg&gt;</a> element 
                 now supports line and PATH-like command-line arguments.
