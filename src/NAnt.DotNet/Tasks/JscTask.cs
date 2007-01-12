@@ -183,6 +183,19 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// Specifies whether to delay sign the assembly using only the public
+        /// portion of the strong name key.
+        /// </summary>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override DelaySign DelaySign {
+            get { return base.DelaySign; }
+            set { base.DelaySign = value; }
+        }
+
+        /// <summary>
         /// Indicates whether the compiler for a given target framework supports
         /// the "keycontainer" option. The default is <see langword="false" />.
         /// </summary>
@@ -210,6 +223,22 @@ namespace NAnt.DotNet.Tasks {
         /// does not support this.
         /// </remarks>
         public override bool SupportsKeyFile {
+            get { return false; }
+            set { }
+        }
+
+        /// <summary>
+        /// Indicates whether the compiler for a given target framework supports
+        /// the "delaysign" option. The default is <see langword="false" />.
+        /// </summary>
+        /// <value>
+        /// <see langword="false" />.
+        /// </value>
+        /// <remarks>
+        /// Override to avoid exposing this to build authors, as the JScript.NET
+        /// does not support this.
+        /// </remarks>
+        public override bool SupportsDelaySign {
             get { return false; }
             set { }
         }

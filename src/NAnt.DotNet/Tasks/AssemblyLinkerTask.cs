@@ -70,7 +70,7 @@ namespace NAnt.DotNet.Tasks {
         private string _configuration;
         private string _copyright;
         private string _culture;
-        private bool _delaySign;
+        private DelaySign _delaySign;
         private string _description;
         private FileInfo _evidenceFile;
         private string _fileVersion;
@@ -173,10 +173,10 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the assembly should be partially signed. The default
-        /// is <see langword="false" />.
+        /// is <see langword="NAnt.DotNet.Types.DelaySign.NotSet" />.
         /// </summary>
         [TaskAttribute("delaysign", Required=false)]
-        public bool DelaySign {
+        public DelaySign DelaySign {
             get { return _delaySign; }
             set { _delaySign = value; }
         }
@@ -515,8 +515,19 @@ namespace NAnt.DotNet.Tasks {
                     }
 
                     // delay sign the assembly
-                    if (DelaySign) {
-                        writer.WriteLine("/delaysign+");
+                    switch (DelaySign) {
+                        case DelaySign.NotSet:
+                            break;
+                        case DelaySign.Yes:
+                            writer.WriteLine("/delaysign+");
+                            break;
+                        case DelaySign.No:
+                            writer.WriteLine("/delaysign-");
+                            break;
+                        default:
+                            throw new BuildException (string.Format (CultureInfo.InvariantCulture,
+                                "Value {0} is not supported for \"delaysign\".",
+                                DelaySign), Location);
                     }
 
                     // description field

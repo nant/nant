@@ -229,6 +229,9 @@
     <data name="String_CompilerDoesNotSupportKeyContainer">
         <value>The compiler for {0} does not support the /keycontainer option.</value>
     </data>
+    <data name="String_CompilerDoesNotSupportDelaySign">
+        <value>The compiler for {0} does not support the /delaysign option.</value>
+    </data>
     <data name="String_RebuildAttributeSetToTrue">
         <value>'rebuild' attribute set to true, recompiling.</value>
     </data>
