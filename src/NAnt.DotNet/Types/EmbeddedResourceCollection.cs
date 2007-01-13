@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections;
-//using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;

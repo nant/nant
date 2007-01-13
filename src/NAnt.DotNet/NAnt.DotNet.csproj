@@ -239,6 +239,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\Module.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\ModuleCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\ModuleSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\NamespaceImport.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

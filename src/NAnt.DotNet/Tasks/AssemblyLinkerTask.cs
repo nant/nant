@@ -93,7 +93,7 @@ namespace NAnt.DotNet.Tasks {
         private string _keyContainer;
         private FileInfo _keyfile;
         private string _mainMethod;
-        private FileSet _modules = new FileSet();
+        private ModuleSet _modules = new ModuleSet();
         private string _product;
         private string _productVersion;
         private FileSet _resources = new FileSet();
@@ -301,7 +301,7 @@ namespace NAnt.DotNet.Tasks {
         /// One or more modules to be compiled into an assembly.
         /// </summary>
         [BuildElement("modules")]
-        public FileSet Modules {
+        public ModuleSet ModuleSet {
             get { return _modules; }
             set { _modules = value; }
         }
@@ -499,8 +499,8 @@ namespace NAnt.DotNet.Tasks {
             }
             // ensure base directory is set, even if fileset was not initialized
             // from XML
-            if (Modules.BaseDirectory == null) {
-                Modules.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            if (ModuleSet.Dir == null) {
+                ModuleSet.Dir = new DirectoryInfo(Project.BaseDirectory);
             }
 
             if (NeedsCompiling()) {
@@ -511,11 +511,11 @@ namespace NAnt.DotNet.Tasks {
                 try {
                     Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
                         Resources.FileNames.Count + EmbeddedResources.Count +
-                        Modules.FileNames.Count, OutputFile.FullName);
+                        ModuleSet.Modules.Count, OutputFile.FullName);
 
                     // write modules to compile into assembly
-                    foreach (string module in Modules.FileNames) {
-                        writer.WriteLine("\"{0}\"", module);
+                    foreach (Module module in ModuleSet.Modules) {
+                        writer.WriteLine("\"{0}\"", module.ToString());
                     }
 
                     // write output target
@@ -704,12 +704,16 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
+            string fileName = null;
+
             // check if modules were updated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
-            if (fileName != null) {
-                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
-                    fileName);
-                return true;
+            foreach (Module module in ModuleSet.Modules) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(module.File, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
+                    return true;
+                }
             }
 
             // check if (embedded)resources were updated
