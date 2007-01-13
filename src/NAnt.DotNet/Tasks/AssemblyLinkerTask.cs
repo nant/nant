@@ -39,7 +39,7 @@ namespace NAnt.DotNet.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   All specified sources will be embedded using the <c>/embed</c> flag.  
+    ///   All specified sources will be embedded using the <c>/embed</c> flag.
     ///   Other source types are not supported.
     ///   </para>
     /// </remarks>
@@ -53,6 +53,21 @@ namespace NAnt.DotNet.Tasks {
     ///     <sources>
     ///         <include name="*.ico" />
     ///     </sources>
+    /// </al>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Create an executable assembly manifest from modules.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <al output="Client.exe" target="exe" main="Program.Main">
+    ///     <modules>
+    ///         <include name="Client.netmodule" />
+    ///         <include name="Common.netmodule" />
+    ///     </modules>
     /// </al>
     ///     ]]>
     ///   </code>
@@ -78,6 +93,7 @@ namespace NAnt.DotNet.Tasks {
         private string _keyContainer;
         private FileInfo _keyfile;
         private string _mainMethod;
+        private FileSet _modules = new FileSet();
         private string _product;
         private string _productVersion;
         private FileSet _resources = new FileSet();
@@ -282,6 +298,15 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
+        /// One or more modules to be compiled into an assembly.
+        /// </summary>
+        [BuildElement("modules")]
+        public FileSet Modules {
+            get { return _modules; }
+            set { _modules = value; }
+        }
+
+        /// <summary>
         /// The name of the output file for the assembly manifest.
         /// </summary>
         /// <value>
@@ -472,6 +497,11 @@ namespace NAnt.DotNet.Tasks {
             if (Resources.BaseDirectory == null) {
                 Resources.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
             }
+            // ensure base directory is set, even if fileset was not initialized
+            // from XML
+            if (Modules.BaseDirectory == null) {
+                Modules.BaseDirectory = new DirectoryInfo(Project.BaseDirectory);
+            }
 
             if (NeedsCompiling()) {
                 // create temp response file to hold compiler options
@@ -480,8 +510,13 @@ namespace NAnt.DotNet.Tasks {
 
                 try {
                     Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
-                        Resources.FileNames.Count + EmbeddedResources.Count, 
-                        OutputFile.FullName);
+                        Resources.FileNames.Count + EmbeddedResources.Count +
+                        Modules.FileNames.Count, OutputFile.FullName);
+
+                    // write modules to compile into assembly
+                    foreach (string module in Modules.FileNames) {
+                        writer.WriteLine("\"{0}\"", module);
+                    }
 
                     // write output target
                     writer.WriteLine("/target:\"{0}\"", OutputTarget);
@@ -669,8 +704,16 @@ namespace NAnt.DotNet.Tasks {
                 return true;
             }
 
+            // check if modules were updated
+            string fileName = FileSet.FindMoreRecentLastWriteTime(Modules.FileNames, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                    fileName);
+                return true;
+            }
+
             // check if (embedded)resources were updated
-            string fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, OutputFile.LastWriteTime);
+            fileName = FileSet.FindMoreRecentLastWriteTime(Resources.FileNames, OutputFile.LastWriteTime);
             if (fileName != null) {
                 Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                     fileName);
