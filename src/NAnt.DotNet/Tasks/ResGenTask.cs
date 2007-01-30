@@ -286,9 +286,6 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected override void PrepareProcess(Process process) {
             if (!SupportsAssemblyReferences) {
-                // use a newly created temporary directory as working directory
-                BaseDirectory = FileUtils.GetTempDirectory();
-
                 // avoid copying the assembly references (and resgen) to a
                 // temporary directory if not necessary
                 if (Assemblies.FileNames.Count == 0 || !RequiresAssemblyReferences) {
@@ -298,6 +295,9 @@ namespace NAnt.DotNet.Tasks {
                     // no further processing required
                     return;
                 }
+
+                // use a newly created temporary directory as working directory
+                BaseDirectory = FileUtils.GetTempDirectory();
 
                 // create instance of Copy task
                 CopyTask ct = new CopyTask();
