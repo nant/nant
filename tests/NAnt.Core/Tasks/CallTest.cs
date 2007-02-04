@@ -140,8 +140,8 @@ namespace Tests.NAnt.Core.Tasks {
             // run the build with cascade set to "false"
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xml,
                 "cascade=\"false\""), listener);
-            // check whether 'compile' target has been executed once
-            Assert.AreEqual(1, listener.GetTargetExecutionCount("compile"), "#B1");
+            // check whether 'compile' target has been executed twice
+            Assert.AreEqual(2, listener.GetTargetExecutionCount("compile"), "#B1");
             // check whether 'clean' target has been executed once
             Assert.AreEqual(1, listener.GetTargetExecutionCount("clean"), "#B2");
             // check whether 'build' target has been executed once

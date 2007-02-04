@@ -906,10 +906,10 @@ namespace NAnt.Core {
 
                 // only execute targets that have not been executed already, if 
                 // we are not forcing.
-                if (forceDependencies || !currentTarget.Executed) {
+                if (forceDependencies || !currentTarget.Executed || currentTarget.Name == targetName) {
                     currentTarget.Execute();
                 }
-            } while (!currentTarget.Name.Equals(targetName));
+            } while (currentTarget.Name != targetName);
 
             // restore calling target, as a <call> task might have caused the 
             // current target to be executed and when finished executing this 
