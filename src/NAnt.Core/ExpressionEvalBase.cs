@@ -192,6 +192,8 @@ namespace NAnt.Core {
                             return o.Equals(o2);
                         } else if (o is TimeSpan && o2 is TimeSpan) {
                             return o.Equals(o2);
+                        } else if (o is Version && o2 is Version) {
+                            return o.Equals(o2);
                         } else if (o.GetType().IsEnum) {
                             if (o2 is string) {
                                 return o.Equals(Enum.Parse(o.GetType(), (string) o2, false));
@@ -236,6 +238,8 @@ namespace NAnt.Core {
                         } else if (o is DateTime && o2 is DateTime) {
                             return !o.Equals(o2);
                         } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return !o.Equals(o2);
+                        } else if (o is Version && o2 is Version) {
                             return !o.Equals(o2);
                         } else if (o.GetType().IsEnum) {
                             if (o2 is string) {
@@ -283,6 +287,8 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) < 0;
                         } else if (o is TimeSpan && o2 is TimeSpan) {
                             return ((IComparable) o).CompareTo(o2) < 0;
+                        } else if (o is Version && o2 is Version) {
+                            return ((IComparable) o).CompareTo(o2) < 0;
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -316,6 +322,8 @@ namespace NAnt.Core {
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) > 0;
                         } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) > 0;
+                        } else if (o is Version && o2 is Version) {
                             return ((IComparable) o).CompareTo(o2) > 0;
                         }
 
@@ -351,6 +359,8 @@ namespace NAnt.Core {
                             return ((IComparable) o).CompareTo(o2) <= 0;
                         } else if (o is TimeSpan && o2 is TimeSpan) {
                             return ((IComparable) o).CompareTo(o2) <= 0;
+                        } else if (o is Version && o2 is Version) {
+                            return ((IComparable) o).CompareTo(o2) <= 0;
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
@@ -384,6 +394,8 @@ namespace NAnt.Core {
                         } else if (o is DateTime && o2 is DateTime) {
                             return ((IComparable) o).CompareTo(o2) >= 0;
                         } else if (o is TimeSpan && o2 is TimeSpan) {
+                            return ((IComparable) o).CompareTo(o2) >= 0;
+                        } else if (o is Version && o2 is Version) {
                             return ((IComparable) o).CompareTo(o2) >= 0;
                         }
 

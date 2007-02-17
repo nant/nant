@@ -282,6 +282,40 @@ namespace Tests.NAnt.Core {
             AssertExpression("timespan::from-days(1.0) <= timespan::from-days(2.0)", true);
             AssertExpression("timespan::from-days(1.0) <= timespan::from-days(1.0)", true);
             AssertExpression("timespan::from-days(2.0) <= timespan::from-days(1.0)", false);
+
+            // version & version
+            AssertExpression("version::parse('1.0') == version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0') == version::parse('1.0.0')", false);
+            AssertExpression("version::parse('1.0') == version::parse('1.0.0.1')", false);
+            AssertExpression("version::parse('1.0') == version::parse('2.0')", false);
+            AssertExpression("version::parse('1.0') != version::parse('1.0')", false);
+            AssertExpression("version::parse('1.0') != version::parse('1.0.0')", true);
+            AssertExpression("version::parse('1.0') != version::parse('1.0.0.1')", true);
+            AssertExpression("version::parse('1.0') != version::parse('2.0')", true);
+            AssertExpression("version::parse('1.0') > version::parse('1.0')", false);
+            AssertExpression("version::parse('1.0') > version::parse('1.0.0')", false);
+            AssertExpression("version::parse('1.0') > version::parse('1.0.0.1')", false);
+            AssertExpression("version::parse('1.0') > version::parse('2.0')", false);
+            AssertExpression("version::parse('1.0.0') > version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0.1') > version::parse('1.0')", true);
+            AssertExpression("version::parse('2.0') > version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0') >= version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0') >= version::parse('1.0.0')", false);
+            AssertExpression("version::parse('1.0') >= version::parse('1.0.0.1')", false);
+            AssertExpression("version::parse('1.0') >= version::parse('2.0')", false);
+            AssertExpression("version::parse('1.0.1') >= version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0') < version::parse('1.0')", false);
+            AssertExpression("version::parse('1.0') < version::parse('1.0.0')", true);
+            AssertExpression("version::parse('1.0') < version::parse('1.0.0.1')", true);
+            AssertExpression("version::parse('1.0') < version::parse('2.0')", true);
+            AssertExpression("version::parse('1.0.1') < version::parse('1.0')", false);
+            AssertExpression("version::parse('2.0') < version::parse('1.0')", false);
+            AssertExpression("version::parse('1.0') <= version::parse('1.0')", true);
+            AssertExpression("version::parse('1.0') <= version::parse('1.0.0')", true);
+            AssertExpression("version::parse('1.0') <= version::parse('1.0.0.1')", true);
+            AssertExpression("version::parse('1.0') <= version::parse('2.0')", true);
+            AssertExpression("version::parse('1.0.1') <= version::parse('1.0')", false);
+            AssertExpression("version::parse('2.0') <= version::parse('1.0')", false);
         }
 
         [Test]
