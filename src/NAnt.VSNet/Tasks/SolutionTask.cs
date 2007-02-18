@@ -391,8 +391,7 @@ namespace NAnt.VSNet.Tasks {
 
         #region Implementation of IPluginConsumer
 
-        void IPluginConsumer.ConsumePlugin(Type type) {
-            object plugin = Activator.CreateInstance(type);
+        void IPluginConsumer.ConsumePlugin(IPlugin plugin) {
             if (plugin is IProjectBuildProvider)
                 ProjectFactory.RegisterProvider((IProjectBuildProvider) plugin);
             if (plugin is ISolutionBuildProvider)
