@@ -75,7 +75,7 @@ namespace NAnt.DotNet.Tasks {
     public class CscTask : CompilerBase {
         #region Private Instance Fields
 
-        private DebugOutput _debugOutput = DebugOutput.None;       
+        private DebugOutput _debugOutput = DebugOutput.None;
         private FileInfo _docFile;
         private int _fileAlign;
         private bool _nostdlib;
@@ -117,7 +117,7 @@ namespace NAnt.DotNet.Tasks {
         /// This address can be specified as a decimal, hexadecimal, or octal 
         /// number. 
         /// </remarks>
-        [TaskAttribute("baseaddress")]        
+        [TaskAttribute("baseaddress")]
         public string BaseAddress {
             get { return _baseAddress; }
             set { _baseAddress = StringUtils.ConvertEmptyToNull(value); }
