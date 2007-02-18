@@ -105,8 +105,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         ///  Verify parameters.
         /// </summary>
-        /// <param name="taskNode"> taskNode used to define this task instance </param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             if (GetSleepTime() < 0) {
                 throw new BuildException("Negative sleep periods are not supported.", Location);
             }

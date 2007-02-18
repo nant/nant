@@ -64,9 +64,8 @@ namespace NAnt.Core {
         /// from things that get executed, as they are evaluated normally during
         /// XML task initialization.
         /// </summary>
-        /// <param name="taskNode"><see cref="XmlNode" /> used to initialize the container.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
-            base.InitializeTask(taskNode);
+        protected override void Initialize() {
+            base.Initialize();
 
             // Exclude any BuildElements (like FileSets, etc.) from our execution elements.
             // These build elements will be handled during the xml init of the task container (Element xmlinit code)

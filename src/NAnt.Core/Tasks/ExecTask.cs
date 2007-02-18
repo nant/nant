@@ -232,9 +232,9 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Performs additional checks after the task has been initialized.
         /// </summary>
-        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
         /// <exception cref="BuildException"><see cref="FileName" /> does not hold a valid file name.</exception>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
+            base.Initialize();
             try {
                 // just check if program file to execute is a valid file name
                 if (Path.IsPathRooted(FileName)) {
@@ -245,8 +245,6 @@ namespace NAnt.Core.Tasks {
                     ResourceUtils.GetString("NA1117"), 
                     FileName, Name), Location, ex);
             }
-
-            base.InitializeTask(taskNode);
         }
 
         /// <summary>

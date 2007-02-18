@@ -218,7 +218,11 @@ namespace NAnt.Core.Tasks {
                     Log(MessageLevel, string.Empty);
                 }
             }
-        }                        protected override void InitializeTask(XmlNode taskNode) {            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
+        }        
+        
+        protected override void Initialize() {
+            Contents = Project.ExpandProperties(XmlNode.InnerText, Location);
+        }
 
         #endregion Override implementation of Task
     }

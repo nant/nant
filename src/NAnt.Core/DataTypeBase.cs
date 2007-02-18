@@ -38,14 +38,18 @@ namespace NAnt.Core {
 
         #region Public Instance Properties
 
-        /// <summary>        /// The ID used to be referenced later.        /// </summary>
+        /// <summary>
+        /// The ID used to be referenced later.
+        /// </summary>
         [TaskAttribute("id" )]
         public string ID {
             get { return _id; }
             set { _id = StringUtils.ConvertEmptyToNull(value); }
         }
 
-        /// <summary>        /// The ID to use as the reference.        /// </summary>
+        /// <summary>
+        /// The ID to use as the reference.
+        /// </summary>
         [TaskAttribute("refid")]
         public string RefID {
             get { return _refID; }
@@ -85,7 +89,7 @@ namespace NAnt.Core {
             }
         }
 
-        protected override void InitializeElement(XmlNode elementNode) {
+        protected override void Initialize() {
             if (Parent == null) {
                 // output warning message
                 Log(Level.Warning, "Parent property should be set on types" 

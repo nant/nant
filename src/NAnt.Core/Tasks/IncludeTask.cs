@@ -102,8 +102,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Verifies parameters.
         /// </summary>
-        /// <param name="taskNode">Xml taskNode used to define this task instance.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             // Task can only be included as a global task.
             // This might not be a firm requirement but you could get some real 
             // funky errors if you start including targets wily-nily.

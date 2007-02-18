@@ -180,8 +180,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Validates the <see cref="NAntTask" /> element.
         /// </summary>
-        /// <param name="taskNode">The XML node of the task to use for initialization.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             if (BuildFile != null && BuildFiles != null && BuildFiles.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1141")), Location);

@@ -126,7 +126,7 @@ namespace NAnt.Core.Types {
 
         #region Override implementation of Element
 
-        protected override void InitializeElement(XmlNode elementNode) {
+        protected override void Initialize() {
             if (File == null && Directory == null && Path == null) {
                 throw new BuildException(string.Format(CultureInfo.InstalledUICulture,
                     "At least \"file\", \"directory\" or \"path\" must be" 

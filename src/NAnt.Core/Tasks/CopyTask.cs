@@ -284,8 +284,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Checks whether the task is initialized with valid attributes.
         /// </summary>
-        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             if (Flatten && ToDirectory == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "'flatten' attribute requires that 'todir' has been set."), 

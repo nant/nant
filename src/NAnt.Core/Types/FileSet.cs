@@ -590,7 +590,8 @@ namespace NAnt.Core.Types {
 
         #region Override implementation of Element
 
-        protected override void InitializeElement(XmlNode elementNode) {
+        protected override void Initialize() {
+            base.Initialize();
             if (DefaultExcludes) {
                 // add default exclude patterns
                 Excludes.Add("**/*~");
@@ -609,7 +610,6 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/vssver.scc");
                 Excludes.Add("**/_vti_cnf/**");
             }
-            base.InitializeElement(elementNode);
         }
 
         #endregion Override implementation of Element

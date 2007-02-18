@@ -176,7 +176,7 @@ namespace NAnt.Core.Tasks {
         /// Validates the attributes.
         /// </summary>
         /// <exception cref="BuildException">Both <see cref="AssemblyPath" /> and <see cref="Path" /> are set.</exception>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             //verify that our params are correct
             if (AssemblyPath != null && Path != null) {
                 throw new BuildException("Both asssembly and path attributes are set." 

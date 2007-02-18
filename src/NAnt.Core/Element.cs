@@ -210,7 +210,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <remarks>
         /// Derived classes that wish to add custom initialization should override 
-        /// the <see cref="InitializeElement" /> method.
+        /// the <see cref="Initialize()" /> method.
         /// </remarks>
         public void Initialize(XmlNode elementNode) {
             Initialize(elementNode, Project.Properties, Project.TargetFramework);
@@ -254,7 +254,19 @@ namespace NAnt.Core {
         /// initialization and validation not covered by the base class.
         /// </summary>
         /// <param name="elementNode">The XML node of the element to use for initialization.</param>
+        [Obsolete("Deprecated. Use Initialize() instead")]
         protected virtual void InitializeElement(XmlNode elementNode) {
+        }
+
+        /// <summary>
+        /// Derived classes should override to this method to provide extra 
+        /// initialization and validation not covered by the base class.
+        /// </summary>
+        /// <remarks>
+        /// Access to the <see cref="XmlNode" /> that was used to initialize
+        /// this <see cref="Element" /> is available through <see cref="XmlNode" />.
+        /// </remarks>
+        protected virtual void Initialize() {
         }
 
         /// <summary>
@@ -294,6 +306,7 @@ namespace NAnt.Core {
 
             // allow inherited classes a chance to do some custom initialization
             InitializeElement(elementNode);
+            Initialize();
         }
 
         #endregion Internal Instance Methods
@@ -328,28 +341,34 @@ namespace NAnt.Core {
         /// configuration node can be located in that section, the framework-neutral
         /// section of the project configuration node will be searched.
         /// </remarks>
-        protected XmlNode GetAttributeConfigurationNode(FrameworkInfo framework, string attributeName) {
-            XmlNode attributeNode = null;
-            XmlNode nantSettingsNode = Project.ConfigurationNode;
+        protected virtual XmlNode GetAttributeConfigurationNode(FrameworkInfo framework, string attributeName) {
+            return GetAttributeConfigurationNode(Project.ConfigurationNode,
+                framework, attributeName);
+        }
 
+        #endregion Protected Instance Methods
+
+        #region Protected Instance Instance Methods
+
+        protected XmlNode GetAttributeConfigurationNode(XmlNode configSection, FrameworkInfo framework, string attributeName) {
+            XmlNode attributeNode = null;
             string xpath = "";
             int level = 0;
 
-            if (nantSettingsNode != null) { 
-                #region Construct XPath expression for locating configuration node
+            #region Construct XPath expression for locating configuration node
 
-                Element parentElement = this as Element;
+            Element parentElement = this as Element;
 
-                while (parentElement != null) {
-                    if (parentElement is Task) {
-                        xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
-                        level++;
-                        break;
-                    }
+            while (parentElement != null) {
+                if (parentElement is Task) {
+                    xpath += " and parent::task[@name=\"" + parentElement.Name + "\""; 
+                    level++;
+                    break;
+                }
 
-                    // For now do not support framework configurable attributes 
-                    // on nested types.
-                    /*
+                // For now do not support framework configurable attributes 
+                // on nested types.
+                /*
                     } else if (!(parentElement is Target)) {
                         if (parentElement.XmlNode != null) {
                             // perform lookup using name of the node
@@ -362,57 +381,56 @@ namespace NAnt.Core {
                     }
                     */
 
-                    parentElement = parentElement.Parent as Element;
-                }
-
-                xpath = "descendant::attribute[@name=\"" + attributeName + "\"" + xpath;
-
-                for (int counter = 0; counter < level; counter++) {
-                    xpath += "]";
-                }
-
-                xpath += "]";
-
-                #endregion Construct XPath expression for locating configuration node
-
-                #region Retrieve framework-specific configuration node
-
-                if (framework != null) {
-                    // locate framework node for current framework
-                    XmlNode frameworkNode = nantSettingsNode.SelectSingleNode("frameworks/platform[@name=\"" 
-                        + Project.PlatformName + "\"]/framework[@name=\"" 
-                        + framework.Name + "\"]", NamespaceManager);
-
-                    if (frameworkNode != null) {
-                        // locate framework-specific configuration node
-                        attributeNode = frameworkNode.SelectSingleNode(xpath, 
-                            NamespaceManager);
-                    }
-                }
-
-                #endregion Retrieve framework-specific configuration node
-
-                #region Retrieve framework-neutral configuration node
-
-                if (attributeNode == null) {
-                    // locate framework-neutral node
-                    XmlNode frameworkNeutralNode = nantSettingsNode.SelectSingleNode(
-                        "frameworks/tasks", NamespaceManager);
-
-                    if (frameworkNeutralNode != null) {
-                        // locate framework-neutral configuration node
-                        attributeNode = frameworkNeutralNode.SelectSingleNode(xpath, 
-                            NamespaceManager);
-                    }
-                }
-
-                #endregion Retrieve framework-neutral configuration node
+                parentElement = parentElement.Parent as Element;
             }
+
+            xpath = "descendant::attribute[@name=\"" + attributeName + "\"" + xpath;
+
+            for (int counter = 0; counter < level; counter++) {
+                xpath += "]";
+            }
+
+            xpath += "]";
+
+            #endregion Construct XPath expression for locating configuration node
+
+            #region Retrieve framework-specific configuration node
+
+            if (framework != null) {
+                // locate framework node for current framework
+                XmlNode frameworkNode = configSection.SelectSingleNode("frameworks/platform[@name=\"" 
+                    + Project.PlatformName + "\"]/framework[@name=\"" 
+                    + framework.Name + "\"]", NamespaceManager);
+
+                if (frameworkNode != null) {
+                    // locate framework-specific configuration node
+                    attributeNode = frameworkNode.SelectSingleNode(xpath, 
+                        NamespaceManager);
+                }
+            }
+
+            #endregion Retrieve framework-specific configuration node
+
+            #region Retrieve framework-neutral configuration node
+
+            if (attributeNode == null) {
+                // locate framework-neutral node
+                XmlNode frameworkNeutralNode = configSection.SelectSingleNode(
+                    "frameworks/tasks", NamespaceManager);
+
+                if (frameworkNeutralNode != null) {
+                    // locate framework-neutral configuration node
+                    attributeNode = frameworkNeutralNode.SelectSingleNode(xpath, 
+                        NamespaceManager);
+                }
+            }
+
+            #endregion Retrieve framework-neutral configuration node
 
             return attributeNode;
         }
 
-        #endregion Protected Instance Methods
+        #endregion Protected Instance Instance Methods
 
         #region Public Static Methods
 

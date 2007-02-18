@@ -46,7 +46,7 @@ namespace NAnt.Core.Attributes {
     /// </code>
     /// NOTE: Attribute values must be of type of string if you want
     /// to be able to have macros.  The field stores the exact value during
-    /// InitializeTask.  Just before ExecuteTask is called NAnt will expand
+    /// Initialize.  Just before ExecuteTask is called NAnt will expand
     /// all the macros with the current values.
     /// </example>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]

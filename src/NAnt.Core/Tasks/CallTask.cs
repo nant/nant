@@ -215,8 +215,7 @@ namespace NAnt.Core.Tasks {
         /// Makes sure the <see cref="CallTask" /> is not calling its own 
         /// parent.
         /// </summary>
-        /// <param name="taskNode">The task XML node.</param>
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        protected override void Initialize() {
             Target target = Project.Targets.Find(TargetName);
             if (target != null) {
                 Target owningTarget = Parent as Target;

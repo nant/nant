@@ -190,7 +190,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Initialize the filter by setting its parameters.
         /// </summary>
-        protected override void InitializeElement(XmlNode elementNode) {
+        protected override void Initialize() {
             foreach (Token token in Tokens) {
                 if (token.IfDefined && !token.UnlessDefined) {
                     _tokenValues.Add(token.Key, token.Value);

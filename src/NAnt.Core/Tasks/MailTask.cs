@@ -191,8 +191,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Initializes task and ensures the supplied attributes are valid.
         /// </summary>
-        /// <param name="taskNode">Xml node used to define this task instance.</param>
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        protected override void Initialize() {
             if (StringUtils.IsNullOrEmpty(ToList) && StringUtils.IsNullOrEmpty(CcList) && StringUtils.IsNullOrEmpty(BccList)) {
                 throw new BuildException("There must be at least one name in" 
                     + " the \"tolist\", \"cclist\" or \"bcclist\" attributes"

@@ -146,6 +146,20 @@ namespace NAnt.Core {
 
         #endregion Public Instance Properties
 
+        #region Internal Instance Properties
+
+        /// <summary>
+        /// Returns the TaskBuilder used to construct an instance of this
+        /// <see cref="Task" />.
+        /// </summary>
+        internal TaskBuilder TaskBuilder {
+            get {
+                return TypeFactory.TaskBuilders [Name];
+            }
+        }
+
+        #endregion Internal Instance Properties
+
         #region Public Instance Methods
 
         /// <summary>
@@ -399,22 +413,45 @@ namespace NAnt.Core {
 
         #region Protected Instance Methods
 
-        /// <summary><note>Deprecated (to be deleted).</note></summary>
-#if !MONO
-        // avoid warning CS0809: Obsolete member overrides non-obsolete member
-        [Obsolete("Deprecated- Use InitializeTask instead")]
-#endif
-        protected override void InitializeElement(XmlNode elementNode) {
+        /// <summary>Initializes the task.</summary>
+        protected override void Initialize() {
             // Just defer for now so that everything just works
-            InitializeTask(elementNode);
+            InitializeTask(XmlNode);
         }
 
         /// <summary>Initializes the task.</summary>
+        [Obsolete("Deprecated. Use Initialize() instead")]
         protected virtual void InitializeTask(XmlNode taskNode) {
         }
 
         /// <summary>Executes the task.</summary>
         protected abstract void ExecuteTask();
+
+        /// <summary>
+        /// Locates the XML node for the specified attribute in either the
+        /// configuration section of the extension assembly or the.project.
+        /// </summary>
+        /// <param name="attributeName">The name of attribute for which the XML configuration node should be located.</param>
+        /// <param name="framework">The framework to use to obtain framework specific information, or <see langword="null" /> if no framework specific information should be used.</param>
+        /// <returns>
+        /// The XML configuration node for the specified attribute, or 
+        /// <see langword="null" /> if no corresponding XML node could be 
+        /// located.
+        /// </returns>
+        /// <remarks>
+        /// If there's a valid current framework, the configuration section for
+        /// that framework will first be searched.  If no corresponding 
+        /// configuration node can be located in that section, the framework-neutral
+        /// section of the project configuration node will be searched.
+        /// </remarks>
+        protected override XmlNode GetAttributeConfigurationNode(FrameworkInfo framework, string attributeName) {
+            XmlNode extensionConfig = TaskBuilder.ExtensionAssembly.ConfigurationSection;
+            if (extensionConfig != null) {
+                return base.GetAttributeConfigurationNode(extensionConfig,
+                    framework, attributeName);
+            }
+            return base.GetAttributeConfigurationNode(framework, attributeName);
+        }
 
         #endregion Protected Instance Methods
     }

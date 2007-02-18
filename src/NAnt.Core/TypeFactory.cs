@@ -115,7 +115,10 @@ namespace NAnt.Core {
             task.Log(Level.Info, "Scanning assembly \"{0}\" for extensions.", 
                 assembly.GetName().Name);
 
-            bool extensionAssembly = false;
+            bool isExtensionAssembly = false;
+
+            ExtensionAssembly extensionAssembly = new ExtensionAssembly (
+                assembly);
 
             foreach (Type type in assembly.GetTypes()) {
                 //
@@ -127,10 +130,12 @@ namespace NAnt.Core {
                 // identified as a task
                 //
 
-                bool extensionFound = ScanTypeForTasks(type, task);
+                bool extensionFound = ScanTypeForTasks(extensionAssembly,
+                    type, task);
 
                 if (!extensionFound) {
-                    extensionFound = ScanTypeForDataTypes(type, task);
+                    extensionFound = ScanTypeForDataTypes(extensionAssembly,
+                        type, task);
                 }
 
                 if (!extensionFound) {
@@ -138,23 +143,24 @@ namespace NAnt.Core {
                 }
 
                 if (!extensionFound) {
-                    extensionFound = ScanTypeForFilters(type, task);
+                    extensionFound = ScanTypeForFilters(extensionAssembly,
+                        type, task);
                 }
 
-                if (!extensionFound)
-                {
-                    extensionFound = _pluginScanner.ScanTypeForPlugins(type, task);
+                if (!extensionFound) {
+                    extensionFound = _pluginScanner.ScanTypeForPlugins(
+                        extensionAssembly, type, task);
                 }
 
                 // if extension is found in type, then mark assembly as
                 // extension assembly
-                extensionAssembly = extensionAssembly || extensionFound;
+                isExtensionAssembly = isExtensionAssembly || extensionFound;
             }
 
             // if no extension could be found at all, then we might be dealing
             // with an extension assembly that was built using an older version
             // of NAnt(.Core)
-            if (!extensionAssembly) {
+            if (!isExtensionAssembly) {
                 AssemblyName coreAssemblyName = Assembly.GetExecutingAssembly().
                     GetName(false);
 
@@ -173,7 +179,7 @@ namespace NAnt.Core {
                 }
             }
 
-            return extensionAssembly;                
+            return isExtensionAssembly;
         }
 
         /// <summary>
@@ -230,47 +236,44 @@ namespace NAnt.Core {
         /// <param name="project">The project to work from.</param>
         /// <param name="scan">Specified whether to scan the <see cref="Project.BaseDirectory" /> for extension assemblies.</param>
         internal static void AddProject(Project project, bool scan) {
-            // create weakref to project. It is possible that project may go 
-            // away, we don't want to hold it
-            _projects.Add(new WeakReference(project));
+            if (!scan || StringUtils.IsNullOrEmpty(project.BaseDirectory))
+                return;
 
-            if (scan && !StringUtils.IsNullOrEmpty(project.BaseDirectory)) {
-                LoadTasksTask loadTasks = new LoadTasksTask();
-                loadTasks.Project = project;
-                loadTasks.NamespaceManager = project.NamespaceManager;
-                loadTasks.Parent = project;
-                loadTasks.FailOnError = false;
-                loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
-                    Level.Debug : Level.Warning;
+            LoadTasksTask loadTasks = new LoadTasksTask();
+            loadTasks.Project = project;
+            loadTasks.NamespaceManager = project.NamespaceManager;
+            loadTasks.Parent = project;
+            loadTasks.FailOnError = false;
+            loadTasks.Threshold = (project.Threshold == Level.Debug) ? 
+                Level.Debug : Level.Warning;
 
-                string tasksDir = Path.Combine(project.BaseDirectory, "extensions");
-                string commonTasksDir = Path.Combine(tasksDir, "common");
+            string tasksDir = Path.Combine(project.BaseDirectory, "extensions");
+            string commonTasksDir = Path.Combine(tasksDir, "common");
 
-                // scan framework-neutral and version-neutral assemblies
-                ScanDir(Path.Combine(commonTasksDir, "neutral"), loadTasks,
-                    false);
+            // scan framework-neutral and version-neutral assemblies
+            ScanDir(Path.Combine(commonTasksDir, "neutral"), loadTasks,
+                false);
 
-                // skip further processing if runtime framework has not yet 
-                // been set
-                if (project.RuntimeFramework == null) {
-                    return;
-                }
-
-                // scan framework-neutral but version-specific assemblies
-                ScanDir(Path.Combine(commonTasksDir, project.RuntimeFramework.
-                    ClrVersion.ToString (2)), loadTasks, false);
-
-                string frameworkTasksDir = Path.Combine(tasksDir, 
-                    project.RuntimeFramework.Family);
-
-                // scan framework-specific but version-neutral assemblies
-                ScanDir(Path.Combine(frameworkTasksDir, "neutral"), loadTasks,
-                    false);
-
-                // scan framework-specific and version-specific assemblies
-                ScanDir(Path.Combine(frameworkTasksDir, project.RuntimeFramework
-                    .Version.ToString()), loadTasks, false);
+            // skip further processing if runtime framework has not yet 
+            // been set
+            if (project.RuntimeFramework == null) {
+                return;
             }
+
+            // scan framework-neutral but version-specific assemblies
+            ScanDir(Path.Combine(commonTasksDir, project.RuntimeFramework.
+                ClrVersion.ToString (2)), loadTasks, false);
+
+            string frameworkTasksDir = Path.Combine(tasksDir, 
+                project.RuntimeFramework.Family);
+
+            // scan framework-specific but version-neutral assemblies
+            ScanDir(Path.Combine(frameworkTasksDir, "neutral"), loadTasks,
+                false);
+
+            // scan framework-specific and version-specific assemblies
+            ScanDir(Path.Combine(frameworkTasksDir, project.RuntimeFramework
+                .Version.ToString()), loadTasks, false);
         }
 
         /// <summary>
@@ -453,13 +456,14 @@ namespace NAnt.Core {
         /// <summary>
         /// Scans a given <see cref="Type" /> for tasks.
         /// </summary>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Type" /> to scan.</param>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
         /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// <see cref="Task" />; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForTasks(Type type, Task task) {
+        private static bool ScanTypeForTasks(ExtensionAssembly extensionAssembly, Type type, Task task) {
             try {
                 TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(TaskNameAttribute));
@@ -469,7 +473,7 @@ namespace NAnt.Core {
                         ResourceUtils.GetString("String_CreatingTaskBuilder"), 
                         type.Name));
 
-                    TaskBuilder tb = new TaskBuilder(type.Assembly, type.FullName);
+                    TaskBuilder tb = new TaskBuilder(extensionAssembly, type.FullName);
                     if (TaskBuilders[tb.TaskName] == null) {
                         task.Log(Level.Debug, string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("String_AddingTask"), tb.TaskName, 
@@ -494,13 +498,14 @@ namespace NAnt.Core {
         /// <summary>
         /// Scans a given <see cref="Type" /> for data type.
         /// </summary>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Type" /> to scan.</param>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
         /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// data type; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForDataTypes(Type type, Task task) {
+        private static bool ScanTypeForDataTypes(ExtensionAssembly extensionAssembly, Type type, Task task) {
             try {
                 ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
@@ -508,7 +513,7 @@ namespace NAnt.Core {
                 if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
                     logger.Info(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
-                    DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(type.Assembly, type.FullName);
+                    DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(extensionAssembly, type.FullName);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
@@ -610,13 +615,14 @@ namespace NAnt.Core {
         /// <summary>
         /// Scans a given <see cref="Type" /> for filters.
         /// </summary>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Type" /> to scan.</param>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
         /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
         /// <see cref="Filter" />; otherwise, <see langword="false" />.
         /// </returns>
-        private static bool ScanTypeForFilters(Type type, Task task) {
+        private static bool ScanTypeForFilters(ExtensionAssembly extensionAssembly, Type type, Task task) {
             try {
                 ElementNameAttribute elementNameAttribute = (ElementNameAttribute) 
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
@@ -624,7 +630,7 @@ namespace NAnt.Core {
                 if (type.IsSubclassOf(typeof(Filter)) && !type.IsAbstract && elementNameAttribute != null) {
                     task.Log(Level.Debug, "Creating FilterBuilder for \"{0}\".", 
                         type.Name);
-                    FilterBuilder builder = new FilterBuilder(type.Assembly, type.FullName);
+                    FilterBuilder builder = new FilterBuilder(extensionAssembly, type.FullName);
                     if (FilterBuilders[builder.FilterName] == null) {
                         FilterBuilders.Add(builder);
 

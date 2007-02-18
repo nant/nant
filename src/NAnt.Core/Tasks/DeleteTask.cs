@@ -152,8 +152,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Ensures the supplied attributes are valid.
         /// </summary>
-        /// <param name="taskNode">Xml node used to define this task instance.</param>
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        protected override void Initialize() {
             // limit task to deleting either a file, directory
             if (File != null && Directory != null) {
                 throw new BuildException("Cannot specify both 'file' and 'dir'" 

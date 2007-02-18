@@ -138,8 +138,9 @@ namespace NAnt.Core.Tasks {
             throw new BuildException(message, Location);
         }
 
-        protected override void InitializeTask(XmlNode taskNode) {
-            Contents = Project.ExpandProperties(taskNode.InnerText, Location);        }
+        protected override void Initialize() {
+            Contents = Project.ExpandProperties(XmlNode.InnerText, Location);
+        }
 
         #endregion Override implementation of Task
     }

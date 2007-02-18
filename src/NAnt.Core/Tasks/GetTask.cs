@@ -195,8 +195,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Initializes task and ensures the supplied attributes are valid.
         /// </summary>
-        /// <param name="taskNode">Xml node used to define this task instance.</param>
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        protected override void Initialize() {
             if (DestinationFile.Exists && (FileAttributes.ReadOnly == (File.GetAttributes(DestinationFile.FullName) & FileAttributes.ReadOnly))) {
                 throw new BuildException(string.Format("Destination file '{0}' is read-only.", 
                     DestinationFile.FullName), Location);

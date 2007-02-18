@@ -4,19 +4,24 @@ using System.Globalization;
 using System.Text;
 
 namespace NAnt.Core.Extensibility {
+    /// <summary>
+    /// Responsible for scanning types for plugins, and maintaining a cache of
+    /// <see cref="PluginBuilder" /> instances.
+    /// </summary>
     internal class PluginScanner {
-        private readonly ArrayList _plugins = new ArrayList();
+        private readonly ArrayList _pluginBuilders = new ArrayList();
 
         /// <summary>
-        /// Scans a given <see cref="Type" /> for data type.
+        /// Scans a given <see cref="Type" /> for plugins.
         /// </summary>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Type" /> to scan.</param>
         /// <param name="type">The <see cref="Type" /> to scan.</param>
         /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
-        /// data type; otherwise, <see langword="false" />.
+        /// <see cref="IPlugin" />; otherwise, <see langword="false" />.
         /// </returns>
-        public bool ScanTypeForPlugins(Type type, Task task) {
+        public bool ScanTypeForPlugins(ExtensionAssembly extensionAssembly, Type type, Task task) {
             if (type.IsAbstract)
                 return false;
             try {
@@ -25,7 +30,8 @@ namespace NAnt.Core.Extensibility {
                     return false;
                 }
 
-                _plugins.Add(type);
+                PluginBuilder pb = new PluginBuilder(extensionAssembly, type);
+                _pluginBuilders.Add(pb);
                 return true;
             } catch {
                 task.Log(Level.Error, "Failure scanning \"{0}\" for plugins.",
@@ -34,6 +40,11 @@ namespace NAnt.Core.Extensibility {
             }
         }
 
+        /// <summary>
+        /// Registers matching plugins for the specified <see cref="IPluginConsumer" />.
+        /// </summary>
+        /// <param name="consumer">The <see cref="IPluginConsumer" /> which plugins must be registered for.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="consumer" /> is <see langword="null" />.</exception>
         public void RegisterPlugins (IPluginConsumer consumer) {
             if (consumer == null) {
                 throw new ArgumentNullException ("consumer");
@@ -45,10 +56,10 @@ namespace NAnt.Core.Extensibility {
                 return;
             }
 
-            foreach (Type type in _plugins) {
+            foreach (PluginBuilder pb in _pluginBuilders) {
                 foreach (PluginConsumerAttribute c in consumes) {
-                    if (c.PluginType.IsAssignableFrom (type)) {
-                        consumer.ConsumePlugin(type);
+                    if (c.PluginType.IsAssignableFrom (pb.PluginType)) {
+                        consumer.ConsumePlugin(pb.CreatePlugin());
                         break;
                     }
                 }

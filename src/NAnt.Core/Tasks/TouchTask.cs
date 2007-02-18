@@ -118,8 +118,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Ensures the supplied attributes are valid.
         /// </summary>
-        /// <param name="taskNode">Xml node used to define this task instance.</param>
-        protected override void InitializeTask(System.Xml.XmlNode taskNode) {
+        protected override void Initialize() {
             // limit task to either millis or a date string
             if (Millis != 0 && Datetime != DateTime.MinValue) {
                 throw new BuildException("Cannot specify 'millis' and 'datetime'"

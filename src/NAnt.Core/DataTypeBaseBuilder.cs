@@ -23,25 +23,25 @@ using System.Reflection;
 using System.Security.Permissions;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Extensibility;
 
 namespace NAnt.Core {
-    public class DataTypeBaseBuilder {
+    public class DataTypeBaseBuilder : ExtensionBuilder {
         #region Public Instance Constructors
 
         /// <summary>
         /// Creates a new instance of the <see cref="DataTypeBaseBuilder" /> 
         /// class for the specified <see cref="DataTypeBase" /> class in the 
-        /// <see cref="Assembly" /> specified.
+        /// <see cref="ExtensionAssembly" /> specified.
         /// </summary>
-        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="DataTypeBase" />.</param>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="DataTypeBase" />.</param>
         /// <param name="className">The class representing the <see cref="DataTypeBase" />.</param>
-        public DataTypeBaseBuilder(Assembly assembly, string className) {
-            _assembly = assembly;
+        public DataTypeBaseBuilder(ExtensionAssembly extensionAssembly, string className) : base (extensionAssembly) {
             _className = className;
 
             // get Element name from attribute
             ElementNameAttribute ElementNameAttribute = (ElementNameAttribute) 
-                Attribute.GetCustomAttribute(assembly.GetType(ClassName), typeof(ElementNameAttribute));
+                Attribute.GetCustomAttribute(Assembly.GetType(ClassName), typeof(ElementNameAttribute));
 
             _dataTypeName = ElementNameAttribute.Name;
         }
@@ -60,17 +60,6 @@ namespace NAnt.Core {
         /// </value>
         public string ClassName {
             get { return _className; }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Assembly" /> from which the data type will be
-        /// created.
-        /// </summary>
-        /// <value>
-        /// The <see cref="Assembly" /> containing the data type.
-        /// </value>
-        public Assembly Assembly {
-            get { return _assembly; }
         }
 
         /// <summary>
@@ -105,9 +94,8 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private Assembly _assembly;
-        private string _className;
-        private string _dataTypeName;
+        private readonly string _className;
+        private readonly string _dataTypeName;
 
         #endregion Private Instance Fields
     }

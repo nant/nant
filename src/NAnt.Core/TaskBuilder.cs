@@ -20,6 +20,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Security.Permissions;
 
@@ -27,24 +28,22 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Extensibility;
 
 namespace NAnt.Core {
-    public class TaskBuilder {
+    public class TaskBuilder : ExtensionBuilder {
         #region Public Instance Constructors
 
         /// <summary>
         /// Creates a new instance of the <see cref="TaskBuilder" /> class
-        /// for the specified <see cref="Task" /> class in the <see cref="Assembly" />
-        /// specified.
+        /// for the specified <see cref="Task" /> class in the specified
+        /// <see cref="ExtensionAssembly" />.
         /// </summary>
-        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="Task" />.</param>
+        /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Task" />.</param>
         /// <param name="className">The class representing the <see cref="Task" />.</param>
-        public TaskBuilder(Assembly assembly, string className) {
-            _assembly = assembly;
+        internal TaskBuilder(ExtensionAssembly extensionAssembly, string className) : base (extensionAssembly) {
             _className = className;
 
             // get task name from attribute
             TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
-                Attribute.GetCustomAttribute(assembly.GetType(ClassName), typeof(TaskNameAttribute));
-
+                Attribute.GetCustomAttribute(Assembly.GetType(ClassName), typeof(TaskNameAttribute));
             _taskName = taskNameAttribute.Name;
         }
 
@@ -62,16 +61,6 @@ namespace NAnt.Core {
         /// </value>
         public string ClassName {
             get { return _className; }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Assembly" /> from which the task will be created.
-        /// </summary>
-        /// <value>
-        /// The <see cref="Assembly" /> containing the task.
-        /// </value>
-        public Assembly Assembly {
-            get { return _assembly; }
         }
 
         /// <summary>
@@ -111,9 +100,8 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private Assembly _assembly;
-        private string _className;
-        private string _taskName;
+        private readonly string _className;
+        private readonly string _taskName;
 
         #endregion Private Instance Fields
     }

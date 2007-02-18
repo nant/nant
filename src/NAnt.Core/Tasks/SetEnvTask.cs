@@ -202,8 +202,7 @@ using NAnt.Core.Util;
         /// <summary>
         /// Checks whether the task is initialized with valid attributes.
         /// </summary>
-        /// <param name="taskNode"></param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             if (EnvName == null && EnvironmentVariables.Count == 0) {
                 throw new BuildException("Either the \"name\" attribute or at"
                     + " least one nested <variable> element is required.", 
