@@ -168,8 +168,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Initializes the taks and verifies the parameters.
         /// </summary>
-        /// <param name="taskNode"><see cref="XmlNode" /> containing the XML fragment used to define this task instance.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             // expand and store clone of the xml node
             _docNodes = Documenters.Xml.Clone().SelectNodes("nant:documenter", 
                 NamespaceManager);
@@ -193,7 +192,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             // Make sure there is at least one included assembly.  This can't
-            // be done in the InitializeTask() method because the files might
+            // be done in the Initialize() method because the files might
             // not have been built at startup time.
             if (Assemblies.FileNames.Count == 0) {
                 throw new BuildException(ResourceUtils.GetString("NA2020"), Location);

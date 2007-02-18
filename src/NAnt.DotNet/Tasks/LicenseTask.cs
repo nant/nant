@@ -169,8 +169,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Initializes the <see cref="LicenseTask" /> class.
         /// </summary>
-        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             // check if target was specified
             // TODO: remove this check after NAnt 0.85 as this should be handled 
             //       by setting Required to "true"

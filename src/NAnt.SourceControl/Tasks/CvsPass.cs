@@ -101,8 +101,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <summary>
         /// Ensures all information is available to execute the <see cref="Task" />.
         /// </summary>
-        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the <see cref="Task" />.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             // ensure passfile was either set by user or could be discovered from
             // environment or located in HOME directory
             if (PassFile == null) {

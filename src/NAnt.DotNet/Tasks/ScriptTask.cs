@@ -310,9 +310,9 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Initializes the task using the specified xml node.
+        /// Initializes the task.
         /// </summary>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             _rootClassName = "nant" + Guid.NewGuid().ToString("N", 
                 CultureInfo.InvariantCulture);
         }

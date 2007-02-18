@@ -57,13 +57,13 @@ namespace NAnt.SourceControl.Types {
 
         #endregion Public Instance Properties
 
-        #region Protected Instance Fields
+        #region Override Implementation of Element
+
         /// <summary>
         /// Initialize the <see cref="CvsFileSet"/> object and locate the .cvsignore
         /// files to add to the exclude list.
         /// </summary>
-        /// <param name="elementNode"></param>
-        protected override void InitializeElement(XmlNode elementNode) {
+        protected override void Initialize() {
             if (UseCvsIgnore) {
                 ArrayList ignoreFiles = new ArrayList();
                 this.ScanCvsIgnores(base.BaseDirectory, ignoreFiles);
@@ -73,11 +73,10 @@ namespace NAnt.SourceControl.Types {
                 }
             }
 
-            base.InitializeElement(elementNode);
+            base.Initialize();
         }
 
-
-        #endregion Protected Instance Fields
+        #endregion Override Implementation of Element
 
         #region Private Instance Methods
 

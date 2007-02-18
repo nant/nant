@@ -508,8 +508,7 @@ namespace NAnt.MSNet.Tasks {
         /// <summary>
         /// Checks whether the task is initialized with valid attributes.
         /// </summary>
-        /// <param name="taskNode">The <see cref="XmlNode" /> used to initialize the task.</param>
-        protected override void InitializeTask(XmlNode taskNode) {
+        protected override void Initialize() {
             if (ToDirectory == null && Assemblies != null && Assemblies.Includes.Count > 0) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA3001")), Location);
@@ -603,7 +602,7 @@ namespace NAnt.MSNet.Tasks {
                 outputFile = new FileInfo(Path.ChangeExtension(outputFile.FullName, _TargetExt));
             } else {
                 // we should never actually get here (if the checks in 
-                // InitializeTask have been executed
+                // Initialize have been executed
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA3006"), inputFile.FullName), Location);
             }
