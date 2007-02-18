@@ -50,9 +50,12 @@ namespace NAnt.DotNet.Tasks {
     public class JscTask : CompilerBase {
         #region Private Instance Fields
 
+        private bool _autoRef;
+        private bool _nostdlib;
         private string _warningLevel;
         private string _codepage;
         private string _platform;
+        private bool _versionSafe;
 
         // framework configuration settings
         private bool _supportsPlatform;
@@ -67,6 +70,40 @@ namespace NAnt.DotNet.Tasks {
         #endregion Private Static Fields
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Automatically references assemblies if they have the same name as 
+        /// an imported namespace or as a type annotation when declaring a 
+        /// variable. The default is <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/autoref</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("autoref")]
+        [BooleanValidator()]
+        public bool AutoRef {
+            get { return _autoRef; }
+            set { _autoRef = value; }
+        }
+
+        /// <summary>
+        /// Instructs the compiler not to import standard library, and changes
+        /// <see cref="AutoRef" /> to <see langword="false" />. The default is
+        /// <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/noconfig</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("nostdlib")]
+        [BooleanValidator()]
+        public bool NoStdLib {
+            get { return _nostdlib; }
+            set { _nostdlib = value; }
+        }
 
         /// <summary>
         /// Specifies which platform version of common language runtime (CLR)
@@ -85,6 +122,22 @@ namespace NAnt.DotNet.Tasks {
         public string Platform {
             get { return _platform; }
             set { _platform = StringUtils.ConvertEmptyToNull(value); }
+        }
+
+        /// <summary>
+        /// Causes the compiler to generate errors for implicit method 
+        /// overrides. The default is <see langword="false" />.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds with the <c>/versionsafe</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("versionsafe")]
+        [BooleanValidator()]
+        public bool VersionSafe {
+            get { return _versionSafe; }
+            set { _versionSafe = value; }
         }
 
         /// <summary>
@@ -291,6 +344,12 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "define", "TRACE");
             }
 
+            if (NoStdLib) {
+                WriteOption(writer, "nostdlib");
+            } else if (AutoRef) {
+                WriteOption(writer, "autoref");
+            }
+
             if (WarningLevel != null) {
                 WriteOption(writer, "warn" , WarningLevel);
             }
@@ -307,6 +366,10 @@ namespace NAnt.DotNet.Tasks {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportPlatform"),
                         Project.TargetFramework.Description);
                 }
+            }
+
+            if (VersionSafe) {
+                WriteOption(writer, "versionsafe");
             }
         }
 
