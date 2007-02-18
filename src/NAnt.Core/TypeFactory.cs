@@ -45,7 +45,6 @@ namespace NAnt.Core {
         private static DataTypeBaseBuilderCollection _dataTypeBuilders = new DataTypeBaseBuilderCollection();
         private static FilterBuilderCollection _filterBuilders = new FilterBuilderCollection();
         private static Hashtable _methodInfoCollection = new Hashtable();
-        private static ArrayList _projects = new ArrayList();
         private static PluginScanner _pluginScanner = new PluginScanner();
 
         #endregion Private Static Fields
