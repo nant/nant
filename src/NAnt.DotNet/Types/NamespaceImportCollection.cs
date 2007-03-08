@@ -178,13 +178,12 @@ namespace NAnt.DotNet.Types {
         /// <param name="value">The instance to verify.</param>
         protected void ValidateType(object value) {
             if (value == null) {
-                throw new Exception();
-                //throw ADP.ParameterNull("value", this, this.ItemType);
+                throw new ArgumentNullException("value");
             }
 
             if (!this.ItemType.IsInstanceOfType(value)) {
-                throw new Exception();
-                //throw ADP.InvalidParameterType(this, this.ItemType, value);
+                throw new ArgumentException ("Specified value is not an instance"
+                    + " of " + this.ItemType.FullName + ".");
             }
         }
 
@@ -194,9 +193,10 @@ namespace NAnt.DotNet.Types {
         /// </summary>
         /// <param name="index">The index to check.</param>
         protected void RangeCheck(int index) {
-            if (index < 0 || Count <= index) {
-                throw new Exception();
-                //throw ADP.ParametersMappingIndex(index, this);
+            if (index < 0 || index >= Count) {
+                throw new ArgumentOutOfRangeException("index", index, "Index "
+                    + "must be greater than or equal to zero, and less than "
+                    + "the number of items in the collection.");
             }
         }
 
@@ -384,7 +384,7 @@ namespace NAnt.DotNet.Types {
         /// collection; otherwise, <see langword="false" />.
         /// </returns>
         bool IList.Contains(object value) {
-            ValidateType(value);        
+            ValidateType(value);
             return List.Contains((NamespaceImport) value);
         }
 
