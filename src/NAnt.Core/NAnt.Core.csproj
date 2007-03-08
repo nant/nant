@@ -783,6 +783,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Types\Pattern.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\PatternCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\PatternSet.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Types\Proxy.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

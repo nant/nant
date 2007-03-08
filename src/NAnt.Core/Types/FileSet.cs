@@ -667,6 +667,12 @@ namespace NAnt.Core.Types {
 
         #region Public Instance Methods
 
+        [BuildElement("patternset")]
+        public void AddPatternSet (PatternSet patternSet) {
+            Includes.AddRange(patternSet.GetIncludePatterns());
+            Excludes.AddRange(patternSet.GetExcludePatterns());
+        }
+
         public virtual void Scan() {
             try {
                 _scanner.BaseDirectory = BaseDirectory;
@@ -1010,7 +1016,7 @@ namespace NAnt.Core.Types {
             #region Override implementation of ExcludesFile
 
             /// <summary>
-            /// If <see langword="true" /> then the patterns will be included; 
+            /// If <see langword="true" /> then the patterns will be included;
             /// otherwise, skipped. The default is <see langword="true" />.
             /// </summary>
             [TaskAttribute("if")]
