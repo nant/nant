@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="nant" default="build-release">
-    <property name="sf.net.ssh.server" value="shell1.sourceforge.net" />
+    <property name="sf.net.ssh.server" value="projects.sourceforge.net" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <!-- setup property that holds partial path to be used by scp -->
     <property name="serverpart" value="${environment::get-user-name() + '@' + sf.net.ssh.server + ':' + sf.net.web.path}" />
