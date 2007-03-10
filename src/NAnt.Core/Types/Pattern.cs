@@ -16,37 +16,27 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
-
 namespace NAnt.Core.Types {
     /// <summary>
     /// Holds a single name pattern.
     /// </summary>
     public class Pattern : Element {
         #region Private Instance Fields
-
         private string _patternName;
         private bool _ifDefined = true;
         private bool _unlessDefined;
-
         #endregion Private Instance Fields
-
         #region Public Instance Constructors
-
         public Pattern() {
         }
-
         internal Pattern(Project project, string patternName) {
             PatternName = patternName;
             Project = project;
         }
-
         #endregion Public Instance Constructors
-
         #region Public Instance Properties
-
         /// <summary>
         /// The name pattern to include/exclude.
         /// </summary>

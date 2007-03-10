@@ -31,16 +31,10 @@ namespace NAnt.Core.Types {
         /// <summary>
         /// Initializes a new instance of the <see cref="PatternCollection"/> class.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="patternSet" /> is <see langword="null" />.</exception>
-        public PatternCollection(PatternSet patternSet) {
-            if (patternSet == null) {
-                throw new ArgumentNullException("patternSet");
-            }
-
+        public PatternCollection() {
             _list = new ArrayList ();
-            _patternSet = patternSet;
         }
-        
+
         #endregion Public Instance Constructors
         
         #region Public Instance Properties
@@ -56,20 +50,7 @@ namespace NAnt.Core.Types {
 
         #endregion Public Instance Properties
 
-        #region Internal Instance Properties
-
-        internal bool Dirty {
-            get { return _dirty; }
-            set { _dirty = value; }
-        }
-
-        #endregion Internal Instance Properties
-
         #region Private Instance Properties
-
-        private PatternSet PatternSet {
-            get { return _patternSet; }
-        }
 
         private ArrayList List {
             get { return _list; }
@@ -132,7 +113,6 @@ namespace NAnt.Core.Types {
         bool IList.IsReadOnly {
             get { return false; }
         }
-
 
         int IList.Add (object value) {
             if (value == null) {
@@ -301,7 +281,6 @@ namespace NAnt.Core.Types {
         /// <param name="item">The <see cref="Pattern"/> to remove from the collection.</param>
         public void Remove(Pattern item) {
             List.Remove(item);
-            _dirty = true;
         }
         
         #endregion Public Instance Methods
@@ -309,8 +288,6 @@ namespace NAnt.Core.Types {
         #region Private Instance Fields
 
         private readonly ArrayList _list;
-        private readonly PatternSet _patternSet;
-        private bool _dirty;
 
         #endregion Private Instance Fields
     }
