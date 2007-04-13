@@ -39,7 +39,10 @@ namespace NAnt.Compression.Tasks {
     /// Creates a zip file from the specified filesets.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.</para>
+    ///   <para>
+    ///   Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see>
+    ///   (SharpZipLib), an open source Tar/Zip/GZip library written entirely in C#.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>
