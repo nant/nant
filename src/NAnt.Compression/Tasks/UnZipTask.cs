@@ -34,7 +34,10 @@ namespace NAnt.Compression.Tasks {
     /// Extracts files from a zip file.
     /// </summary>
     /// <remarks>
-    ///   <para>Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see> (SharpZipLib), an open source Zip/GZip library written entirely in C#.</para>
+    ///   <para>
+    ///   Uses <see href="http://www.icsharpcode.net/OpenSource/SharpZipLib/">#ziplib</see>
+    ///   (SharpZipLib), an open source Zip/GZip library written entirely in C#.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>Extracts all the file from the zip, preserving the directory structure.</para>
@@ -207,17 +210,12 @@ namespace NAnt.Compression.Tasks {
                     int size = 2048;
                     byte[] data = new byte[2048];
 
-                    // workaround for SharpZipLib issue related to zero-length files:
-                    // http://community.sharpdevelop.net/forums/thread/10051.aspx
-                    if (entrySize > 0L) {
-                        while (true) {
-                            size = inputStream.Read(data, 0, data.Length);
-                            if (size > 0) {
-                                sw.Write(data, 0, size);
-                            } else {
-                                break;
-                            }
+                    while (true) {
+                        size = inputStream.Read(data, 0, data.Length);
+                        if (size == 0) {
+                            break;
                         }
+                        sw.Write(data, 0, size);
                     }
 
                     sw.Close();
