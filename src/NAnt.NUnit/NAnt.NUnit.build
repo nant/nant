@@ -4,11 +4,12 @@
         Required properties:
             * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin
             * build.debug           - (true|false) debug build?
+            * build.warnaserror     - (true|false) treat warnings as errors
             * current.build.defines - framework-specific build defines
     -->
     <target name="build">
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit.dll" doc="${build.dir}/bin/NAnt.NUnit.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit.dll" doc="${build.dir}/bin/NAnt.NUnit.xml">
             <sources>
                 <include name="*.cs"/>
                 <!-- common assembly-level attributes -->
@@ -19,7 +20,7 @@
                 <include name="${lib.framework.dir}/nunit.framework.dll" />
             </references>
         </csc>
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
             <nowarn>
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />
@@ -43,7 +44,7 @@
                 <include name="*.resx"/>
             </resources>
         </csc>
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit2Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit2Tasks.xml">
             <nowarn>
                 <!-- do not report deprecation warnings -->
                 <warning number="0618" />

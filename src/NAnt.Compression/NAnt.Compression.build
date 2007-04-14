@@ -4,11 +4,12 @@
         Required properties:
             * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin
             * build.debug           - (true|false) debug build?
+            * build.warnaserror     - (true|false) treat warnings as errors
             * current.build.defines - framework-specific build defines
     -->
-    <target name="build"> 
+    <target name="build">
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}Tasks.dll" doc="${build.dir}/bin/${project::get-name()}Tasks.xml">
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}Tasks.dll" doc="${build.dir}/bin/${project::get-name()}Tasks.xml">
             <sources>
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
@@ -24,6 +25,6 @@
             <resources>
                 <include name="*.resx"/>
             </resources>
-        </csc> 
+        </csc>
     </target>
 </project>

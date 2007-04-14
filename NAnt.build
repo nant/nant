@@ -6,14 +6,17 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.86" unless="${property::exists('project.version')}" />
     <property name="project.release.type" value="dev" unless="${property::exists('project.release.type')}" /> <!-- nightly / dev / alpha / beta# / rc# / release -->
+    <property name="build.warnaserror" value="false" />
     <if test="${project.release.type == 'nightly'}">
         <property name="project.version.full" value="${project.version + '-nightly-' + build.date}" />
     </if>
     <if test="${project.release.type != 'nightly'}">
         <property name="project.version.full" value="${project.version + if(project.release.type == 'release', '', '-' + project.release.type)}" dynamic="true" />
     </if>
-
-    <!-- 
+    <if test="${project.release.type == 'dev' or project.release.type == 'nightly'}">
+        <property name="build.warnaserror" value="true" />
+    </if>
+    <!--
         specifies whether the CommonAssemblyInfo.cs file should be created.
         we do not want this for releases (whether they're beta or release) as
         this would cause the build number to be updated
@@ -270,7 +273,7 @@
     </target>
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
-        <csc target="library" define="${current.build.defines}" warnaserror="true" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
             <nowarn>
                 <!-- do not report deprecation warnings -->
                 <warning number="0618" />
@@ -438,7 +441,7 @@
             </fileset>
         </delete>
     </target>
-    
+
     <target name="self-schema" depends="init">
         <property name="schema.output" value="${build.dir}/schema/${project.name}.xsd" />
         <!-- ensure schema directory exists -->
@@ -464,7 +467,7 @@
             <arg value="self-schema" />
         </exec>
     </target>
-    
+
     <target name="changelog" depends="init">
         <property name="start.date" value="2003/12/26"/>
         <property name="now" value="${datetime::now()}"/>
@@ -493,7 +496,7 @@
         </style>
         <delete file="${build.dir}/${changes.name-without-extension}.xml" />
     </target>
-    
+
     <target name="deploy-schema" depends="schema" description="Deploys the Schema to VS.Net schemas dirs. For now it only copies to 7.0 and 7.1">
         <!-- retrieve location of VS.NET 2002 schema store -->
         <readregistry property="vs2002.xml.schemas" key="SOFTWARE\Microsoft\VisualStudio\7.0\InstallDir" hive="LocalMachine" failonerror="false" />
@@ -699,7 +702,7 @@
     </target>
 
     <target name="package" depends="package-doc, package-src, package-bin" description="Creates a binary and source distribution package." />
-    
+
     <!-- Copies files to the bin folder. -->
     <target name="UpdateBin" depends="build" description="Does a release build and copies them to the bin folder.">
         <delete if="false">
@@ -726,7 +729,7 @@
     </target>
     <target name="set-net-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="net-1.0" />
-        <property name="current.build.defines" value="${build.defines}NET,NET_1_0" dynamic="true" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0,ONLY_1_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
@@ -750,13 +753,13 @@
     </target>
     <target name="set-mono-1.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-1.0" />
-        <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,ONLY_NET_1_1" dynamic="true" />
+        <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,ONLY_1_1" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
     <target name="set-mono-2.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-2.0" />
-        <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,NET_2_0,ONLY_NET_2_0" dynamic="true" />
+        <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,NET_2_0,ONLY_2_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
@@ -766,11 +769,11 @@
         <property name="link.sdkdoc.version" value="SDK_v1_0" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
-    
+
     <!-- install targets -->
-    
+
     <target name="install" depends="install-windows, install-linux" />
-    
+
 <!--depends="userdoc" -->
     <target name="install-windows" depends="build" if="${platform::is-win32()}">
         <!-- install to program files directory by default -->
@@ -791,7 +794,7 @@
             </fileset>
         </copy>
     </target>
-    
+
     <target name="install-linux" depends="build" if="${platform::is-unix()}">
         <property name="install.realprefix" value="/usr/local" />
         <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
@@ -824,7 +827,6 @@
         <echo file="${wrapper}" append="true">exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
     </target>
-    
     <target name="rpm" depends="init, build">
         <echo message="Build dir: ${build.dir}"/>
         <copy todir="${build.dir}">
