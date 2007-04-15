@@ -21,9 +21,6 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {
-    /// <summary>
-    /// A single name pattern.
-    /// </summary>
     public class Pattern : Element {
         #region Private Instance Fields
 
@@ -35,6 +32,9 @@ namespace NAnt.Core.Types {
 
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Pattern" /> class.
+        /// </summary>
         public Pattern() {
         }
 

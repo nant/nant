@@ -268,6 +268,7 @@ namespace NAnt.Core.Types {
     ///     </item>
     /// </list>
     /// </example>
+    /// <seealso cref="PatternSet" />
     [Serializable()]
     [ElementName("fileset")]
     public class FileSet : DataTypeBase {
@@ -667,6 +668,9 @@ namespace NAnt.Core.Types {
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Adds a nested set of patterns, or references a standalone patternset.
+        /// </summary>
         [BuildElement("patternset")]
         public void AddPatternSet (PatternSet patternSet) {
             Includes.AddRange(patternSet.GetIncludePatterns());

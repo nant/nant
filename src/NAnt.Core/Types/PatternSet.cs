@@ -30,30 +30,34 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>
-    /// Named collection of include/exclude tags.
+    /// A set of patterns, mostly used to include or exclude certain files.
     /// </summary>
     /// <remarks>
+    ///   <para>
+    ///   The individual patterns support <c>if</c> and <c>unless</c> attributes
+    ///   to specify that the element should only be used if or unless a given
+    ///   condition is met.
+    ///   </para>
+    ///   <para>
+    ///   The <see cref="IncludesFile" /> and <see cref="ExcludesFile" />
+    ///   elements load patterns from a file. When the file is a relative path,
+    ///   it will be resolved relative to the project base directory in which
+    ///   the patternset is defined. Each line of this file is taken to be a
+    ///   pattern.
+    ///   </para>
     ///   <para>
     ///   Patterns can be grouped to sets, and later be referenced by their
     ///   <see cref="DataTypeBase.ID" />.
     ///   </para>
     ///   <para>
-    ///   The individual patterns support if and unless attributes to specify
-    ///   that the element should only be used if a given condition is met
-    ///   and/or that it should not be used unless a given condition is met.
-    ///   </para>
-    ///   <para>
-    ///   The includesfile and excludesfile elements load patterns from a file.
-    ///   When the file is a relative path, then it will be resolved relative
-    ///   to the project base directory in which the patternset is defined.
-    ///   Each line of this file is taken to be a pattern.
-    ///   </para>
-    ///   <para>
     ///   When used as a standalone element (global type), any properties that
     ///   are referenced will be resolved when the definition is processed, not
     ///   when it actually used. Passing a reference to a nested build file 
-    ///   will not cause the properties to be re-evaluated. To improve reuse of
-    ///   globally defined patternsets, avoid referencing any properties.
+    ///   will not cause the properties to be re-evaluated.
+    ///   </para>
+    ///   <para>
+    ///   To improve reuse of globally defined patternsets, avoid referencing
+    ///   any properties altogether.
     ///   </para>
     /// </remarks>
     /// <example>
@@ -108,10 +112,97 @@ namespace NAnt.Core.Types {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Defines a patternset with patterns that are loaded from an external
+    ///   file, and shows the behavior when that patternset is passed as a
+    ///   reference to a nested build script.
+    ///   </para>
+    ///   <para>
+    ///   External file &quot;c:\foo\build\service.lst&quot; holding patterns
+    ///   of source files to include for the Foo.Service assembly:
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         AssemblyInfo.cs
+    ///         *Channel.cs
+    ///         ServiceFactory.cs]]></code>
+    ///   <para>
+    ///   Main build script located in &quot;c:\foo\default.build&quot;:
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         <project name="main" default="build">
+    ///             <property name="build.debug" value="true" />
+    ///         
+    ///             <patternset id="service.sources">
+    ///                 <include name="TraceListener.cs" if="${build.debug}" />
+    ///                 <includesfile name="build/service.lst" />
+    ///             </patternset>
+    ///             
+    ///             <property name="build.debug" value="false" />
+    ///             
+    ///             <target name="build">
+    ///                 <nant buildfile="service/default.build" inheritrefs="true" />
+    ///             </target>
+    ///         </project>]]></code>
+    ///   <para>
+    ///   Nested build script located in &quot;c:\foo\services\default.build&quot;
+    ///   which uses the patternset to feed sources files to the C# compiler:
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         <project name="service" default="build">
+    ///             <target name="build">
+    ///                 <csc output="../bin/Foo.Service.dll" target="library">
+    ///                     <fileset basedir="src">
+    ///                         <patternset refid="service.sources" />
+    ///                     </fileset>
+    ///                 </csc>
+    ///             </target>
+    ///         </project>]]></code>
+    ///   <para>
+    ///   At the time when the patternset is used in the &quot;service&quot;
+    ///   build script, the following source files in &quot;c:\foo\services\src&quot;
+    ///   match the defined patterns:
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///         AssemblyInfo.cs
+    ///         MsmqChannel.cs
+    ///         SmtpChannel.cs
+    ///         ServiceFactory.cs
+    ///         TraceListener.cs]]></code>
+    ///   <para>
+    ///   You should have observed that:
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///         <description>
+    ///         although the patternset is used from the &quot;service&quot;
+    ///         build script, the path to the external file is resolved relative
+    ///         to the base directory of the &quot;main&quot; build script in
+    ///         which the patternset is defined.
+    ///         </description>
+    ///     </item>
+    ///     <item>
+    ///         <description>
+    ///         the &quot;TraceListener.cs&quot; file is included, even though 
+    ///         the &quot;build.debug&quot; property was changed to <b>false</b>
+    ///         after the patternset was defined (but before it was passed to
+    ///         the nested build, and used).
+    ///         </description>
+    ///     </item>
+    ///   </list>
+    /// </example>
+    /// <seealso cref="FileSet" />
     [ElementName("patternset")]
     public class PatternSet : DataTypeBase {
         #region Public Instance Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PatternSet" /> class.
+        /// </summary>
         public PatternSet() {
             _include = new PatternCollection();
             _exclude = new PatternCollection();
@@ -123,21 +214,35 @@ namespace NAnt.Core.Types {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Defines a single pattern for files to include.
+        /// </summary>
         [BuildElementArrayAttribute("include")]
         public PatternCollection Include {
             get { return _include; }
         }
 
+        /// <summary>
+        /// Loads multiple patterns of files to include from a given file, set
+        /// using the <see cref="Pattern.PatternName" /> parameter.
+        /// </summary>
         [BuildElementArrayAttribute("includesfile")]
         public PatternCollection IncludesFile {
             get { return _includesFile; }
         }
 
+        /// <summary>
+        /// Defines a single pattern for files to exclude.
+        /// </summary>
         [BuildElementArrayAttribute("exclude")]
         public PatternCollection Exclude {
             get { return _exclude; }
         }
 
+        /// <summary>
+        /// Loads multiple patterns of files to exclude from a given file, set
+        /// using the <see cref="Pattern.PatternName" /> parameter.
+        /// </summary>
         [BuildElementArrayAttribute("excludesfile")]
         public PatternCollection ExcludesFile {
             get { return _excludesFile; }
