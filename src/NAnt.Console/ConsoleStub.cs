@@ -23,6 +23,7 @@ using System.IO;
 using System.Configuration;
 using System.Reflection;
 using System.Globalization;
+using System.Text;
 using System.Xml;
 
 namespace NAnt.Console {
@@ -61,7 +62,11 @@ namespace NAnt.Console {
                     return _frameworkVersion;
                 }
 
+#if NET_2_0
+                XmlNode nantNode = (XmlNode) ConfigurationManager.GetSection("nant");
+#else
                 XmlNode nantNode = (XmlNode) ConfigurationSettings.GetConfig("nant");
+#endif
                 if (nantNode == null) {
                     System.Console.WriteLine("The \"nant\" section in the NAnt"
                         + " configuration file ({0}) is not available.",
@@ -104,55 +109,20 @@ namespace NAnt.Console {
             AppDomain cd = AppDomain.CurrentDomain;
             AppDomain executionAD = cd;
 
+#if NET_2_0
+            string nantShadowCopyFilesSetting = ConfigurationManager.AppSettings.Get("nant.shadowfiles");
+            string nantCleanupShadowCopyFilesSetting = ConfigurationManager.AppSettings.Get("nant.shadowfiles.cleanup");
+#else
             string nantShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles");
             string nantCleanupShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles.cleanup");
+#endif
 
             if (FrameworkVersion == null) {
                 // signal error
                 return 1;
             }
 
-            string frameworkFamilyLibDir = Path.Combine("lib", FrameworkFamily);
-            string frameworkVersionLibDir = Path.Combine(frameworkFamilyLibDir, 
-                FrameworkVersion);
-            string frameworkNeutralLibDir = Path.Combine(frameworkFamilyLibDir, 
-                "neutral");
-
-            string commonLibDir = Path.Combine("lib", "common");
-            string commonVersionLibDir = Path.Combine(commonLibDir,
-                Environment.Version.ToString(2));
-            string commonNeutralLibDir = Path.Combine (commonLibDir, "neutral");
-
-            string privateBinPath = null;
-
-            // add lib/<family>/<version> dir to privatebinpath if it exists
-            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkVersionLibDir))) {
-                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
-                    + frameworkVersionLibDir : frameworkVersionLibDir;
-            }
-
-            // add lib/<family>/neutral dir to privatebinpath if it exists
-            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, frameworkNeutralLibDir))) {
-                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
-                    + frameworkNeutralLibDir : frameworkNeutralLibDir;
-            }
-
-            // add lib/common>/<version> dir to privatebinpath if it exists
-            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, commonVersionLibDir))) {
-                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
-                    + commonVersionLibDir : commonVersionLibDir;
-            }
-
-            // add lib/common>/neutral dir to privatebinpath if it exists
-            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, commonNeutralLibDir))) {
-                privateBinPath += (privateBinPath != null) ? Path.PathSeparator 
-                    + commonNeutralLibDir : commonNeutralLibDir;
-            }
-
-            // add privatebinpath of current domain to privatebinpath 
-            if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
-                privateBinPath += Path.PathSeparator + AppDomain.CurrentDomain.SetupInformation.PrivateBinPath;
-            }
+            string privateBinPath = ConstructPrivateBinPath(AppDomain.CurrentDomain.BaseDirectory);
 
             if (nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
                 logger.Debug(string.Format(
@@ -284,6 +254,163 @@ namespace NAnt.Console {
         }
 
         #endregion Public Static Methods
+
+        #region Private Static Methods
+
+        /// <summary>
+        /// Constructs the privatebinpath.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///   For the common version dir, we do not use the framework version
+        ///   as defined in the NAnt configuration file but the CLR version
+        ///   since the assemblies in that directory are not specific to a 
+        ///   certain family and the framwork version might differ between
+        ///   families (eg. mono 1.0 == .NET 1.1).
+        ///   </para>
+        /// </remarks>
+        /// <param name="baseDir">The base directory of the domain.</param>
+        /// <returns>
+        /// The privatebinpath.
+        /// </returns>
+        private static string ConstructPrivateBinPath (string baseDir) {
+            string libDir = Path.Combine (baseDir, "lib");
+            string familyDir = Path.Combine(libDir, FrameworkFamily);
+            string commonDir = Path.Combine(libDir, "common");
+
+            StringBuilder sb = new StringBuilder ();
+
+            // add lib/<family>/<version> dir to privatebinpath if it exists
+            string familyVersionDir = Path.Combine (familyDir, FrameworkVersion);
+            AppendPrivateBinDir(baseDir, familyVersionDir, sb);
+
+            // add lib/<family>/neutral dir to privatebinpath if it exists
+            string frameworkNeutralDir = Path.Combine (familyDir, "neutral");
+            AppendPrivateBinDir(baseDir, frameworkNeutralDir, sb);
+
+            // add lib/common>/<version> dir to privatebinpath if it exists
+            string commonVersionDir = Path.Combine(commonDir,
+                Environment.Version.ToString(2));
+            AppendPrivateBinDir(baseDir, commonVersionDir, sb);
+
+            // add lib/common>/neutral dir to privatebinpath if it exists
+            string commonNeutralDir = Path.Combine (commonDir, "neutral");
+            AppendPrivateBinDir(baseDir, commonNeutralDir, sb);
+
+            // add privatebinpath of current domain to privatebinpath 
+            if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
+                if (sb.Length > 0) {
+                    sb.Append(Path.PathSeparator);
+                }
+                sb.Append(AppDomain.CurrentDomain.SetupInformation.PrivateBinPath);
+            }
+
+            return sb.ToString();
+        }
+
+        private static void AppendPrivateBinDir(string baseDir, string dir, StringBuilder sb) {
+            if (!Directory.Exists (dir)) {
+                return;
+            }
+
+            if (sb.Length != 0) {
+                sb.Append(Path.PathSeparator);
+            }
+            sb.Append(GetRelativePath(baseDir, dir));
+
+            string[] subDirs = Directory.GetDirectories(dir);
+            for (int i = 0; i < subDirs.Length; i++) {
+                AppendPrivateBinDir(baseDir, subDirs[i], sb);
+            }
+        }
+
+        /// <summary>
+        /// Given an absolute directory and an absolute file name, returns a 
+        /// relative file name.
+        /// </summary>
+        /// <param name="basePath">An absolute directory.</param>
+        /// <param name="absolutePath">An absolute file name.</param>
+        /// <returns>
+        /// A relative file name for the given absolute file name.
+        /// </returns>
+        private static string GetRelativePath(string basePath, string absolutePath) {
+            string fullBasePath = Path.GetFullPath(basePath);
+            string fullAbsolutePath = Path.GetFullPath(absolutePath);
+
+            bool caseInsensitive = false;
+
+            // check if we're not on unix
+            if ((int) Environment.OSVersion.Platform != 128) {
+                // for simplicity, we'll consider all filesystems on windows
+                // to be case-insensitive
+                caseInsensitive = true;
+
+                // on windows, paths with different roots are located on different
+                // drives, so only absolute names will do
+                if (string.Compare(Path.GetPathRoot(fullBasePath), Path.GetPathRoot(fullAbsolutePath), caseInsensitive) != 0) {
+                    return fullAbsolutePath;
+                }
+            }
+
+            int baseLen = fullBasePath.Length;
+            int absoluteLen = fullAbsolutePath.Length;
+
+            // they are on the same "volume", find out how much of the base path
+            // is in the absolute path
+            int i = 0;
+            while (i < absoluteLen && i < baseLen && string.Compare(fullBasePath[i].ToString(), fullAbsolutePath[i].ToString(), caseInsensitive) == 0) {
+                i++;
+            }
+            
+            if (i == baseLen && (fullAbsolutePath[i] == Path.DirectorySeparatorChar || fullAbsolutePath[i-1] == Path.DirectorySeparatorChar)) {
+                // the whole current directory name is in the file name,
+                // so we just trim off the current directory name to get the
+                // current file name.
+                if (fullAbsolutePath[i] == Path.DirectorySeparatorChar) {
+                    // a directory name might have a trailing slash but a relative
+                    // file name should not have a leading one...
+                    i++;
+                }
+
+                return fullAbsolutePath.Substring(i);
+            }
+
+            // The file is not in a child directory of the current directory, so we
+            // need to step back the appropriate number of parent directories by
+            // using ".."s.  First find out how many levels deeper we are than the
+            // common directory
+
+            string commonPath = fullBasePath.Substring(0, i);
+
+            int levels = 0;
+            string parentPath = fullBasePath;
+
+            // remove trailing directory separator character
+            if (parentPath[parentPath.Length - 1] == Path.DirectorySeparatorChar) {
+                parentPath = parentPath.Substring(0, parentPath.Length - 1);
+            }
+
+            while (string.Compare(parentPath,commonPath, caseInsensitive) != 0) {
+                levels++;
+                DirectoryInfo parentDir = Directory.GetParent(parentPath);
+                if (parentDir != null) {
+                    parentPath = parentDir.FullName;
+                } else {
+                    parentPath = null;
+                }
+            }
+                
+            string relativePath = "";
+            
+            for (i = 0; i < levels; i++) {
+                relativePath += ".." + Path.DirectorySeparatorChar;
+            }
+
+            relativePath += fullAbsolutePath.Substring(commonPath.Length);
+            return relativePath;
+        }
+
+        #endregion Private Static Methods
 
         #region Private Static Fields
 
