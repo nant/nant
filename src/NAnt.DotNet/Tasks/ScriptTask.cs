@@ -23,6 +23,7 @@
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -336,11 +337,22 @@ namespace NAnt.DotNet.Tasks {
             options.GenerateInMemory = true;
             options.MainClass = MainClass;
 
+            // holds to display names of assemblies that are added as references
+            // to avoid adding the same assembly more than once
+            Hashtable assemblyReferences = CollectionsUtil.CreateCaseInsensitiveHashtable();
+
             // add all available assemblies.
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
+                AssemblyName aname = asm.GetName();
+
+                if (assemblyReferences.ContainsKey(aname.FullName)) {
+                    continue;
+                }
+
                 try {
                     if (!StringUtils.IsNullOrEmpty(asm.Location)) {
                         options.ReferencedAssemblies.Add(asm.Location);
+                        assemblyReferences.Add(aname.FullName, null);
                     }
                 } catch (NotSupportedException) {
                     // Ignore - this error is sometimes thrown by asm.Location 
@@ -354,19 +366,19 @@ namespace NAnt.DotNet.Tasks {
                     // fetch name of assembly
                     AssemblyName aname = AssemblyName.GetAssemblyName(assemblyFile);
 
-                    // don't bother adding assemblies that are already loaded
-                    // in the AppDomain as they have already been added
-                    if (IsAssemblyLoaded (aname)) {
+                    // avoid adding twice assemblies
+                    if (assemblyReferences.ContainsKey(aname.FullName)) {
                         continue;
                     }
 
                     // load the assembly into current AppDomain to ensure it is
-                    // are available when executing the emitted assembly
+                    // available when executing the emitted assembly
                     Assembly asm = Assembly.LoadFrom(assemblyFile);
 
                     // add the location of the loaded assembly
                     if (!StringUtils.IsNullOrEmpty(asm.Location)) {
                         options.ReferencedAssemblies.Add(asm.Location);
+                        assemblyReferences.Add(aname.FullName, null);
                     }
                 } catch (Exception ex) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -538,15 +550,6 @@ namespace NAnt.DotNet.Tasks {
                     ResourceUtils.GetString("NA2038"), providerType.FullName));
             }
             return (CodeDomProvider) provider;
-        }
-
-        private static bool IsAssemblyLoaded (AssemblyName aname) {
-            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies()) {
-                if (asm.FullName == aname.FullName) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         #endregion Private Static Methods
