@@ -8,7 +8,11 @@ namespace NAnt.Core.Extensibility {
         /// class for an extension in a given <see cref="ExtensionAssembly" />.
         /// </summary>
         /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> in which the extension is found.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="extensionAssembly" /> is <see langword="null" />.</exception>
         protected ExtensionBuilder(ExtensionAssembly extensionAssembly) {
+            if (extensionAssembly == null) {
+                throw new ArgumentNullException("extensionAssembly");
+            }
             _extensionAssembly = extensionAssembly;
         }
 
