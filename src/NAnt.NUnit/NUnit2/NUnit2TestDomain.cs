@@ -113,23 +113,16 @@ namespace NAnt.NUnit2.Tasks {
             // spawn new domain in specified directory
             AppDomainSetup domSetup = new AppDomainSetup();
             domSetup.ApplicationBase = basedir.FullName;
+            domSetup.ApplicationName = "NAnt NUnit Remote Domain";
 
             // use explicitly specified configuration file, or fall back to
             // configuration file for given assembly file
-            string configurationFile = null;
             if (configFile != null) {
-                configurationFile = configFile.FullName;
+                domSetup.ConfigurationFile = configFile.FullName;
             } else {
-                configurationFile = assemblyFile.FullName + ".config";
+                domSetup.ConfigurationFile = assemblyFile.FullName + ".config";
             }
 
-            // only set configuration file if it actually exists
-            if (File.Exists(configurationFile)) {
-                domSetup.ConfigurationFile = configurationFile;
-            }
-                
-            domSetup.ApplicationName = "NAnt NUnit Remote Domain";
-         
             return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 
                 AppDomain.CurrentDomain.Evidence, 
