@@ -38,12 +38,6 @@ namespace NAnt.Core {
         /// <param name="className">The class representing the <see cref="DataTypeBase" />.</param>
         public DataTypeBaseBuilder(ExtensionAssembly extensionAssembly, string className) : base (extensionAssembly) {
             _className = className;
-
-            // get Element name from attribute
-            ElementNameAttribute ElementNameAttribute = (ElementNameAttribute) 
-                Attribute.GetCustomAttribute(Assembly.GetType(ClassName), typeof(ElementNameAttribute));
-
-            _dataTypeName = ElementNameAttribute.Name;
         }
 
         #endregion Public Instance Constructors
@@ -71,7 +65,15 @@ namespace NAnt.Core {
         /// can create.
         /// </value>
         public string DataTypeName {
-            get { return _dataTypeName; }
+            get {
+                if (_dataTypeName == null) {
+                    ElementNameAttribute ElementNameAttribute = (ElementNameAttribute) 
+                        Attribute.GetCustomAttribute(Assembly.GetType(ClassName), 
+                        typeof(ElementNameAttribute));
+                    _dataTypeName = ElementNameAttribute.Name;
+                }
+                return _dataTypeName;
+            }
         }
 
         #endregion Public Instance Properties
@@ -95,7 +97,7 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private readonly string _className;
-        private readonly string _dataTypeName;
+        private string _dataTypeName;
 
         #endregion Private Instance Fields
     }

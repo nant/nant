@@ -40,11 +40,6 @@ namespace NAnt.Core {
         /// <param name="className">The class representing the <see cref="Task" />.</param>
         internal TaskBuilder(ExtensionAssembly extensionAssembly, string className) : base (extensionAssembly) {
             _className = className;
-
-            // get task name from attribute
-            TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
-                Attribute.GetCustomAttribute(Assembly.GetType(ClassName), typeof(TaskNameAttribute));
-            _taskName = taskNameAttribute.Name;
         }
 
         #endregion Public Instance Constructors
@@ -72,7 +67,15 @@ namespace NAnt.Core {
         /// create.
         /// </value>
         public string TaskName {
-            get { return _taskName; }
+            get {
+                if (_taskName == null) {
+                    TaskNameAttribute taskNameAttribute = (TaskNameAttribute) 
+                        Attribute.GetCustomAttribute(Assembly.GetType(ClassName), 
+                        typeof(TaskNameAttribute));
+                    _taskName = taskNameAttribute.Name;
+                }
+                return _taskName;
+            }
         }
 
         #endregion Public Instance Properties
@@ -101,7 +104,7 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private readonly string _className;
-        private readonly string _taskName;
+        private string _taskName;
 
         #endregion Private Instance Fields
     }
