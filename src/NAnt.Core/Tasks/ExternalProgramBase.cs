@@ -431,10 +431,12 @@ namespace NAnt.Core.Tasks {
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
             }
-            // required to allow redirects
+            // required to allow redirects and allow environment variables to
+            // be set
             process.StartInfo.UseShellExecute = false;
-            // do not start process in new window
-            process.StartInfo.CreateNoWindow = true;
+            // do not start process in new window unless we're spawning (if not,
+            // the console output of spawned application is not displayed on MS)
+            process.StartInfo.CreateNoWindow = !Spawn;
             process.StartInfo.WorkingDirectory = BaseDirectory.FullName;
 
             // set framework-specific environment variables if executing the 
