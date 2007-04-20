@@ -163,7 +163,7 @@ namespace NAnt.Core.Functions {
         /// </example>
         [Function("get-assembly-name")]
         public static AssemblyName GetAssemblyName(string assemblyFile) {
-            return AssemblyName.GetAssemblyName(assemblyFile); 
+            return AssemblyName.GetAssemblyName(Project.GetFullPath(assemblyFile)); 
         }
         
         #endregion Public Static Methods
