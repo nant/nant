@@ -682,33 +682,30 @@ namespace NAnt.DotNet.Tasks {
             // first one of the next execution of the resgen tool, then
             // add options to command line
             if (_arguments.Length == 0 || maxCmdLineExceeded) {
+                StringBuilder sb = new StringBuilder ();
+
+                // bug #1415272: first write assembly references, to make sure these
+                // are taken into account when calculating the length of the command
+                // line
+                if (SupportsAssemblyReferences) {
+                    foreach (string assembly in Assemblies.FileNames) {
+                        sb.AppendFormat (CultureInfo.InvariantCulture,
+                            "/r:\"{0}\" ", assembly);
+                    }
+                }
+
                 if (UseSourcePath) {
                     if (SupportsExternalFileReferences) {
-                        cmdLineArg = "/useSourcePath /compile " + cmdLineArg;
+                        sb.Append ("/useSourcePath ");
                     } else {
-                        cmdLineArg = "/compile " + cmdLineArg;
-
                         Log(Level.Warning, ResourceUtils.GetString(
                             "String_ResourceCompilerDoesNotSupportExternalReferences"), 
                             Project.TargetFramework.Description);
                     }
-                } else {
-                    StringBuilder sb = new StringBuilder ();
-
-                    // bug #1415272: first write assembly references, to make sure these
-                    // are taken into account when calculating the length of the command
-                    // line
-                    if (SupportsAssemblyReferences) {
-                        foreach (string assembly in Assemblies.FileNames) {
-                            sb.AppendFormat (CultureInfo.InvariantCulture,
-                                "/r:\"{0}\" ", assembly);
-                        }
-                    }
-                    sb.Append ("/compile ");
-                    sb.Append (cmdLineArg);
-
-                    cmdLineArg = sb.ToString ();
                 }
+                sb.Append ("/compile ");
+                sb.Append (cmdLineArg);
+                cmdLineArg = sb.ToString ();
             }
 
             // if maximum length would have been exceeded by compiling
