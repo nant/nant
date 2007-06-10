@@ -509,7 +509,10 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
-            OutputWriter.Flush();
+
+            lock (_lockObject) {
+                OutputWriter.Flush();
+            }
         }
 
         /// <summary>
@@ -536,7 +539,10 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
-            ErrorWriter.Flush();
+
+            lock (_lockObject) {
+                ErrorWriter.Flush();
+            }
         }
 
         /// <summary>
