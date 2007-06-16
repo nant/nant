@@ -305,57 +305,68 @@ namespace NAnt.Core.Util {
         /// <param name="sourceString"></param>
         /// <param name="delimiters"></param>
         /// <returns>the array of strings</returns>
-        string[] SplitStringNoNulls(string sourceString, char[] delimiters) {
-            
-            string[] basicSplit = sourceString.Split(delimiters);
-            
-            bool containsNulls = false;
-            if ( basicSplit.Length == 0) {
-                return basicSplit;
-            }
-            StringCollection intermediateResult = new StringCollection();
-            
-            foreach(string item in basicSplit) {
-                if (item.Length != 0 ) {
-                    intermediateResult.Add(item);
+        string[] ParseArguments(string sourceString, char[] delimiters) {
+            bool inQuotedArgument = false;
+            StringBuilder arg = new StringBuilder ();
+            StringCollection arguments = new StringCollection();
+
+            foreach (char c in sourceString) {
+                if (c == '"') {
+                    inQuotedArgument = !inQuotedArgument;
+                    continue;
+                }
+
+                if (!inQuotedArgument && IsDelimiter(c, delimiters)) {
+                    if (arg.Length > 0) {
+                        arguments.Add (arg.ToString ());
+                        arg.Length = 0;
+                    }
                 } else {
-                    containsNulls = true;
+                    arg.Append (c);
                 }
             }
-            // only make the extra copy of there are nulls.
-            if (containsNulls) {
-                string[] result = new string[intermediateResult.Count];
-                intermediateResult.CopyTo(result, 0);
-                return result;
-            } else {
-                return basicSplit;
+
+            if (arg.Length > 0) {
+                arguments.Add (arg.ToString ());
             }
+
+            string[] result = new string[arguments.Count];
+            arguments.CopyTo(result, 0);
+            return result;
         }
-        
+
+        private static bool IsDelimiter(char c, char[] delimiters) {
+            foreach (char delimiter in delimiters) {
+                if (c == delimiter) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Read a response file and parse the arguments as usual.
         /// </summary>
-        /// <param name="file"></param>
-        private void ProcessResponseFile(string file){
-         
-            // throw excaption if file doesn't exist
+        /// <param name="file">The response file to load arguments</param>
+        private void ProcessResponseFile(string file) {
+            char[] whitespaceChars = new char[] {' ', '\t'};
+
             StringCollection argsCol = new StringCollection();
-            char[] whitespaceChars = new char[]{' ', '\t'};
-            using (StreamReader sr = new StreamReader(file)) {
+            using (StreamReader sr = new StreamReader(file, Encoding.Default, true)) {
                 String line;
                 // Read and concat lines from the file until the end of 
                 // the file is reached.
                 while ((line = sr.ReadLine()) != null) {
                     line = line.Trim(whitespaceChars);
-                    if ( ! line.StartsWith("#")) {
-                        argsCol.AddRange( SplitStringNoNulls(line, whitespaceChars ));
+                    if (!line.StartsWith("#")) {
+                        argsCol.AddRange(ParseArguments(line, whitespaceChars));
                     }
                 }
                 string[] args = new string[argsCol.Count];
-                argsCol.CopyTo( args, 0 );
+                argsCol.CopyTo(args, 0);
                 
                 //parse as a regular argument list.
-                ParseArgumentList( args );
+                ParseArgumentList(args);
             }
         }
         /// <summary>
@@ -363,78 +374,81 @@ namespace NAnt.Core.Util {
         /// </summary>
         /// <param name="args"></param>
         private void ParseArgumentList(string[] args) {
-            if (args != null) {
-                foreach (string argument in args) {
-                    if (argument.Length > 0) {
-                        switch (argument[0]) {
-                            case '-':
-                            case '/':
-                                int endIndex = argument.IndexOfAny(new char[] {':', '+', '-'}, 1);
-                                string option = argument.Substring(1, endIndex == -1 ? argument.Length - 1 : endIndex - 1);
-                                string optionArgument;
+            if (args == null) {
+                return;
+            }
+             
+            foreach (string argument in args) {
+                if (argument.Length == 0) {
+                    continue;
+                }
+                switch (argument[0]) {
+                    case '-':
+                    case '/':
+                        int endIndex = argument.IndexOfAny(new char[] {':', '+', '-'}, 1);
+                        string option = argument.Substring(1, endIndex == -1 ? argument.Length - 1 : endIndex - 1);
+                        string optionArgument;
 
-                                if (option.Length + 1 == argument.Length) {
-                                    optionArgument = null;
-                                } else if (argument.Length > 1 + option.Length && argument[1 + option.Length] == ':') {
-                                    optionArgument = argument.Substring(option.Length + 2);
-                                } else {
-                                    optionArgument = argument.Substring(option.Length + 1);
-                                }
-                                
-                                CommandLineArgument arg = _argumentCollection[option];
-                                if (arg == null) {
-                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                        "Unknown argument '{0}'", argument));
-                                } else {
-                                    // check if argument is obsolete
-                                    Attribute[] attribs = (Attribute[]) arg.Property.GetCustomAttributes(
-                                        typeof(ObsoleteAttribute), false);
-                                    if (attribs.Length > 0) {
-                                        ObsoleteAttribute obsoleteAttrib = (ObsoleteAttribute) attribs[0];
-                                        string message = string.Format(CultureInfo.InvariantCulture, 
-                                            ResourceUtils.GetString("NA1177"), option, 
-                                            obsoleteAttrib.Message);
-                                        if (obsoleteAttrib.IsError) {
-                                            throw new CommandLineArgumentException(message);
-                                        } else {
-                                            Console.WriteLine(string.Empty);
-                                            Console.WriteLine("Warning: " + message);
-                                            Console.WriteLine(string.Empty);
-                                        }
-                                    }
-
-                                    if (arg.IsExclusive && args.Length > 1) {
-                                        throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                            "Commandline argument '-{0}' cannot be combined with other arguments.",
-                                            arg.LongName));
-                                    } else {
-                                        arg.SetValue(optionArgument);
-                                    }
-                                }
-                                break;
-                            case '@':
-                                if ( _supportsResponseFile ) {
-                                    string responseFile = argument.Substring(1, argument.Length - 1 );
-                                    if ( ! File.Exists(responseFile)) {
-                                        throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
-                                            "unable to open response file \"{0}\"", responseFile ));    
-                                    }
-                                    // load file and parse it.
-                                    ProcessResponseFile(responseFile);
-                                    break;
-                                }
-                                continue;
-                                
-                            default:
-                                if (_defaultArgument != null) {
-                                    _defaultArgument.SetValue(argument);
-                                } else {
-                                    throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
-                                        "Unknown argument '{0}'", argument));
-                                }
-                                break;
+                        if (option.Length + 1 == argument.Length) {
+                            optionArgument = null;
+                        } else if (argument.Length > 1 + option.Length && argument[1 + option.Length] == ':') {
+                            optionArgument = argument.Substring(option.Length + 2);
+                        } else {
+                            optionArgument = argument.Substring(option.Length + 1);
                         }
-                    }
+                        
+                        CommandLineArgument arg = _argumentCollection[option];
+                        if (arg == null) {
+                            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                "Unknown argument '{0}'", argument));
+                        } else {
+                            // check if argument is obsolete
+                            Attribute[] attribs = (Attribute[]) arg.Property.GetCustomAttributes(
+                                typeof(ObsoleteAttribute), false);
+                            if (attribs.Length > 0) {
+                                ObsoleteAttribute obsoleteAttrib = (ObsoleteAttribute) attribs[0];
+                                string message = string.Format(CultureInfo.InvariantCulture, 
+                                    ResourceUtils.GetString("NA1177"), option, 
+                                    obsoleteAttrib.Message);
+                                if (obsoleteAttrib.IsError) {
+                                    throw new CommandLineArgumentException(message);
+                                } else {
+                                    Console.WriteLine(string.Empty);
+                                    Console.WriteLine("Warning: " + message);
+                                    Console.WriteLine(string.Empty);
+                                }
+                            }
+
+                            if (arg.IsExclusive && args.Length > 1) {
+                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                    "Commandline argument '-{0}' cannot be combined with other arguments.",
+                                    arg.LongName));
+                            } else {
+                                arg.SetValue(optionArgument);
+                            }
+                        }
+                        break;
+                    case '@':
+                        if (_supportsResponseFile) {
+                            string responseFile = argument.Substring(1, argument.Length - 1);
+                            if (!File.Exists(responseFile)) {
+                                throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture, 
+                                    "Unable to open response file '{0}'.", responseFile));    
+                            }
+                            // load file and parse it.
+                            ProcessResponseFile(responseFile);
+                            break;
+                        }
+                        continue;
+                        
+                    default:
+                        if (_defaultArgument != null) {
+                            _defaultArgument.SetValue(argument);
+                        } else {
+                            throw new CommandLineArgumentException(string.Format(CultureInfo.InvariantCulture,
+                                "Unknown argument '{0}'", argument));
+                        }
+                        break;
                 }
             }
         }
