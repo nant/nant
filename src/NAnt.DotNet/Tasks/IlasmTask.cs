@@ -269,7 +269,7 @@ namespace NAnt.DotNet.Tasks {
         /// </remarks>
         [TaskAttribute("target", Required=true)]
         [StringValidator(AllowEmpty=false)]
-        public string Target  {
+        public string Target {
             get { return _target; }
             set { _target = StringUtils.ConvertEmptyToNull(value); }
         }
@@ -326,7 +326,7 @@ namespace NAnt.DotNet.Tasks {
         /// Corresponds to the <c>/OUTPUT</c> flag.
         /// </para>
         /// </remarks>
-        [TaskAttribute("output")]
+        [TaskAttribute("output", Required=true)]
         public FileInfo OutputFile {
             get { return _outputFile; }
             set { _outputFile = value; }
