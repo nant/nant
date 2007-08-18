@@ -526,7 +526,7 @@ namespace NAnt.Core {
                     }
 
                     // check if path is subdirectory of base directory
-                    if (compare.IsPrefix(path, baseDirectory)) {
+                    if (compare.IsPrefix(path, baseDirectory, compareOptions)) {
                         includedPatterns.Add(entry);
                     }
                 }
@@ -551,7 +551,7 @@ namespace NAnt.Core {
                     }
 
                     // check if path is subdirectory of base directory
-                    if (compare.IsPrefix(path, baseDirectory)) {
+                    if (compare.IsPrefix(path, baseDirectory, compareOptions)) {
                         excludedPatterns.Add(entry);
                     }
                 }
