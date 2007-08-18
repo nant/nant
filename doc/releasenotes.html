@@ -112,23 +112,10 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/tasks/resgen.html">&lt;resgen&gt;</a></h5>
-            <ul>
-                <li>
-                    If the embedded resource compiler for the target framework does 
-                    not support assembly references, then copy both the compiler
-                    compiler and related files (based on pattern matching) to the 
-                    intermediary compile directory
-                    (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1591991&amp;group_id=31650">#1591991</a>).
-                </li>
-            </ul>
-        </div>
-        <div style="margin-left: 20px;">
-            <h5>
                 <a class="heading" href="help/tasks/style.html">&lt;style&gt;</a></h5>
             <ul>
                 <li>
-                    Removed support for &lt;param&quot; child element, which was
+                    Removed support for &lt;param&gt; child element, which was
                     deprecated in NAnt 0.84 in favor of a &lt;parameters&gt;
                     element.
                 </li>
@@ -147,8 +134,6 @@
                     using the SMTP protocol over the network. [.NET 1.1 or higher]
                 </li>
             </ul>
-        </div>
-        <div style="margin-left: 20px;">
             <h5>
                 <a class="heading">Response File</a></h5>
             <ul>
@@ -185,6 +170,17 @@
                 </li>
             </ul>
             <h5>
+                <a class="heading" href="help/tasks/resgen.html">&lt;resgen&gt;</a></h5>
+            <ul>
+                <li>
+                    If the embedded resource compiler for the target framework does 
+                    not support assembly references, then copy both the compiler
+                    compiler and related files (based on pattern matching) to the 
+                    intermediary compile directory
+                    (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1591991&amp;group_id=31650">#1591991</a>).
+                </li>
+            </ul>
+            <h5>
                 <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
             <ul>
                 <li>
@@ -203,17 +199,6 @@
                 </li>
             </ul>
         </div>
-        <h4>Types</h4>
-        <div style="margin-left: 20px;">
-            <h5>
-                <a class="heading" href="help/types/fileset.html">&lt;fileset&gt;</a></h5>
-            <ul>
-                <li>
-                    Case differences are not always ignored on a case-insensitive filesystem
-                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1776101&amp;group_id=31650">1776101</a>).
-                </li>
-            </ul>
-        </div>
         <h4>Third-Party</h4>
         <div style="margin-left: 20px;">
             <h5>
@@ -222,6 +207,17 @@
                 <li>
                     Files with a compressed size of over 4GB cannot be added to zip archive
                     (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1698336&group_id=31650&atid=402868">1698336</a>).
+                </li>
+            </ul>
+        </div>
+        <h4>Types</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/types/fileset.html">&lt;fileset&gt;</a></h5>
+            <ul>
+                <li>
+                    Case differences are not always ignored on a case-insensitive filesystem
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1776101&amp;group_id=31650">1776101</a>).
                 </li>
             </ul>
         </div>
