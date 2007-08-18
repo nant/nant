@@ -543,6 +543,70 @@ namespace Tests.NAnt.Core {
             Assert.AreEqual(2, _scanner.FileNames.Count);
         }
 
+        /// <summary>
+        /// Test for bug #1776101.
+        /// </summary>
+        [Test]
+        public void Test_BaseDir_CaseSensitive() {
+            if (PlatformHelper.IsVolumeCaseSensitive (TempDirectory.FullName)) {
+                Assert.Ignore ("Only valid on case-insensitive file system");
+            }
+
+            TempFile.Create(Path.Combine(_folder3, "filea.txt"));
+            TempFile.Create(Path.Combine(_folder3, "fileb.tlb"));
+
+            _scanner.Includes.Add("folder2/folder3/*.txt");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#1");
+
+            _scanner.Includes.Add("Folder2/**/folder3/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(2, _scanner.FileNames.Count, "#2");
+
+            _scanner = new DirectoryScanner();
+            _scanner.BaseDirectory = TempDirectory;
+            _scanner.Includes.Add("**/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#3");
+
+            _scanner.Excludes.Add("folder2/folder3/*.txt");
+            _scanner.Excludes.Add("Folder2/**/folder3/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(0, _scanner.FileNames.Count, "#4");
+        }
+
+        /// <summary>
+        /// Test for bug #1776101.
+        /// </summary>
+        [Test]
+        public void Test_BaseDir_CaseInsensitive() {
+            if (!PlatformHelper.IsVolumeCaseSensitive (TempDirectory.FullName)) {
+                Assert.Ignore ("Only valid on case-sensitive file system");
+            }
+
+            TempFile.Create(Path.Combine(_folder3, "filea.txt"));
+            TempFile.Create(Path.Combine(_folder3, "fileb.tlb"));
+
+            _scanner.Includes.Add("folder2/folder3/*.txt");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#1");
+
+            _scanner.Includes.Add("Folder2/**/folder3/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#2");
+
+            _scanner = new DirectoryScanner();
+            _scanner.BaseDirectory = TempDirectory;
+            _scanner.Includes.Add("**/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#3");
+
+            _scanner.Excludes.Add("folder2/folder3/*.txt");
+            _scanner.Excludes.Add("Folder2/**/folder3/*.tlb");
+            _scanner.Scan();
+            Assert.AreEqual(1, _scanner.FileNames.Count, "#4");
+        }
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
