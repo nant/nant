@@ -54,21 +54,21 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Normal() {
             File.SetAttributes(_tempFileName, FileAttributes.Archive|FileAttributes.Hidden|FileAttributes.ReadOnly|FileAttributes.System);
-            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, _tempFileName + " should have Archive file attribute.");
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, "#1");
             if (! PlatformHelper.IsUnix ) {
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0, _tempFileName + " should have Hidden file attribute.");
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) != 0, _tempFileName + " should have System file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0, "#2");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) != 0, "#3");
             }
-            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0, _tempFileName + " should have ReadOnly file attribute.");
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0, "#4");
                 
             RunBuild(FormatBuildFile("normal='true'"));
             if (! PlatformHelper.IsUnix ) {
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0, _tempFileName + " should not have Archive file attribute.");
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0, _tempFileName + " should have Normal file attribute.");
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0, _tempFileName + " should not have Hidden file attribute.");
-                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) == 0, _tempFileName + " should not have System file attribute.");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0, "#5");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0, "#6");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0, "#7");
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) == 0, "#8");
             }           
-            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0, _tempFileName + " should not have ReadOnly file attribute.");
+            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) == 0, "#9");
         }
 
         /// <summary>
