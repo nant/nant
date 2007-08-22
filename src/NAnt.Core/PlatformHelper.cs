@@ -27,7 +27,6 @@ namespace NAnt.Core {
         public static readonly bool IsMono;
         public static readonly bool IsWin32;
         public static readonly bool IsUnix;
-        public static readonly bool PInvokeOK;
         
         static PlatformHelper() {
             // check a class in mscorlib to determine if we're running on Mono
@@ -48,42 +47,20 @@ namespace NAnt.Core {
             if (platform == 4 || platform == 128) {
                 IsUnix = true;
             }
-
-            if (IsWin32 && !IsMono) {
-                PInvokeOK = true;
-            }
         }
 
-        public static bool IsVolumeCaseSensitive(string path) {  
-            if (PInvokeOK) {
-                StringBuilder VolLabel = new StringBuilder(256);    // Label
-                UInt32 VolFlags = new UInt32();
-                StringBuilder FSName = new StringBuilder(256);  // File System Name
-                UInt32 SerNum = 0;
-                UInt32 MaxCompLen = 0;
-
-                PInvokeHelper.GetVolumeInformationWrapper(path, 
-                    VolLabel, 
-                    (UInt32) VolLabel.Capacity, 
-                    ref SerNum, 
-                    ref MaxCompLen, 
-                    ref VolFlags, 
-                    FSName, 
-                    (UInt32) FSName.Capacity);
-
-                return (((VolumeFlags) VolFlags) & VolumeFlags.CaseSensitive) == VolumeFlags.CaseSensitive;
-            }
+        public static bool IsVolumeCaseSensitive(string path) {
+            // GetVolumeInformation is useless, since it marks NTFS drives as
+            // case-sensitive and provides no information for non-root
+            // directories. 
+            // 
+            // This gave us the impression that it worked since a zero VolFlags
+            // would be considered as case-insensitive.
+            // 
+            // For now, we just return false on Unix and true in all other
+            // cases.
 
             return IsUnix;
-        }
-        
-        private class PInvokeHelper {
-            [DllImport("kernel32.dll")]
-            private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-
-            public static long GetVolumeInformationWrapper(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize) {
-                return GetVolumeInformation(PathName, VolumeNameBuffer, VolumeNameSize, ref VolumeSerialNumber, ref MaximumComponentLength, ref FileSystemFlags, FileSystemNameBuffer, FileSystemNameSize);
-            }
         }
     }
 }

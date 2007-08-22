@@ -465,8 +465,8 @@ namespace NAnt.Core {
         }
 
         private bool IsCaseSensitiveFileSystem(string path) {
-            // Windows (not case-sensitive) is backslash, others (e.g. Unix) are not
-            return (VolumeInfo.IsVolumeCaseSensitive(new Uri(Path.GetFullPath(path) + Path.DirectorySeparatorChar))); 
+            string fullPath = Path.GetFullPath(path);
+            return PlatformHelper.IsVolumeCaseSensitive(fullPath);
         }
 
         /// <summary>
@@ -940,8 +940,8 @@ namespace NAnt.Core {
         /// case-sensitive filesystem; otherwise, <see langword="false" />.
         /// </returns>
         private bool IsCaseSensitiveFileSystem(string path) {
-            return PlatformHelper.IsVolumeCaseSensitive(Path.GetFullPath(path) 
-                + Path.DirectorySeparatorChar); 
+            string fullPath = Path.GetFullPath(path);
+            return PlatformHelper.IsVolumeCaseSensitive(fullPath);
         }
 
         #endregion Private Instance Methods

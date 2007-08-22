@@ -265,11 +265,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "VolumeInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "XmlLogger.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
