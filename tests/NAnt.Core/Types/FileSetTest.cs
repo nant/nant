@@ -23,6 +23,7 @@ using System.Xml;
 
 using NUnit.Framework;
 
+using NAnt.Core;
 using NAnt.Core.Types;
 using Tests.NAnt.Core.Util;
 
@@ -58,6 +59,16 @@ reefer.maddness",
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
             string sub2Path = Path.Combine(TempDirName, "sub2");
             Directory.CreateDirectory(sub2Path);
+        }
+
+        [Test]
+        public void CaseSensitive () {
+            FileSet fileSet = new FileSet ();
+            Assert.AreEqual (PlatformHelper.IsUnix, fileSet.CaseSensitive, "#1");
+            fileSet.CaseSensitive = true;
+            Assert.IsTrue (fileSet.CaseSensitive, "#2");
+            fileSet.CaseSensitive = false;
+            Assert.IsFalse (fileSet.CaseSensitive, "#3");
         }
 
         [Test]
@@ -183,10 +194,11 @@ reefer.maddness",
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_IncludesFile_NotExists() {
-            const string buildXML = @"<project name=""fileset-test"">
-	                <fileset id=""whatever"">
-		                <includesfile name=""notexists.txt"" />
-	                </fileset>
+            const string buildXML = @"
+                <project name=""fileset-test"">
+                    <fileset id=""whatever"">
+                        <includesfile name=""notexists.txt"" />
+                    </fileset>
                 </project>";
 
             RunBuild(buildXML);
@@ -194,10 +206,11 @@ reefer.maddness",
 
         [Test]
         public void Test_IncludesFile_NotExists_Conditional() {
-            const string buildXML = @"<project name=""fileset-test"">
-	                <fileset id=""whatever"">
-		                <includesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
-	                </fileset>
+            const string buildXML = @"
+                <project name=""fileset-test"">
+                    <fileset id=""whatever"">
+                        <includesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
+                    </fileset>
                 </project>";
 
             RunBuild(buildXML);
@@ -206,10 +219,11 @@ reefer.maddness",
         [Test]
         [ExpectedException(typeof(TestBuildException))]
         public void Test_ExcludesFile_NotExists() {
-            const string buildXML = @"<project name=""fileset-test"">
-	                <fileset id=""whatever"">
-		                <excludesfile name=""notexists.txt"" />
-	                </fileset>
+            const string buildXML = @"
+                <project name=""fileset-test"">
+                    <fileset id=""whatever"">
+                        <excludesfile name=""notexists.txt"" />
+                    </fileset>
                 </project>";
 
             RunBuild(buildXML);
@@ -217,10 +231,142 @@ reefer.maddness",
 
         [Test]
         public void Test_ExcludesFile_NotExists_Conditional() {
-            const string buildXML = @"<project name=""fileset-test"">
-	                <fileset id=""whatever"">
-		                <excludesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
-	                </fileset>
+            const string buildXML = @"
+                <project name=""fileset-test"">
+                    <fileset id=""whatever"">
+                    <excludesfile name=""notexists.txt"" if=""${file::exists('notexists.txt')}"" />
+                    </fileset>
+                </project>";
+
+            RunBuild(buildXML);
+        }
+
+        [Test]
+        public void Matching_CaseInsensitive () {
+            _fileSet.CaseSensitive = false;
+            _fileSet.Includes.Add ("WoRLD.*");
+            _fileSet.Includes.Add ("Sub1/*.OnE");
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#1");
+
+            _fileSet.Excludes.Add ("WoRLD.peacE");
+            _fileSet.Scan ();
+            Assert.AreEqual(2, _fileSet.FileNames.Count, "#2");
+
+            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Scan ();
+            Assert.AreEqual(1, _fileSet.FileNames.Count, "#3");
+        }
+
+        [Test]
+        public void Matching_CaseSensitive () {
+            _fileSet.CaseSensitive = true;
+            _fileSet.Includes.Add ("WoRLD.*");
+            _fileSet.Includes.Add ("Sub1/*.OnE");
+            Assert.AreEqual(0, _fileSet.FileNames.Count, "#1");
+
+            _fileSet.Includes.Add ("world.*");
+            _fileSet.Includes.Add ("sub1/*.one");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#2");
+
+            _fileSet.Excludes.Add ("WoRLD.peacE");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#3");
+
+            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#4");
+        }
+
+        [Test]
+        public void Matching_Unix () {
+            if (!PlatformHelper.IsUnix) {
+                return;
+            }
+
+            _fileSet.Includes.Add ("WoRLD.*");
+            _fileSet.Includes.Add ("Sub1/*.OnE");
+            Assert.AreEqual(0, _fileSet.FileNames.Count, "#1");
+
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("world.*");
+            _fileSet.Includes.Add ("sub1/*.one");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#2");
+
+            _fileSet.Excludes.Add ("WoRLD.peacE");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#3");
+
+            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#4");
+
+            TempFile.Create(Path.Combine(TempDirName, "world.peacE"));
+
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("world.*");
+            _fileSet.Excludes.Clear ();
+            _fileSet.Scan ();
+            Assert.AreEqual (2, _fileSet.FileNames.Count, "#5");
+
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("su*/**");
+            _fileSet.Scan ();
+            Assert.AreEqual (1, _fileSet.FileNames.Count, "#6");
+
+            string sub1Path = Path.Combine(TempDirName, "suB1");
+            Directory.CreateDirectory(sub1Path);
+            TempFile.Create(Path.Combine(sub1Path, "sub.one"));
+
+            _fileSet.Scan ();
+            Assert.AreEqual (2, _fileSet.FileNames.Count, "#7");
+        }
+
+        [Test]
+        public void Matching_Windows () {
+            if (PlatformHelper.IsUnix) {
+                return;
+            }
+
+            _fileSet.Includes.Add ("WoRLD.*");
+            _fileSet.Includes.Add ("Sub1/*.OnE");
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#1");
+
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("world.*");
+            _fileSet.Includes.Add ("sub1/*.one");
+            _fileSet.Scan ();
+            Assert.AreEqual(3, _fileSet.FileNames.Count, "#2");
+
+            _fileSet.Excludes.Add ("WoRLD.peacE");
+            _fileSet.Scan ();
+            Assert.AreEqual(2, _fileSet.FileNames.Count, "#3");
+
+            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Scan ();
+            Assert.AreEqual(1, _fileSet.FileNames.Count, "#4");
+        }
+
+        [Test]
+        public void Bug1776101 () {
+            if (PlatformHelper.IsUnix) {
+                Assert.Ignore ("Only valid on non-Unix platform");
+            }
+
+            const string buildXML = @"
+                <project name=""fileset-test"">
+                    <mkdir dir=""Src/Api/test/bug1776101"" />
+                    <mkdir dir=""Src/Api/release/whatever"" />
+                    <touch file=""Src/Api/test/bug1776101/temp.tlb"" />
+                    <touch file=""Src/Api/release/whatever/temp.txt"" />
+                    <delete>
+                        <fileset>
+                            <include name=""Src/Api/**/*.tlb""/>
+                            <include name=""src/Api/**/Release/**"" />
+                        </fileset>
+                    </delete>
+                    <fail if=""${directory::exists('Src/Api/release/whatever')}"">#1</fail>
                 </project>";
 
             RunBuild(buildXML);

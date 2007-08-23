@@ -89,6 +89,12 @@ namespace NAnt.Core.Types {
     /// <c>**</c> is appended. For example, <c>mypackage/test/</c> is interpreted as 
     /// if it were <c>mypackage/test/**</c>.
     /// </para>
+    /// <h3>Case-Sensitivity</h3>
+    /// <para>
+    /// By default, pattern matching is case-sensitive on Unix and case-insensitive
+    /// on other platforms. The <see cref="CaseSensitive" /> parameter can be used
+    /// to override this.
+    /// </para>
     /// <h3>Default Excludes</h3>
     /// <para>
     /// There are a set of definitions that are excluded by default from all 
@@ -309,6 +315,17 @@ namespace NAnt.Core.Types {
         #endregion Public Instance Constructors
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// Indicates whether include and exclude patterns must be treated in a
+        /// case-sensitive way. The default is <see langword="true" /> on Unix;
+        /// otherwise, <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("casesensitive")]
+        public bool CaseSensitive {
+            get { return _scanner.CaseSensitive; }
+            set { _scanner.CaseSensitive = value; }
+        }
 
         /// <summary>
         /// When set to <see langword="true" />, causes the fileset element to 
