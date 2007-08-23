@@ -245,14 +245,14 @@ reefer.maddness",
         public void Matching_CaseInsensitive () {
             _fileSet.CaseSensitive = false;
             _fileSet.Includes.Add ("WoRLD.*");
-            _fileSet.Includes.Add ("Sub1/*.OnE");
+            _fileSet.Includes.Add ("Sub*/*.OnE");
             Assert.AreEqual(3, _fileSet.FileNames.Count, "#1");
 
             _fileSet.Excludes.Add ("WoRLD.peacE");
             _fileSet.Scan ();
             Assert.AreEqual(2, _fileSet.FileNames.Count, "#2");
 
-            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Excludes.Add ("SuB*/**");
             _fileSet.Scan ();
             Assert.AreEqual(1, _fileSet.FileNames.Count, "#3");
         }
@@ -261,7 +261,7 @@ reefer.maddness",
         public void Matching_CaseSensitive () {
             _fileSet.CaseSensitive = true;
             _fileSet.Includes.Add ("WoRLD.*");
-            _fileSet.Includes.Add ("Sub1/*.OnE");
+            _fileSet.Includes.Add ("Sub*/*.OnE");
             Assert.AreEqual(0, _fileSet.FileNames.Count, "#1");
 
             _fileSet.Includes.Add ("world.*");
@@ -273,7 +273,7 @@ reefer.maddness",
             _fileSet.Scan ();
             Assert.AreEqual(3, _fileSet.FileNames.Count, "#3");
 
-            _fileSet.Excludes.Add ("SuB1/**");
+            _fileSet.Excludes.Add ("SuB*/**");
             _fileSet.Scan ();
             Assert.AreEqual(3, _fileSet.FileNames.Count, "#4");
         }
@@ -308,7 +308,7 @@ reefer.maddness",
             _fileSet.Includes.Add ("world.*");
             _fileSet.Excludes.Clear ();
             _fileSet.Scan ();
-            Assert.AreEqual (2, _fileSet.FileNames.Count, "#5");
+            Assert.AreEqual (3, _fileSet.FileNames.Count, "#5");
 
             _fileSet.Includes.Clear ();
             _fileSet.Includes.Add ("su*/**");
@@ -321,6 +321,12 @@ reefer.maddness",
 
             _fileSet.Scan ();
             Assert.AreEqual (2, _fileSet.FileNames.Count, "#7");
+
+            _fileSet.CaseSensitive = false;
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("SuB1/*.one");
+            _fileSet.Excludes.Clear ();
+            Assert.AreEqual(0, _fileSet.FileNames.Count, "#8");
         }
 
         [Test]
@@ -346,6 +352,12 @@ reefer.maddness",
             _fileSet.Excludes.Add ("SuB1/**");
             _fileSet.Scan ();
             Assert.AreEqual(1, _fileSet.FileNames.Count, "#4");
+
+            _fileSet.CaseSensitive = true;
+            _fileSet.Includes.Clear ();
+            _fileSet.Includes.Add ("SuB1/*.one");
+            _fileSet.Excludes.Clear ();
+            Assert.AreEqual(1, _fileSet.FileNames.Count, "#5");
         }
 
         [Test]
