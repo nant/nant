@@ -751,6 +751,26 @@ namespace NAnt.Core.Types {
 
         #endregion Protected Instance Methods
 
+        #region Internal Instance Methods
+
+        internal string Find (string fileName) {
+            CompareOptions compareOptions = CompareOptions.None;
+            CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
+
+            if (!CaseSensitive)
+                compareOptions |= CompareOptions.IgnoreCase;
+
+            foreach (string file in FileNames) {
+                if (compare.Compare (Path.GetFileName (file), fileName, compareOptions) == 0) {
+                    return file;
+                }
+            }
+
+            return null;
+        }
+
+        #endregion Internal Instance Methods
+
         #region Public Static Methods
 
         /// <summary>
