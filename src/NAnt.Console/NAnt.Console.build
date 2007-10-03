@@ -12,15 +12,16 @@
         <!-- build NAnt.Console -->
         <csc target="exe" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <warnaserror>
-                <!-- do not consider deprecation warnings as errors on .NET 2.0 -->
-                <exclude number="618" if="${framework::get-target-framework() == 'net-2.0'}" />
+                <!-- do not consider deprecation warnings as errors on .NET 2.0 (and higher)-->
+                <exclude number="618" if="${framework::get-family(framework::get-target-framework())== 'net' and framework::get-version(framework::get-target-framework()) >= version::parse('2.0')}" />
             </warnaserror>
             <nowarn>
                 <!-- 
-                    mcs currently does not support /warnaserror option that takes list of
-                    warnings not to treat as errors, so we have to use /nowarn instead
+                    (g)mcs currently does not support /warnaserror option that
+                    takes list of warnings not to treat as errors, so we have
+                    to use /nowarn instead
                 -->
-                <warning number="618" if="${framework::get-target-framework() == 'mono-2.0'}" />
+                <warning number="618" if="${framework::get-family(framework::get-target-framework())== 'mono' and framework::get-version(framework::get-target-framework()) >= version::parse('2.0')}" />
             </nowarn>
             <sources failonempty="true">
                 <include name="**/*.cs" />
