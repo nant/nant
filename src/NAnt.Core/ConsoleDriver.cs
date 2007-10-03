@@ -21,6 +21,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -133,10 +134,24 @@ namespace NAnt.Core {
                 project.Properties.AddReadOnly(Project.NAntPropertyLocation, Path.GetDirectoryName(ass.Location));
 
                 if (cmdlineOptions.TargetFramework != null) {
-                    FrameworkInfo frameworkInfo = project.Frameworks[cmdlineOptions.TargetFramework];
+                    FrameworkInfo framework = project.Frameworks[cmdlineOptions.TargetFramework];
 
-                    if (frameworkInfo != null) {
-                        project.TargetFramework = frameworkInfo; 
+                    if (framework != null) {
+                        try {
+                            framework.Validate();
+                            project.TargetFramework = framework;
+                        } catch (Exception ex) {
+                            Console.Error.WriteLine("{0} ({1}) is not installed, or" +
+                                " not correctly configured.", framework.Description,
+                                framework.Name);
+                            // insert empty line
+                            Console.Error.WriteLine();
+                            // output exception message
+                            Console.Error.WriteLine(new string(' ', INDENTATION_SIZE) 
+                                + ex.Message);
+                            // signal error
+                            return 1;
+                        }
                     } else {
                         Console.Error.WriteLine("Invalid framework '{0}' specified.", 
                             cmdlineOptions.TargetFramework);
@@ -147,12 +162,19 @@ namespace NAnt.Core {
                         if (project.Frameworks.Count == 0) {
                             Console.Error.WriteLine("There are no supported frameworks available on your system.");
                         } else {
+                            ArrayList frameworks = new ArrayList(project.Frameworks.Count);
+                            frameworks.AddRange(project.Frameworks.Values);
+                            frameworks.Sort(new FrameworkNameComparer());
+
                             Console.Error.WriteLine("Possible values include:");
                             // insert empty line
                             Console.Error.WriteLine();
 
-                            foreach (string framework in project.Frameworks.Keys) {
-                                Console.Error.WriteLine(" {0} ({1})", framework, project.Frameworks[framework].Description);
+                            foreach (FrameworkInfo fi in frameworks) {
+                                if (fi.IsValid) {
+                                    Console.Error.WriteLine("{0} ({1})",
+                                        fi.Name, fi.Description);
+                                }
                             }
                         }
                         // signal error
@@ -184,9 +206,9 @@ namespace NAnt.Core {
                 // set initial indentation level for the nested exceptions
                 int exceptionIndentationLevel = 0;
                 while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                    // indent exception message with 4 extra spaces 
-                    // (for each nesting level)
-                    exceptionIndentationLevel += 4;
+                    // indent exception message with extra spaces (for each
+                    // nesting level)
+                    exceptionIndentationLevel += INDENTATION_SIZE;
                     // output exception message
                     Console.Error.WriteLine(new string(' ', exceptionIndentationLevel) 
                         + nestedException.Message);
@@ -224,9 +246,9 @@ namespace NAnt.Core {
                 // set initial indentation level for the nested exceptions
                 int exceptionIndentationLevel = 0;
                 while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
-                    // indent exception message with 4 extra spaces 
-                    // (for each nesting level)
-                    exceptionIndentationLevel += 4;
+                    // indent exception message with extra spaces (for each
+                    // nesting level)
+                    exceptionIndentationLevel += INDENTATION_SIZE;
                     // output exception message
                     Console.Error.WriteLine(new string(' ', exceptionIndentationLevel) 
                         + nestedException.Message);
@@ -557,5 +579,21 @@ namespace NAnt.Core {
         }
 
         #endregion Private Static Methods
+
+        #region Private Static Fields
+
+        private const int INDENTATION_SIZE = 4;
+
+        #endregion Private Static Fields
+
+        private class FrameworkNameComparer : IComparer {
+            public int Compare(object x, object y) {
+                FrameworkInfo fix = x as FrameworkInfo;
+                FrameworkInfo fiy = y as FrameworkInfo;
+
+                return string.Compare(fix.Name, fiy.Name,false, CultureInfo.InvariantCulture);
+            }
+        }
+
     }
 }

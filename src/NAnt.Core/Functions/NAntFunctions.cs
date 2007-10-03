@@ -385,22 +385,23 @@ namespace NAnt.Core.Functions {
         #region Public Instance Methods
 
         /// <summary>
-        /// Checks whether the specified framework exists.
+        /// Checks whether the specified framework exists, and is valid.
         /// </summary>
-        /// <param name="name">The framework to test.</param>
+        /// <param name="framework">The framework to test.</param>
         /// <returns>
-        /// <see langword="true" /> if the specified framework exists; otherwise,
+        /// <see langword="true" /> if the specified framework exists ; otherwise,
         /// <see langword="false" />.
         /// </returns>
         [Function("exists")]
-        public bool Exists(string name) {
-            return Project.Frameworks.ContainsKey(name);
+        public bool Exists(string framework) {
+            FrameworkInfo fi = Project.Frameworks [framework];
+            return (fi != null && fi.IsValid);
         }
 
         /// <summary>
         /// Checks whether the SDK for the specified framework is installed.
         /// </summary>
-        /// <param name="name">The framework to test.</param>
+        /// <param name="framework">The framework to test.</param>
         /// <returns>
         /// <see langword="true" /> if the SDK for specified framework is installed; 
         /// otherwise, <see langword="false" />.
@@ -408,12 +409,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetRuntimeFramework()" />
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("sdk-exists")]
-        public bool SdkExists(string name) {
-            if (Project.Frameworks.ContainsKey(name)) {
-                return (Project.Frameworks[name].SdkDirectory != null);
-            } else {
-                return false;
-            }
+        public bool SdkExists(string framework) {
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
+            return (fi.SdkDirectory != null);
         }
 
         /// <summary>
@@ -450,10 +449,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-family")]
         public string GetFamily(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return the family of the specified framework
-            return Project.Frameworks[framework].Family;
+            return fi.Family;
         }
 
         /// <summary>
@@ -468,10 +467,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-version")]
         public Version GetVersion(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return the family of the specified framework
-            return Project.Frameworks[framework].Version;
+            return fi.Version;
         }
 
         /// <summary>
@@ -486,10 +485,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-description")]
         public string GetDescription(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return the description of the specified framework
-            return Project.Frameworks[framework].Description;
+            return fi.Description;
         }
 
         /// <summary>
@@ -504,10 +503,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-clr-version")]
         public Version GetClrVersion(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return the family of the specified framework
-            return Project.Frameworks[framework].ClrVersion;
+            return fi.ClrVersion;
         }
 
         /// <summary>
@@ -522,10 +521,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-framework-directory")]
         public string GetFrameworkDirectory(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return full path to the framework directory of the specified framework
-            return Project.Frameworks[framework].FrameworkDirectory.FullName;
+            return fi.FrameworkDirectory.FullName;
         }
 
         /// <summary>
@@ -540,10 +539,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-assembly-directory")]
         public string GetAssemblyDirectory(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // return full path to the assembly directory of the specified framework
-            return Project.Frameworks[framework].FrameworkAssemblyDirectory.FullName;
+            return fi.FrameworkAssemblyDirectory.FullName;
         }
 
         /// <summary>
@@ -560,10 +559,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-sdk-directory")]
         public string GetSdkDirectory(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
             // get the SDK directory of the specified framework
-            DirectoryInfo sdkDirectory = Project.Frameworks[framework].SdkDirectory;
+            DirectoryInfo sdkDirectory = fi.SdkDirectory;
             // return directory or empty string if SDK is not installed
             return (sdkDirectory != null) ? sdkDirectory.FullName : string.Empty;
         }
@@ -582,10 +581,10 @@ namespace NAnt.Core.Functions {
         /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
         [Function("get-runtime-engine")]
         public string GetRuntimeEngine(string framework) {
-            // ensure the framework is valid
-            CheckFramework(framework);
-            // getthe runtime engine of the specified framework
-            FileInfo runtimeEngine = Project.Frameworks[framework].RuntimeEngine;
+            // obtain framework and ensure it's valid
+            FrameworkInfo fi = GetFramework(framework);
+            // get the runtime engine of the specified framework
+            FileInfo runtimeEngine = fi.RuntimeEngine;
             // return runtime engine or empty string if not defined
             return (runtimeEngine != null) ? runtimeEngine.FullName : string.Empty;
         }
@@ -599,10 +598,19 @@ namespace NAnt.Core.Functions {
         /// </summary>
         /// <param name="framework">The framework to check.</param>
         /// <exception cref="ArgumentException"><paramref name="framework" /> is not a valid framework identifier.</exception>
-        private void CheckFramework(string framework) {
-            if (!Project.Frameworks.ContainsKey(framework)) {
+        private FrameworkInfo GetFramework(string framework) {
+            if (framework == Project.TargetFramework.Name) {
+                return Project.TargetFramework;
+            }
+
+            FrameworkInfo fi = Project.Frameworks [framework];
+            if (fi == null) {
                 throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1096"), framework));
+            } else {
+                // ensure framework is valid
+                fi.Validate();
+                return fi;
             }
         }
 

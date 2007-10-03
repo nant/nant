@@ -163,6 +163,12 @@ namespace NAnt.Core {
             // process the framework nodes of the current platform
             ProcessFrameworks(platformNode);
 
+            // configure the runtime framework
+            Project.RuntimeFramework = ConfigureRuntimeFramework();
+
+            // configure the default target framework
+            Project.TargetFramework = ConfigureTargetFramework(platformNode);
+
             // process runtime framework task assemblies
             if (!ScannedTasks) {
                 LoadTasksTask loadTasks = new LoadTasksTask();
@@ -186,10 +192,6 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="platformNode">An <see cref="XmlNode" /> representing the platform on which NAnt is running.</param>
         private void ProcessFrameworks(XmlNode platformNode) {
-            // determine the framework family name
-            string frameworkFamily = PlatformHelper.IsMono ? "mono" : "net";
-            // determine the version of the current runtime framework
-            Version frameworkClrVersion = new Version(Environment.Version.ToString(3));
             // determine default targetframework
             string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
 
@@ -200,189 +202,14 @@ namespace NAnt.Core {
                     continue;
                 }
 
-                string name = null;
-                bool isRuntimeFramework = false;
+                FrameworkInfo framework = new FrameworkInfo(frameworkNode,
+                    NamespaceManager);
 
-                try {
-                    // get framework attributes
-                    name = GetXmlAttributeValue(frameworkNode, "name");
-
-                    string family = GetXmlAttributeValue(frameworkNode, "family");
-                    Version clrVersion = new Version(GetXmlAttributeValue(frameworkNode, "clrversion"));
-
-                    // check if we're processing the current runtime framework
-                    if (family == frameworkFamily && clrVersion == frameworkClrVersion) {
-                        isRuntimeFramework = true;
-                    } else {
-                        // if the name of the target framework, matches a valid 
-                        // existing framework with a higher or equal version, 
-                        // then skip further processing
-                        //
-                        // Note: the runtime framework can never be skipped
-                        if (Project.Frameworks.ContainsKey(name)) {
-                            FrameworkInfo existingFramework = Project.Frameworks[name];
-                            if (existingFramework.ClrVersion >= clrVersion) {
-                                continue;
-                            }
-                        }
-                    }
-
-                    // get framework-specific project node
-                    XmlNode projectNode = frameworkNode.SelectSingleNode("nant:project", 
-                        NamespaceManager);
-
-                    if (projectNode == null) {
-                        throw new BuildException("<project> node has not been defined.");
-                    }
-
-                    string tempBuildFile = Path.GetTempFileName();
-                    XmlTextWriter writer = null;
-                    Project frameworkProject = null;
-
-                    try {
-                        // write project to file
-                        writer = new XmlTextWriter(tempBuildFile, Encoding.UTF8);
-                        writer.WriteStartDocument(true);
-                        writer.WriteRaw(projectNode.OuterXml);
-                        writer.Flush();
-                        writer.Close();
-
-                        // use StreamReader to load build file from to avoid
-                        // having location information as part of the error
-                        // messages
-                        using (StreamReader sr = new StreamReader(new FileStream(tempBuildFile, FileMode.Open, FileAccess.Read, FileShare.Write), Encoding.UTF8)) {
-                            XmlDocument projectDoc = new XmlDocument();
-                            projectDoc.Load(sr);
-
-                            // create and execute project
-                            frameworkProject = new Project(projectDoc);
-                            frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                            frameworkProject.Execute();
-                        }
-                    } finally {
-                        if (writer != null) {
-                            writer.Close();
-                        }
-
-                        if (File.Exists(tempBuildFile)) {
-                            File.Delete(tempBuildFile);
-                        }
-                    }
-
-                    string description = frameworkProject.ExpandProperties(
-                        GetXmlAttributeValue(frameworkNode, "description"),
-                        Location.UnknownLocation);
-                    string version = frameworkProject.ExpandProperties(
-                        GetXmlAttributeValue(frameworkNode, "version"),
-                        Location.UnknownLocation);
-                    string runtimeEngine = frameworkProject.ExpandProperties(
-                        GetXmlAttributeValue(frameworkNode, "runtimeengine"),
-                        Location.UnknownLocation);
-                    string frameworkDir = frameworkProject.ExpandProperties(
-                        GetXmlAttributeValue(frameworkNode, "frameworkdirectory"),
-                        Location.UnknownLocation);
-                    string frameworkAssemblyDir = frameworkProject.ExpandProperties(
-                        GetXmlAttributeValue(frameworkNode, "frameworkassemblydirectory"),
-                        Location.UnknownLocation);
-                    string sdkDir = GetXmlAttributeValue(frameworkNode, "sdkdirectory");
-
-                    try {
-                        sdkDir = frameworkProject.ExpandProperties(sdkDir, 
-                            Location.UnknownLocation);
-                    } catch (BuildException) {
-                        // do nothing with this exception as a framework is still
-                        // considered valid if the sdk directory is not available
-                        // or not configured correctly
-                    }
-
-                    // create new FrameworkInfo instance, this will throw an
-                    // an exception if the framework is not valid
-                    FrameworkInfo info = new FrameworkInfo(name, 
-                        family,
-                        description, 
-                        new Version(version), 
-                        clrVersion,
-                        frameworkDir, 
-                        sdkDir, 
-                        frameworkAssemblyDir, 
-                        runtimeEngine, 
-                        frameworkProject);
-
-                    // get framework-specific environment nodes
-                    XmlNodeList environmentNodes = frameworkNode.SelectNodes("nant:environment/nant:env", 
-                        NamespaceManager);
-
-                    // process framework environment nodes
-                    info.EnvironmentVariables = ProcessFrameworkEnvironmentVariables(
-                        environmentNodes, info);
-
-                    // process framework task assemblies
-                    info.TaskAssemblies.Project = frameworkProject;
-                    info.TaskAssemblies.NamespaceManager = NamespaceManager;
-                    info.TaskAssemblies.Parent = frameworkProject; // avoid warnings by setting the parent of the fileset
-                    info.TaskAssemblies.ID = "internal-task-assemblies"; // avoid warnings by assigning an id
-                    XmlNode taskAssembliesNode = frameworkNode.SelectSingleNode(
-                        "nant:task-assemblies", NamespaceManager);
-                    if (taskAssembliesNode != null) {
-                        info.TaskAssemblies.Initialize(taskAssembliesNode, 
-                            frameworkProject.Properties, info);
-                    }
-
-                    // check if framework with this identifier already exists
-                    // and remove it if current framework has higher CLR version
-                    // or if the current framework is the runtime framework
-                    if (Project.Frameworks.ContainsKey(info.Name)) {
-                        FrameworkInfo existingFramework = Project.Frameworks[info.Name];
-                        if (info.ClrVersion > existingFramework.ClrVersion || isRuntimeFramework) {
-                            Project.Frameworks.Remove(info.Name);
-                        } else {
-                            continue;
-                        }
-                    }
-
-                    Project.Frameworks.Add(info.Name, info);
-
-                    if (isRuntimeFramework) {
-                        // framework matches current runtime, so set it as 
-                        // current target framework
-                        Project.RuntimeFramework = Project.TargetFramework = info;
-                    }
-                } catch (Exception ex) {
-                    if (isRuntimeFramework) {
-                        // current runtime framework is not correctly configured
-                        // in NAnt configuration file
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            ResourceUtils.GetString("NA1063"), 
-                            name), ex);
-                    } else {
-                        if (name != null && name == defaultTargetFramework) {
-                            Project.Log(Level.Warning, ResourceUtils.GetString("NA1181"), name, ex.Message);
-                            Project.Log(Level.Debug, ex.ToString());
-                            Project.Log(Level.Warning, "");
-                        } else {
-                            Project.Log(Level.Verbose, ResourceUtils.GetString("NA1182"), name, ex.Message);
-                            Project.Log(Level.Debug, ex.ToString());
-                            Project.Log(Level.Verbose, "");
-                        }
-                    }
-                }
-            }
-
-            if (Project.RuntimeFramework == null) {
-                // information about the current runtime framework should
-                // be added to the NAnt configuration file
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    ResourceUtils.GetString("NA1062"), frameworkFamily, 
-                    frameworkClrVersion.ToString()));
-            }
-
-            if (defaultTargetFramework != null && defaultTargetFramework != "auto") {
-                if (Project.Frameworks.ContainsKey(defaultTargetFramework)) {
-                    Project.TargetFramework = Project.Frameworks[defaultTargetFramework];
-                } else {
-                    Project.Log(Level.Warning, ResourceUtils.GetString("NA1178"), defaultTargetFramework, Project.RuntimeFramework.Name);
-                    Project.Log(Level.Warning, "");
-                }
+                // add framework before it's considered valid, since we
+                // want to inform users of possible configuration or
+                // installation issues when they explicitly target that
+                // framework
+                Project.Frameworks.Add(framework.Name, framework);
             }
         }
 
@@ -442,6 +269,79 @@ namespace NAnt.Core {
             }
 
             return frameworkEnvironment;
+        }
+
+        private FrameworkInfo ConfigureRuntimeFramework() {
+            ArrayList candidates = new ArrayList();
+
+            // determine the framework family name
+            string frameworkFamily = PlatformHelper.IsMono ? "mono" : "net";
+            // determine the version of the current runtime framework
+            Version frameworkClrVersion = new Version(Environment.Version.ToString(3));
+
+            // determine which framework configuration match the host CLR
+            foreach (FrameworkInfo framework in Project.Frameworks) {
+                if (framework.Family != frameworkFamily)
+                    continue;
+                if (framework.ClrVersion != frameworkClrVersion) {
+                    continue;
+                }
+                candidates.Add(framework);
+            }
+
+            FrameworkInfo selected = null;
+
+            for (int i = 0; i < candidates.Count; i++) {
+                FrameworkInfo current = (FrameworkInfo) candidates[i];
+                try {
+                    // validate
+                    current.Validate();
+                    if (selected != null) {
+                        if (selected.SdkDirectory != null) {
+                            continue;
+                        }
+                    }
+                    selected = current;
+                } catch {
+                    // only rethrow exception if we haven't yet found a valid
+                    // framework and we're dealing with the last candidate
+                    if (selected == null && i == (candidates.Count -1)) {
+                        throw;
+                    }
+                }
+            }
+
+            if (selected == null) {
+                // information about the current runtime framework should
+                // be added to the NAnt configuration file
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    ResourceUtils.GetString("NA1062"), frameworkFamily, 
+                    frameworkClrVersion.ToString()));
+            }
+
+            return selected;
+        }
+
+        private FrameworkInfo ConfigureTargetFramework(XmlNode platformNode) {
+            // determine default targetframework
+            string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
+
+            if (defaultTargetFramework == null || defaultTargetFramework == "auto") {
+                // no need to validate the framework since this was done in
+                // ConfigureRuntimeFramework
+                return Project.RuntimeFramework;
+            }
+
+            FrameworkInfo framework = Project.Frameworks [defaultTargetFramework];
+            if (framework == null) {
+                Project.Log(Level.Warning, ResourceUtils.GetString("NA1178"),
+                    defaultTargetFramework, Project.RuntimeFramework.Name);
+                Project.Log(Level.Warning, "");
+                return null;
+            }
+
+            framework.Validate();
+            return framework;
         }
 
         #endregion Private Instance Methods
