@@ -240,15 +240,11 @@ namespace NAnt.DotNet.Types {
                     }
 
                     if (Project.TargetFramework != null) {
-                        string frameworkDir = Project.TargetFramework.FrameworkAssemblyDirectory.FullName;
-                        string fullPath = Path.Combine(frameworkDir, pattern);
-
-                        // check whether an assembly matching the pattern
-                        // exists in the assembly directory of the current
-                        // framework
-                        if (File.Exists(fullPath)) {
-                            // found a system reference
-                            this.FileNames.Add(fullPath);
+                        string resolveAssembly = Project.TargetFramework.
+                            ResolveAssembly (pattern);
+                        if (resolveAssembly != null) {
+                            // found reference assembly
+                            this.FileNames.Add(resolveAssembly);
 
                             // continue with the next pattern
                             continue;
