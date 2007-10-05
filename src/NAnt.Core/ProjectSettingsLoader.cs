@@ -235,39 +235,6 @@ namespace NAnt.Core {
             }
         }
 
-        /// <summary>
-        /// Processes the framework environment variables.
-        /// </summary>
-        /// <param name="environmentNodes">An <see cref="XmlNodeList" /> representing framework environment variables.</param>
-        /// <param name="framework">The <see cref="FrameworkInfo" /> to obtain framework-specific information from.</param>
-        private EnvironmentVariableCollection ProcessFrameworkEnvironmentVariables(XmlNodeList environmentNodes, FrameworkInfo framework) {
-            EnvironmentVariableCollection frameworkEnvironment = null;
-
-            // initialize framework-specific environment variables
-            frameworkEnvironment = new EnvironmentVariableCollection();
-
-            foreach (XmlNode environmentNode in environmentNodes) {
-                // skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(environmentNode.NodeType == XmlNodeType.Element)) {
-                    continue;
-                }
-
-                // initialize element
-                EnvironmentVariable environmentVariable = new EnvironmentVariable();
-                environmentVariable.Parent = environmentVariable.Project = framework.Project;
-                environmentVariable.NamespaceManager = NamespaceManager;
-
-                // configure using xml node
-                environmentVariable.Initialize(environmentNode, framework.Project.Properties, 
-                    framework);
-
-                // add to collection of environment variables
-                frameworkEnvironment.Add(environmentVariable);
-            }
-
-            return frameworkEnvironment;
-        }
-
         private FrameworkInfo ConfigureRuntimeFramework() {
             ArrayList candidates = new ArrayList();
 
