@@ -192,9 +192,6 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="platformNode">An <see cref="XmlNode" /> representing the platform on which NAnt is running.</param>
         private void ProcessFrameworks(XmlNode platformNode) {
-            // determine default targetframework
-            string defaultTargetFramework = GetXmlAttributeValue(platformNode, "default");
-
             // deals with xml info from the config file, not build document.
             foreach (XmlNode frameworkNode in platformNode.SelectNodes("nant:framework", NamespaceManager)) {
                 // skip special elements like comments, pis, text, etc.
