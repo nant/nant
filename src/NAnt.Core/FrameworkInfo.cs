@@ -73,16 +73,16 @@ namespace NAnt.Core {
             _description = GetXmlAttributeValue(_frameworkNode, "description");
 
             if (_name == null) {
-                throw new ArgumentException("Invalid framework configuration.",
-                    "name");
+                throw new ArgumentException("The \"name\" attribute does not " +
+                    "exist, or has no value.");
             }
             if (_family == null) {
-                throw new ArgumentException("Invalid framework configuration.",
-                    "family");
+                throw new ArgumentException("The \"family\" attribute does " +
+                    "not exist, or has no value.");
             }
             if (_description == null) {
-                throw new ArgumentException("Invalid framework configuration.",
-                    "description");
+                throw new ArgumentException("The \"description\" attribute " +
+                    "does not exist, or has no value.");
             }
         }
 
@@ -256,7 +256,7 @@ namespace NAnt.Core {
         /// </value>
         public FileInfo RuntimeEngine {
             get {
-                EnsureInit ();
+                Init();
                 return _runtimeEngine; 
             }
         }
@@ -305,7 +305,7 @@ namespace NAnt.Core {
         /// </value>
         public DirectoryInfo SdkDirectory {
             get {
-                EnsureInit ();
+                Init();
                 return _sdkDirectory;
             }
         }
@@ -318,7 +318,7 @@ namespace NAnt.Core {
         /// </value>
         public Project Project {
             get {
-                EnsureInit ();
+                Init();
                 return _project;
             }
         }
@@ -467,43 +467,53 @@ namespace NAnt.Core {
         }
 
         internal void Validate() {
-            try {
-                PerformValidation();
-            } catch {
-                _status = InitStatus.Invalid;
-                throw;
-            }
-        }
-
-        private void PerformValidation() {
             if (_status == InitStatus.Valid) {
                 return;
             }
 
-            EnsureInit();
+            Init();
 
-            // verify is framework directory is configured, and indirectly
-            // check if it exists
-            if (FrameworkDirectory == null) {
-                throw new ArgumentNullException("frameworkDir", string.Format(CultureInfo.InvariantCulture,
-                    "Framework directory not configured for framework '{0}'.", Name));
+            try {
+                // verify is framework directory is configured, and indirectly
+                // check if it exists
+                if (FrameworkDirectory == null) {
+                    throw new ArgumentException("The \"frameworkdirectory\" " +
+                        "attribute does not exist, or has no value.");
+                }
+
+                // verify is framework assembly directory is configured, and 
+                // indirectly check if it exists
+                if (FrameworkAssemblyDirectory == null) {
+                    throw new ArgumentException("The \"frameworkassemblydirectory\" " +
+                        "attribute does not exist, or has no value.");
+                }
+
+                // mark framework valid
+                _status = InitStatus.Valid;
+            } catch (Exception ex) {
+                _status = InitStatus.Invalid;
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "{0} ({1}) is not installed, or not correctly configured.",
+                    Description, Name), Location.UnknownLocation, ex);
             }
-
-            // verify is framework assembly directory is configured, and 
-            // indirectly check if it exists
-            if (FrameworkAssemblyDirectory == null) {
-                throw new ArgumentNullException("frameworkAssemblyDir", string.Format(CultureInfo.InvariantCulture,
-                    "Framework assembly directory not configured for framework '{0}'.", Name));
-            }
-
-            _status = InitStatus.Valid;
         }
 
         #endregion Public Instance Methods
 
         #region Private Instance Methods
 
-        private void EnsureInit() {
+        private void Init() {
+            try {
+                PerformInit();
+            } catch (Exception ex) {
+                _status = InitStatus.Invalid;
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    "Failed to initialize the '{0}' ({1}) target framework.",
+                    Description, Name), Location.UnknownLocation, ex);
+            }
+        }
+
+        private void PerformInit() {
             if (_status != InitStatus.Uninitialized) {
                 return;
             }
@@ -513,7 +523,7 @@ namespace NAnt.Core {
                 NamespaceManager);
 
             if (projectNode == null) {
-                throw new BuildException("<project> node has not been defined.");
+                throw new ArgumentException("No <project> node is defined.");
             }
 
             string tempBuildFile = Path.GetTempFileName();
@@ -559,7 +569,8 @@ namespace NAnt.Core {
                     _runtimeEngine = new FileInfo(runtimeEngine);
                 } else {
                     throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "Runtime engine '{0}' does not exist.", runtimeEngine));
+                        CultureInfo.InvariantCulture, "Runtime engine '{0}'" +
+                        " does not exist.", runtimeEngine));
                 }
             }
 
