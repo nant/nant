@@ -445,7 +445,7 @@ namespace NAnt.Core {
                     // throw exception because of id and ref
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1183")),
-                        dataType.Location);
+                        parent.Project.LocationMap.GetLocation(childNode));
                 }
 
                 if (parent.Project.DataTypeReferences.Contains(dataType.RefID)) {
@@ -456,7 +456,7 @@ namespace NAnt.Core {
                     // reference not found exception
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1184"), dataType.Name, dataType.RefID), 
-                        dataType.Location);
+                        parent.Project.LocationMap.GetLocation(childNode));
                 }
                 if (!elementType.IsAssignableFrom(dataType.GetType())) {
                     // see if we have a valid copy constructor
@@ -472,7 +472,8 @@ namespace NAnt.Core {
                         // throw error wrong type definition
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("NA1185"), 
-                            dataTypeAttr.Name, elementTypeAttr.Name), Location.UnknownLocation);
+                            dataTypeAttr.Name, elementTypeAttr.Name),
+                            parent.Project.LocationMap.GetLocation(childNode));
                     }
                 }
                 // re-initialize the object with current context
