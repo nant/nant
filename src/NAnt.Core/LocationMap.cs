@@ -107,7 +107,8 @@ namespace NAnt.Core {
                     if ((reader.NodeType != XmlNodeType.Whitespace) &&
                         (reader.NodeType != XmlNodeType.EndElement) &&
                         (reader.NodeType != XmlNodeType.ProcessingInstruction) &&
-                        (reader.NodeType != XmlNodeType.XmlDeclaration)) {
+                        (reader.NodeType != XmlNodeType.XmlDeclaration) &&
+                        (reader.NodeType != XmlNodeType.DocumentType)) {
 
                         int level = reader.Depth;
                         string currentXPath = "";
@@ -116,7 +117,7 @@ namespace NAnt.Core {
                         if (reader.Depth < previousDepth) {
                             // Clear vars for new depth
                             string[] list = parentXPath.Split('/');
-                            string newXPath = ""; // once appended to / will be root node ...
+                            string newXPath = ""; // once appended to / will be root node
 
                             for (int j = 1; j < level+1; j++) {
                                 newXPath += "/" + list[j];
@@ -172,7 +173,6 @@ namespace NAnt.Core {
 
             // add map at the end to prevent adding maps that had errors
             _fileMap.Add(fileName, map);
-
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace NAnt.Core {
                     }
                 }
 
-                nav.MoveToParent(); // do loop condition here               
+                nav.MoveToParent(); // do loop condition here
                 index++; // Convert to 1 based index
 
                 string thisNode = "child::node()[" + index.ToString(CultureInfo.InvariantCulture) + "]";

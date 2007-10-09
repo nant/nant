@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE cruisecontrol [ 
+  <!ENTITY simple.repro.entity "simple.repro.message">
+]>
+<project name="bug1809994" default="simple.repro.target.fail">
+  <fileset id="simple.repro.fileset">
+    <include name="**" />
+  </fileset>
+
+  <target name="simple.repro.target.fail">
+    <foreach item="File" property="filename">
+      <in>
+        <items refid="simple.repro.fileset" />
+      </in>
+      <do>
+        <echo message="&simple.repro.entity; ${filename}" />
+      </do>
+    </foreach>
+  </target>
+
+  <target name="simple.repro.target.success">
+    <echo message="&simple.repro.entity;" />
+    <foreach item="String" in="1 2,3" delim=" ," property="count">
+      <echo message="&simple.repro.entity; ${count}" />
+    </foreach>
+
+    <foreach item="File" property="filename">
+      <in>
+        <items>
+          <include name="**" />
+        </items>
+      </in>
+      <do>
+        <echo message="&simple.repro.entity; ${filename}" />
+      </do>
+    </foreach>
+  </target>
+</project>
