@@ -20,6 +20,7 @@
 
 using System;
 using System.IO;
+using System.Collections;
 using System.Configuration;
 using System.Reflection;
 using System.Globalization;
@@ -54,49 +55,6 @@ namespace NAnt.Console {
 
         #endregion Static Constructor
 
-        #region Private Static Properties
-
-        private static string FrameworkVersion {
-            get {
-                if (_frameworkVersion != null) {
-                    return _frameworkVersion;
-                }
-
-#if NET_2_0
-                XmlNode nantNode = (XmlNode) ConfigurationManager.GetSection("nant");
-#else
-                XmlNode nantNode = (XmlNode) ConfigurationSettings.GetConfig("nant");
-#endif
-                if (nantNode == null) { 
-                    System.Console.WriteLine("The \"nant\" section in the NAnt"
-                        + " configuration file ({0}) is not available.",
-                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-                    return null;
-                }
-
-                XmlElement frameworkNode = (XmlElement) nantNode.SelectSingleNode("frameworks/platform[@name='" + Platform + "']/framework[@family='" + FrameworkFamily + "' and @clrversion='" + Environment.Version.ToString(3) + "']");
-                
-                if (frameworkNode == null) {
-                    System.Console.WriteLine("The NAnt configuration file ({0})"
-                        + " does not have a <framework> node for the current"
-                        + " runtime framework.", 
-                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-                    System.Console.WriteLine(string.Empty);
-                    System.Console.WriteLine("Please add a <framework> node"
-                        + " with family '{0}' and clrversion '{1}' under the"
-                        + " '{2}' platform node.", FrameworkFamily, 
-                        Environment.Version.ToString(3), Platform);
-                    return null;
-                } else {
-                    _frameworkVersion = frameworkNode.GetAttribute("version");
-                }
-
-                return _frameworkVersion;
-            }
-        }
-
-        #endregion Private Static Properties
-
         #region Public Static Methods
 
         /// <summary>
@@ -117,12 +75,14 @@ namespace NAnt.Console {
             string nantCleanupShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles.cleanup");
 #endif
 
-            if (FrameworkVersion == null) {
+            Framework runtimeFramework = Framework.GetRuntimeFramework();
+            if (runtimeFramework == null) {
                 // signal error
                 return 1;
             }
 
-            string privateBinPath = ConstructPrivateBinPath(AppDomain.CurrentDomain.BaseDirectory);
+            string privateBinPath = ConstructPrivateBinPath(runtimeFramework,
+                AppDomain.CurrentDomain.BaseDirectory);
 
             if (nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
                 logger.Debug(string.Format(
@@ -269,33 +229,18 @@ namespace NAnt.Console {
         ///   families (eg. mono 1.0 == .NET 1.1).
         ///   </para>
         /// </remarks>
+        /// <param name="runtimeFramework">The runtime framework.</param>
         /// <param name="baseDir">The base directory of the domain.</param>
         /// <returns>
         /// The privatebinpath.
         /// </returns>
-        private static string ConstructPrivateBinPath (string baseDir) {
-            string libDir = Path.Combine (baseDir, "lib");
-            string familyDir = Path.Combine(libDir, FrameworkFamily);
-            string commonDir = Path.Combine(libDir, "common");
-
+        private static string ConstructPrivateBinPath (Framework runtimeFramework, string baseDir) {
             StringBuilder sb = new StringBuilder ();
 
-            // add lib/<family>/<version> dir to privatebinpath if it exists
-            string familyVersionDir = Path.Combine (familyDir, FrameworkVersion);
-            AppendPrivateBinDir(baseDir, familyVersionDir, sb);
-
-            // add lib/<family>/neutral dir to privatebinpath if it exists
-            string frameworkNeutralDir = Path.Combine (familyDir, "neutral");
-            AppendPrivateBinDir(baseDir, frameworkNeutralDir, sb);
-
-            // add lib/common>/<version> dir to privatebinpath if it exists
-            string commonVersionDir = Path.Combine(commonDir,
-                Environment.Version.ToString(2));
-            AppendPrivateBinDir(baseDir, commonVersionDir, sb);
-
-            // add lib/common>/neutral dir to privatebinpath if it exists
-            string commonNeutralDir = Path.Combine (commonDir, "neutral");
-            AppendPrivateBinDir(baseDir, commonNeutralDir, sb);
+            foreach (string probePath in runtimeFramework.ProbePaths) {
+                string fullDir = Path.Combine (baseDir, probePath);
+                AppendPrivateBinDir(baseDir, fullDir, sb);
+            }
 
             // add privatebinpath of current domain to privatebinpath 
             if (AppDomain.CurrentDomain.SetupInformation.PrivateBinPath != null) {
@@ -416,7 +361,6 @@ namespace NAnt.Console {
 
         private static readonly string FrameworkFamily;
         private static readonly string Platform;
-        private static string _frameworkVersion;
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -526,6 +470,66 @@ namespace NAnt.Console {
                 System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             #endregion Private Static Fields
+        }
+
+        private class Framework {
+            private readonly string _version;
+            private readonly string[] _probePaths;
+
+            private Framework (string version, string [] probePaths) {
+                _version = version;
+                _probePaths = probePaths;
+            }
+
+            public string Version {
+                get { return _version; }
+            }
+
+            public string [] ProbePaths {
+                get { return _probePaths; }
+            }
+
+            public static Framework GetRuntimeFramework () {
+#if NET_2_0
+                XmlNode nantNode = (XmlNode) ConfigurationManager.GetSection("nant");
+#else
+                XmlNode nantNode = (XmlNode) ConfigurationSettings.GetConfig("nant");
+#endif
+                if (nantNode == null) { 
+                    System.Console.WriteLine("The \"nant\" section in the NAnt"
+                        + " configuration file ({0}) is not available.",
+                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                    return null;
+                }
+
+                XmlElement frameworkNode = (XmlElement) nantNode.SelectSingleNode("frameworks/platform[@name='" + Platform + "']/framework[@family='" + FrameworkFamily + "' and @clrversion='" + Environment.Version.ToString(3) + "']");
+                if (frameworkNode == null) {
+                    System.Console.WriteLine("The NAnt configuration file ({0})"
+                        + " does not have a <framework> node for the current"
+                        + " runtime framework.", 
+                        AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                    System.Console.WriteLine(string.Empty);
+                    System.Console.WriteLine("Please add a <framework> node"
+                        + " with family '{0}' and clrversion '{1}' under the"
+                        + " '{2}' platform node.", FrameworkFamily, 
+                        Environment.Version.ToString(3), Platform);
+                    return null;
+                }
+
+                string frameworkVersion = frameworkNode.GetAttribute("version");
+
+                XmlNodeList includeNodes = frameworkNode.SelectNodes("runtime/probing-paths/include");
+                ArrayList includes = new ArrayList (includeNodes.Count);
+                foreach (XmlNode node in includeNodes) {
+                    XmlElement includeNode = (XmlElement) node;
+                    string name = includeNode.GetAttribute("name");
+                    includes.Add (name);
+                }
+
+                string[] probePaths = new string[includes.Count];
+                includes.CopyTo (probePaths, 0);
+                return new Framework(frameworkVersion, probePaths);
+            }
         }
     }
 }
