@@ -260,12 +260,12 @@ namespace NAnt.Core {
                 try {
                     // validate
                     current.Validate();
-                    if (selected != null) {
-                        if (selected.SdkDirectory != null) {
-                            continue;
-                        }
-                    }
                     selected = current;
+                    if (selected.SdkDirectory != null) {
+                        // if we found a matching framework with a valid
+                        // SDK, then skip further candidates
+                        break;
+                    }
                 } catch {
                     // only rethrow exception if we haven't yet found a valid
                     // framework and we're dealing with the last candidate
