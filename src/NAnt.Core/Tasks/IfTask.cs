@@ -69,7 +69,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>Tests the value of a property using expressions.</para>
     ///   <code>
     ///     <![CDATA[
-    /// <if test="${build.configuration='release'}">
+    /// <if test="${build.configuration=='release'}">
     ///     <echo>Build release configuration</echo>
     /// </if>
     ///     ]]>
