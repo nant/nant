@@ -686,7 +686,7 @@ namespace NAnt.Core {
                     if (UnprocessedAttributes.Count > 0) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             ResourceUtils.GetString("NA1027"), 
-                            UnprocessedAttributes[0], Element.XmlNode.Name),
+                            UnprocessedAttributes[0], ElementXml.Name),
                             Location);
                     }
 
@@ -694,8 +694,8 @@ namespace NAnt.Core {
                         // check if there are unused nested build elements
                         if (UnprocessedChildNodes.Count > 0) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                ResourceUtils.GetString("NA1032"), Element.Name, UnprocessedChildNodes[0]), 
-                                Location);
+                                ResourceUtils.GetString("NA1032"), ElementXml.Name,
+                                UnprocessedChildNodes[0]), Location);
                         }
                     }
                 }
@@ -730,8 +730,8 @@ namespace NAnt.Core {
                                 // throw BuildException if required
                                 if (frameworkAttribute.Required) {
                                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                        ResourceUtils.GetString("NA1015"), 
-                                        frameworkAttribute.Name, Name), 
+                                        ResourceUtils.GetString("NA1015"),
+                                        frameworkAttribute.Name, ElementXml.Name),
                                         Location, ex);
                                 }
 
@@ -744,7 +744,8 @@ namespace NAnt.Core {
                         if (frameworkAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 ResourceUtils.GetString("NA1015"), 
-                                frameworkAttribute.Name, Name), Location);
+                                frameworkAttribute.Name, ElementXml.Name),
+                                Location);
                         }
                     }
                 }
@@ -800,10 +801,10 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                ResourceUtils.GetString("NA1014"), 
-                                buildAttribute.Name, Name, obsoleteAttribute.Message);
+                                ResourceUtils.GetString("NA1014"), buildAttribute.Name,
+                                ElementXml.Name, obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
-                                throw new BuildException(obsoleteMessage, 
+                                throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
                                 Element.Log(Level.Warning, Location.ToString() 
@@ -815,7 +816,7 @@ namespace NAnt.Core {
                         if (buildAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                                 ResourceUtils.GetString("NA1033"), 
-                                buildAttribute.Name, Name), Location);
+                                buildAttribute.Name, ElementXml.Name), Location);
                         }
                     }
                 }
@@ -833,7 +834,7 @@ namespace NAnt.Core {
                     logger.Debug(string.Format(
                         CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("String_SettingValue"), 
-                        propertyInfo.Name, 
+                        propertyInfo.Name,
                         attributeValue,
                         propertyInfo.DeclaringType.Name));
 
@@ -913,8 +914,8 @@ namespace NAnt.Core {
                 if (propertyInfo.PropertyType.IsArray) {
                     if (!propertyInfo.CanWrite) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1016"), 
-                            buildElementArrayAttribute.Name, Name), 
+                            ResourceUtils.GetString("NA1016"),
+                            buildElementArrayAttribute.Name, Name),
                             Location);
                     }
 
@@ -924,8 +925,8 @@ namespace NAnt.Core {
                 } else {
                     if (!propertyInfo.CanRead) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1019"), 
-                            buildElementArrayAttribute.Name, Name), 
+                            ResourceUtils.GetString("NA1019"),
+                            buildElementArrayAttribute.Name, Name),
                             Location);
                     }
 
@@ -958,8 +959,8 @@ namespace NAnt.Core {
                     
                     if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1021"), 
-                            buildElementCollectionAttribute.Name, Name), 
+                            ResourceUtils.GetString("NA1021"),
+                            buildElementCollectionAttribute.Name, ElementXml.Name),
                             Location);
                     }
 
@@ -970,8 +971,8 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                ResourceUtils.GetString("NA1034"), 
-                                buildElementCollectionAttribute.Name, Name, 
+                                ResourceUtils.GetString("NA1034"),
+                                buildElementCollectionAttribute.Name, ElementXml.Name,
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage,
@@ -987,9 +988,9 @@ namespace NAnt.Core {
 
                         string elementName = buildElementCollectionAttribute.ChildElementName;
                         if (elementName == null) {
-                            throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                ResourceUtils.GetString("NA1026"), 
-                                elementType.FullName, buildElementCollectionAttribute.Name, 
+                            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA1026"),
+                                elementType.FullName, buildElementCollectionAttribute.Name,
                                 Name), Location);
                         }
 
@@ -1000,19 +1001,19 @@ namespace NAnt.Core {
                         // check if its required
                         if (collectionNodes.Count == 0 && buildElementCollectionAttribute.Required) {
                             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                ResourceUtils.GetString("NA1021"), 
-                                elementName, buildElementCollectionAttribute.Name), 
+                                ResourceUtils.GetString("NA1021"),
+                                elementName, buildElementCollectionAttribute.Name),
                                 Location);
                         }
                     } else if (collectionNodes.Count > 1) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             ResourceUtils.GetString("NA1030"),
-                            buildElementCollectionAttribute.Name, 
+                            buildElementCollectionAttribute.Name,
                             Name), Location);
                     }
                 } else {
                     collectionNodes = ElementXml.SelectNodes("nant:" 
-                        + buildElementArrayAttribute.Name, 
+                        + buildElementArrayAttribute.Name,
                         NamespaceManager);
 
                     if (collectionNodes.Count > 0) {
@@ -1022,8 +1023,8 @@ namespace NAnt.Core {
                         // emit warning or error if attribute is deprecated
                         if (obsoleteAttribute != null) {
                             string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                                ResourceUtils.GetString("NA1034"), 
-                                buildElementArrayAttribute.Name, Name, 
+                                ResourceUtils.GetString("NA1034"),
+                                buildElementArrayAttribute.Name, ElementXml.Name,
                                 obsoleteAttribute.Message);
                             if (obsoleteAttribute.IsError) {
                                 throw new BuildException(obsoleteMessage,
@@ -1038,8 +1039,8 @@ namespace NAnt.Core {
                         UnprocessedChildNodes.Remove(collectionNodes[0].Name);
                     } else if (buildElementArrayAttribute.Required) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1035"), 
-                            buildElementArrayAttribute.Name, Name), 
+                            ResourceUtils.GetString("NA1035"),
+                            buildElementArrayAttribute.Name, ElementXml.Name),
                             Location);
                     }
                 }
@@ -1118,13 +1119,13 @@ namespace NAnt.Core {
                         if (!propertyInfo.CanWrite) {
                             if (buildElementArrayAttribute != null) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    ResourceUtils.GetString("NA1093"), 
-                                    buildElementArrayAttribute.Name, Name), 
+                                    ResourceUtils.GetString("NA1093"),
+                                    buildElementArrayAttribute.Name, Name),
                                     Location);
                             } else {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                    ResourceUtils.GetString("NA1029"), 
-                                    buildElementCollectionAttribute.Name, Name), 
+                                    ResourceUtils.GetString("NA1029"),
+                                    buildElementCollectionAttribute.Name, Name),
                                     Location);
                             }
                         }
@@ -1132,7 +1133,7 @@ namespace NAnt.Core {
                         object instance = Activator.CreateInstance(
                             propertyInfo.PropertyType, BindingFlags.Public | BindingFlags.Instance, 
                             null, null, CultureInfo.InvariantCulture);
-                        propertyInfo.SetValue(Element, instance, 
+                        propertyInfo.SetValue(Element, instance,
                             BindingFlags.Default, null, null, CultureInfo.InvariantCulture);
                     }
 
@@ -1161,16 +1162,16 @@ namespace NAnt.Core {
                 // when element is initialized from application configuration file,
                 // there's no DocumentElement
                 if (ElementXml.OwnerDocument.DocumentElement == null) {
-                    nestedElementNode = ElementXml[buildElementAttribute.Name]; 
+                    nestedElementNode = ElementXml[buildElementAttribute.Name];
                 } else {
                     nestedElementNode = ElementXml[buildElementAttribute.Name, ElementXml.OwnerDocument.DocumentElement.NamespaceURI]; 
                 }
 
                 // check if its required
                 if (nestedElementNode == null && buildElementAttribute.Required) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        ResourceUtils.GetString("NA1013"), 
-                        buildElementAttribute.Name, Name), Location);
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                        ResourceUtils.GetString("NA1013"),
+                        buildElementAttribute.Name, ElementXml.Name), Location);
                 }
 
                 if (nestedElementNode != null) {
@@ -1190,8 +1191,9 @@ namespace NAnt.Core {
                     // the first element it encounters
                     if (ElementXml.SelectNodes("nant:" + buildElementAttribute.Name, NamespaceManager).Count > 1) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                             ResourceUtils.GetString("NA1186"),
-                            Name, buildElementAttribute.Name), Location);
+                            ResourceUtils.GetString("NA1186"),
+                            ElementXml.Name, buildElementAttribute.Name),
+                            Location);
                     }
                 }
 
@@ -1305,7 +1307,8 @@ namespace NAnt.Core {
                 if (requiredMethods.Count > 0) {
                     foreach (DictionaryEntry entry in requiredMethods) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1021"), (string) entry.Key, Name), Location);
+                            ResourceUtils.GetString("NA1021"), (string) entry.Key,
+                            ElementXml.Name), Location);
                     }
                 }
             }
