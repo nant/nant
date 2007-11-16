@@ -27,6 +27,7 @@ using System.Reflection;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Configuration;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -583,10 +584,7 @@ namespace NAnt.Core.Functions {
         public string GetRuntimeEngine(string framework) {
             // obtain framework and ensure it's valid
             FrameworkInfo fi = GetFramework(framework);
-            // get the runtime engine of the specified framework
-            FileInfo runtimeEngine = fi.RuntimeEngine;
-            // return runtime engine or empty string if not defined
-            return (runtimeEngine != null) ? runtimeEngine.FullName : string.Empty;
+            return fi.RuntimeEngine;
         }
 
         #endregion Public Instance Methods
