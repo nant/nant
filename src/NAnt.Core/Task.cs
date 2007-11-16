@@ -22,6 +22,7 @@
 // Gert Driesen (gert.driesen@ardatis.com)
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Xml;
@@ -383,10 +384,15 @@ namespace NAnt.Core {
                             // holds the attribute value converted to the property type
                             object propertyValue = null;
 
-                            // If the object is an emum
+                            // If the object is an enum
                             if (propertyType.IsEnum) {
                                 try {
-                                    propertyValue = Enum.Parse(propertyType, attributeValue);
+                                    TypeConverter tc = TypeDescriptor.GetConverter(propertyType);
+                                    if (!(tc.GetType() == typeof(EnumConverter))) {
+                                        propertyValue = tc.ConvertFrom(attributeValue);
+                                    } else {
+                                        propertyValue = Enum.Parse(propertyType, attributeValue);
+                                    }
                                 } catch (Exception) {
                                     // catch type conversion exceptions here
                                     string message = "Invalid configuration value \"" + attributeValue + "\". Valid values for this attribute are: ";
