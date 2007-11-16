@@ -2,15 +2,57 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace NAnt.Core.Types
-{
+namespace NAnt.Core.Types {
+    /// <summary>
+    /// Specifies the execution mode for managed applications.
+    /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   For backward compatibility, the following string values can also be
+    ///   used in build files:
+    ///   </para>
+    ///   <list type="table">
+    ///     <listheader>
+    ///       <term>Value</term>
+    ///       <description>Corresponding field</description>
+    ///     </listheader>
+    ///     <item>
+    ///       <term>&quot;true&quot;</term>
+    ///       <description><see cref="Auto" /></description>
+    ///     </item>
+    ///     <item>
+    ///       <term>&quot;false&quot;</term>
+    ///       <description><see cref="Default" /></description>
+    ///     </item>
+    ///   </list>
+    ///   <para>
+    ///   Even if set to <see cref="Default" />, the operating system can still
+    ///   run the program as a managed application.
+    ///   </para>
+    ///   <para>On Linux this can be done through <b>binfmt_misc</b>, while on
+    ///   Windows installing the .NET Framework redistributable caused managed
+    ///   applications to run on the MS CLR by default.
+    ///   </para>
+    /// </remarks>
     [TypeConverter(typeof(ManagedExecutionConverter))]
-	public enum ManagedExecution
-	{
+    public enum ManagedExecution {
+        /// <summary>
+        /// Do not threat the program as a managed application.
+        /// </summary>
         Default,
+
+        /// <summary>
+        /// Leave it up to the CLR to determine which specific version of
+        /// the CLR will be used to run the application.
+        /// </summary>
         Auto,
+
+        /// <summary>
+        /// Forces an application to run against the currently targeted
+        /// version of a given CLR.
+        /// </summary>
         Strict
-	}
+    }
 
     /// <summary>
     /// Specialized <see cref="EnumConverter" /> that also supports 
