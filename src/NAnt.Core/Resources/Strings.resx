@@ -88,7 +88,7 @@
         <value>'{0}' is a required framework configuration setting for &lt;{1} ... /&gt;.</value>
     </data>
     <data name="NA1016">
-        <value>BuildElementArrayAttribute cannot be applied to read-only array-based properties. '{0}' element for &lt;{1} .../&gt;.</value>        
+        <value>BuildElementArrayAttribute cannot be applied to read-only array-based properties. '{0}' element for &lt;{1} .../&gt;.</value>
     </data>
     <data name="NA1018">
         <value>BuildElementArrayAttribute cannot be applied to read-only property with  uninitialized collection-based value '{0}' element for &lt;{1} ... /&gt;.</value>
@@ -97,7 +97,7 @@
         <value>BuildElementArrayAttribute cannot be applied to write-only collection-based properties. '{0}' element for &gt;{1} .../&lt;.</value>
     </data>
     <data name="NA1020">
-        <value>Child element type {0} cannot be added to collection {1} for underlying property {2} for &lt;{3} ... /&gt;.</value>      
+        <value>Child element type {0} cannot be added to collection {1} for underlying property {2} for &lt;{3} ... /&gt;.</value>
     </data>
     <data name="NA1021"> <!-- 3 times -->
         <value>There must be a least one '{0}' element for &lt;{1} .../&gt;.</value>
@@ -124,10 +124,10 @@
         <value>Use BuildElementArrayAttributes to have array like elements!  There must be at most one '{0}' element for &lt;{1} ... /&gt;.</value>
     </data>
     <data name="NA1031">
-        <value>BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for &lt;{1} .../&gt;.</value>        
+        <value>BuildElementArrayAttribute and BuildElementCollection attributes must be applied to array or collection-based types '{0}' element for &lt;{1} .../&gt;.</value>
     </data>
     <data name="NA1032">
-        <value>The &lt;{0}&gt; type does not support the nested build element "{1}".</value>       
+        <value>&lt;{0}&gt; does not support the nested build element "{1}".</value>
     </data>
     <data name="NA1033">
         <value>'{0}' is a required attribute of &lt;{1} ... /&gt;.</value>
