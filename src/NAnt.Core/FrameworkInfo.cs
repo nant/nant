@@ -24,6 +24,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
 
+using NAnt.Core.Configuration;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -46,9 +47,8 @@ namespace NAnt.Core {
         private DirectoryInfo _frameworkDirectory;
         private DirectoryInfo _sdkDirectory;
         private DirectoryInfo _frameworkAssemblyDirectory;
-        private FileInfo _runtimeEngine;
+        private Runtime _runtime;
         private Project _project;
-        private EnvironmentVariableCollection _environmentVariables;
         private FileSet _taskAssemblies;
         private FileSet[] _referenceAssemblies;
         private InitStatus _status = InitStatus.Uninitialized;
@@ -99,9 +99,8 @@ namespace NAnt.Core {
             _frameworkDirectory = (DirectoryInfo) info.GetValue("FrameworkDirectory", typeof(DirectoryInfo));
             _sdkDirectory = (DirectoryInfo) info.GetValue("SdkDirectory", typeof(DirectoryInfo));
             _frameworkAssemblyDirectory = (DirectoryInfo) info.GetValue("FrameworkAssemblyDirectory", typeof(DirectoryInfo));
-            _runtimeEngine = (FileInfo) info.GetValue("RuntimeEngine", typeof(FileInfo));
+            _runtime = (Runtime) info.GetValue("Runtime", typeof(Runtime));
             _project = (Project) info.GetValue("Project", typeof(Project));
-            _environmentVariables = (EnvironmentVariableCollection) info.GetValue("EnvironmentVariables", typeof(EnvironmentVariableCollection));
             _taskAssemblies = (FileSet) info.GetValue("TaskAssemblies", typeof(FileSet));
             _referenceAssemblies = (FileSet[]) info.GetValue("ReferenceAssemblies", typeof(FileSet[]));
             _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
@@ -121,9 +120,8 @@ namespace NAnt.Core {
                 info.AddValue("FrameworkDirectory", FrameworkDirectory);
                 info.AddValue("SdkDirectory", SdkDirectory);
                 info.AddValue("FrameworkAssemblyDirectory", FrameworkAssemblyDirectory);
-                info.AddValue("RuntimeEngine", RuntimeEngine);
+                info.AddValue("Runtime", Runtime);
                 info.AddValue("Project", Project);
-                info.AddValue("EnvironmentVariables", EnvironmentVariables);
                 info.AddValue("TaskAssemblies", TaskAssemblies);
                 info.AddValue("ReferenceAssemblies", ReferenceAssemblies);
             }
@@ -247,17 +245,18 @@ namespace NAnt.Core {
                 return _frameworkDirectory;
             }
         }
+
         /// <summary>
-        /// Gets the path to the runtime engine for this framework.
+        /// Gets the runtime information for this framework.
         /// </summary>
         /// <value>
-        /// The path to the runtime engine for the framework or <see langword="null" />
-        /// if no runtime engine is configured for the framework.
+        /// The runtime information for the framework or <see langword="null" />
+        /// if no runtime information is configured for the framework.
         /// </value>
-        public FileInfo RuntimeEngine {
+        internal Runtime Runtime {
             get {
                 Init();
-                return _runtimeEngine; 
+                return _runtime;
             }
         }
        
@@ -324,30 +323,6 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets or sets the collection of environment variables that should be 
-        /// passed to external programs that are launched in the runtime engine 
-        /// of the current framework.
-        /// </summary>
-        /// <value>
-        /// The collection of environment variables that should be passed to 
-        /// external programs that are launched in the runtime engine of the
-        /// current framework.
-        /// </value>
-        public EnvironmentVariableCollection EnvironmentVariables {
-            get {
-                if (_environmentVariables == null) {
-                    // get framework-specific environment nodes
-                    XmlNodeList environmentNodes = _frameworkNode.SelectNodes("nant:environment/nant:env", 
-                        NamespaceManager);
-
-                    // process framework environment nodes
-                    _environmentVariables = ProcessFrameworkEnvironmentVariables(
-                        environmentNodes);
-                }
-                return _environmentVariables; }
-        }
-
-        /// <summary>
         /// Gets the set of assemblies and directories that should scanned for
         /// NAnt tasks, types or functions.
         /// </summary>
@@ -397,7 +372,7 @@ namespace NAnt.Core {
 
         #region Internal Instance Properties
 
-        internal FileSet [] ReferenceAssemblies {
+        internal FileSet[] ReferenceAssemblies {
             get {
                 if (_referenceAssemblies == null) {
                     // reference assemblies
@@ -416,6 +391,23 @@ namespace NAnt.Core {
                     }
                 }
                 return _referenceAssemblies;
+            }
+        }
+
+        internal string RuntimeEngine {
+            get {
+                if (Runtime == null) {
+                    return string.Empty;
+                }
+
+                ManagedExecutionMode mode = Runtime.Modes.GetExecutionMode (ManagedExecution.Auto);
+                if (mode != null) {
+                    RuntimeEngine engine = mode.Engine;
+                    if (engine.Program != null) {
+                        return engine.Program.FullName;
+                    }
+                }
+                return string.Empty;
             }
         }
 
@@ -466,6 +458,10 @@ namespace NAnt.Core {
             return resolvedAssembly;
         }
 
+        #endregion Public Instance Methods
+
+        #region Internal Instance Methods
+
         internal void Validate() {
             if (_status == InitStatus.Valid) {
                 return;
@@ -498,7 +494,7 @@ namespace NAnt.Core {
             }
         }
 
-        #endregion Public Instance Methods
+        #endregion Internal Instance Methods
 
         #region Private Instance Methods
 
@@ -560,18 +556,13 @@ namespace NAnt.Core {
                 }
             }
 
-            // if runtime engine is blank assume we aren't using one
-            string runtimeEngine = frameworkProject.ExpandProperties(
-                GetXmlAttributeValue(_frameworkNode, "runtimeengine"),
-                Location.UnknownLocation);
-            if (!StringUtils.IsNullOrEmpty(runtimeEngine)) {
-                if (File.Exists(runtimeEngine)) {
-                    _runtimeEngine = new FileInfo(runtimeEngine);
-                } else {
-                    throw new ArgumentException(string.Format(
-                        CultureInfo.InvariantCulture, "Runtime engine '{0}'" +
-                        " does not exist.", runtimeEngine));
-                }
+            XmlNode runtimeNode = _frameworkNode.SelectSingleNode ("runtime",
+                NamespaceManager);
+            if (runtimeNode != null) {
+                _runtime = new Runtime ();
+                _runtime.Parent = _runtime.Project = frameworkProject;
+                _runtime.NamespaceManager = NamespaceManager;
+                _runtime.Initialize(runtimeNode, frameworkProject.Properties, this);
             }
 
             // the sdk directory does not actually have to exist for a
@@ -585,38 +576,6 @@ namespace NAnt.Core {
 
             _project = frameworkProject;
             _status = InitStatus.Initialized;
-        }
-
-        /// <summary>
-        /// Processes the framework environment variables.
-        /// </summary>
-        /// <param name="environmentNodes">An <see cref="XmlNodeList" /> representing framework environment variables.</param>
-        private EnvironmentVariableCollection ProcessFrameworkEnvironmentVariables(XmlNodeList environmentNodes) {
-            EnvironmentVariableCollection frameworkEnvironment = null;
-
-            // initialize framework-specific environment variables
-            frameworkEnvironment = new EnvironmentVariableCollection();
-
-            foreach (XmlNode environmentNode in environmentNodes) {
-                // skip non-nant namespace elements and special elements like comments, pis, text, etc.
-                if (!(environmentNode.NodeType == XmlNodeType.Element)) {
-                    continue;
-                }
-
-                // initialize element
-                EnvironmentVariable environmentVariable = new EnvironmentVariable();
-                environmentVariable.Parent = environmentVariable.Project = Project;
-                environmentVariable.NamespaceManager = NamespaceManager;
-
-                // configure using xml node
-                environmentVariable.Initialize(environmentNode, Project.Properties,
-                    this);
-
-                // add to collection of environment variables
-                frameworkEnvironment.Add(environmentVariable);
-            }
-
-            return frameworkEnvironment;
         }
 
         #endregion Private Instance Methods
