@@ -30,6 +30,7 @@ using System.Threading;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Configuration;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
@@ -44,7 +45,7 @@ namespace NAnt.Core.Tasks {
         private StreamReader _stdError;
         private StreamReader _stdOut;
         private ArgumentCollection _arguments = new ArgumentCollection();
-        private bool _managed;
+        private ManagedExecution _managed = ManagedExecution.Default;
         private string _exeName;
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
@@ -191,8 +192,14 @@ namespace NAnt.Core.Tasks {
         [FrameworkConfigurable("useruntimeengine")]
         [Obsolete("Use the managed attribute and Managed property instead.", false)]
         public virtual bool UseRuntimeEngine {
-            get { return Managed; }
-            set { Managed = value; }
+            get { return Managed != ManagedExecution.Default; }
+            set {
+                if (value) {
+                    Managed = ManagedExecution.Auto;
+                } else {
+                    Managed = ManagedExecution.Default;
+                }
+            }
         }
 
         /// <summary>
@@ -205,7 +212,7 @@ namespace NAnt.Core.Tasks {
         /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [FrameworkConfigurable("managed")]
-        public virtual bool Managed {
+        public virtual ManagedExecution Managed {
             get { return _managed; }
             set { _managed = value; }
         }
@@ -398,13 +405,7 @@ namespace NAnt.Core.Tasks {
             get {
                 // append any nested <arg> arguments to the command line
                 StringBuilder arguments = new StringBuilder(ProgramArguments);
-
-                foreach (Argument arg in Arguments) {
-                    if (arg.IfDefined && !arg.UnlessDefined) {
-                        arguments.Append(' ');
-                        arguments.Append(arg.ToString());
-                    }
-                }
+                Arguments.ToString(arguments);
                 return arguments.ToString();
             }
         }
@@ -419,10 +420,18 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <param name="process">The <see cref="Process" /> of which the <see cref="ProcessStartInfo" /> should be updated.</param>
         protected virtual void PrepareProcess(Process process){
+            ManagedExecutionMode executionMode = ManagedExecutionMode;
+
             // create process (redirect standard output to temp buffer)
-            if (Project.TargetFramework != null && Managed && Project.TargetFramework.RuntimeEngine != null) {
-                process.StartInfo.FileName = Project.TargetFramework.RuntimeEngine.FullName;
-                process.StartInfo.Arguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\" {1}", ProgramFileName, CommandLine);
+            if (executionMode != null && executionMode.Engine != null) {
+                process.StartInfo.FileName = executionMode.Engine.Program.FullName;
+                StringBuilder arguments = new StringBuilder();
+                executionMode.Engine.Arguments.ToString (arguments);
+                if (arguments.Length >= 0) {
+                    arguments.Append (' ');
+                }
+                arguments.AppendFormat("\"{0}\" {1}", ProgramFileName, CommandLine);
+                process.StartInfo.Arguments = arguments.ToString();
             } else {
                 process.StartInfo.FileName = ProgramFileName;
                 process.StartInfo.Arguments = CommandLine;
@@ -442,8 +451,8 @@ namespace NAnt.Core.Tasks {
             // set framework-specific environment variables if executing the 
             // external process using the runtime engine of the currently
             // active framework
-            if (Project.TargetFramework != null && Managed) {
-                foreach (EnvironmentVariable environmentVariable in Project.TargetFramework.EnvironmentVariables) {
+            if (executionMode != null) {
+                foreach (EnvironmentVariable environmentVariable in executionMode.Environment.EnvironmentVariables) {
                     if (environmentVariable.IfDefined && !environmentVariable.UnlessDefined) {
                         if (environmentVariable.Value == null) {
                             process.StartInfo.EnvironmentVariables[environmentVariable.VariableName] = "";
@@ -602,6 +611,20 @@ namespace NAnt.Core.Tasks {
                 fullPath = ExeName;
             }
             return fullPath;
+        }
+
+        private ManagedExecutionMode ManagedExecutionMode {
+            get {
+                if (Project.TargetFramework == null || Managed == ManagedExecution.Default) {
+                    return null;
+                }
+
+                Runtime runtime = Project.TargetFramework.Runtime;
+                if (runtime != null) {
+                    return runtime.Modes.GetExecutionMode (Managed);
+                }
+                return null;
+            }
         }
 
         #endregion Private Instance Methods
