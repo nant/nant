@@ -276,7 +276,8 @@
                 <a class="heading" >.NET Framework 3.5</a></h5>
             <ul>
                 <li>
-                    Support for targeting .NET Framework 3.5 is now available.
+                    Support for targeting .NET Framework 3.5 and Mono 3.5
+                    Profile is now available.
                 </li>
             </ul>
             <h5>
@@ -287,6 +288,37 @@
                     and Moonlight 1.1.
                 </li>
             </ul>
+            <h5>
+                <a class="heading" >Strict execution</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Introduced support for forcing a managed application to run
+                    on the currently targeted CLR.
+                </p>
+                <p>
+                    This was previously only possible using constructs specific
+                    to each CLR (eg. using <b>COMPLUS_VERSION</b> environment
+                    variable for the MS CLR), which made build scripts
+                    non-portable.
+                </p>
+                <p>
+                    Developers extending NAnt, can set the <code>Managed</code> property
+                    for tasks deriving from <code>ExternalProgramBase</code>.
+                </p>
+                <p>
+                    For build authors, forcing a managed application to run on a
+                    specific version of a CLR can done by setting the
+                    &quot;managed&quot; attribute of <code><a href="help/tasks/exec.html">&lt;exec&gt;</a></code>
+                    to <b>strict</b>.
+                </p>
+                <p>For example:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">exec</span> <span class="xmlattribute">program</span><span class="xmltext">="nunit-console.exe"</span> <span class="xmlattribute">managed</span><span class="xmltext">="strict"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">value</span><span class="xmltext">="/noshadow" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">file</span><span class="xmltext">="Cegeka.HealthFramework.Tests.dll" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">exec</span><span class="xmltext">&gt;</span>
+                </pre>
+            </div>
         </div>
         <div style="margin-left: 20px;">
             <h5>
