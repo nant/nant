@@ -1449,11 +1449,7 @@ namespace NAnt.Core {
             }
 
             Properties["nant.settings.currentframework.frameworkassemblydirectory"] = TargetFramework.FrameworkAssemblyDirectory.FullName;
-            if (TargetFramework.RuntimeEngine != null) {
-                Properties["nant.settings.currentframework.runtimeengine"] = TargetFramework.RuntimeEngine.Name;
-            } else {
-                Properties["nant.settings.currentframework.runtimeengine"] = "";
-            }
+            Properties["nant.settings.currentframework.runtimeengine"] = TargetFramework.RuntimeEngine;
         }
 
         private XmlNode GetConfigurationNode() {
