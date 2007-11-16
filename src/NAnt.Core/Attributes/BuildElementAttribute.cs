@@ -27,10 +27,6 @@ namespace NAnt.Core.Attributes {
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Should only be applied to properties exposing strongly typed arrays or 
-    /// strongly typed collections.
-    /// </para>
-    /// <para>
     /// The XML format is like this:
     /// <code>
     ///     <![CDATA[
