@@ -94,7 +94,6 @@ namespace NAnt.Core.Tasks {
         private FileInfo _output;
         private bool _outputAppend;
         private EnvironmentSet _environmentSet = new EnvironmentSet();
-        private bool _managed;
         private string _resultProperty;
         private string _processIdProperty;
 
@@ -194,8 +193,8 @@ namespace NAnt.Core.Tasks {
         [FrameworkConfigurable("useruntimeengine")]
         [Obsolete("Use the managed attribute and Managed property instead.", false)]
         public override bool UseRuntimeEngine {
-            get { return Managed; }
-            set { Managed = value; }
+            get { return base.UseRuntimeEngine ; }
+            set { base.UseRuntimeEngine = value; }
         }
 
         /// <summary>
@@ -209,9 +208,9 @@ namespace NAnt.Core.Tasks {
         /// </value>
         [TaskAttribute("managed")]
         [FrameworkConfigurable("managed")]
-        public override bool Managed {
-            get { return _managed; }
-            set { _managed = value; }
+        public override ManagedExecution Managed {
+            get { return base.Managed; }
+            set { base.Managed = value; }
         }
 
         /// <summary>
