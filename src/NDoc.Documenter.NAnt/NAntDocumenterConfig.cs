@@ -61,8 +61,8 @@ namespace NDoc.Documenter.NAnt {
             ShowMissingValues = false;
             DocumentAttributes = true; 
             DocumentEmptyNamespaces = false;
-            DocumentInternals = true;
-            DocumentPrivates = true;
+            DocumentInternals = false;
+            DocumentPrivates = false;
             DocumentProtected = true;
             SkipNamespacesWithoutSummaries = false;
         }
