@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.Text;
 
 namespace NAnt.Core.Types {
     /// <summary>
@@ -84,6 +85,16 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Public Instance Properties
+
+        #region Override implementation of Object
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            ToString (sb);
+            return sb.ToString ();
+        }
+
+        #endregion Override implementation of Object
 
         #region Public Instance Methods
         
@@ -188,8 +199,23 @@ namespace NAnt.Core.Types {
         public void Remove(Argument item) {
             base.List.Remove(item);
         }
-        
+
         #endregion Public Instance Methods
+
+        #region Internal Instance Methods
+
+        internal void ToString(StringBuilder sb) {
+            foreach (Argument arg in this) {
+                if (arg.IfDefined && !arg.UnlessDefined) {
+                    if (sb.Length > 0) {
+                        sb.Append(' ');
+                    }
+                    sb.Append(arg.ToString());
+                }
+            }
+        }
+
+        #endregion Internal Instance Methods
     }
 
     /// <summary>
