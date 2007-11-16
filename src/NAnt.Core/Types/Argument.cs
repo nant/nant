@@ -67,6 +67,7 @@ namespace NAnt.Core.Types {
     ///     ]]>
     ///   </code>
     /// </example>
+    [Serializable]
     [ElementName("arg")]
     public class Argument : Element {
         #region Private Instance Fields
