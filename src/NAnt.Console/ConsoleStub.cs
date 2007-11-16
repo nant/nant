@@ -518,7 +518,7 @@ namespace NAnt.Console {
 
                 string frameworkVersion = frameworkNode.GetAttribute("version");
 
-                XmlNodeList includeNodes = frameworkNode.SelectNodes("runtime/probing-paths/include");
+                XmlNodeList includeNodes = frameworkNode.SelectNodes("runtime/probing-paths/directory");
                 ArrayList includes = new ArrayList (includeNodes.Count);
                 foreach (XmlNode node in includeNodes) {
                     XmlElement includeNode = (XmlElement) node;
