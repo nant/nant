@@ -32,7 +32,7 @@ namespace NAnt.DotNet.Types {
     /// Specialized <see cref="FileSet" /> class for managing resource files.
     /// </summary>
     [ElementName("resourcefileset")]
-    public sealed class ResourceFileSet : FileSet, ICloneable {
+    public class ResourceFileSet : FileSet, ICloneable {
         #region Public Instance Constructors
 
         /// <summary>
