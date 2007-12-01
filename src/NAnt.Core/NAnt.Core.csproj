@@ -355,6 +355,36 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Configuration\DirectoryName.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Configuration\DirList.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Configuration\ManagedExecutionMode.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Configuration\ManagedExecutionModes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Configuration\Runtime.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Configuration\RuntimeEngine.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Extensibility\ExtensionAssembly.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -754,6 +784,11 @@
                 />
                 <File
                     RelPath = "Types\FormatterCollection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\ManagedExecution.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
