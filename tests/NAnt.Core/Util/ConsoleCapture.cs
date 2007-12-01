@@ -48,7 +48,7 @@ namespace Tests.NAnt.Core.Util {
         public ConsoleCapture() {
             _oldWriter = System.Console.Out;
             _oldErrorWriter = System.Console.Error;
-            _writer = new StringWriter();
+            _writer = new ConsoleWriter();
             System.Console.SetOut(_writer);
             System.Console.SetError(_writer);
         }
@@ -67,11 +67,8 @@ namespace Tests.NAnt.Core.Util {
 
         public void Dispose() {
             if (!_disposed) {
-                _writer.Flush();
-                _writer.Close();
-                System.Console.SetOut(_oldWriter);
-                System.Console.SetError(_oldErrorWriter);
-                
+                Close ();
+                _writer.Close ();
             }
             _disposed = true;
             GC.SuppressFinalize(this);
@@ -102,7 +99,10 @@ namespace Tests.NAnt.Core.Util {
                 throw new ObjectDisposedException("ConsoleCapture", 
                     "Capture has already been closed/disposed.");
             }
-            Dispose();
+
+            _writer.Flush();
+            System.Console.SetOut(_oldWriter);
+            System.Console.SetError(_oldErrorWriter);
             return ToString();
         }
 
@@ -110,8 +110,8 @@ namespace Tests.NAnt.Core.Util {
 
         #region Private Instance Fields
 
-        private bool _disposed = false;
-        private StringWriter _writer;
+        private bool _disposed;
+        private ConsoleWriter _writer;
         private TextWriter   _oldWriter;
         private TextWriter   _oldErrorWriter;
 
