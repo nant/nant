@@ -53,16 +53,18 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void Test_Normal() {
-            File.SetAttributes(_tempFileName, FileAttributes.Archive|FileAttributes.Hidden|FileAttributes.ReadOnly|FileAttributes.System);
-            Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, "#1");
-            if (! PlatformHelper.IsUnix ) {
+            File.SetAttributes(_tempFileName, FileAttributes.Archive | 
+                FileAttributes.Hidden | FileAttributes.ReadOnly |
+                FileAttributes.System);
+            if (!PlatformHelper.IsUnix) {
+                Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) != 0, "#1");
                 Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) != 0, "#2");
                 Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.System) != 0, "#3");
             }
             Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.ReadOnly) != 0, "#4");
                 
             RunBuild(FormatBuildFile("normal='true'"));
-            if (! PlatformHelper.IsUnix ) {
+            if (!PlatformHelper.IsUnix) {
                 Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Archive) == 0, "#5");
                 Assert.IsTrue((File.GetAttributes(_tempFileName) & _normalFileAttributes) != 0, "#6");
                 Assert.IsTrue((File.GetAttributes(_tempFileName) & FileAttributes.Hidden) == 0, "#7");
