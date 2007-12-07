@@ -93,8 +93,8 @@ namespace NAnt.Core.Types {
     ///         </patternset>
     ///         
     ///         <patternset id="all.sources">
-    ///             <patternset refis="cs.sources" />
-    ///             <patternset refis="vb.sources" />
+    ///             <patternset refid="cs.sources" />
+    ///             <patternset refid="vb.sources" />
     ///         </patternset>
     ///     ]]>
     ///   </code>
