@@ -38,6 +38,19 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Provides the abstract base class for tasks that execute external applications.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   When a <see cref="ProgramLocationAttribute" /> is applied to the
+    ///   deriving class and <see cref="ExeName" /> does not return an
+    ///   absolute path, then the program to execute will first be searched for
+    ///   in the location specified by <see cref="ProgramLocationAttribute.LocationType" />.
+    ///   </para>
+    ///   <para>
+    ///   If the program does not exist in that location, then the list of tool
+    ///   paths of the current target framework will be scanned in the order in
+    ///   which they are defined in the NAnt configuration file.
+    ///   </para>
+    /// </remarks>
     [Serializable()]
     public abstract class ExternalProgramBase : Task {
         #region Private Instance Fields

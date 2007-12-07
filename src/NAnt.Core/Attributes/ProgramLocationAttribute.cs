@@ -19,6 +19,8 @@
 
 using System;
 
+using NAnt.Core.Tasks;
+
 namespace NAnt.Core.Attributes {
 
     /// <summary>
@@ -39,6 +41,19 @@ namespace NAnt.Core.Attributes {
     /// <summary>
     /// Indicates the location that a task executable can be located in.
     /// </summary>
+    /// <remarks>
+    ///   <para>
+    ///   When applied to a task deriving from <see cref="ExternalProgramBase" />,
+    ///   the program to execute will first be searched for in the designated
+    ///   location.
+    ///   </para>
+    ///   <para>
+    ///   If the program does not exist in that location, and the file name is
+    ///   not an absolute path then the list of tool paths of the current
+    ///   target framework will be searched (in the order in which they are
+    ///   defined in the NAnt configuration file).
+    ///   </para>
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]
     public class ProgramLocationAttribute : Attribute {
         #region Protected Instance Constructors
