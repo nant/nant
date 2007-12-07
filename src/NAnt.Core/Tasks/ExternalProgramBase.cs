@@ -606,6 +606,16 @@ namespace NAnt.Core.Tasks {
                         }
                         break;
                 }
+
+                if (!File.Exists (fullPath)) {
+                    string toolPath = Project.TargetFramework.GetToolPath (
+                        ExeName + ".exe");
+                    if (toolPath != null) {
+                        fullPath = toolPath;
+                    }
+                }
+
+
             } else {
                 // rely on it being on the path.
                 fullPath = ExeName;

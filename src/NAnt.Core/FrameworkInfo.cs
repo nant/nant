@@ -51,6 +51,7 @@ namespace NAnt.Core {
         private Project _project;
         private FileSet _taskAssemblies;
         private FileSet[] _referenceAssemblies;
+        private string[] _toolPaths;
         private InitStatus _status = InitStatus.Uninitialized;
 
         #endregion Private Instance Fields
@@ -103,6 +104,7 @@ namespace NAnt.Core {
             _project = (Project) info.GetValue("Project", typeof(Project));
             _taskAssemblies = (FileSet) info.GetValue("TaskAssemblies", typeof(FileSet));
             _referenceAssemblies = (FileSet[]) info.GetValue("ReferenceAssemblies", typeof(FileSet[]));
+            _toolPaths = (string[]) info.GetValue("ToolPaths", typeof(string[]));
             _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
         }
 
@@ -124,6 +126,7 @@ namespace NAnt.Core {
                 info.AddValue("Project", Project);
                 info.AddValue("TaskAssemblies", TaskAssemblies);
                 info.AddValue("ReferenceAssemblies", ReferenceAssemblies);
+                info.AddValue("ToolPaths", ToolPaths);
             }
             info.AddValue("Status", _status);
         }
@@ -394,6 +397,26 @@ namespace NAnt.Core {
             }
         }
 
+        internal string[] ToolPaths {
+            get {
+                if (_toolPaths == null) {
+                    XmlNode node = _frameworkNode.SelectSingleNode(
+                        "nant:tool-paths", NamespaceManager);
+                    if (node != null) {
+                        DirList dirs = new DirList();
+                        dirs.Project = Project;
+                        dirs.NamespaceManager = NamespaceManager;
+                        dirs.Parent = Project;
+                        dirs.Initialize(node, Project.Properties, this);
+                        _toolPaths = dirs.GetDirectories();
+                    } else {
+                        _toolPaths = new string[0];
+                    }
+                }
+                return _toolPaths;
+            }
+        }
+
         internal string RuntimeEngine {
             get {
                 if (Runtime == null) {
@@ -492,6 +515,41 @@ namespace NAnt.Core {
                     "{0} ({1}) is not installed, or not correctly configured.",
                     Description, Name), Location.UnknownLocation, ex);
             }
+        }
+
+        /// <summary>
+        /// Searches the list of tool paths of the current framework for the
+        /// given file, and returns the absolute path if found.
+        /// </summary>
+        /// <param name="tool">The file name of the tool to search for.</param>
+        /// <returns>
+        /// The absolute path to <paramref name="tool" /> if found in one of the
+        /// configured tool paths; otherwise, <see langword="null" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tool" /> is <see langword="null" />.</exception>
+        /// <remarks>
+        ///   <para>
+        ///   The configured tool paths are scanned in the order in which they
+        ///   are defined in the framework configuration.
+        ///   </para>
+        ///   <para>
+        ///   The file name of the tool to search should include the extension.
+        ///   </para>
+        /// </remarks>
+        internal string GetToolPath (string tool) {
+            string toolPath = null;
+
+            if (tool == null) {
+                throw new ArgumentNullException ("tool");
+            }
+
+            foreach (string dir in ToolPaths) {
+                string fullPath = Path.Combine (dir, tool);
+                if (File.Exists (fullPath)) {
+                    toolPath = fullPath;
+                }
+            }
+            return toolPath;
         }
 
         #endregion Internal Instance Methods

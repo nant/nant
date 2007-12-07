@@ -569,6 +569,47 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Gets the absolute path of the specified tool for the current
+        /// target framework.
+        /// </summary>
+        /// <param name="tool">The file name of the tool to search for.</param>
+        /// <returns>
+        /// The absolute path to <paramref name="tool" /> if found in one of the
+        /// configured tool paths; otherwise, an error is reported.
+        /// </returns>
+        /// <exception cref="FileNotFoundException"><paramref name="tool" /> could not be found in the configured tool paths.</exception>
+        /// <remarks>
+        ///   <para>
+        ///   The configured tool paths are scanned in the order in which they
+        ///   are defined in the framework configuration.
+        ///   </para>
+        ///   <para>
+        ///   The file name of the tool to search should include the extension.
+        ///   </para>
+        /// </remarks>
+        /// <example>
+        ///   <para>Use <b>gacutil</b> to install an assembly in the GAC.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <exec program="${framework::get-tool-path('gacutil.exe')}" managed="strict">
+        ///     <arg value="/i" />
+        ///     <arg file="Cegeka.HealthFramework.dll" />
+        /// </exec>
+        ///     ]]>
+        ///   </code>
+        /// </example>
+        [Function("get-tool-path")]
+        public string GetToolPath(string tool) {
+            string toolPath = Project.TargetFramework.GetToolPath (tool);
+            if (toolPath == null) {
+                throw new FileNotFoundException (string.Format (CultureInfo.InvariantCulture,
+                    "\"{0}\" could not be found in any of the configured " +
+                    "tool paths.", tool));
+            }
+            return toolPath;
+        }
+
+        /// <summary>
         /// Gets the runtime engine of the specified framework.
         /// </summary>
         /// <param name="framework">The framework of which the runtime engine should be returned.</param>

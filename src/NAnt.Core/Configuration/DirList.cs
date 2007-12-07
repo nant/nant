@@ -48,7 +48,7 @@ namespace NAnt.Core.Configuration
             string[] directories = new string[_directoryNames.Length];
             for (int i = 0; i < _directoryNames.Length; i++) {
                 DirectoryName dirName = _directoryNames [i];
-                directories [i] = Path.Combine (baseDir, dirName.Name);
+                directories [i] = Path.Combine (baseDir, dirName.DirName);
             }
             return directories;
         }
