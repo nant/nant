@@ -273,6 +273,61 @@
         <h4>Framework&nbsp;support</h4>
         <div style="margin-left: 20px;">
             <h5>
+                <a class="heading" >Tool paths</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Since NAnt 0.84, task authors have been able to specify the
+                    location of the command-line tool by applying a <code>ProgramLocationAttribute</code> to
+                    classes deriving from <code>ExternalProgramBase</code>.
+                </p>
+                <p>
+                    The <code>ProgramLocationAttribute</code> allows task authors
+                    to specify whether the tool is located in the framework directory
+                    (eg. C:\WINDOWS\Microsoft.NET\Framework\v1.1.4432) or the
+                    SDK directory (eg. C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1)
+                    without actually having to deal with the complexity of knowing
+                    the actual path to these directories (for each supported framework).
+                </p>
+                <p>
+                    In NAnt 0.86, we've taken this one step further. Each defined
+                    framework now has a (ordered) list of directories that can be
+                    scanned to locate a framework tool. The list of directories
+                    can be easily tuned for each framework by modifying the
+                    <span class="xmltext">&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">/&gt;</span>
+                    nodes in the NAnt configuration file.
+                </p>
+                <p>An example of such a node for the Mono 3.5 profile:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/3.5')}" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/2.0')}" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/1.0')}" /&gt;</span>
+    <span class="xmltext">/&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">&gt;</span>
+                </pre>
+                <p>
+                    The directories configured in the <span class="xmltext">&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">/&gt;</span>
+                    node of the current target framework will be scanned in the
+                    order in which they are defined.
+                </p>
+                <p>
+                    The tool paths are implicitly used when a given tool cannot
+                    be located on the location specified by the <code>ProgramLocationAttribute</code>.
+                    As such, this only applies to tasks deriving from <code>ExternalProgramBase</code>.
+                </p>
+                <p>
+                    To expose this functionality to build authors, we've added a
+                    <a href="help/functions/framework.get-tool-path.html">framework::get-tool-path()</a>
+                    function that can be used to search for a given tool.
+                </p>
+                <p>For example:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">exec</span> <span class="xmlattribute">program</span><span class="xmltext">="${framework::get-tool-path('gacutil.exe')}"</span> <span class="xmlattribute">managed</span><span class="xmltext">="strict"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">value</span><span class="xmltext">="/i" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">file</span><span class="xmltext">="Cegeka.HealthFramework.dll" /&gt;</span>
+    <span class="xmltext">/&lt;</span><span class="xmlelement">exec</span><span class="xmltext">&gt;</span>
+                </pre>
+            </div>                
+            <h5>
                 <a class="heading" >Strict execution</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -307,29 +362,37 @@
             </div>
             <h5>
                 <a class="heading" >.NET Framework 3.5</a></h5>
-            <ul>
-                <li>
+            <div style="margin-left: 20px;">
+                <p>
                     Support for targeting .NET Framework 3.5 and Mono 3.5
                     Profile is now available.
-                </li>
-            </ul>
+                </p>
+                <p>
+                    <b>Note:</b> this does not apply to the <code><a href="help/tasks/solution.html">&lt;solution&gt;</a></code>
+                    task.
+                </p>
+            </div>
             <h5>
-                <a class="heading" >Silverlight 1.1</a></h5>
-            <ul>
-                <li>
-                    Added experimental support for targeting Silverlight 1.1
-                    and Moonlight 1.1.
-                </li>
-            </ul>
+                <a class="heading" >Silverlight 2.0</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added experimental support for targeting Silverlight 2.0
+                    and Moonlight 2.0.
+                </p>
+                <p>
+                    <b>Note:</b> this does not apply to the <code><a href="help/tasks/solution.html">&lt;solution&gt;</a></code>
+                    task.
+                </p>
+            </div>
             <h5>
                 <a class="heading" >.NET Compact Framework 2.0</a></h5>
-            <ul>
-                <li>
+            <div style="margin-left: 20px;">
+                <p>
                     Compiler options that were introduced in .NET Framework 2.0
                     are now also available when targeting .NET Compact Framework
                     2.0.
-                </li>
-            </ul>
+                </p>
+            </div>
         </div>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
@@ -355,8 +418,7 @@
             <ul>
                 <li>
                     The &quot;useruntimeengine&quot; attribute has been deprecated
-                    in favor of a &quot;managed&quot; attribute (with the same 
-                    semantics).
+                    in favor of a &quot;managed&quot; attribute.
                 </li>
             </ul>
             <h5>
