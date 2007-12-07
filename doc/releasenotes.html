@@ -246,19 +246,7 @@
                 </li>
             </ul>
         </div>
-        <h3>Changes</h3>
-        <h4>Core</h4>
-        <div style="margin-left: 20px;">
-            <h5>
-                <a class="heading">Performance</a></h5>
-            <div style="margin-left: 20px;">
-                <p>
-                    Initial start-up time and project initialization have been
-                    reduced dramatically by lazy configuration of supported
-                    target frameworks.
-                </p>
-            </div>
-        </div>
+        <h3>Additions</h3>
         <h4>Expressions</h4>
         <div style="margin-left: 20px;">
             <h5>
@@ -302,7 +290,7 @@
         <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/3.5')}" /&gt;</span>
         <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/2.0')}" /&gt;</span>
         <span class="xmltext">&lt;</span><span class="xmlelement">directory</span> <span class="xmlattribute">name</span><span class="xmltext">="${path::combine(prefix, 'lib/mono/1.0')}" /&gt;</span>
-    <span class="xmltext">/&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">tool-paths</span><span class="xmltext">&gt;</span>
                 </pre>
                 <p>
                     The directories configured in the <span class="xmltext">&lt;</span><span class="xmlelement">tool-paths</span><span class="xmltext">/&gt;</span>
@@ -324,9 +312,9 @@
     <span class="xmltext">&lt;</span><span class="xmlelement">exec</span> <span class="xmlattribute">program</span><span class="xmltext">="${framework::get-tool-path('gacutil.exe')}"</span> <span class="xmlattribute">managed</span><span class="xmltext">="strict"&gt;</span>
         <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">value</span><span class="xmltext">="/i" /&gt;</span>
         <span class="xmltext">&lt;</span><span class="xmlelement">arg</span> <span class="xmlattribute">file</span><span class="xmltext">="Cegeka.HealthFramework.dll" /&gt;</span>
-    <span class="xmltext">/&lt;</span><span class="xmlelement">exec</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">exec</span><span class="xmltext">&gt;</span>
                 </pre>
-            </div>                
+            </div>
             <h5>
                 <a class="heading" >Strict execution</a></h5>
             <div style="margin-left: 20px;">
@@ -384,6 +372,83 @@
                     task.
                 </p>
             </div>
+            <h5>
+                <a class="heading" >.NET Compact Framework 2.0</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Compiler options that were introduced in .NET Framework 2.0
+                    are now also available when targeting .NET Compact Framework
+                    2.0.
+                </p>
+            </div>
+        </div>
+        <h4>Types</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/types/patternset.html">&lt;patternset&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Defines a set of patterns, mostly used to include or exclude certain files.
+                </p>
+                <p>
+                    Patterns can be grouped to sets, and later be referenced by their 
+                    <code>id</code>.
+                </p>
+                <p>For example:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">id</span><span class="xmltext">="binaries"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="bin/**/*" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="bin/*.tmp" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">patternset</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">id</span><span class="xmltext">="docs"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="requirements/**/*" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="design/**/*.doc" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">patternset</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">id</span><span class="xmltext">="client.sources"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="client/**/*.cs" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="client/**/*.vb" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">patternset</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">id</span><span class="xmltext">="server.sources"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="server/**/*.cs" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="server/**/*.vb" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">patternset</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">id</span><span class="xmltext">="sources"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">refid</span><span class="xmltext">="client.sources" /&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">refid</span><span class="xmltext">="server.sources" /&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">patternset</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="deploy"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">copy</span> <span class="xmlattribute">todir</span><span class="xmltext">="${dist.path}"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">fileset</span> <span class="xmlattribute">basedir</span><span class="xmltext">="${build.path}"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">refid</span><span class="xmltext">="binaries" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">refid</span><span class="xmltext">="docs" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">patternset</span> <span class="xmlattribute">refid</span><span class="xmltext">="sources" /&gt;</span>
+                
+                <span class="xmltext">&lt;</span><span class="xmlelement">exclude</span> <span class="xmlattribute">name</span><span class="xmltext">="**/*.sdf" /&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">fileset</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">copy</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>
+                </pre>
+            </div>
+        </div>
+        <h3>Changes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">Performance</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Initial start-up time and project initialization have been
+                    reduced dramatically by lazy configuration of supported
+                    target frameworks.
+                </p>
+            </div>
+        </div>
+        <h4>Framework&nbsp;support</h4>
             <h5>
                 <a class="heading" >.NET Compact Framework 2.0</a></h5>
             <div style="margin-left: 20px;">
