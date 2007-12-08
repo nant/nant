@@ -91,10 +91,15 @@ namespace NAnt.DotNet.Types {
     ///     </item>
     ///     <item>
     ///       <description>
-    ///       The assembly directory of the current target framework.
+    ///       The list of reference assemblies of the current target framework.
     ///       </description>
     ///     </item>
     ///   </list>
+    ///   <para>
+    ///   The reference assemblies of a given target framework are defined using
+    ///   &lt;reference-assemblies&gt; filesets in the &lt;framework&gt; node
+    ///   of the NAnt configuration file.
+    ///   </para>
     /// </remarks>
     /// <example>
     ///   <para>
