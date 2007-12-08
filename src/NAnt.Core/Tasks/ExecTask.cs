@@ -190,7 +190,6 @@ namespace NAnt.Core.Tasks {
         /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("useruntimeengine")]
-        [FrameworkConfigurable("useruntimeengine")]
         [Obsolete("Use the managed attribute and Managed property instead.", false)]
         public override bool UseRuntimeEngine {
             get { return base.UseRuntimeEngine ; }
@@ -207,7 +206,6 @@ namespace NAnt.Core.Tasks {
         /// using a runtime engine; otherwise, <see langword="false" />.
         /// </value>
         [TaskAttribute("managed")]
-        [FrameworkConfigurable("managed")]
         public override ManagedExecution Managed {
             get { return base.Managed; }
             set { base.Managed = value; }
