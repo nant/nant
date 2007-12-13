@@ -109,7 +109,6 @@ namespace Tests.NAnt.Core {
             }
         }
 
-
         /// <summary>
         /// Serializes this object into the <see cref="SerializationInfo" /> provided.
         /// </summary>

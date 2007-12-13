@@ -193,6 +193,75 @@ namespace Tests.NAnt.Core {
             Assert.IsTrue (p.Properties.Contains ("test"), "#6");
         }
 
+        [Test]
+        public void TargetFramework() {
+            Project p = CreateEmptyProject();
+
+            FrameworkInfo tf = p.TargetFramework;
+            Assert.IsNotNull (tf, "#1");
+            Assert.IsNotNull(tf.ClrVersion, "#2");
+            Assert.IsNotNull(tf.Description, "#3");
+            Assert.IsNotNull(tf.Family, "#4");
+            Assert.IsNotNull(tf.FrameworkAssemblyDirectory, "#5");
+            Assert.IsNotNull(tf.FrameworkDirectory, "#6");
+            Assert.IsTrue(tf.IsValid, "#7");
+            Assert.IsNotNull(tf.Name, "#8");
+            Assert.IsNotNull(tf.Project, "#9");
+            Assert.AreNotSame(p, tf.Project, "#10");
+            Assert.IsNotNull(tf.TaskAssemblies, "#11");
+            Assert.IsNotNull(tf.Version, "#12");
+        }
+
+        [Test]
+        public void TargetFramework_Invalid () {
+            FrameworkInfo invalid = null;
+
+            Project p = CreateEmptyProject();
+            foreach (FrameworkInfo framework in p.Frameworks) {
+                if (!framework.IsValid) {
+                    invalid = framework;
+                    break;
+                }
+            }
+
+            if (invalid == null) {
+                Assert.Ignore("Tests requires at least one invalid framework.");
+            }
+
+            FrameworkInfo original = p.TargetFramework;
+
+            try {
+                p.TargetFramework = invalid;
+                Assert.Fail ("#A1");
+            } catch (BuildException ex) {
+                Assert.IsNotNull(ex.InnerException, "#A2");
+                Assert.AreSame(original, p.TargetFramework, "#A3");
+            }
+
+            try {
+                p.TargetFramework = invalid;
+                Assert.Fail ("#B1");
+            } catch (BuildException ex) {
+                Assert.IsNotNull(ex.InnerException, "#B2");
+                Assert.AreSame(original, p.TargetFramework, "#B3");
+            }
+        }
+
+        [Test]
+        public void TargetFramework_Null() {
+            Project p = CreateEmptyProject();
+            try {
+                p.TargetFramework = null;
+                Assert.Fail("#1");
+            } catch (ArgumentNullException ex) {
+                Assert.AreEqual(typeof(ArgumentNullException), ex.GetType(), "#2");
+                Assert.IsNull(ex.InnerException, "#3");
+                Assert.IsNotNull(ex.Message, "#4");
+                Assert.IsNotNull(ex.ParamName, "#5");
+                Assert.AreEqual("value", ex.ParamName, "#6");
+            }
+        }
+
         #endregion Public Instance Methods
 
         #region Protected Instance Methods
