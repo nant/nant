@@ -95,6 +95,11 @@ namespace NAnt.Core {
             _name = info.GetString("Name");
             _family = info.GetString("Family");
             _description = info.GetString("Description");
+            _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
+            if (_status != InitStatus.Valid) {
+                return;
+            }
+
             _version = (Version) info.GetValue("Version", typeof(Version));
             _clrVersion = (Version) info.GetValue("ClrVersion", typeof(Version));
             _frameworkDirectory = (DirectoryInfo) info.GetValue("FrameworkDirectory", typeof(DirectoryInfo));
@@ -105,7 +110,6 @@ namespace NAnt.Core {
             _taskAssemblies = (FileSet) info.GetValue("TaskAssemblies", typeof(FileSet));
             _referenceAssemblies = (FileSet[]) info.GetValue("ReferenceAssemblies", typeof(FileSet[]));
             _toolPaths = (string[]) info.GetValue("ToolPaths", typeof(string[]));
-            _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
         }
 
         #endregion Protected Instance Constructors
@@ -115,8 +119,8 @@ namespace NAnt.Core {
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
             info.AddValue("Name", Name);
             info.AddValue("Family", Family);
+            info.AddValue("Description", Description);
             if (IsValid) {
-                info.AddValue("Description", Description);
                 info.AddValue("Version", Version);
                 info.AddValue("ClrVersion", ClrVersion);
                 info.AddValue("FrameworkDirectory", FrameworkDirectory);
@@ -171,13 +175,24 @@ namespace NAnt.Core {
         /// <value>
         /// The version of the framework.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        /// <remarks>
+        /// When <see cref="Version" /> is not configured, the framework is not
+        /// considered valid.
+        /// </remarks>
         public Version Version {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_version == null) {
-                    string version = Project.ExpandProperties(
-                        GetXmlAttributeValue(_frameworkNode, "version"),
-                        Location.UnknownLocation);
-                    _version = new Version(version);
+                    string version = GetXmlAttributeValue(_frameworkNode,
+                        "version");
+                    if (version != null) {
+                        version = Project.ExpandProperties(version,
+                            Location.UnknownLocation);
+                        _version = new Version(version);
+                    }
                 }
                 return _version; 
             }
@@ -189,10 +204,22 @@ namespace NAnt.Core {
         /// <value>
         /// The Common Language Runtime version of the framework.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        /// <remarks>
+        /// When <see cref="ClrVersion" /> is <see langword="null" />, the
+        /// framework is not considered valid.
+        /// </remarks>
         public Version ClrVersion {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_clrVersion == null) {
-                    _clrVersion = new Version(GetXmlAttributeValue(_frameworkNode, "clrversion"));
+                    string clrVersion = GetXmlAttributeValue(_frameworkNode,
+                        "clrversion");
+                    if (clrVersion != null) {
+                        _clrVersion = new Version(clrVersion);
+                    }
                 }
                 return _clrVersion; 
             }
@@ -202,12 +229,16 @@ namespace NAnt.Core {
         /// Gets the Visual Studio version that corresponds with this
         /// framework.
         /// </summary>
-        /// <remarks>
+        /// <value>
         /// The Visual Studio version that corresponds with this framework.
-        /// </remarks>
-        /// <exception cref="BuildException">There is no version of Visual Studio .NET that corresponds with this framework.</exception>
+        /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        /// <exception cref="BuildException">There is no version of Visual Studio that corresponds with this framework.</exception>
         public Version VisualStudioVersion {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 switch (ClrVersion.ToString(2)) {
                     case "1.0":
                         return new Version(7, 0);
@@ -229,8 +260,12 @@ namespace NAnt.Core {
         /// <value>
         /// The base directory of the framework tools for the framework.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         public DirectoryInfo FrameworkDirectory {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_frameworkDirectory == null) {
                     string frameworkDir = Project.ExpandProperties(
                         GetXmlAttributeValue(_frameworkNode, "frameworkdirectory"),
@@ -256,6 +291,7 @@ namespace NAnt.Core {
         /// The runtime information for the framework or <see langword="null" />
         /// if no runtime information is configured for the framework.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         internal Runtime Runtime {
             get {
                 Init();
@@ -264,15 +300,19 @@ namespace NAnt.Core {
         }
        
         /// <summary>
-        /// Gets the directory where the system assemblies for the framework 
+        /// Gets the directory where the system assemblies for the framework
         /// are located.
         /// </summary>
         /// <value>
         /// The directory where the system assemblies for the framework are 
         /// located.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         public DirectoryInfo FrameworkAssemblyDirectory {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_frameworkAssemblyDirectory == null) {
                     string frameworkAssemblyDir = Project.ExpandProperties(
                         GetXmlAttributeValue(_frameworkNode, "frameworkassemblydirectory"),
@@ -305,9 +345,14 @@ namespace NAnt.Core {
         /// reference if the configured sdk directory does not exist, or is not
         /// valid.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         public DirectoryInfo SdkDirectory {
             get {
                 Init();
+
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 return _sdkDirectory;
             }
         }
@@ -318,9 +363,14 @@ namespace NAnt.Core {
         /// <value>
         /// The <see cref="Project" /> used to initialize this framework.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         public Project Project {
             get {
                 Init();
+
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 return _project;
             }
         }
@@ -333,8 +383,12 @@ namespace NAnt.Core {
         /// The set of assemblies and directories that should be scanned for 
         /// NAnt tasks, types or functions.
         /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         public FileSet TaskAssemblies {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_taskAssemblies == null) {
                     // process framework task assemblies
                     _taskAssemblies = new FileSet();
@@ -375,8 +429,18 @@ namespace NAnt.Core {
 
         #region Internal Instance Properties
 
+        /// <summary>
+        /// Gets the reference assemblies for the current framework.
+        /// </summary>
+        /// <value>
+        /// The reference assemblies for the current framework.
+        /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         internal FileSet[] ReferenceAssemblies {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_referenceAssemblies == null) {
                     // reference assemblies
                     XmlNodeList referenceAssemblies = _frameworkNode.SelectNodes(
@@ -397,8 +461,18 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Gets the tool paths for the current framework.
+        /// </summary>
+        /// <value>
+        /// The tool paths for the current framework.
+        /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
         internal string[] ToolPaths {
             get {
+                // ensure we're not dealing with an invalid framework
+                AssertNotInvalid();
+
                 if (_toolPaths == null) {
                     XmlNode node = _frameworkNode.SelectSingleNode(
                         "nant:tool-paths", NamespaceManager);
@@ -463,10 +537,11 @@ namespace NAnt.Core {
         /// <param name="fileName">The file name of the assembly to resolve (without path information).</param>
         /// <returns>
         /// An absolute path to the assembly, or <see langword="null" /> if the
-        /// assembly could not be found.
+        /// assembly could not be found or no reference assemblies are configured
+        /// for the current framework.
         /// </returns>
         /// <remarks>
-        /// Whether the file name is matched case-sensitive depends on the
+        /// Whether the file name is matched case-sensitively depends on the
         /// operating system.
         /// </remarks>
         public string ResolveAssembly (string fileName) {
@@ -492,19 +567,35 @@ namespace NAnt.Core {
 
             Init();
 
+            // reset status to avoid status check in properties from getting
+            // triggered
+            _status = InitStatus.Initialized;
+
             try {
-                // verify is framework directory is configured, and indirectly
+                // verify if framework directory is configured, and indirectly
                 // check if it exists
                 if (FrameworkDirectory == null) {
                     throw new ArgumentException("The \"frameworkdirectory\" " +
                         "attribute does not exist, or has no value.");
                 }
 
-                // verify is framework assembly directory is configured, and 
+                // verify if framework assembly directory is configured, and 
                 // indirectly check if it exists
                 if (FrameworkAssemblyDirectory == null) {
                     throw new ArgumentException("The \"frameworkassemblydirectory\" " +
                         "attribute does not exist, or has no value.");
+                }
+
+                // verify if version is configured
+                if (Version == null) {
+                    throw new ArgumentException("The \"version\" attribute " +
+                        "does not exist, or has no value.");
+                }
+
+                // verify if clrversion is configured
+                if (ClrVersion == null) {
+                    throw new ArgumentException("The \"clrversion\" attribute " +
+                        "does not exist, or has no value.");
                 }
 
                 // mark framework valid
@@ -557,10 +648,19 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         private void Init() {
+            if (_status != InitStatus.Uninitialized) {
+                return;
+            }
+
+            // the framework node is not available when working with a
+            // deserialized FrameworkInfo, and as such it's no use
+            // attempting to initialize it when the status is invalid
+            // since it will not get us the actual reason anyway
+            AssertNotInvalid();
+
             try {
                 PerformInit();
             } catch (Exception ex) {
-                _status = InitStatus.Invalid;
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Failed to initialize the '{0}' ({1}) target framework.",
                     Description, Name), Location.UnknownLocation, ex);
@@ -568,10 +668,6 @@ namespace NAnt.Core {
         }
 
         private void PerformInit() {
-            if (_status != InitStatus.Uninitialized) {
-                return;
-            }
- 
             // get framework-specific project node
             XmlNode projectNode = _frameworkNode.SelectSingleNode("nant:project", 
                 NamespaceManager);
@@ -634,6 +730,13 @@ namespace NAnt.Core {
 
             _project = frameworkProject;
             _status = InitStatus.Initialized;
+        }
+
+        private void AssertNotInvalid() {
+            if (_status == InitStatus.Invalid || (_status == InitStatus.Uninitialized && _frameworkNode == null)) {
+                throw new ArgumentException("The current framework " +
+                    "is not valid.");
+            }
         }
 
         #endregion Private Instance Methods
