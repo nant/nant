@@ -18,16 +18,41 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 
 using NUnit.Framework;
 
+using NAnt.Core;
+
 namespace Tests.NAnt.Core.Tasks {
     [TestFixture]
     public class PropertyTest : BuildTestBase {
+        private CultureInfo _originalCulture;
+        private CultureInfo _originalUICulture;
+
+        protected override void SetUp() {
+            base.SetUp();
+
+            _originalCulture = Thread.CurrentThread.CurrentCulture;
+            _originalUICulture = Thread.CurrentThread.CurrentUICulture;
+
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+        }
+
+        [TearDown]
+        protected override void TearDown() {
+            base.TearDown();
+            Thread.CurrentThread.CurrentCulture = _originalCulture;
+            Thread.CurrentThread.CurrentUICulture = _originalUICulture;
+        }
+
+
         [Test]
         public void Test_PropCreate() {
             string _xml = @"
@@ -168,6 +193,71 @@ namespace Tests.NAnt.Core.Tasks {
                     </project>";
             string result = RunBuild(_xml);
             Assert.IsTrue(result.IndexOf("I Love you") != -1, "Value of read-only dynamic property should have reflected change in referenced property." + Environment.NewLine + result);
+        }
+
+        [Test]
+        public void CurrentFramework_NonExisting () {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='nant.settings.currentframework' value='doesnotexist' />
+                    </project>";
+            try {
+                RunBuild(_xml);
+                Assert.Fail ("#1");
+            } catch (TestBuildException ex) {
+                Assert.IsNotNull(ex.InnerException, "#2");
+
+                string expectedError = "Target framework could not be changed. " +
+                    "\"doesnotexist\" is not a valid framework identifier.";
+
+                BuildException inner = ex.InnerException as BuildException;
+                Assert.IsNotNull(inner, "#3");
+                Assert.IsNull(inner.InnerException, "#4");
+                Assert.IsNotNull(inner.RawMessage, "#5");
+                Assert.IsTrue(inner.RawMessage.StartsWith(expectedError),
+                    "#6:" + inner.RawMessage);
+            }
+        }
+
+        [Test]
+        public void CurrentFramework_Invalid () {
+            FrameworkInfo invalid = null;
+
+            Project p = CreateEmptyProject();
+            foreach (FrameworkInfo framework in p.Frameworks) {
+                if (!framework.IsValid) {
+                    invalid = framework;
+                    break;
+                }
+            }
+
+            if (invalid == null) {
+                Assert.Ignore("Tests requires at least one invalid framework.");
+            }
+
+            FrameworkInfo original = p.TargetFramework;
+
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='nant.settings.currentframework' value='{0}' />
+                    </project>";
+            try {
+                RunBuild(string.Format(_xml, invalid.Name));
+                Assert.Fail ("#1");
+            } catch (TestBuildException ex) {
+                Assert.IsNotNull(ex.InnerException, "#2");
+
+                string expectedError = string.Format("Failed to initialize " +
+                    "the '{0}' ({1}) target framework.", invalid.Description,
+                    invalid.Name);
+
+                BuildException inner = ex.InnerException as BuildException;
+                Assert.IsNotNull(inner, "#3");
+                Assert.IsNotNull(inner.InnerException, "#4");
+                Assert.IsNotNull(inner.RawMessage, "#5");
+                Assert.IsTrue(inner.RawMessage.StartsWith(expectedError),
+                    "#6:" + inner.RawMessage);
+            }
         }
     }
 }
