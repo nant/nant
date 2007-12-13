@@ -304,7 +304,6 @@ namespace NAnt.Core {
                 return null;
             }
 
-            framework.Validate();
             return framework;
         }
 

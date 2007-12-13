@@ -459,6 +459,8 @@ namespace NAnt.Core {
         /// <value>
         /// The framework to use for compilation.
         /// </value>
+        /// <exception cref="ArgumentNullException">The value specified is <see langword="null" />.</exception>
+        /// <exception cref="BuildException">The specified framework is not installed, or not configured correctly.</exception>
         /// <remarks>
         /// We will use compiler tools and system assemblies for this framework 
         /// in framework-related tasks.
@@ -466,6 +468,11 @@ namespace NAnt.Core {
         public FrameworkInfo TargetFramework {
             get { return _targetFramework; }
             set {
+                if (value == null) {
+                    throw new ArgumentNullException("value");
+                }
+
+                value.Validate ();
                 _targetFramework = value;
                 UpdateTargetFrameworkProperties();
             }
