@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" ?>
+<?xml version="1.0" ?>
 <!--
 // NAnt - A .NET build tool
 // Copyright (C) 2001-2003 Gerry Shaw
@@ -49,7 +49,7 @@
         <value>Error creating logger of type '{0}'.</value>
     </data>
     <data name="NA1004">      
-        <value>Could not find a '{0}' file in '{1}'</value>       
+        <value>Could not find a '{0}' file in '{1}'</value> 
     </data>
     <data name="NA1005">
         <value>Error creating output log file '{0}'.</value>
