@@ -176,17 +176,18 @@ namespace NAnt.Core.Tasks {
                 if (newTargetFramework != null) {
                     if (Project.TargetFramework != null) {
                         if (Project.TargetFramework != newTargetFramework) {
+                            Project.TargetFramework = newTargetFramework;
                             // only output message in build log if target 
                             // framework is actually changed
                             Log(Level.Info, "Target framework changed to \"{0}\".", 
                                 newTargetFramework.Description);
                         }
                     } else {
+                        Project.TargetFramework = newTargetFramework;
                         Log(Level.Info, "Target framework set to \"{0}\".", 
                             newTargetFramework.Description);
 
                     }
-                    Project.TargetFramework = Project.Frameworks[propertyValue];
                     return;
                 } else {
                     ArrayList validvalues = new ArrayList();
