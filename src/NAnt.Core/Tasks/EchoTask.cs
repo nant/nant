@@ -91,7 +91,7 @@ namespace NAnt.Core.Tasks {
         private string _message;
         private string _contents;
         private FileInfo _file;
-        private bool _append = false;
+        private bool _append;
         private Level _messageLevel = Level.Info;
 
         #endregion Private Instance Fields

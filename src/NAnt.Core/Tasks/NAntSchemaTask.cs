@@ -55,7 +55,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private FileInfo _outputFile;
-        private string _forType = null;
+        private string _forType;
         private string _targetNamespace = "http://tempuri.org/nant-donotuse.xsd";
 
         #endregion Private Instance Fields

@@ -72,10 +72,10 @@ namespace NAnt.Core.Tasks {
     public class MailTask : Task {
         #region Private Instance Fields
 
-        private string _from = null;
-        private string _toList = null;
-        private string _ccList = null;
-        private string _bccList = null;
+        private string _from;
+        private string _toList;
+        private string _ccList;
+        private string _bccList;
         private string _mailHost = "localhost";
         private string _subject = "";
         private string _message = "";

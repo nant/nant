@@ -39,7 +39,7 @@ namespace NAnt.Core.Types {
         /// </summary>
         public DirSet() : base() {
         }
-           
+
         /// <summary>
         /// Copy constructor for <see cref="FileSet" />. Required in order to 
         /// assign references of <see cref="FileSet" /> type where 
@@ -48,7 +48,7 @@ namespace NAnt.Core.Types {
         /// <param name="fs">A <see cref="FileSet" /> instance to create a <see cref="DirSet" /> from.</param>
         public DirSet(FileSet fs) : base(fs) {
         }
-                
+
         #endregion Public Instance Constructors
    }
 }

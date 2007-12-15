@@ -482,7 +482,7 @@ namespace NAnt.Core.Util {
         private CommandLineArgumentCollection _argumentCollection; 
         private CommandLineArgument _defaultArgument;
         private Type _argumentSpecification;
-        private bool _supportsResponseFile = false;
+        private bool _supportsResponseFile;
 
         #endregion Private Instance Fields
     }

@@ -104,7 +104,7 @@ namespace NAnt.Core.Tasks {
         private FileSet _buildFiles = new FileSet();
         private string _target;
         private bool _inheritAll = true;
-        private bool _inheritRefs = false;
+        private bool _inheritRefs;
         private ArrayList _overrideProperties = new ArrayList();
 
         #endregion Private Instance Fields

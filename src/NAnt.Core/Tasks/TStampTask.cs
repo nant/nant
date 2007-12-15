@@ -76,8 +76,8 @@ namespace NAnt.Core.Tasks {
     public class TStampTask : Task {
         #region Private Instance Fields
 
-        private string _property = null;
-        private string _pattern = null;
+        private string _property;
+        private string _pattern;
         private FormatterCollection _formatters = new FormatterCollection();
 
         #endregion Private Instance Fields

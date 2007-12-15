@@ -28,10 +28,10 @@ namespace NAnt.Core.Types {
     public class Option : Element {
         #region Private Instance Fields
 
-        private string _name = null;
-        private string _value = null;
+        private string _name;
+        private string _value;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
 
         #endregion Private Instance Fields
 

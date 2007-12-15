@@ -627,8 +627,6 @@ namespace NAnt.Core.Tasks {
                         fullPath = toolPath;
                     }
                 }
-
-
             } else {
                 // rely on it being on the path.
                 fullPath = ExeName;

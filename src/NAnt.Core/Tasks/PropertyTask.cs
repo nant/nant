@@ -89,10 +89,10 @@ namespace NAnt.Core.Tasks {
     public class PropertyTask : Task {
         #region Private Instance Fields
 
-        private string _name = null;
+        private string _name;
         private string _value = string.Empty;
-        private bool _readOnly = false;
-        private bool _dynamic = false;
+        private bool _readOnly;
+        private bool _dynamic;
         private bool _overwrite = true;
 
         #endregion Private Instance Fields
