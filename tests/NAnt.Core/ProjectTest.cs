@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Globalization;
+using System.Xml;
 
 using NUnit.Framework;
 
@@ -79,7 +80,7 @@ namespace Tests.NAnt.Core {
 
         [Test]
         public void Test_Initialization_DOMBuildFile() {
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Error, 0);
 
@@ -98,7 +99,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnBuildStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
@@ -112,7 +113,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnBuildFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
@@ -127,7 +128,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnTargetStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
@@ -141,7 +142,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnTargetFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
@@ -155,7 +156,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnTaskStarted() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
@@ -169,7 +170,7 @@ namespace Tests.NAnt.Core {
         public void Test_OnTaskFinished() {
             MockBuildEventListener b = new MockBuildEventListener();
 
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.LoadXml(FormatBuildFile("", ""));
             Project p = new Project(doc, Level.Info, 0);
 
