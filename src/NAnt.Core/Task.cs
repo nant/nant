@@ -48,9 +48,9 @@ namespace NAnt.Core {
         #region Private Instance Fields
 
         private bool _failOnError = true;
-        private bool _verbose = false;
+        private bool _verbose;
         private bool _ifDefined = true;
-        private bool _unlessDefined = false;
+        private bool _unlessDefined;
         private Level _threshold = Level.Debug;
 
         #endregion Private Instance Fields

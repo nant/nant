@@ -319,13 +319,13 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private string _text = null;
+        private string _text;
         private int _position;
         private Position _tokenStartPosition;
         private TokenType _tokenType;
         private string _tokenText;
         private bool _ignoreWhiteSpace = true;
-        private bool _singleCharacterMode = false;
+        private bool _singleCharacterMode;
 
         #endregion Private Instance Fields
 

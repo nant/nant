@@ -35,7 +35,7 @@ namespace NAnt.Core {
 
         private EvalMode _evalMode = EvalMode.Evaluate;
 
-        private ExpressionTokenizer _tokenizer = null;
+        private ExpressionTokenizer _tokenizer;
         public ExpressionEvalBase() {}
 
         public object Evaluate(ExpressionTokenizer tokenizer) {

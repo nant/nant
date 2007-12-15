@@ -51,7 +51,7 @@ namespace NAnt.Core {
 
         #region Private Instance Fields
 
-        private Project _project = null;
+        private Project _project;
 
         #endregion Private Instance Fields
     }

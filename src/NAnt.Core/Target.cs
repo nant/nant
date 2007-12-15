@@ -33,12 +33,12 @@ namespace NAnt.Core {
     public sealed class Target : Element, ICloneable {
         #region Private Instance Fields
 
-        private string _name = null;
-        private string _description = null;
-        private string _ifCondition = null;
-        private string _unlessCondition = null;
+        private string _name;
+        private string _description;
+        private string _ifCondition;
+        private string _unlessCondition;
         private StringCollection _dependencies = new StringCollection();
-        private bool _executed = false;
+        private bool _executed;
 
         #endregion Private Instance Fields
 
