@@ -64,7 +64,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
             string tempFileName = Path.Combine(TempDirName, "bigfile.txt");
             TempFile.Create(tempFileName);
-			            
+
             if (PlatformHelper.IsWin32) {
                 RunBuild(FormatBuildFile("program='cmd.exe' commandline='/c type &quot;" + tempFileName + "&quot;'", ""));
             } else {

@@ -52,7 +52,6 @@ namespace Tests.NAnt.Core.Tasks {
             Thread.CurrentThread.CurrentUICulture = _originalUICulture;
         }
 
-
         [Test]
         public void Test_PropCreate() {
             string _xml = @"
