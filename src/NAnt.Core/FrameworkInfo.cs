@@ -638,6 +638,7 @@ namespace NAnt.Core {
                 string fullPath = Path.Combine (dir, tool);
                 if (File.Exists (fullPath)) {
                     toolPath = fullPath;
+                    break;
                 }
             }
             return toolPath;
@@ -719,11 +720,18 @@ namespace NAnt.Core {
                 _runtime.Initialize(runtimeNode, frameworkProject.Properties, this);
             }
 
+            string sdkDir = GetXmlAttributeValue(_frameworkNode, "sdkdirectory");
+            try {
+                sdkDir = frameworkProject.ExpandProperties(sdkDir,
+                    Location.UnknownLocation);
+            } catch (BuildException) {
+                // do nothing with this exception as a framework is still
+                // considered valid if the sdk directory is not available
+                // or not configured correctly
+            }
+
             // the sdk directory does not actually have to exist for a
             // framework to be considered valid
-            string sdkDir = frameworkProject.ExpandProperties(
-                GetXmlAttributeValue(_frameworkNode, "sdkdirectory"),
-                Location.UnknownLocation);
             if (sdkDir != null && Directory.Exists(sdkDir)) {
                 _sdkDirectory = new DirectoryInfo(sdkDir);
             }
