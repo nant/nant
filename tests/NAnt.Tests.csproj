@@ -160,6 +160,10 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Framework.config"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
                     RelPath = "NAnt.Core\FrameworkInfoTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
