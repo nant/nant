@@ -91,7 +91,7 @@ namespace NAnt.Core.Attributes {
 
         #region Private Instance Fields
 
-        private string _elementName = null;
+        private string _elementName;
 
         #endregion Private Instance Fields
     }

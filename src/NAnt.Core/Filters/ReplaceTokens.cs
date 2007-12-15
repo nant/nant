@@ -95,13 +95,13 @@ namespace NAnt.Core.Filters {
         private int _maxTokenLength;
         private string _outputBuffer;
         private bool _endStreamAfterBuffer;
-        private int _bufferPosition = 0;
+        private int _bufferPosition;
         private bool _unknownToken = true;
         private bool _tokenNotFound = true;
-        private bool _ignoreCase = false;
+        private bool _ignoreCase;
 
         //Method used for Read
-        private AcquireCharDelegate ReadChar = null;
+        private AcquireCharDelegate ReadChar;
 
         #endregion Private Instance Fields
 

@@ -52,10 +52,10 @@ namespace NAnt.Core.Filters {
         #region Private Instance Fields
 
         private int _tabLength = 8;
-        private int _spacesRemaining = 0;
+        private int _spacesRemaining;
 
         //Method used for Read
-        private AcquireCharDelegate ReadChar = null;
+        private AcquireCharDelegate ReadChar;
 
         #endregion Private Instance Fields
 

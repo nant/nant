@@ -111,7 +111,7 @@ namespace NAnt.Core.Attributes {
         #region Private Instance Fields
 
         private string _name;
-        private bool _required = false;
+        private bool _required;
         private bool _processXml = true;
 
         #endregion Private Instance Fields

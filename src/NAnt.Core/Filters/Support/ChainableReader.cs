@@ -46,7 +46,7 @@ namespace NAnt.Core.Filters {
         private internalPeek InternalPeek;
         private internalClose InternalClose;
 
-        private bool _baseReader = false;
+        private bool _baseReader;
 
         #region Public Instance Properties
 
