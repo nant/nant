@@ -217,11 +217,33 @@ namespace Tests.NAnt.Core {
             return new Project(buildFileName, level, 0);
         }
 
-        /// <summary>        /// Creates an empty project <see cref="XmlDocument" /> and loads it         /// with a new project.        /// </summary>        /// <returns>
+        /// <summary>
+        /// Creates a new <see cref="Project" /> with the given output level
+        /// initialized using the specified configuration node.
+        /// </summary>
+        /// <param name="xml">The XML of the build file</param>
+        /// <param name="level">The build output level.</param>
+        /// <paramref name="configNode">The configuration node.</paramref>
+        /// <returns>
+        /// A new <see cref="Project" /> with the specified output level.
+        /// </returns>
+        public Project CreateFilebasedProject(string xml, Level level, XmlNode configNode) {
+            // create the build file in the temp folder
+            string buildFileName = Path.Combine(TempDirName, "test.build");
+            TempFile.CreateWithContents(xml, buildFileName);
+
+            return new Project(buildFileName, level, 0, configNode);
+        }
+
+        /// <summary>
+        /// Creates an empty project <see cref="XmlDocument" /> and loads it 
+        /// with a new project.
+        /// </summary>
+        /// <returns>
         /// The new <see cref="Project" />.
         /// </returns>
         protected Project CreateEmptyProject() {
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            XmlDocument doc = new XmlDocument();
             doc.AppendChild(doc.CreateElement("project"));
             return new Project(doc, Level.Info, 0);
         }
@@ -290,7 +312,9 @@ namespace Tests.NAnt.Core {
             _tempDirName = TempDir.Create(this.GetType().FullName);
         }
 
-        /// <summary>        /// This method will be called by NUnit for setup.        /// </summary>
+        /// <summary>
+        /// This method will be called by NUnit for setup.
+        /// </summary>
         [SetUp]
         protected void NUnitSetUp() {
             SetUp();
