@@ -32,6 +32,7 @@ using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
+using NAnt.Core.Configuration;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
  
@@ -461,7 +462,7 @@ namespace NAnt.Core {
                 if (!elementType.IsAssignableFrom(dataType.GetType())) {
                     // see if we have a valid copy constructor
                     ConstructorInfo constructor = elementType.GetConstructor(new Type[] {dataType.GetType()});
-                    if (constructor != null){
+                    if (constructor != null) {
                         dataType = (DataTypeBase) constructor.Invoke(new object[] {dataType});
                     } else {
                         ElementNameAttribute dataTypeAttr = (ElementNameAttribute) 
@@ -657,21 +658,39 @@ namespace NAnt.Core {
 
             public void Initialize() {
                 Type currentType = Element.GetType();
-            
+
                 PropertyInfo[] propertyInfoArray = currentType.GetProperties(
-                    BindingFlags.Public | BindingFlags.Instance);
+                    BindingFlags.Public | BindingFlags.Instance |
+                    BindingFlags.NonPublic);
 
                 // loop through all the properties in the derived class.
                 foreach (PropertyInfo propertyInfo in propertyInfoArray) {
+                    MethodInfo getter = null;
+                    MethodInfo setter = null;
+
+                    setter = propertyInfo.GetSetMethod(true);
+                    if (setter != null && !(setter.IsPublic || setter.IsFamily)) {
+                        setter = null;
+                    }
+
+                    getter = propertyInfo.GetGetMethod(true);
+                    if (getter != null && !(getter.IsPublic || getter.IsFamily)) {
+                        getter = null;
+                    }
+
+                    // skip properties that are not public or protected
+                    if (getter == null && setter == null)
+                        continue;
+
                     if (InitializeAttribute(propertyInfo)) {
                         continue;
                     }
-    
+
                     if (InitializeBuildElementCollection(propertyInfo)) {
                         continue;
                     }
 
-                    if (InitializeChildElement(propertyInfo)) {
+                    if (InitializeChildElement(propertyInfo, getter, setter)) {
                         continue;
                     }
                 }
@@ -1067,6 +1086,12 @@ namespace NAnt.Core {
                     Element childElement = InitializeBuildElement(childNode, 
                         elementType);
 
+                    // check if element should actually be added
+                    ConditionalElement conditional = childElement as ConditionalElement;
+                    if (conditional != null && !conditional.Enabled) {
+                        continue;
+                    }
+
                     // set element in array
                     list.SetValue(childElement, arrayIndex);
 
@@ -1076,8 +1101,18 @@ namespace NAnt.Core {
 
                 if (propertyInfo.PropertyType.IsArray) {
                     try {
-                        // set the member array to our newly created array
-                        propertyInfo.SetValue(Element, list, null);
+                        if (arrayIndex != list.Length) {
+                            // create a new array with a size that exactly matches
+                            // the number of initialized elements
+                            Array final = Array.CreateInstance(elementType, arrayIndex);
+                            // copy initialized entries to new array
+                            Array.Copy(list, 0, final, 0, arrayIndex);
+                            // set the member array to our newly created array
+                            propertyInfo.SetValue(Element, final, null);
+                        } else {
+                            // set the member array to our newly created array
+                            propertyInfo.SetValue(Element, list, null);
+                        }
                     } catch (TargetInvocationException ex) {
                         if (ex.InnerException is BuildException) {
                             throw ex.InnerException;
@@ -1138,15 +1173,17 @@ namespace NAnt.Core {
                     }
 
                     // add each element of the array to collection instance
-                    foreach (object childElement in list) {
-                        addMethod.Invoke(collection, BindingFlags.Default, null, new object[] {childElement}, CultureInfo.InvariantCulture);
+                    for (int i = 0; i < arrayIndex; i++) {
+                        object child = list.GetValue(i);
+                        addMethod.Invoke(collection, BindingFlags.Default, null,
+                            new object[] {child}, CultureInfo.InvariantCulture);
                     }
                 }
 
                 return true;
             }
 
-            protected virtual bool InitializeChildElement(PropertyInfo propertyInfo) {
+            protected virtual bool InitializeChildElement(PropertyInfo propertyInfo, MethodInfo getter, MethodInfo setter) {
                 // now do nested BuildElements
                 BuildElementAttribute buildElementAttribute = (BuildElementAttribute) 
                     Attribute.GetCustomAttribute(propertyInfo, typeof(BuildElementAttribute),
@@ -1183,8 +1220,8 @@ namespace NAnt.Core {
                     }
 
                     // create the child build element; not needed directly. It will be assigned to the local property.
-                    CreateChildBuildElement(propertyInfo, nestedElementNode, 
-                        Properties, TargetFramework);
+                    CreateChildBuildElement(propertyInfo, getter, setter,
+                        nestedElementNode, Properties, TargetFramework);
 
                     // output warning to build log when multiple nested elements 
                     // were specified in the build file, as NAnt will only process
@@ -1337,19 +1374,16 @@ namespace NAnt.Core {
             /// Creates a child <see cref="Element" /> using property set/get methods.
             /// </summary>
             /// <param name="propInf">The <see cref="PropertyInfo" /> instance that represents the property of the current class.</param>
+            /// <param name="getter">A <see cref="MethodInfo" /> representing the get accessor for the property.</param>
+            /// <param name="setter">A <see cref="MethodInfo" /> representing the set accessor for the property.</param>
             /// <param name="xml">The <see cref="XmlNode" /> used to initialize the new <see cref="Element" /> instance.</param>
             /// <param name="properties">The collection of property values to use for macro expansion.</param>
             /// <param name="framework">The <see cref="FrameworkInfo" /> from which to obtain framework-specific information.</param>
             /// <returns>The <see cref="Element" /> child.</returns>
-            private Element CreateChildBuildElement(PropertyInfo propInf, XmlNode xml, PropertyDictionary properties, FrameworkInfo framework) {
-                MethodInfo getter = null;
-                MethodInfo setter = null;
+            private Element CreateChildBuildElement(PropertyInfo propInf, MethodInfo getter, MethodInfo setter, XmlNode xml, PropertyDictionary properties, FrameworkInfo framework) {
                 Element childElement = null;
                 Type elementType = null;
 
-                setter = propInf.GetSetMethod(true);
-                getter = propInf.GetGetMethod(true);
-           
                 // if there is a getter, then get the current instance of the object, and use that
                 if (getter != null) {
                     try {
@@ -1375,8 +1409,9 @@ namespace NAnt.Core {
                     }
                 }
             
-                // create a new instance of the object if there is not a get method. (or the get object returned null... see above)
-                if (getter == null && setter != null) {
+                // create a new instance of the object if there is no get method
+                // or the get object returned null
+                if (getter == null) {
                     elementType = setter.GetParameters()[0].ParameterType;
                     if (elementType.IsAbstract) {
                         throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, 
