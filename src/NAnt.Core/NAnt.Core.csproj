@@ -355,6 +355,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Configuration\ConditionalElement.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Configuration\DirectoryName.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
