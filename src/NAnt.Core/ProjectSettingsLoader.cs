@@ -51,7 +51,7 @@ namespace NAnt.Core {
         /// Holds a value indicating whether a scan for tasks, types and functions
         /// has already been performed for the current runtime framework.
         /// </summary>
-        private static bool ScannedTasks = false;
+        private static bool ScannedTasks;
 
         #endregion Private Static Fields
 
@@ -130,6 +130,10 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         private void ProcessPlatform(XmlNode platformNode) {
+            if (platformNode == null) {
+                throw new ArgumentNullException("platformNode");
+            }
+
             // process platform task assemblies
             if (!ScannedTasks) {
                 FileSet platformTaskAssemblies = new FileSet();
@@ -192,6 +196,10 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="platformNode">An <see cref="XmlNode" /> representing the platform on which NAnt is running.</param>
         private void ProcessFrameworks(XmlNode platformNode) {
+            if (platformNode == null) {
+                throw new ArgumentNullException("platformNode");
+            }
+
             // deals with xml info from the config file, not build document.
             foreach (XmlNode frameworkNode in platformNode.SelectNodes("nant:framework", NamespaceManager)) {
                 // skip special elements like comments, pis, text, etc.
@@ -243,7 +251,7 @@ namespace NAnt.Core {
             // determine the version of the current runtime framework
             Version frameworkClrVersion = new Version(Environment.Version.ToString(3));
 
-            // determine which framework configuration match the host CLR
+            // determine which framework configuration matches the host CLR
             foreach (FrameworkInfo framework in Project.Frameworks) {
                 if (framework.Family != frameworkFamily)
                     continue;
