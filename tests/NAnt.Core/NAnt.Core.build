@@ -30,6 +30,9 @@
                 <include name="**/*.build"/>
                 <exclude name="**/mixed*"/>
             </resources>
+            <resources dynamicprefix="true" prefix="NAnt.Core.Tests">
+                <include name="Framework.config"/>
+            </resources>
         </csc>
     </target>
     <target name="test" depends="build">

@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 
@@ -201,6 +202,32 @@ namespace Tests.NAnt.Core {
                     Assert.IsNull(ex.ParamName, "#I5");
                 }
             }
+        }
+
+        [Test]
+        public void Invalid_SDK() {
+            const string xml = @"<?xml version=""1.0"" ?>
+                <project>
+                    <property name=""nant.settings.currentframework"" value=""testnet-1.0"" />
+                    <property name=""gacutil.tool"" value=""${framework::get-tool-path('gacutil.exe')}"" />
+                    <fail unless=""${file::exists(gacutil.tool)}"" />
+                    <echo>${gacutil.tool}</echo>
+                </project>";
+
+            XmlDocument configDoc = new XmlDocument ();
+            using (Stream cs = Assembly.GetExecutingAssembly().GetManifestResourceStream("NAnt.Core.Tests.Framework.config")) {
+                configDoc.Load (cs);
+            }
+
+            Project project = CreateFilebasedProject(xml, Level.Info,
+                configDoc.DocumentElement);
+            FrameworkInfo tf = project.Frameworks ["testnet-1.0"];
+            if (!tf.IsValid) {
+                Assert.Ignore(tf.Description + "is not available.");
+            }
+
+            Assert.IsNull(tf.SdkDirectory, "#1");
+            ExecuteProject(project);
         }
     }
 }
