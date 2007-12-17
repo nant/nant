@@ -138,7 +138,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.FrameworkDirectory;
-                    Assert.Fail ("#D1");
+                    Assert.Fail ("#D1:" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#D2");
@@ -149,7 +149,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.Project;
-                    Assert.Fail ("#E1");
+                    Assert.Fail ("#E1:" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#E2");
@@ -160,7 +160,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.SdkDirectory;
-                    Assert.Fail ("#F1");
+                    Assert.Fail ("#F1" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#F2");
@@ -171,7 +171,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.TaskAssemblies;
-                    Assert.Fail ("#G1");
+                    Assert.Fail ("#G1" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#G2");
@@ -182,7 +182,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.Version;
-                    Assert.Fail ("#H1");
+                    Assert.Fail ("#H1" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#H2");
@@ -193,7 +193,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     object x = df.VisualStudioVersion;
-                    Assert.Fail ("#I1");
+                    Assert.Fail ("#I1" + x);
                 } catch (ArgumentException ex) {
                     // The current framework is not valid
                     Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#I2");
