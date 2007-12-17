@@ -234,8 +234,6 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.Ignore("Tests requires at least one invalid framework.");
             }
 
-            FrameworkInfo original = p.TargetFramework;
-
             string _xml = @"
                     <project name='PropTests'>
                         <property name='nant.settings.currentframework' value='{0}' />
