@@ -97,7 +97,7 @@ namespace NAnt.Core.Configuration {
                 base.InitializeOrderedChildElements ();
             }
 
-            private readonly bool _enabled;
+            private readonly bool _enabled = true;
         }
     }
 }
