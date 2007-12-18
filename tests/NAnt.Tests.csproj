@@ -294,6 +294,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\Tasks\ExternalProgramBaseTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Tasks\FailTest.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
