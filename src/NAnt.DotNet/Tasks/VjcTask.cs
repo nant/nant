@@ -369,6 +369,11 @@ namespace NAnt.DotNet.Tasks {
             if (WarningLevel != null) {
                 WriteOption(writer, "warn", WarningLevel);
             }
+
+            // win32res
+            if (Win32Res != null) {
+                WriteOption (writer, "win32res", Win32Res.FullName);
+            }
         }
 
         /// <summary>

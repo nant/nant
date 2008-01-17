@@ -371,6 +371,11 @@ namespace NAnt.DotNet.Tasks {
             if (VersionSafe) {
                 WriteOption(writer, "versionsafe");
             }
+
+            // win32res
+            if (Win32Res != null) {
+                WriteOption (writer, "win32res", Win32Res.FullName);
+            }
         }
 
         /// <summary>

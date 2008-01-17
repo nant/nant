@@ -49,6 +49,7 @@ namespace NAnt.DotNet.Tasks {
         private bool _debug;
         private string _define;
         private FileInfo _win32icon;
+        private FileInfo _win32res;
         private bool _warnAsError;
         private WarningAsError _warningAsError = new WarningAsError();
         private string _noWarn;
@@ -178,6 +179,20 @@ namespace NAnt.DotNet.Tasks {
         public FileInfo Win32Icon {
             get { return _win32icon; }
             set { _win32icon = value; }
+        }
+
+        /// <summary>
+        /// Specifies a Win32 resource file (.res).
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Corresponds to <c>/win32res[ource]:</c> flag.
+        /// </para>
+        /// </remarks>
+        [TaskAttribute("win32res")]
+        public FileInfo Win32Res {
+            get { return _win32res; }
+            set { _win32res = value; }
         }
 
         /// <summary>
@@ -1207,6 +1222,16 @@ namespace NAnt.DotNet.Tasks {
             // check if win32icon was updated
             if (Win32Icon != null) {
                 fileName = FileSet.FindMoreRecentLastWriteTime(Win32Icon.FullName, OutputFile.LastWriteTime);
+                if (fileName != null) {
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
+                    return true;
+                }
+            }
+
+            // check if win32 resource was updated
+            if (Win32Res != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(Win32Res.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
                         fileName);

@@ -452,6 +452,11 @@ namespace NAnt.DotNet.Tasks {
                 }
             }
 
+            // win32res
+            if (Win32Res != null) {
+                WriteOption (writer, "win32resource", Win32Res.FullName);
+            }
+
             // handle debug builds.
             switch (DebugOutput) {
                 case DebugOutput.None:
@@ -512,6 +517,10 @@ namespace NAnt.DotNet.Tasks {
         /// Determines whether compilation is needed.
         /// </summary>
         protected override bool NeedsCompiling() {
+            if (base.NeedsCompiling()) {
+                return true;
+            }
+
             if (DocFile != null && SupportsDocGeneration) {
                 if (!DocFile.Exists) {
                     Log(Level.Verbose, ResourceUtils.GetString("String_DocFileDoesNotExist"),
