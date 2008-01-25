@@ -50,8 +50,7 @@ namespace NAnt.SourceControl.Tasks
     /// <cvs-rtag 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     destination="."
-    ///     module="nant"
-    ///     tagname="v0_8_4"
+    ///     tag="v0_8_4"
     ///      />
     ///     ]]>
     ///   </code>
@@ -63,8 +62,7 @@ namespace NAnt.SourceControl.Tasks
     /// <cvs-rtag 
     ///     cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/nant" 
     ///     destination="."
-    ///     module="nant"
-    ///     tagname="v0_8_4"
+    ///     tag="v0_8_4"
     ///     remove="true"
     ///      />
     ///     ]]>
