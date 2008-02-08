@@ -151,6 +151,50 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
+        public void NamespaceImports () {
+            string xml = @"
+                <project>
+                    <script language='C#'>
+                        <imports>
+                            <import namespace='System.Xml.Schema' />
+                        </imports>
+                        <references>
+                            <include name='System.Xml.dll' />
+                        </references>
+                        <code>
+                            <![CDATA[
+                                public static void ScriptMain(Project project) {
+                                    // ensure System.Collections namespace is imported
+                                    ArrayList list = new ArrayList ();
+                                    if (list == null) {
+                                        // avoid compiler warning
+                                    }
+
+                                    // ensure System.IO namespace is imported
+                                    MemoryStream ms = new MemoryStream ();
+                                    if (ms == null) {
+                                        // avoid compiler warning
+                                    }
+
+                                    // ensure System.Text namespace is imported
+                                    StringBuilder sb = new StringBuilder ();
+                                    if (sb == null) {
+                                        // avoid compiler warning
+                                    }
+
+                                    XmlSchemaType stype = new XmlSchemaType ();
+                                    project.Properties[""schema.type""] = stype.GetType ().FullName;
+                                }
+                            ]]>
+                        </code>
+                    </script>
+                    <fail unless=""${schema.type=='System.Xml.Schema.XmlSchemaType'}"" />
+                </project>";
+
+            RunBuild(xml);
+        }
+
+        [Test]
         public void Test_2ScriptsInOneProject() {
             string _xml = @"
             <project>
