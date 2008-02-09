@@ -114,9 +114,10 @@ namespace NAnt.VSNet {
             htBooleanSettings["Optimize"] = "/optimize";
 
             foreach (DictionaryEntry de in htStringSettings) {
+                string name = de.Key.ToString();
                 string value = elemConfig.GetAttribute(de.Key.ToString());
                 if (!StringUtils.IsNullOrEmpty(value)) {
-                    switch (de.Key.ToString()) {
+                    switch (name) {
                         case "BaseAddress":
                             // vbc and vjs expect the base address to be specified
                             // as a hexadecimal number, csc supports decimal, 
@@ -136,7 +137,18 @@ namespace NAnt.VSNet {
             }
 
             foreach (DictionaryEntry de in htBooleanSettings) {
-                string value = elemConfig.GetAttribute(de.Key.ToString());
+                string name = de.Key.ToString();
+                switch (name) {
+                    case "IncrementalBuild":
+                        // ignore if not supported
+                        if (!IncrementalBuildSupported) {
+                            Console.WriteLine ("IGNORE");
+                            continue;
+                        }
+                        break;
+                }
+
+                string value = elemConfig.GetAttribute(name);
                 if (string.Compare(value, "true", true, CultureInfo.InvariantCulture) == 0) {
                     _settings.Add(de.Value.ToString() + "+");
                 } else if (string.Compare(value, "false", true, CultureInfo.InvariantCulture) == 0) {
@@ -208,6 +220,18 @@ namespace NAnt.VSNet {
         }
 
         #endregion Public Instance Properties
+
+        #region Private Instance Properties
+
+        private bool IncrementalBuildSupported {
+            get {
+                FrameworkInfo tf = SolutionTask.Project.TargetFramework;
+                // only supported up until .NET Framework 2.0
+                return (tf.Family == "net" && tf.Version <= new Version (2, 0));
+            }
+        }
+
+        #endregion Private Instance Properties
 
         #region Private Instance Fields
 
