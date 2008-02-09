@@ -36,7 +36,6 @@ using NAnt.VSNet.Tasks;
 namespace NAnt.VSNet {
     /// <summary>
     /// Analyses Microsoft Visual Studio .NET 2005 (Whidbey) solution files.
-    /// !! FOR NOW IT IS PLAIN COPY OF EVERETT (2003) !!
     /// </summary>
     internal class WhidbeySolution : SolutionBase {
         public WhidbeySolution(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver)
@@ -49,6 +48,11 @@ namespace NAnt.VSNet {
             foreach (Match projectMatch in projectMatches) {
                 string project = projectMatch.Groups["project"].Value;
                 string guid = projectMatch.Groups["guid"].Value;
+                string all = projectMatch.Groups["all"].Value;
+
+                // bug #1732361: skip solution folders
+                if (all.IndexOf("ProjectSection(SolutionItems)") != -1)
+                    continue;
 
                 // translate partial project path or URL to absolute path
                 string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
@@ -76,23 +80,36 @@ namespace NAnt.VSNet {
                 }
 
                 // set-up project configuration 
-                Regex reProjectBuildConfig = new Regex(@"^\s+" + Regex.Escape(guid) + @"\.(?<solutionConfiguration>[^|]+)\|(?<solutionPlatform>[^.]+)\.Build\.0\s*=\s*(?<projectConfiguration>[^|]+)\|(?<projectPlatform>[^.]+)\s*\S*", RegexOptions.Multiline);
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + Regex.Escape(guid) + @"\.(?<solutionConfiguration>[^|]+)\|(?<solutionPlatform>[^.]+)\.Build\.0\s*=\s*(?<projectConfiguration>[^|]+)\|(?<projectPlatform>[\.\w ]+)\s*", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
-                // initialize hashtable that will hold the project build configurations
-                Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
-                if (projectBuildMatches.Count > 0) {
-                    foreach (Match projectBuildMatch in projectBuildMatches) {
-                        string solutionConfiguration = projectBuildMatch.Groups["solutionConfiguration"].Value;
-                        string projectConfiguration = projectBuildMatch.Groups["projectConfiguration"].Value;
-                        projectBuildConfiguration[solutionConfiguration] = projectConfiguration;
-                    }
+                ProjectEntry projectEntry = ProjectEntries [guid];
+                if (projectEntry == null) {
+                    // TODO: determine if we should report an error if a build
+                    // configuration is defined for a project that does not
+                    // exist in the solution
+                    continue;
                 }
 
-                // add project build configuration, this signals that project was 
-                // loaded in context of solution file
-                ProjectBuildConfigurations[guid] = projectBuildConfiguration;
+                // holds mapping between project configuration(s) and solution(s)
+                ConfigurationMap buildConfigurations = new ConfigurationMap(
+                    projectBuildMatches.Count);
+
+                for (int i = 0; i < projectBuildMatches.Count; i++) {
+                    Match projectBuildMatch = projectBuildMatches [i];
+                    string solutionConfigName = projectBuildMatch.Groups["solutionConfiguration"].Value;
+                    string solutionPlatform = projectBuildMatch.Groups["solutionPlatform"].Value;
+                    string projectConfigName = projectBuildMatch.Groups["projectConfiguration"].Value;
+                    string projectPlatform = projectBuildMatch.Groups["projectPlatform"].Value;
+                    Configuration solutionConfig = new Configuration(
+                        solutionConfigName, solutionPlatform);
+                    Configuration projectConfig = new Configuration(
+                        projectConfigName, projectPlatform);
+                    buildConfigurations [solutionConfig] = projectConfig;
+                }
+
+                // add map to corresponding project entry
+                projectEntry.BuildConfigurations = buildConfigurations;
             }
 
             LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);
