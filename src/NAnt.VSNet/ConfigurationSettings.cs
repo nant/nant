@@ -142,7 +142,6 @@ namespace NAnt.VSNet {
                     case "IncrementalBuild":
                         // ignore if not supported
                         if (!IncrementalBuildSupported) {
-                            Console.WriteLine ("IGNORE");
                             continue;
                         }
                         break;
