@@ -18,13 +18,13 @@
 // Martin Aliger (martin_aliger@myrealbox.com)
 
 using System;
-using System.Xml;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Util;
@@ -76,14 +76,14 @@ namespace NAnt.MSBuild {
         public MSBuildProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir)
             : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
             string cfgname = solutionTask.Configuration;
-            string platform = null;
+            string platform = solutionTask.Platform;
 
             _msbuild = MSBuildEngine.CreateMSEngine(solutionTask);
             _msproj = new Microsoft.Build.BuildEngine.Project(_msbuild);
             _msproj.FullFileName = projectPath;
             _msproj.LoadXml(xmlDefinition.OuterXml);
             _msproj.GlobalProperties.SetProperty("Configuration", cfgname);
-            if (platform != null) _msproj.GlobalProperties.SetProperty("Platform", platform);
+            if (platform.Length > 0) _msproj.GlobalProperties.SetProperty("Platform", platform.Replace(" ", string.Empty));
             if (outputDir != null) _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
 
             //evaluating
@@ -91,10 +91,18 @@ namespace NAnt.MSBuild {
             _projectDirectory = new DirectoryInfo(_msproj.GetEvaluatedProperty("ProjectDir"));
             _projectPath = _msproj.GetEvaluatedProperty("ProjectPath");
 
-            //project configuration
-            // - a little hack. Add just one configuration, which is building
-            // - setting is get via MSBuild system
-            ProjectConfigurations[cfgname] = new MSBuildConfiguration(this, _msproj);
+            ProjectEntry projectEntry = solution.ProjectEntries [_guid];
+            if (projectEntry != null && projectEntry.BuildConfigurations != null) {
+                foreach (ConfigurationMapEntry ce in projectEntry.BuildConfigurations) {
+                    Configuration solutionConfig = ce.Key;
+                    Configuration projectConfig = ce.Value;
+
+                    ProjectConfigurations[projectConfig] = new MSBuildConfiguration(this, _msproj, projectConfig);
+                }
+            } else {
+                Configuration projectConfig = new Configuration (cfgname, platform);
+                ProjectConfigurations[projectConfig] = new MSBuildConfiguration(this, _msproj, projectConfig);
+            }
 
             //references
             _references = new ArrayList();
@@ -171,7 +179,7 @@ namespace NAnt.MSBuild {
             set { throw new InvalidOperationException("It is not allowed to change the GUID of a MSBuild project"); }
         }
 
-        public override System.Collections.ArrayList References {
+        public override ArrayList References {
             get {
                 return _references;
             }
@@ -181,7 +189,7 @@ namespace NAnt.MSBuild {
             return new MSBuildProjectReference(ReferencesResolver, this, project, isPrivateSpecified, isPrivate);
         }
 
-        public override bool IsManaged(string configuration) {
+        public override bool IsManaged(Configuration configuration) {
             return true;
         }
 
@@ -196,9 +204,13 @@ namespace NAnt.MSBuild {
                     Location.UnknownLocation);
         }
 
-        protected override BuildResult Build(string solutionConfiguration) {
+        protected override BuildResult Build(Configuration solutionConfiguration) {
+            // explicitly set the Configuration and Platform
+            MSBuildConfiguration projectConfig = (MSBuildConfiguration) BuildConfigurations[solutionConfiguration];
+            _msproj.GlobalProperties.SetProperty("Configuration", projectConfig.Name);
+            _msproj.GlobalProperties.SetProperty("Platform", projectConfig.PlatformName.Replace(" ", string.Empty));
 
-            //DONE: MSBuild'll resolve all references once again
+            // DONE: MSBuild'll resolve all references once again
             // is there any way how to disable it?
             // moreover, they could be resolved to something else!
 
@@ -211,8 +223,8 @@ namespace NAnt.MSBuild {
             //maybe @(_ReferenceRelatedPaths)
             //@(ReferenceSatellitePaths)
 
-            //or maybe modify original references to contain full path to whatever we resolved?
-            //that seems reasonable. Try it:
+            // or maybe modify original references to contain full path to whatever we resolved?
+            // that seems reasonable. Try it:
             _msproj.RemoveItemsByName("Reference");
             _msproj.RemoveItemsByName("ProjectReference");
             Microsoft.Build.BuildEngine.BuildItemGroup refs = _msproj.AddNewItemGroup();
@@ -226,7 +238,7 @@ namespace NAnt.MSBuild {
                 i.SetMetadata("CopyLocal", r.CopyLocal ? "True" : "False");
             }
 
-            //this should disable assembly resolution and always use hintpath (which we suply)
+            // this should disable assembly resolution and always use hintpath (which we supply)
             _msproj.GlobalProperties.SetProperty("AssemblySearchPaths", "{HintPathFromItem}");
 
             if(_msproj.Build())

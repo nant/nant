@@ -69,7 +69,7 @@ namespace NAnt.MSBuild {
             get { return _project; }
         }
 
-        public override bool IsManaged(string solutionConfiguration) {
+        public override bool IsManaged(Configuration solutionConfiguration) {
             return true;
         }
     }

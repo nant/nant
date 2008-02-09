@@ -36,13 +36,18 @@ namespace NAnt.MSBuild {
         private readonly string _relativeOutputDir;
         private readonly DirectoryInfo _outputDir;
         private readonly DirectoryInfo _objdir;
-        ManagedOutputType _outputType;
-        string _asmname;
-        string _platform;
+        private readonly ManagedOutputType _outputType;
+        private readonly string _asmname;
+        private readonly string _platform;
 
-        public MSBuildConfiguration(MSBuildProject project, Microsoft.Build.BuildEngine.Project msproj)
+        public MSBuildConfiguration(MSBuildProject project, Microsoft.Build.BuildEngine.Project msproj, Configuration projectConfig)
             : base(project) {
-            _name = msproj.GetEvaluatedProperty("Configuration");
+            _name = projectConfig.Name;
+            _platform = projectConfig.Platform;
+
+            msproj.GlobalProperties.SetProperty("Configuration", _name);
+            msproj.GlobalProperties.SetProperty("Platform", _platform.Replace(" ", string.Empty));
+
             _relativeOutputDir = msproj.GetEvaluatedProperty("OutputPath");
             if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
                 _relativeOutputDir = _relativeOutputDir + Path.DirectorySeparatorChar;
@@ -55,7 +60,6 @@ namespace NAnt.MSBuild {
 
             _outputType = GetType(msproj.GetEvaluatedProperty("OutputType"));
             _asmname = msproj.GetEvaluatedProperty("AssemblyName");
-            _platform = msproj.GetEvaluatedProperty("Platform");
         }
 
         private ManagedOutputType GetType(string p) {
