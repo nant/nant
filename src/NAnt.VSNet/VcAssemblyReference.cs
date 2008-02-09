@@ -90,7 +90,8 @@ namespace NAnt.VSNet {
                 // TODO: support locating assemblies in VCConfiguration.ReferencesPath,
                 // but for now just remove it from reference filename and
                 // search all assembly folders
-                assemblyFileName = assemblyFileName.Replace("{ReferencesPath}\\", "");
+                assemblyFileName = assemblyFileName.Replace("{ReferencesPath}\\",
+                    string.Empty);
             }
 
             // 1. The RelativePath might be fully qualified (after macro expansion)

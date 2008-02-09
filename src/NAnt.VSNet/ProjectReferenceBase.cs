@@ -89,7 +89,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The output path of the reference.
         /// </returns>
-        public override string GetPrimaryOutputFile(string solutionConfiguration) {
+        public override string GetPrimaryOutputFile(Configuration solutionConfiguration) {
             return Project.GetOutputPath(solutionConfiguration);
         }
 
@@ -106,7 +106,7 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+        public override void GetOutputFiles(Configuration solutionConfiguration, Hashtable outputFiles) {
             Project.GetOutputFiles(solutionConfiguration, outputFiles);
         }
 
@@ -141,7 +141,7 @@ namespace NAnt.VSNet {
         /// project.
         /// </para>
         /// </remarks>
-        public override StringCollection GetAssemblyReferences(string solutionConfiguration) {
+        public override StringCollection GetAssemblyReferences(Configuration solutionConfiguration) {
             StringCollection assemblyReferences = null;
 
             // check if parent is a VB.NET project
@@ -151,14 +151,19 @@ namespace NAnt.VSNet {
                 assemblyReferences = new StringCollection();
             }
 
-            string projectOutputFile = Project.GetConfiguration(
-                solutionConfiguration).BuildPath;
+            ConfigurationBase projectConfig = Project.GetConfiguration(
+                solutionConfiguration);
 
-            // check if project has output file
-            if (projectOutputFile != null) {
-                if (File.Exists(projectOutputFile)) {
-                    // add primary output to list of reference assemblies
-                    assemblyReferences.Add(projectOutputFile);
+            // check if project is actual configured to be built
+            if (projectConfig != null) {
+                string projectOutputFile = projectConfig.BuildPath;
+
+                // check if project has output file
+                if (projectOutputFile != null) {
+                    if (File.Exists(projectOutputFile)) {
+                        // add primary output to list of reference assemblies
+                        assemblyReferences.Add(projectOutputFile);
+                    }
                 }
             }
 
@@ -173,7 +178,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public override DateTime GetTimestamp(string solutionConfiguration) {
+        public override DateTime GetTimestamp(Configuration solutionConfiguration) {
             string projectOutputFile = Project.GetOutputPath(solutionConfiguration);
             if (projectOutputFile != null) {
                 return GetFileTimestamp(projectOutputFile);

@@ -2,3 +2,4 @@
 NAnt.VSNetTasks.xml
 *.user
 obj
+NAnt.VSNet.xml

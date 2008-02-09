@@ -103,7 +103,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The full output path of the reference.
         /// </returns>
-        public abstract string GetPrimaryOutputFile(string solutionConfiguration);
+        public abstract string GetPrimaryOutputFile(Configuration solutionConfiguration);
 
         /// <summary>
         /// Gets the complete set of output files of the reference for the 
@@ -116,7 +116,7 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public abstract void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles);
+        public abstract void GetOutputFiles(Configuration solutionConfiguration, Hashtable outputFiles);
 
         /// <summary>
         /// Gets the complete set of assemblies that need to be referenced when
@@ -127,7 +127,7 @@ namespace NAnt.VSNet {
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this component.
         /// </returns>
-        public abstract StringCollection GetAssemblyReferences(string solutionConfiguration);
+        public abstract StringCollection GetAssemblyReferences(Configuration solutionConfiguration);
 
         /// <summary>
         /// Gets the timestamp of the reference.
@@ -136,7 +136,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public abstract DateTime GetTimestamp(string solutionConfiguration);
+        public abstract DateTime GetTimestamp(Configuration solutionConfiguration);
 
         /// <summary>
         /// Gets a value indicating whether the reference is managed for the
@@ -147,7 +147,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if the reference is managed for the
         /// specified configuration; otherwise, <see langword="false" />.
         /// </returns>
-        public abstract bool IsManaged(string solutionConfiguration);
+        public abstract bool IsManaged(Configuration solutionConfiguration);
 
         #endregion Public Instance Methods
 

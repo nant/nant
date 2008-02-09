@@ -28,8 +28,8 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
-namespace NAnt.VSNet {
-    internal class RainierSolutionProvider : ISolutionBuildProvider {
+namespace NAnt.VSNet.Rainier {
+    internal class SolutionProvider : ISolutionBuildProvider {
         #region Implementation of ISolutionBuildProvider
 
         public int IsSupported(string fileContents) {
@@ -48,7 +48,7 @@ namespace NAnt.VSNet {
         }
 
         public SolutionBase GetInstance(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
-            return new RainierSolution(solutionContent, solutionTask, tfc, gacCache, refResolver);
+            return new Solution(solutionContent, solutionTask, tfc, gacCache, refResolver);
         }
 
         #endregion Implementation of ISolutionBuildProvider

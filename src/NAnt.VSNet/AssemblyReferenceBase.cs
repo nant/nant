@@ -110,7 +110,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The output path of the reference.
         /// </returns>
-        public override string GetPrimaryOutputFile(string solutionConfiguration) {
+        public override string GetPrimaryOutputFile(Configuration solutionConfiguration) {
             return ResolveAssemblyReference();
         }
 
@@ -124,7 +124,7 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+        public override void GetOutputFiles(Configuration solutionConfiguration, Hashtable outputFiles) {
             string assemblyFile = ResolveAssemblyReference();
             if (assemblyFile != null) {
                 base.GetAssemblyOutputFiles(assemblyFile, outputFiles);
@@ -140,7 +140,7 @@ namespace NAnt.VSNet {
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this component.
         /// </returns>
-        public override StringCollection GetAssemblyReferences(string solutionConfiguration) {
+        public override StringCollection GetAssemblyReferences(Configuration solutionConfiguration) {
             // if we're dealing with an assembly reference, then we only 
             // need to reference that assembly itself as VS.NET forces users
             // to add all dependent assemblies to the project itself
@@ -177,7 +177,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public override DateTime GetTimestamp(string solutionConfiguration) {
+        public override DateTime GetTimestamp(Configuration solutionConfiguration) {
             string assemblyFile = ResolveAssemblyReference();
             if (assemblyFile == null) {
                 return DateTime.MaxValue;

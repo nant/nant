@@ -201,6 +201,7 @@ namespace NAnt.VSNet.Tasks {
             _webMaps = new WebMapCollection();
             _projectFactory = ProjectFactory.Create(this);
             _solutionFactory = SolutionFactory.Create();
+            _configuration = new Configuration ();
         }
 
         #endregion Public Instance Constructors
@@ -257,25 +258,26 @@ namespace NAnt.VSNet.Tasks {
         [TaskAttribute("configuration", Required=true)]
         [StringValidator(AllowEmpty=false)]
         public string Configuration {
-            get { return _configuration; }
-            set { _configuration = StringUtils.ConvertEmptyToNull(value); }
+            get { return _configuration.Name; }
+            set { _configuration.Name = StringUtils.ConvertEmptyToNull(value); }
         }
 
-        /*
         /// <summary>
-        /// Set of properties set at solution level. Builders for projects in solution may or may not use them.
+        /// The name of platform to build the solution for.
         /// </summary>
-        /// <remarks>
-        /// <para>
-        /// TODO: some documentataion which properties could be defined here.
-        /// </para>
-        /// </remarks>
-        [BuildElementArray("property", ElementType = typeof(PropertyTask))]
-        public ArrayList CustomProperties
-        {
-            get { return _customproperties; }
+        [TaskAttribute("platform", Required=false)]
+        [StringValidator(AllowEmpty=true)]
+        public string Platform {
+            get { return _configuration.Platform; }
+            set { _configuration.Platform = value; }
         }
-        */
+
+        /// <summary>
+        /// Gets the solution configuration to build.
+        /// </summary>
+        public Configuration SolutionConfig {
+            get { return _configuration; }
+        }
 
         /// <summary>
         /// The directory where compiled targets will be placed.  This
@@ -354,7 +356,7 @@ namespace NAnt.VSNet.Tasks {
                     foreach (string folder in AssemblyFolders.DirectoryNames) {
                         if (!_assemblyFolderList.Contains(folder)) {
                             _assemblyFolderList.Add(folder);
-                                Log(Level.Debug, "Added \"{0}\" to AssemblyFolders.",
+                            Log(Level.Debug, "Added \"{0}\" to AssemblyFolders.",
                                 folder);
                         }
                     }
@@ -451,7 +453,7 @@ namespace NAnt.VSNet.Tasks {
                         using (GacCache gacCache = new GacCache(this.Project)) {
                             SolutionBase sln = SolutionFactory.LoadSolution(this, 
                                 tfc, gacCache, referencesResolver);
-                            if (!sln.Compile(Configuration)) {
+                            if (!sln.Compile(_configuration)) {
                                 throw new BuildException("Project build failed.", Location);
                             }
                         }
@@ -611,7 +613,7 @@ namespace NAnt.VSNet.Tasks {
         #region Private Instance Fields
 
         private FileInfo _solutionFile;
-        private string _configuration;
+        private Configuration _configuration;
         private DirectoryInfo _outputDir;
         private FileSet _projects;
         private FileSet _referenceProjects;
@@ -621,7 +623,6 @@ namespace NAnt.VSNet.Tasks {
         private WebMapCollection _webMaps;
         private bool _includeVSFolders = true;
         private bool _enableWebDav;
-//        private ArrayList _customproperties = new ArrayList();
         private readonly SolutionFactory _solutionFactory;
         private readonly ProjectFactory _projectFactory;
 

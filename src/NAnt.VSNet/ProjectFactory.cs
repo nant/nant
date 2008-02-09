@@ -152,6 +152,11 @@ namespace NAnt.VSNet {
             string projectExt = Path.GetExtension(projectFileName).ToLower(
                 CultureInfo.InvariantCulture);
 
+            // fast-skip setup projects since the project files is not XML-based
+            if (projectExt == ".vdproj") {
+                return null;
+            }
+
             // holds the XML definition of the project
             XmlElement xmlDefinition;
 

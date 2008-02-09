@@ -36,7 +36,7 @@ namespace NAnt.VSNet.Rainier {
     /// <summary>
     /// Analyses Microsoft Visual Studio .NET 2002 (Rainier) solution files.
     /// </summary>
-    public class Solution : SolutionBase {
+    internal class Solution : SolutionBase {
         public Solution(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) : base(solutionTask, tfc, gacCache, refResolver) {
             Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
             MatchCollection projectMatches = reProjects.Matches(solutionContent);
@@ -77,23 +77,36 @@ namespace NAnt.VSNet.Rainier {
                 }
 
                 // set-up project configuration 
-                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<solutionConfiguration>[^|]+)\.Build\.0\s*=\s*(?<projectConfiguration>[^|]+)\|\s*\S*", RegexOptions.Multiline);
+                Regex reProjectBuildConfig = new Regex(@"^\s+" + guid + @"\.(?<solutionConfiguration>[^|]+)\|?(?<solutionPlatform>[^\.]?)\.Build\.0\s*=\s*(?<projectConfiguration>[^|]+)\|(?<projectPlatform>[\.\w ]+)\s*", RegexOptions.Multiline);
                 MatchCollection projectBuildMatches = reProjectBuildConfig.Matches(solutionContent);
 
-                // initialize hashtable that will hold the project build configurations
-                Hashtable projectBuildConfiguration = CollectionsUtil.CreateCaseInsensitiveHashtable();
-
-                if (projectBuildMatches.Count > 0) {
-                    foreach (Match projectBuildMatch in projectBuildMatches) {
-                        string solutionConfiguration = projectBuildMatch.Groups["solutionConfiguration"].Value;
-                        string projectConfiguration = projectBuildMatch.Groups["projectConfiguration"].Value;
-                        projectBuildConfiguration[solutionConfiguration] = projectConfiguration;
-                    }
+                ProjectEntry projectEntry = ProjectEntries [guid];
+                if (projectEntry == null) {
+                    // TODO: determine if we should report an error if a build
+                    // configuration is defined for a project that does not
+                    // exist in the solution
+                    continue;
                 }
 
-                // add project build configuration, this signals that project was 
-                // loaded in context of solution file
-                ProjectBuildConfigurations[guid] = projectBuildConfiguration;
+                // holds mapping between project configuration(s) and solution(s)
+                ConfigurationMap buildConfigurations = new ConfigurationMap(
+                    projectBuildMatches.Count);
+
+                for (int i = 0; i < projectBuildMatches.Count; i++) {
+                    Match projectBuildMatch = projectBuildMatches [i];
+                    string solutionConfigName = projectBuildMatch.Groups["solutionConfiguration"].Value;
+                    string solutionPlatform = projectBuildMatch.Groups["solutionPlatform"].Value;
+                    string projectConfigName = projectBuildMatch.Groups["projectConfiguration"].Value;
+                    string projectPlatform = projectBuildMatch.Groups["projectPlatform"].Value;
+                    Configuration solutionConfig = new Configuration(
+                        solutionConfigName, solutionPlatform);
+                    Configuration projectConfig = new Configuration(
+                        projectConfigName, projectPlatform);
+                    buildConfigurations [solutionConfig] = projectConfig;
+                }
+
+                // add map to corresponding project entry
+                projectEntry.BuildConfigurations = buildConfigurations;
             }
 
             LoadProjectGuids(new ArrayList(solutionTask.Projects.FileNames), false);

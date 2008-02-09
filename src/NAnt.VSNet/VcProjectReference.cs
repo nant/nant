@@ -76,7 +76,7 @@ namespace NAnt.VSNet {
         /// <see langword="true" /> if the reference is managed for the
         /// specified configuration; otherwise, <see langword="false" />.
         /// </returns>
-        public override bool IsManaged(string config) {
+        public override bool IsManaged(Configuration config) {
             return Project.IsManaged(config);            
         }
 

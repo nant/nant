@@ -205,7 +205,7 @@ namespace NAnt.VSNet {
                 case "targetdir": // Absolute path to OutDir
                     return OutputDir.FullName + (OutputDir.FullName.EndsWith(
                         Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
-                        ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
+                        ? string.Empty : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
                 case "platformname": // .NET, does this value ever change?
                     return PlatformName;
             }

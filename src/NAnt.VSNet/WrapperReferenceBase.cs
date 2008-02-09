@@ -82,7 +82,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The output path of the reference.
         /// </returns>
-        public override string GetPrimaryOutputFile(string solutionConfiguration) {
+        public override string GetPrimaryOutputFile(Configuration solutionConfiguration) {
             return WrapperAssembly;
         }
 
@@ -96,9 +96,9 @@ namespace NAnt.VSNet {
         /// full path of the output file and the value is the path relative to
         /// the output directory.
         /// </remarks>
-        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+        public override void GetOutputFiles(Configuration solutionConfiguration, Hashtable outputFiles) {
             // obtain project configuration (corresponding with solution configuration)
-            ConfigurationBase config = (ConfigurationBase) Parent.BuildConfigurations[solutionConfiguration];
+            ConfigurationBase config = Parent.BuildConfigurations[solutionConfiguration];
 
             base.GetAssemblyOutputFiles(CreateWrapper(config), outputFiles);
         }
@@ -112,9 +112,9 @@ namespace NAnt.VSNet {
         /// The complete set of assemblies that need to be referenced when a 
         /// project references this component.
         /// </returns>
-        public override StringCollection GetAssemblyReferences(string solutionConfiguration) {
+        public override StringCollection GetAssemblyReferences(Configuration solutionConfiguration) {
             // obtain project configuration (corresponding with solution configuration)
-            ConfigurationBase config = (ConfigurationBase) Parent.BuildConfigurations[solutionConfiguration];
+            ConfigurationBase config = Parent.BuildConfigurations[solutionConfiguration];
 
             // ensure wrapper is actually created
             string assemblyFile = CreateWrapper(config);
@@ -138,7 +138,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// The timestamp of the reference.
         /// </returns>
-        public override DateTime GetTimestamp(string solutionConfiguration) {
+        public override DateTime GetTimestamp(Configuration solutionConfiguration) {
             return GetFileTimestamp(WrapperAssembly);
         }
 

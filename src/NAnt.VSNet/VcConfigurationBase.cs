@@ -203,10 +203,10 @@ namespace NAnt.VSNet {
                     if (index < _name.Length) {
                         return _name.Substring(index + 1, _name.Length - 1 - index);
                     } else {
-                        return "";
+                        return string.Empty;
                     }
                 } else {
-                    return "";
+                    return string.Empty;
                 }
             }
         }

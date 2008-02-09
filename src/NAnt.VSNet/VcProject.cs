@@ -58,7 +58,6 @@ namespace NAnt.VSNet {
                 throw new ArgumentNullException("projectPath");
             }
 
-            _htPlatformConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable();
             _references = new ArrayList();
             _clArgMap = VcArgumentMap.CreateCLArgumentMap();
             _linkerArgMap = VcArgumentMap.CreateLinkerArgumentMap();
@@ -71,8 +70,7 @@ namespace NAnt.VSNet {
             XmlNodeList configurationNodes = xmlDefinition.SelectNodes("//Configurations/Configuration");
             foreach (XmlElement configElem in configurationNodes) {
                 VcProjectConfiguration config = new VcProjectConfiguration(configElem, this, OutputDir);
-                ProjectConfigurations[config.Name] = config;
-                _htPlatformConfigurations[config.FullName] = config;
+                ProjectConfigurations[new Configuration (config.Name, config.PlatformName)] = config;
             }
 
             XmlNodeList references = xmlDefinition.SelectNodes("//References/child::*");
@@ -102,8 +100,9 @@ namespace NAnt.VSNet {
                 if (fileConfigList.Count > 0) {
                     htFileConfigurations = CollectionsUtil.CreateCaseInsensitiveHashtable(fileConfigList.Count);
                     foreach (XmlElement fileConfigElem in fileConfigList) {
-                        string fileConfigName = fileConfigElem.GetAttribute("Name");
-                        VcProjectConfiguration projectConfig = (VcProjectConfiguration) _htPlatformConfigurations[fileConfigName];
+                        Configuration fileConfig = Configuration.Parse (
+                            fileConfigElem.GetAttribute("Name"));
+                        VcProjectConfiguration projectConfig = (VcProjectConfiguration) ProjectConfigurations[fileConfig];
                         htFileConfigurations[projectConfig.Name] = new VcFileConfiguration(
                             relPath, parentName, fileConfigElem, projectConfig, outputDir);
                     }
@@ -121,7 +120,7 @@ namespace NAnt.VSNet {
                     case ".rc":
                         // ensure there's a file configuration for each project 
                         // configuration
-                        foreach (VcProjectConfiguration projectConfig in _htPlatformConfigurations.Values) {
+                        foreach (VcProjectConfiguration projectConfig in ProjectConfigurations.Values) {
                             // if file configuration for project config existed 
                             // in project file, then skip this project config
                             if (htFileConfigurations != null && htFileConfigurations.ContainsKey(projectConfig.Name)) {
@@ -239,7 +238,7 @@ namespace NAnt.VSNet {
         /// (exe), and Managed Extensions are enabled; otherwise, 
         /// <see langword="false" />.
         /// </returns>
-        public override bool IsManaged(string solutionConfiguration) {
+        public override bool IsManaged(Configuration solutionConfiguration) {
             VcProjectConfiguration projectConfig = (VcProjectConfiguration)
                 BuildConfigurations[solutionConfiguration];
             return (projectConfig.Type == VcProjectConfiguration.ConfigurationType.DynamicLibrary ||
@@ -283,7 +282,7 @@ namespace NAnt.VSNet {
             return GetProductVersion(docElement);
         }
 
-        protected override BuildResult Build(string solutionConfiguration) {
+        protected override BuildResult Build(Configuration solutionConfiguration) {
             // prepare the project for build
             Prepare(solutionConfiguration);
 
@@ -503,7 +502,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void BuildCPPFiles(ArrayList fileNames, string solutionConfiguration, VcConfigurationBase fileConfig) {
+        private void BuildCPPFiles(ArrayList fileNames, Configuration solutionConfiguration, VcConfigurationBase fileConfig) {
             // obtain project configuration (corresponding with solution configuration)
             VcProjectConfiguration projectConfig = (VcProjectConfiguration) BuildConfigurations[solutionConfiguration];
 
@@ -1108,7 +1107,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        private bool RunCustomBuildStep(string solutionConfiguration, VcProjectConfiguration projectConfig) {
+        private bool RunCustomBuildStep(Configuration solutionConfiguration, VcProjectConfiguration projectConfig) {
             // check if a custom build step is configured
             string commandLine = projectConfig.GetToolSetting(VcConfigurationBase.CustomBuildTool,
                 "CommandLine");
@@ -1286,7 +1285,7 @@ namespace NAnt.VSNet {
             ExecuteInProjectDirectory(libTask);
         }
 
-        private void RunLinker(string solutionConfiguration) {
+        private void RunLinker(Configuration solutionConfiguration) {
             const string noinherit = "$(noinherit)";
 
             // obtain project configuration (corresponding with solution configuration)
@@ -1910,7 +1909,6 @@ namespace NAnt.VSNet {
         private readonly string _projectPath;
         private string _guid;
         private readonly ArrayList _references;
-        private readonly Hashtable _htPlatformConfigurations;
 
         private readonly VcArgumentMap _clArgMap;
         private readonly VcArgumentMap _linkerArgMap;

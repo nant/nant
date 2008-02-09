@@ -28,8 +28,8 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
-namespace NAnt.VSNet {
-    internal class EverettSolutionProvider : ISolutionBuildProvider {
+namespace NAnt.VSNet.Everett {
+    internal class SolutionProvider : ISolutionBuildProvider {
         #region Implementation of ISolutionBuildProvider
 
         public int IsSupported(string fileContents) {
@@ -46,7 +46,7 @@ namespace NAnt.VSNet {
         }
 
         public SolutionBase GetInstance(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
-            return new EverettSolution(solutionContent, solutionTask, tfc, gacCache, refResolver);
+            return new Solution(solutionContent, solutionTask, tfc, gacCache, refResolver);
         }
 
         #endregion Implementation of ISolutionBuildProvider

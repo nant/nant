@@ -83,7 +83,7 @@ namespace NAnt.VSNet {
             XmlNodeList nlConfigurations = xmlDefinition.SelectNodes("//Config");
             foreach (XmlElement elemConfig in nlConfigurations) {
                 ConfigurationSettings cs = new ConfigurationSettings(this, elemConfig, OutputDir);
-                ProjectConfigurations[elemConfig.Attributes["Name"].Value] = cs;
+                ProjectConfigurations[Configuration.Parse(cs.Name)] = cs;
             }
 
             XmlNodeList nlReferences = xmlDefinition.SelectNodes("//References/Reference");
@@ -266,7 +266,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// <see langword="true" />.
         /// </returns>
-        public override bool IsManaged(string solutionConfiguration) {
+        public override bool IsManaged(Configuration solutionConfiguration) {
             return true;
         }
 
@@ -278,9 +278,9 @@ namespace NAnt.VSNet {
         /// Ensures the configuration-level object directory exists and ensures 
         /// that none of the output files are marked read-only.
         /// </remarks>
-        protected override void Prepare(string solutionConfiguration) {
+        protected override void Prepare(Configuration solutionConfiguration) {
             // obtain project configuration (corresponding with solution configuration)
-            ConfigurationBase config = (ConfigurationBase) BuildConfigurations[solutionConfiguration]; 
+            ConfigurationBase config = BuildConfigurations[solutionConfiguration]; 
 
             // ensure configuration-level object directory exists
             if (!config.ObjectDir.Exists) {
@@ -293,12 +293,34 @@ namespace NAnt.VSNet {
             base.Prepare(solutionConfiguration);
         }
 
-        public override void GetOutputFiles(string solutionConfiguration, Hashtable outputFiles) {
+        /// <summary>
+        /// Gets the complete set of output files for the project configuration
+        /// matching the specified solution configuration.
+        /// </summary>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
+        /// <param name="outputFiles">The set of output files to be updated.</param>
+        /// <remarks>
+        ///   <para>
+        ///   The key of the case-insensitive <see cref="Hashtable" /> is the 
+        ///   full path of the output file and the value is the path relative to
+        ///   the output directory.
+        ///   </para>
+        ///   <para>
+        ///   If the project is not configured to be built for the specified
+        ///   solution configuration, then no output files are added.
+        ///   </para>
+        /// </remarks>
+        public override void GetOutputFiles(Configuration solutionConfiguration, Hashtable outputFiles) {
             base.GetOutputFiles (solutionConfiguration, outputFiles);
 
             // obtain project configuration (corresponding with solution configuration)
             ConfigurationSettings projectConfig = (ConfigurationSettings) 
                 BuildConfigurations[solutionConfiguration];
+            if (projectConfig == null) {
+                // the project is not configured to be built for the specified
+                // solution configuration
+                return;
+            }
 
             // add type library
             if (projectConfig.RegisterForComInterop) {
@@ -322,7 +344,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        protected override BuildResult Build(string solutionConfiguration) {
+        protected override BuildResult Build(Configuration solutionConfiguration) {
             bool bSuccess = true;
             bool outputUpdated;
             string tempFile = null;
@@ -342,7 +364,7 @@ namespace NAnt.VSNet {
 
                 // unregister types exposed to COM, and unregister type
                 // library (if it exists)
-                UnregisterForComInterop(cs);
+                UnregisterForComInterop(cs, solutionConfiguration);
 
                 // ensure temp directory exists
                 if (!Directory.Exists(TemporaryFiles.BasePath)) {
@@ -502,7 +524,7 @@ namespace NAnt.VSNet {
                     // create type library in output dir, and register it using 
                     // that path to match VS.NET
                     string typeLibPath = GetTypeLibraryPath(cs);
-                    RegisterForComInterop(cs, typeLibPath);
+                    RegisterForComInterop(cs, solutionConfiguration, typeLibPath);
 
                     // copy generated type library to object directory to match
                     // VS.NET
@@ -602,7 +624,7 @@ namespace NAnt.VSNet {
                 isPrivate);
         }
 
-        protected virtual void WriteCompilerOptions(StreamWriter sw, string solutionConfiguration) {
+        protected virtual void WriteCompilerOptions(StreamWriter sw, Configuration solutionConfiguration) {
             // obtain project configuration (corresponding with solution configuration)
             ConfigurationSettings config = (ConfigurationSettings) BuildConfigurations[solutionConfiguration];
 
@@ -680,11 +702,12 @@ namespace NAnt.VSNet {
         /// Generates a type library for the specified assembly, registers it.
         /// </summary>
         /// <param name="config">The project configuration that is built.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <param name="typelibPath">The path of the type library to generate.</param>
         /// <remarks>
         /// The <c>regasm</c> tool is used to generate the type library.
         /// </remarks>
-        private void RegisterForComInterop(ConfigurationSettings config, string typelibPath) {
+        private void RegisterForComInterop(ConfigurationSettings config, Configuration solutionConfiguration, string typelibPath) {
             Log(Level.Verbose, "Registering project output for COM Interop...");
 
             // create and initialize regasm task
@@ -692,7 +715,7 @@ namespace NAnt.VSNet {
             // add assembly references
             foreach (ReferenceBase reference in References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    config.Name);
+                    solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
                     regasm.References.Includes.Add(assemblyFile);
                 }
@@ -718,11 +741,12 @@ namespace NAnt.VSNet {
         /// in that assembly.
         /// </summary>
         /// <param name="config">The project configuration that is built.</param>
+        /// <param name="solutionConfiguration">The solution configuration that is built.</param>
         /// <remarks>
         /// The <c>regasm</c> tool is used to unregister the type library, and
         /// remove the COM registration for types in the specified assembly.
         /// </remarks>
-        private void UnregisterForComInterop(ConfigurationSettings config) {
+        private void UnregisterForComInterop(ConfigurationSettings config, Configuration solutionConfiguration) {
             // if COM interop registration is not enabled or the previous project
             // output does not exist, then there's nothing to do
             if (!config.RegisterForComInterop || !File.Exists(config.OutputPath)) {
@@ -736,7 +760,7 @@ namespace NAnt.VSNet {
             // add assembly references
             foreach (ReferenceBase reference in References) {
                 StringCollection assemblyReferences = reference.GetAssemblyReferences(
-                    config.Name);
+                    solutionConfiguration);
                 foreach (string assemblyFile in assemblyReferences) {
                     regasm.References.Includes.Add(assemblyFile);
                 }
@@ -778,7 +802,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void CompileResXFiles(string solutionConfiguration) {
+        private void CompileResXFiles(Configuration solutionConfiguration) {
             Log(Level.Verbose, "Compiling resources:");
 
             Hashtable resxResources = new Hashtable();
@@ -878,7 +902,7 @@ namespace NAnt.VSNet {
             }
         }
 
-        private void WriteNeutralResourceOptions(StreamWriter sw, string solutionConfiguration) {
+        private void WriteNeutralResourceOptions(StreamWriter sw, Configuration solutionConfiguration) {
             // no further processing required if there are no neutral resource
             // files
             if (_neutralResources.Count == 0) {
@@ -981,7 +1005,7 @@ namespace NAnt.VSNet {
             return true;
         }
 
-        private bool CheckUpToDate(string solutionConfiguration) {
+        private bool CheckUpToDate(Configuration solutionConfiguration) {
             DateTime dtOutputTimeStamp;
 
             // obtain project configuration (corresponding with solution configuration)

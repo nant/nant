@@ -111,7 +111,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Configuration.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ConfigurationBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ConfigurationDictionary.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ConfigurationMap.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -127,16 +142,6 @@
                 />
                 <File
                     RelPath = "CSharpProjectProvider.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EverettSolution.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EverettSolutionProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -190,6 +195,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ProjectEntry.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ProjectFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -201,16 +211,6 @@
                 />
                 <File
                     RelPath = "ProjectSettings.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RainierSolution.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RainierSolutionProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -305,12 +305,32 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Everett\Solution.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Everett\SolutionProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Extensibility\IProjectBuildProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Extensibility\ISolutionBuildProvider.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Rainier\Solution.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Rainier\SolutionProvider.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

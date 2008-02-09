@@ -99,7 +99,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// A <see cref="FileInfo" /> representing the compiled resource file.
         /// </returns>
-        public FileInfo Compile(string solutionConfiguration) {
+        public FileInfo Compile(Configuration solutionConfiguration) {
             FileInfo compiledResourceFile = null;
 
             switch (InputFile.Extension.ToLower(CultureInfo.InvariantCulture)) {
@@ -128,7 +128,7 @@ namespace NAnt.VSNet {
         /// <remarks>
         /// Calling this method does not force compilation of the resource file.
         /// </remarks>
-        public FileInfo GetCompiledResourceFile(string solutionConfiguration) {
+        public FileInfo GetCompiledResourceFile(Configuration solutionConfiguration) {
             string compiledResourceFile = null;
 
             // obtain project configuration (corresponding with solution configuration)
@@ -151,7 +151,7 @@ namespace NAnt.VSNet {
             return new FileInfo(compiledResourceFile);
         }
 
-        public string GetManifestResourceName(string solutionConfiguration) {
+        public string GetManifestResourceName(Configuration solutionConfiguration) {
             // obtain project configuration (corresponding with solution configuration)
             ConfigurationSettings projectConfig = (ConfigurationSettings) Project.BuildConfigurations[solutionConfiguration];
 
@@ -243,11 +243,11 @@ namespace NAnt.VSNet {
                 LogicalFile.FullName, dependentFile);
         }
 
-        private FileInfo CompileResource(string solutionConfiguration) {
+        private FileInfo CompileResource(Configuration solutionConfiguration) {
             return GetCompiledResourceFile(solutionConfiguration);
         }
 
-        private FileInfo CompileLicx(string solutionConfiguration) {
+        private FileInfo CompileLicx(Configuration solutionConfiguration) {
             // create instance of License task
             LicenseTask lt = new LicenseTask();
 
@@ -307,7 +307,7 @@ namespace NAnt.VSNet {
             return lt.OutputFile;
         }
 
-        private FileInfo CompileResx(string solutionConfiguration) {
+        private FileInfo CompileResx(Configuration solutionConfiguration) {
             // for performance reasons, compilation of resx files is done in
             // batch using the ResGen task in ManagedProjectBase
             throw new InvalidOperationException();

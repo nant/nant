@@ -69,7 +69,7 @@ namespace NAnt.VSNet {
         /// <returns>
         /// <see langword="true" />.
         /// </returns>
-        public override bool IsManaged(string config) {
+        public override bool IsManaged(Configuration config) {
             return true;
         }
 

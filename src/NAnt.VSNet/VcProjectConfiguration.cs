@@ -435,7 +435,7 @@ namespace NAnt.VSNet {
                 case "targetdir": // E.g. C:\Doc...\Visual Studio Projects\WindowsApplications1\bin\Debug
                     return Path.GetDirectoryName(TargetPath) + (TargetPath.EndsWith(
                         Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture)) 
-                        ? "" : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
+                        ? string.Empty : Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture));
                 default:
                     return base.ExpandMacro(macro);
             }
@@ -766,7 +766,7 @@ namespace NAnt.VSNet {
             public FileInfo ImportLibrary {
                 get {
                     string defaultImportLibrary = null;
-                    if (!Project.IsManaged(_projectConfig.SolutionTask.Configuration)) {
+                    if (!Project.IsManaged(_projectConfig.SolutionTask.SolutionConfig)) {
                         defaultImportLibrary = "$(OutDir)/$(TargetName).lib";
                     }
 
