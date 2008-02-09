@@ -56,6 +56,36 @@
         <h2>
             0.86-beta2 (TBD)</h2>
         <h3>
+            Breaking changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    As of this release, only the following namespace are imported
+                    by default:
+                </p>
+                <ul>
+                    <li>System</li>
+                    <li>System.Collections</li>
+                    <li style="text-decoration: line-through">System.Collections.Specialized</li>
+                    <li>System.IO</li>
+                    <li>System.Text</li>
+                    <li style="text-decoration: line-through">System.Text.RegularExpressions</li>
+                    <li>NAnt.Core</li>
+                    <li>NAnt.Core.Attributes</li>
+                </ul>
+                <p>
+                    In previous releases, all loaded assemblies would implicitly
+                    be referenced.
+                    <br>
+                    Starting from this release, only <code>NAnt.Core</code>
+                    and <code>mscorlib</code> will be referenced by default.
+                </p>
+            </div>
+        </div>
+        <h3>
             Bug fixes</h3>
         <h4>Framework&nbsp;support</h4>
         <div style="margin-left: 20px;">
@@ -105,6 +135,20 @@
                     Added &quot;winres&quot; attribute to specify a Win32 resource file.
                 </li>
             </ul>
+            <h5>
+                <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
+            <ul>
+                <li>
+                    Visual Studio 2005/2008
+                    <div style="margin-left: 20px;">
+                        <ul>
+                            <li>
+                                Solution Items result in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1732361&amp;group_id=31650&amp;atid=402868">#1732361</a>).
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
         </div>
         <h3>Changes</h3>
         <h4>Tasks</h4>
@@ -118,6 +162,21 @@
                     <a 
                 </p>
             </div>
+            <h5>
+                <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
+            <ul>
+                <li>
+                    Visual Studio 2005/2008
+                    <div style="margin-left: 20px;">
+                        <ul>
+                            <li>
+                                Introduced support for targeting a specific platform,
+                                as defined in the solution or project.
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
         </div>
         <h2>
             0.86-beta1 (December 8, 2007)</h2>
