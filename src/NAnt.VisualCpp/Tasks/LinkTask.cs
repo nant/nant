@@ -62,6 +62,7 @@ namespace NAnt.VisualCpp.Tasks {
         private string _responseFileName;
         private FileInfo _outputFile;
         private FileInfo _pdbFile;
+        private FileInfo _moduleDefinition;
         private bool _debug;
         private FileSet _sources = new FileSet();
         private FileSet _libdirs = new FileSet();
@@ -118,6 +119,17 @@ namespace NAnt.VisualCpp.Tasks {
             }
             set { _pdbFile = value; }
         }
+
+        /// <summary>
+        /// The name of a module-definition file (.def) to be passed to the
+        /// linker.
+        /// </summary>
+        [TaskAttribute("moduledefinition")]
+        public FileInfo ModuleDefinition {
+            get { return _moduleDefinition; }
+            set { _moduleDefinition = value; }
+        }
+
 
         /// <summary>
         /// Specified DLLs for delay loading.
@@ -245,6 +257,11 @@ namespace NAnt.VisualCpp.Tasks {
                     if (Options != null) {
                         writer.WriteLine(Options);
                     }
+
+                    // module definition file
+                    if (ModuleDefinition != null) {
+                        writer.WriteLine("/DEF:\"{0}\"", ModuleDefinition.FullName);
+                    }
   
                     // write each of the libdirs
                     foreach (string libdir in LibDirs.DirectoryNames) {
@@ -330,6 +347,8 @@ namespace NAnt.VisualCpp.Tasks {
         /// Determines if the output needs linking.
         /// </summary>
         protected virtual bool NeedsLinking() {
+            string fileName;
+
             // return true as soon as we know we need to compile
             if (ProgramDatabaseFile != null) {
                 if (!ProgramDatabaseFile.Exists) {
@@ -339,24 +358,31 @@ namespace NAnt.VisualCpp.Tasks {
                 }
 
                 // check if sources were updated
-                string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, ProgramDatabaseFile.LastWriteTime);
+                fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, ProgramDatabaseFile.LastWriteTime);
                 if (fileName != null) {
                     Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
                     return true;
                 }
             }
 
-            if (OutputFile != null) {
-                if (!OutputFile.Exists) {
-                    Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
-                        OutputFile.FullName);
-                    return true;
-                }
+            if (!OutputFile.Exists) {
+                Log(Level.Verbose, "Output file '{0}' does not exist, relinking.", 
+                    OutputFile.FullName);
+                return true;
+            }
 
-                // check if sources were updated
-                string fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
+            // check if sources were updated
+            fileName = FileSet.FindMoreRecentLastWriteTime(Sources.FileNames, OutputFile.LastWriteTime);
+            if (fileName != null) {
+                Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
+                return true;
+            }
+
+            if (ModuleDefinition != null) {
+                fileName = FileSet.FindMoreRecentLastWriteTime(ModuleDefinition.FullName, OutputFile.LastWriteTime);
                 if (fileName != null) {
-                    Log(Level.Verbose, "'{0}' has been updated, relinking.", fileName);
+                    Log(Level.Verbose, ResourceUtils.GetString("String_FileHasBeenUpdated"),
+                        fileName);
                     return true;
                 }
             }
