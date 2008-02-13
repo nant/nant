@@ -38,6 +38,8 @@ namespace NAnt.VSNet {
     /// Analyses Microsoft Visual Studio .NET 2005 (Whidbey) solution files.
     /// </summary>
     internal class WhidbeySolution : SolutionBase {
+        private const string SolutionFolder_GUID = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}";
+
         public WhidbeySolution(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver)
             : base(solutionTask, tfc, gacCache, refResolver) {
             Regex reProjects = new Regex(@"Project\(\""(?<package>\{.*?\})\"".*?\""(?<name>.*?)\"".*?\""(?<project>.*?)\"".*?\""(?<guid>.*?)\""(?<all>[\s\S]*?)EndProject", RegexOptions.Multiline);
@@ -48,10 +50,10 @@ namespace NAnt.VSNet {
             foreach (Match projectMatch in projectMatches) {
                 string project = projectMatch.Groups["project"].Value;
                 string guid = projectMatch.Groups["guid"].Value;
-                string all = projectMatch.Groups["all"].Value;
+                string package = projectMatch.Groups["package"].Value;
 
                 // bug #1732361: skip solution folders
-                if (all.IndexOf("ProjectSection(SolutionItems)") != -1)
+                if (package == SolutionFolder_GUID)
                     continue;
 
                 // translate partial project path or URL to absolute path
