@@ -63,7 +63,7 @@
                 <a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    As of this release, only the following namespace are imported
+                    As of this release, only the following namespaces are imported
                     by default:
                 </p>
                 <ul>
@@ -77,11 +77,12 @@
                     <li>NAnt.Core.Attributes</li>
                 </ul>
                 <p>
-                    In previous releases, all loaded assemblies would implicitly
-                    be referenced.
-                    <br>
                     Starting from this release, only <code>NAnt.Core</code>
                     and <code>mscorlib</code> will be referenced by default.
+                </p>
+                <p>
+                    In previous releases, all loaded assemblies would implicitly
+                    be referenced.
                 </p>
             </div>
         </div>
@@ -128,27 +129,12 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a> / <a class="heading" href="help/tasks/jsc.html">&lt;jsc&gt;</a> / <a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a> / <a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
-            <ul>
-                <li>
-
-                    Added &quot;winres&quot; attribute to specify a Win32 resource file.
-                </li>
-            </ul>
-            <h5>
                 <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
-            <ul>
-                <li>
-                    Visual Studio 2005/2008
-                    <div style="margin-left: 20px;">
-                        <ul>
-                            <li>
-                                Solution Folders result in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1732361&amp;group_id=31650&amp;atid=402868">#1732361</a>).
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+            <div style="margin-left: 20px;">
+                <p>
+                    Solution Folders result in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1732361&amp;group_id=31650&amp;atid=402868">#1732361</a>).
+                </p>
+            </div>
         </div>
         <h3>Changes</h3>
         <h4>Tasks</h4>
@@ -163,6 +149,13 @@
                 </p>
             </div>
             <h5>
+                <a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a> / <a class="heading" href="help/tasks/jsc.html">&lt;jsc&gt;</a> / <a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a> / <a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added &quot;winres&quot; attribute to specify a Win32 resource file.
+                </p>
+            </div>
+            <h5>
                 <a class="heading" href="help/tasks/link.html">&lt;link&gt;</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -173,19 +166,12 @@
             </div>
             <h5>
                 <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
-            <ul>
-                <li>
-                    Visual Studio 2005/2008
-                    <div style="margin-left: 20px;">
-                        <ul>
-                            <li>
-                                Introduced support for targeting a specific platform,
-                                as defined in the solution or project.
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
+            <div style="margin-left: 20px;">
+                <p>
+                    Introduced support for targeting a specific platform,
+                    as defined in the solution or project.
+                </p>
+            </div>
         </div>
         <h2>
             0.86-beta1 (December 8, 2007)</h2>
