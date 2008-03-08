@@ -790,10 +790,11 @@
         <property name="install.nant" value="${path::combine(install.prefix, 'NAnt')}" />
 
         <!-- support staged installs -->
-        <property name="install.copylocation" value="${install.nant}"/>
+        <property name="install.destdir" value="" />
         <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
-            <property name="install.copylocation" value="${destdir}${install.nant}" />
+            <property name="install.destdir" value="${destdir}" />
         </if>
+        <property name="install.copylocation" value="${install.destdir + install.nant}" />
 
         <!-- perform (staged) install -->
         <echo message="Installing NAnt to '${install.copylocation}' ..." />
@@ -813,15 +814,16 @@
         <if test="${property::exists('prefix') and string::get-length(prefix) != 0}">
             <property name="install.prefix" value="${prefix}" />
         </if>
-        <property name="install.bindir" value="${path::combine(install.prefix, 'bin')}" />
         <property name="install.share" value="${path::combine(install.prefix, 'share')}" />
         <property name="install.nant" value="${path::combine (install.share, 'NAnt')}" />
 
         <!-- support staged installs -->
-        <property name="install.copylocation" value="${install.nant}"/>
+        <property name="install.destdir" value="" />
         <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
-            <property name="install.copylocation" value="${destdir}${install.nant}" />
+            <property name="install.destdir" value="${destdir}" />
         </if>
+        <property name="install.bindir" value="${install.destdir + path::combine(install.prefix, 'bin')}" />
+        <property name="install.copylocation" value="${install.destdir + install.nant}" />
 
         <!-- perform (staged) install -->
         <echo message="Installing NAnt to '${install.copylocation}' ..." />
