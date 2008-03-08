@@ -783,13 +783,20 @@
 <!--depends="userdoc" -->
     <target name="install-windows" depends="build" if="${platform::is-win32()}">
         <!-- install to program files directory by default -->
-        <property name="install.realprefix" value="${environment::get-folder-path('ProgramFiles')}" />
-        <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
-            <property name="install.realprefix" value="${install.prefix}" />
+        <property name="install.prefix" value="${environment::get-folder-path('ProgramFiles')}" />
+        <if test="${property::exists('prefix') and string::get-length(prefix) != 0}">
+            <property name="install.prefix" value="${prefix}" />
         </if>
-        <property name="install.copylocation" value="${path::combine(install.realprefix, 'NAnt')}"/>
+        <property name="install.nant" value="${path::combine(install.prefix, 'NAnt')}" />
+
+        <!-- support staged installs -->
+        <property name="install.copylocation" value="${install.nant}"/>
+        <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
+            <property name="install.copylocation" value="${path::combine(destdir,install.nant)}" />
+        </if>
+
+        <!-- perform (staged) install -->
         <echo message="Installing NAnt to '${install.copylocation}' ..." />
-        
         <copy todir="${install.copylocation}" overwrite="true">
             <fileset basedir="${build.dir}">
                 <include name="bin/**/*" />
@@ -802,16 +809,22 @@
     </target>
 
     <target name="install-linux" depends="build" if="${platform::is-unix()}">
-        <property name="install.realprefix" value="/usr/local" />
-        <if test="${property::exists('install.prefix') and string::get-length(install.prefix) != 0}">
-            <property name="install.realprefix" value="${install.prefix}" />
+        <property name="install.prefix" value="/usr/local" />
+        <if test="${property::exists('prefix') and string::get-length(prefix) != 0}">
+            <property name="install.prefix" value="${prefix}" />
         </if>
-        <property name="install.bindir" value="${path::combine(install.realprefix, 'bin')}"/>
-        <property name="install.share" value="${path::combine(install.realprefix, 'share')}"/>
-        <property name="install.copylocation" value="${path::combine (install.share, 'NAnt')}"/>
-        <property name="prefix" value="${pkg-config::get-variable('mono', 'prefix')}"/>
+        <property name="install.bindir" value="${path::combine(install.prefix, 'bin')}" />
+        <property name="install.share" value="${path::combine(install.prefix, 'share')}" />
+        <property name="install.nant" value="${path::combine (install.share, 'NAnt')}" />
+
+        <!-- support staged installs -->
+        <property name="install.copylocation" value="${install.nant}"/>
+        <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
+            <property name="install.copylocation" value="${path::combine(destdir,install.nant)}" />
+        </if>
+
+        <!-- perform (staged) install -->
         <echo message="Installing NAnt to '${install.copylocation}' ..." />
-        
         <copy todir="${install.copylocation}" overwrite="true">
             <fileset basedir="${build.dir}">
                 <include name="bin/**/*" />
@@ -821,8 +834,9 @@
                 <exclude name="bin/*.Tests.*" />
             </fileset>
         </copy>
+
+        <!-- create wrapper script -->
         <echo message="Installing NAnt wrapper script to '${install.bindir}' ..." />
-        <!-- store filename of wrapper script in property -->
         <property name="wrapper" value="${path::combine(install.bindir, 'nant')}" />
         <!-- 
             create wrapper file using separate echo tasks for each line to ensure
@@ -830,18 +844,18 @@
             the wrapper is created
         -->
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
-        <echo file="${wrapper}" append="true">exec ${path::combine(prefix, 'bin')}/mono ${path::combine(install.copylocation, 'bin')}/NAnt.exe "$@"</echo>
-        <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}"/>
+        <echo file="${wrapper}" append="true">exec ${path::combine(mono.prefix, 'bin')}/mono ${path::combine(install.nant, 'bin')}/NAnt.exe "$@"</echo>
+        <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}" />
     </target>
     <target name="rpm" depends="init, build">
-        <echo message="Build dir: ${build.dir}"/>
+        <echo message="Build dir: ${build.dir}" />
         <copy todir="${build.dir}">
             <fileset>
                 <include name="NAnt.spec" />
             </fileset>
         </copy>
 
-        <nant buildfile="release.xml" target="prepare-rpm"/>
-        <nant buildfile="release.xml" target="binary-rpm"/>
+        <nant buildfile="release.xml" target="prepare-rpm" />
+        <nant buildfile="release.xml" target="binary-rpm" />
     </target>
 </project>

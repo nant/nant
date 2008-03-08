@@ -68,14 +68,14 @@ Compilation and Installation
 	GNU Make
 	--------
 
-	make install MONO= MCS=csc prefix=<installation path>
+	make install MONO= MCS=csc prefix=<installation path> [DESTDIR=<staging path>]
 
 	eg. make install MONO= MCS=csc prefix="c:\Program Files"
 
 	NMake
 	-----
 
-	nmake -f Makefile.nmake install prefix=<installation path>
+	nmake -f Makefile.nmake install prefix=<installation path> [DESTDIR=<staging path>]
 	
 	eg. nmake -f Makefile.nmake install prefix="c:\Program Files"
 
@@ -85,14 +85,14 @@ Compilation and Installation
 	GNU Make
 	--------
 
-	make install prefix=<installation path>
+	make install prefix=<installation path> [DESTDIR=<staging path>]
 
 	eg. make install prefix="c:\Program Files"
 
 	NMake
 	-----
 
-	nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path>
+	nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path> [DESTDIR=<staging path>]
 	
 	eg. nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/
 
@@ -109,7 +109,7 @@ Documentation is available in HTML format, in the doc/ directory.
 
 License
 -------
-Copyright (C) 2001-2005 Gerry Shaw
+Copyright (C) 2001-2008 Gerry Shaw
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

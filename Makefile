@@ -40,7 +40,7 @@ clean:
 	rm -fR build bootstrap
 
 install: bootstrap
-	$(NANT) -f:NAnt.build install -D:install.prefix="$(prefix)"
+	$(NANT) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="${DESTDIR}"
 
 run-test: bootstrap
 	$(NANT) -f:NAnt.build test
