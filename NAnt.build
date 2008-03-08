@@ -792,7 +792,7 @@
         <!-- support staged installs -->
         <property name="install.copylocation" value="${install.nant}"/>
         <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
-            <property name="install.copylocation" value="${path::combine(destdir,install.nant)}" />
+            <property name="install.copylocation" value="${destdir}${install.nant}" />
         </if>
 
         <!-- perform (staged) install -->
@@ -820,7 +820,7 @@
         <!-- support staged installs -->
         <property name="install.copylocation" value="${install.nant}"/>
         <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
-            <property name="install.copylocation" value="${path::combine(destdir,install.nant)}" />
+            <property name="install.copylocation" value="${destdir}${install.nant}" />
         </if>
 
         <!-- perform (staged) install -->
