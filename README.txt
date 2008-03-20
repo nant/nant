@@ -98,7 +98,7 @@ Compilation and Installation
 
 Note: 
 
-These instructions only apply to the source distribution of NAntContrib, as the binary distribution 
+These instructions only apply to the source distribution of NAnt, as the binary distribution 
 contains pre-built assemblies.
 
 
