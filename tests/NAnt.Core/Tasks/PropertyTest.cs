@@ -231,7 +231,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
 
             if (invalid == null) {
-                Assert.Ignore("Tests requires at least one invalid framework.");
+                Assert.Ignore("Test requires at least one invalid framework.");
             }
 
             string _xml = @"
@@ -244,16 +244,12 @@ namespace Tests.NAnt.Core.Tasks {
             } catch (TestBuildException ex) {
                 Assert.IsNotNull(ex.InnerException, "#2");
 
-                string expectedError = string.Format("Failed to initialize " +
-                    "the '{0}' ({1}) target framework.", invalid.Description,
-                    invalid.Name);
-
+                // either initialization of the framework failed, or validation
+                // failed
                 BuildException inner = ex.InnerException as BuildException;
                 Assert.IsNotNull(inner, "#3");
                 Assert.IsNotNull(inner.InnerException, "#4");
                 Assert.IsNotNull(inner.RawMessage, "#5");
-                Assert.IsTrue(inner.RawMessage.StartsWith(expectedError),
-                    "#6:" + inner.RawMessage);
             }
         }
     }
