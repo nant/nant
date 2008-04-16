@@ -36,22 +36,28 @@ namespace Tests.NAnt.Core {
 
         [SetUp]
         public void SetUp() {
-            _tempFile = Path.GetTempFileName();
+            _tempFolder = Path.Combine (Path.GetTempPath (),
+                "Tests.NAnt.Core.BuildFilesInResourcesTest");
+            if (!Directory.Exists (_tempFolder))
+                Directory.CreateDirectory (_tempFolder);
         }
 
         [TearDown]
         public void TearDown() {
-            File.Delete (_tempFile);
+            if (Directory.Exists (_tempFolder))
+                Directory.Delete (_tempFolder, true);
         }
 
         [Test]
         public void Test_FilesInResources() {
+            string buildFile = Path.Combine (_tempFolder, "default.build");
+
             foreach (string resName in Assembly.GetExecutingAssembly().GetManifestResourceNames()) {
                 if (!resName.StartsWith("XML_.Build.Files")) {
                     continue;
                 }
 
-                using (FileStream fs = File.Open (_tempFile, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)) {
+                using (FileStream fs = File.Open (buildFile, FileMode.Create, FileAccess.ReadWrite, FileShare.Read)) {
                     byte[] buffer = new byte[8192];
 
                     Stream rs = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName);
@@ -68,7 +74,7 @@ namespace Tests.NAnt.Core {
 
                 try {
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(_tempFile);
+                    doc.Load(buildFile);
                     Project p = new Project(doc, Level.Info, 0);
                     string output = BuildTestBase.ExecuteProject(p);
                     Assert.IsTrue (expectSuccess, "#1: " + resName + " " + output);
@@ -82,7 +88,7 @@ namespace Tests.NAnt.Core {
 
         #region Private Instance Fields
 
-        private string _tempFile;
+        private string _tempFolder;
 
         #endregion Private Instance Fields
     }
