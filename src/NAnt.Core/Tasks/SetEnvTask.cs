@@ -100,7 +100,7 @@ using NAnt.Core.Util;
         private string _literalValue;
         private FileInfo _file;
         private DirectoryInfo _directory;
-        private PathSet _path;        
+        private PathSet _path;
         private EnvironmentVariableCollection _environmentVariables = new EnvironmentVariableCollection();
 
         #endregion Private Instance Fields
@@ -185,7 +185,8 @@ using NAnt.Core.Util;
         #endregion Public Instance Properties
         
         #region DllImports
-        
+
+#if !NET_2_0
         /// <summary>
         /// Win32 DllImport for the SetEnvironmentVariable function.
         /// </summary>
@@ -194,7 +195,7 @@ using NAnt.Core.Util;
         /// <returns></returns>
         [DllImport("kernel32.dll", SetLastError=true)]
         private static extern bool SetEnvironmentVariable(string lpName, string lpValue);
-                
+
         /// <summary>
         /// *nix dllimport for the setenv function.
         /// </summary>
@@ -216,11 +217,12 @@ using NAnt.Core.Util;
         /// </returns>
         [DllImport("libc")]
         private static extern int unsetenv(string name);
-        
+#endif
+
         #endregion DllImports
-        
+
         #region Override implementation of Task
-        
+
         /// <summary>
         /// Checks whether the task is initialized with valid attributes.
         /// </summary>
@@ -240,14 +242,14 @@ using NAnt.Core.Util;
                 // add single environment variable
                 EnvironmentVariables.Add(new EnvironmentVariable(EnvName, _value));
             }
-            
+
             foreach (EnvironmentVariable env in EnvironmentVariables) {
                 if (env.IfDefined && !env.UnlessDefined) {
                     SetSingleEnvironmentVariable(env.VariableName, env.Value);
                 }
             }
         }
-        
+
         #endregion Override implementation of Task
 
         #region Private Instance Methods
