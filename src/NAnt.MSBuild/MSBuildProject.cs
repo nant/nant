@@ -83,7 +83,7 @@ namespace NAnt.MSBuild {
             _msproj.FullFileName = projectPath;
             _msproj.LoadXml(xmlDefinition.OuterXml);
             _msproj.GlobalProperties.SetProperty("Configuration", cfgname);
-            if (platform.Length > 0) _msproj.GlobalProperties.SetProperty("Platform", platform.Replace(" ", string.Empty));
+            SetPlatform (platform);
             if (outputDir != null) _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
 
             //evaluating
@@ -206,7 +206,7 @@ namespace NAnt.MSBuild {
             // explicitly set the Configuration and Platform
             MSBuildConfiguration projectConfig = (MSBuildConfiguration) BuildConfigurations[solutionConfiguration];
             _msproj.GlobalProperties.SetProperty("Configuration", projectConfig.Name);
-            _msproj.GlobalProperties.SetProperty("Platform", projectConfig.PlatformName.Replace(" ", string.Empty));
+            SetPlatform (projectConfig.PlatformName);
 
             // DONE: MSBuild'll resolve all references once again
             // is there any way how to disable it?
@@ -242,6 +242,14 @@ namespace NAnt.MSBuild {
             if(_msproj.Build())
                 return BuildResult.Success;
             return BuildResult.Failed;
+        }
+
+        internal void SetPlatform (string platform) {
+            if (platform.Length == 0)
+                return;
+
+            _msproj.GlobalProperties.SetProperty("Platform",
+                platform.Replace(" ", string.Empty));
         }
 
         private static bool IsUrl(string fileName) {

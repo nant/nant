@@ -43,10 +43,10 @@ namespace NAnt.MSBuild {
         public MSBuildConfiguration(MSBuildProject project, Microsoft.Build.BuildEngine.Project msproj, Configuration projectConfig)
             : base(project) {
             _name = projectConfig.Name;
-            _platform = projectConfig.Platform;
 
             msproj.GlobalProperties.SetProperty("Configuration", _name);
-            msproj.GlobalProperties.SetProperty("Platform", _platform.Replace(" ", string.Empty));
+            project.SetPlatform (projectConfig.Platform);
+            _platform = msproj.GetEvaluatedProperty("Platform");
 
             _relativeOutputDir = msproj.GetEvaluatedProperty("OutputPath");
             if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {
