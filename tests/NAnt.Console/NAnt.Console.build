@@ -20,10 +20,9 @@
                 <include name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <include name="${lib.framework.dir}/log4net.dll" />
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.Core.Tests.dll" />
-                <include name="${lib.framework.dir}/nunit.framework.dll" />
+                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
             </references>
         </csc>
     </target>

@@ -21,9 +21,8 @@
                 <include name="../../src/CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <include name="${lib.framework.dir}/log4net.dll" />
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${lib.framework.dir}/nunit.framework.dll" />
+                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
             </references>
             <resources failonempty="true" basedir="Resources" dynamicprefix="true" prefix="XML:">
                 <include name="**/*.xml"/>
