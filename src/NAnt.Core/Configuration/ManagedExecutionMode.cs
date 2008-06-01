@@ -23,11 +23,9 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
-namespace NAnt.Core.Configuration
-{
+namespace NAnt.Core.Configuration {
     [Serializable]
-	internal class ManagedExecutionMode : Element
-	{
+    internal class ManagedExecutionMode : Element {
         private RuntimeEngine _engine;
         private EnvironmentSet _environmentSet = new EnvironmentSet();
 
@@ -51,5 +49,5 @@ namespace NAnt.Core.Configuration
         public EnvironmentSet Environment {
             get { return _environmentSet; }
         }
-	}
+    }
 }

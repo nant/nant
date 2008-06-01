@@ -3,12 +3,10 @@ using System;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
-    
-namespace NAnt.Core.Configuration
-{
+
+namespace NAnt.Core.Configuration {
     [Serializable]
-	internal class ManagedExecutionModes : Element
-	{
+    internal class ManagedExecutionModes : Element {
         private ManagedExecutionMode _autoMode;
         private ManagedExecutionMode _strictMode;
 
@@ -38,5 +36,5 @@ namespace NAnt.Core.Configuration
                     throw new NotImplementedException();
             }
         }
-	}
+    }
 }

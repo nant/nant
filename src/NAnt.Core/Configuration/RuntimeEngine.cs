@@ -6,11 +6,9 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 
-namespace NAnt.Core.Configuration
-{
+namespace NAnt.Core.Configuration {
     [Serializable]
-	internal class RuntimeEngine : Element
-	{
+    internal class RuntimeEngine : Element {
         private FileInfo _program;
         private ArgumentCollection _arguments = new ArgumentCollection();
 
@@ -37,6 +35,5 @@ namespace NAnt.Core.Configuration
                     " does not exist.", Program.FullName));
             }
         }
-
-	}
+    }
 }

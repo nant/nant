@@ -3,11 +3,9 @@ using System;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
-namespace NAnt.Core.Configuration
-{
+namespace NAnt.Core.Configuration {
     [Serializable]
-	internal class Runtime : Element
-	{
+    internal class Runtime : Element {
         private ManagedExecutionModes _modes = new ManagedExecutionModes ();
         private DirList _probingPaths = new DirList();
 
@@ -20,5 +18,5 @@ namespace NAnt.Core.Configuration
         public ManagedExecutionModes Modes {
             get { return _modes; }
         }
-	}
+    }
 }

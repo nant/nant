@@ -4,8 +4,7 @@ using System.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
-namespace NAnt.Core.Configuration
-{
+namespace NAnt.Core.Configuration {
     /// <summary>
     /// Represents an explicitly named list of directories.
     /// </summary>
@@ -14,7 +13,7 @@ namespace NAnt.Core.Configuration
     /// directories regardless whether they currently exist.
     /// </remarks>
     [Serializable]
-	internal class DirList : Element {
+    internal class DirList : Element {
         private DirectoryInfo _baseDirectory;
         private DirectoryName[] _directoryNames;
 
@@ -52,5 +51,5 @@ namespace NAnt.Core.Configuration
             }
             return directories;
         }
-	}
+    }
 }
