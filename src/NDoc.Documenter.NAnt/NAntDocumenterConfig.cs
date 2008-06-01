@@ -65,6 +65,7 @@ namespace NDoc.Documenter.NAnt {
             DocumentPrivates = false;
             DocumentProtected = true;
             SkipNamespacesWithoutSummaries = false;
+            EditorBrowsableFilter = EditorBrowsableFilterLevel.HideNever;
         }
 
         #endregion Public Instance Constructors
