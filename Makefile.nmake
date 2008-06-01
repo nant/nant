@@ -21,7 +21,7 @@ clean:
 	if exist build rmdir /S /Q build
 
 install: bootstrap
-	$(NANT) -f:NAnt.build install -D:prefix="$(prefix)"  -D:destdir="${DESTDIR}"
+	$(NANT) -f:NAnt.build install -D:prefix="$(prefix)"  -D:destdir="$(DESTDIR)"
 
 run-test: bootstrap
 	$(NANT) -f:NAnt.build test
