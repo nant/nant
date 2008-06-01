@@ -79,34 +79,34 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_Tasks() {
             const string _xml = @"
                 <project name=""customtasks"">
-	                <script language=""c#"">
-		                <code><![CDATA[
-			                [TaskName(""testtask1"")]
-			                public class TestTask1: Task
-			                {
-				                protected override void ExecuteTask()
-				                {
-					                Log(Level.Info, ""Message from testtask1."");
-				                }
-			                }
-		                ]]></code>
-	                </script>
+                    <script language=""c#"">
+                        <code><![CDATA[
+                            [TaskName(""testtask1"")]
+                            public class TestTask1: Task
+                            {
+                                protected override void ExecuteTask()
+                                {
+                                    Log(Level.Info, ""Message from testtask1."");
+                                }
+                            }
+                        ]]></code>
+                    </script>
 
-	                <script language=""c#"">
-		                <code><![CDATA[
-			                [TaskName(""testtask2"")]
-			                public class TestTask2: Task
-			                {
-				                protected override void ExecuteTask()
-				                {
-					                Log(Level.Info, ""Message from testtask2."");
-				                }
-			                }
-		                ]]></code>
-	                </script>
+                    <script language=""c#"">
+                        <code><![CDATA[
+                            [TaskName(""testtask2"")]
+                            public class TestTask2: Task
+                            {
+                                protected override void ExecuteTask()
+                                {
+                                    Log(Level.Info, ""Message from testtask2."");
+                                }
+                            }
+                        ]]></code>
+                    </script>
 
-	                <testtask1 />
-	                <testtask2 />
+                    <testtask1 />
+                    <testtask2 />
                 </project>";
             RunBuild(_xml);
         }
