@@ -51,10 +51,11 @@ namespace NAnt.NUnit2.Tasks {
         /// </summary>
         /// <param name="assemblyFile">The test assembly.</param>
         /// <param name="configFile">The application configuration file for the test domain.</param>
+        /// <param name="referenceAssemblies">List of files to scan for missing assembly references.</param>
         /// <returns>
         /// The result of the test.
         /// </returns>
-        public TestRunner CreateRunner(FileInfo assemblyFile, FileInfo configFile) {
+        public TestRunner CreateRunner(FileInfo assemblyFile, FileInfo configFile, StringCollection referenceAssemblies) {
             // create test domain
             _domain = CreateDomain(assemblyFile.Directory, assemblyFile, 
                 configFile);
@@ -74,16 +75,19 @@ namespace NAnt.NUnit2.Tasks {
                 probePaths = new string[1];
             }
 
+            string[] references = new string[referenceAssemblies.Count];
+            referenceAssemblies.CopyTo (references, 0);
+
             // add base directory of current AppDomain as probe path
             probePaths [probePaths.Length - 1] = AppDomain.CurrentDomain.BaseDirectory;
 
             // create an instance of our custom Assembly Resolver in the target domain.
-            _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase, 
+            _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase,
                     typeof(AssemblyResolveHandler).FullName,
                     false, 
                     BindingFlags.Public | BindingFlags.Instance,
                     null,
-                    new object[] {probePaths},
+                    new object[] {probePaths, references},
                     CultureInfo.InvariantCulture,
                     null,
                     AppDomain.CurrentDomain.Evidence);
@@ -126,8 +130,7 @@ namespace NAnt.NUnit2.Tasks {
             return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 
                 AppDomain.CurrentDomain.Evidence, 
-                domSetup
-                );
+                domSetup);
         }
 
         private RemoteTestRunner CreateTestRunner(AppDomain domain) {
@@ -163,13 +166,14 @@ namespace NAnt.NUnit2.Tasks {
             #region Public Instance Constructors
 
             /// <summary> 
-            /// Initializes an instanse of the <see cref="AssemblyResolveHandler" /> 
+            /// Initializes an instanse of the <see cref="AssemblyResolveHandler" />
             /// class.
             /// </summary>
-            public AssemblyResolveHandler(string[] probePaths) {
+            public AssemblyResolveHandler(string[] probePaths, string[] referenceAssemblies) {
                 _assemblyCache = new Hashtable();
                 _probePaths = probePaths;
-            
+                _referenceAssemblies = referenceAssemblies;
+
                 // attach handlers for the current domain.
                 AppDomain.CurrentDomain.AssemblyResolve += 
                     new ResolveEventHandler(ResolveAssembly);
@@ -210,6 +214,13 @@ namespace NAnt.NUnit2.Tasks {
                     }
                 }
 
+                // find assembly in reference assemblies
+                foreach (string assemblyFile in _referenceAssemblies) {
+                    Assembly assembly = TryLoad (assemblyFile, args.Name, isFullName);
+                    if (assembly != null)
+                        return assembly;
+                }
+
                 // find assembly in probe paths
                 foreach (string path in _probePaths) {
                     if (!Directory.Exists(path)) {
@@ -219,23 +230,35 @@ namespace NAnt.NUnit2.Tasks {
                     string[] assemblies = Directory.GetFiles(path, "*.dll");
 
                     foreach (string assemblyFile in assemblies) {
-                        try {
-                            AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
-                            if (isFullName) {
-                                if (assemblyName.FullName == args.Name) {
-                                    return Assembly.LoadFrom(assemblyFile);
-                                }
-                            } else {
-                                if (assemblyName.Name == args.Name) {
-                                    return Assembly.LoadFrom(assemblyFile);
-                                }
-                            }
-                        } catch {}
+                        Assembly assembly = TryLoad (assemblyFile, args.Name, isFullName);
+                        if (assembly != null)
+                            return assembly;
                     }
                 }
 
                 // assembly reference could not be resolved
                 return null;
+            }
+
+            static Assembly TryLoad (string assemblyFile, string name, bool isFullName) {
+                Assembly assembly = null;
+
+                try {
+                    AssemblyName assemblyName = AssemblyName.GetAssemblyName(assemblyFile);
+                    if (isFullName) {
+                        if (assemblyName.FullName == name) {
+                            assembly = Assembly.LoadFrom(assemblyFile);
+                        }
+                    } else {
+                        if (assemblyName.Name == name) {
+                            assembly = Assembly.LoadFrom(assemblyFile);
+                        }
+                    }
+                } catch {
+                    // ignore assembly load failures
+                }
+
+                return assembly;
             }
 
             /// <summary>
@@ -258,6 +281,12 @@ namespace NAnt.NUnit2.Tasks {
             /// assembly references.
             /// </summary>
             private readonly string[] _probePaths;
+
+            /// <summary>
+            /// Holds the list of assemblies that can be scanned for missing
+            /// assembly references.
+            /// </summary>
+            private readonly string[] _referenceAssemblies;
 
             /// <summary>
             /// Holds the loaded assemblies.

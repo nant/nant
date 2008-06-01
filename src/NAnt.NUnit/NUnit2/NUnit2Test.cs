@@ -44,6 +44,7 @@ namespace NAnt.NUnit2.Types {
         private bool _haltOnFailure = true;
         private FileInfo _xsltFile;
         private AssemblyFileSet _assemblies = new AssemblyFileSet();
+        private AssemblyFileSet _references = new AssemblyFileSet();
         private FileInfo _appConfigFile;
         private Categories _categories = new Categories();
 
@@ -77,6 +78,15 @@ namespace NAnt.NUnit2.Types {
         public AssemblyFileSet Assemblies {
             get { return _assemblies; }
             set { _assemblies = value; }
+        }
+
+        /// <summary>
+        /// Assemblies to scan for missing assembly references.
+        /// </summary>
+        [BuildElement("references")]
+        public AssemblyFileSet References {
+            get { return _references; }
+            set { _references = value; }
         }
 
         /// <summary>

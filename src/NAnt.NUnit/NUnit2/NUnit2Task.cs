@@ -113,6 +113,10 @@ namespace NAnt.NUnit2.Tasks {
     ///         <categories>
     ///             <exclude name="NotWorking" />
     ///         </categories>
+    ///         <references basedir="build">
+    ///             <include name="Cegeka.Income.Services.dll" />
+    ///             <include name="Cegeka.Util.dll" />
+    ///         </references>
     ///     </test>
     /// </nunit2>
     ///     ]]>
@@ -202,7 +206,10 @@ namespace NAnt.NUnit2.Tasks {
                     NUnit2TestDomain domain = new NUnit2TestDomain();
 
                     try {
-                        TestRunner runner = domain.CreateRunner(new FileInfo(testAssembly), testElement.AppConfigFile);
+                        TestRunner runner = domain.CreateRunner(
+                            new FileInfo(testAssembly),
+                            testElement.AppConfigFile,
+                            testElement.References.FileNames);
 
                         Test test = null;
                         if (testElement.TestName != null) {
