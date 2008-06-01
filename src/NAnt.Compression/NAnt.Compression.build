@@ -16,11 +16,8 @@
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <!-- temporary workaround for Mono Runtime bug #57602 -->
-                <include name="${build.dir}/bin/log4net.dll" />
-                <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${lib.dir}/common/neutral/ICSharpCode.SharpZipLib.dll" />
+                <include name="${nant::scan-probing-paths('ICSharpCode.SharpZipLib.dll')}" />
             </references>
             <resources>
                 <include name="*.resx"/>
