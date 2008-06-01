@@ -168,6 +168,32 @@
                 </p>
             </div>
             <h5>
+                <a class="heading" href="help/tasks/nunit2.html">&lt;nunit2&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Allow referenced assemblies to be specified using <span class="xmltext">&lt;</span><span class="xmlelement">references</span><span class="xmltext">&gt;</span>
+                    element on <span class="xmltext">&lt;</span><span class="xmlelement">test</span><span class="xmltext">&gt;</span>:
+                </p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">nunit2</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">test</span><span class="xmltext">&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">assemblies</span> <span class="xmlattribute">basedir</span><span class="xmltext">="build/tests"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="Cegeka.HealthCare.DocGen.Tests.dll" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="Cegeka.HealthCare.Util.Tests.dll" /&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">assemblies</span><span class="xmltext">&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">references</span> <span class="xmlattribute">basedir</span><span class="xmltext">="build/lib"&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="Cegeka.HealthCare.Common.dll" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="Cegeka.HealthCare.DocGen.dll" /&gt;</span>
+                <span class="xmltext">&lt;</span><span class="xmlelement">include</span> <span class="xmlattribute">name</span><span class="xmltext">="Cegeka.HealthCare.Util.dll" /&gt;</span>
+            <span class="xmltext">&lt;/</span><span class="xmlelement">assemblies</span><span class="xmltext">&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">test</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">nunit2</span><span class="xmltext">&gt;</span>
+                </pre>
+                 Previously, all referenced assemblies needed to be either
+                 in the GAC, or in the directory containing the test
+                 assembly.
+            </div>
+            <h5>
                 <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
             <div style="margin-left: 20px;">
                 <p>
