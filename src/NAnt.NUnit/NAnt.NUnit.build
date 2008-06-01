@@ -33,9 +33,6 @@
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <!-- temporary workaround for Mono Runtime bug #57602 -->
-                <include name="${lib.framework.dir}/log4net.dll" />
-                <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
                 <include name="${nant::scan-probing-paths('NUnitCore.dll')}" />
