@@ -23,11 +23,6 @@
     -->
     <property name="create.assemblyinfo" value="true" />
 
-    <!-- global build settings -->
-    <property name="lib.dir" value="${path::combine(build.dir, 'bin/lib')}" dynamic="true" />
-    <property name="lib.family.dir" value="${path::combine(lib.dir, framework::get-family(framework::get-target-framework()))}" dynamic="true" />
-    <property name="lib.framework.dir" value="${path::combine(lib.family.dir, version::to-string(framework::get-version(framework::get-target-framework())))}" dynamic="true" />
-
     <!-- default configuration -->
     <property name="project.config" value="debug" /> <!-- debug|release -->
     <property name="nant.console.name" value="NAnt" />
@@ -56,9 +51,6 @@
         <include name="NAnt.Win32/NAnt.Win32.build" />
         <include name="NAnt.VisualCpp/NAnt.VisualCpp.build" />
         <include name="NAnt.VSNet/NAnt.VSNet.build" />
-        <!--
-        <include name="NAnt.NUnit/NAnt.NUnit.build" />
-        -->
     </fileset>
 
     <!-- named project configurations (used by self-test and self-doc tasks) -->
@@ -285,8 +277,8 @@
             </sources>
             <references failonempty="true">
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${lib.framework.dir}/NDoc.ExtendedUI.dll" />
-                <include name="${lib.framework.dir}/NDoc.Core.dll" />
+                <include name="${nant::scan-probing-paths('NDoc.ExtendedUI.dll')}" />
+                <include name="${nant::scan-probing-paths('NDoc.Core.dll')}" />
                 <include name="System.Web.dll" />
             </references>
             <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
