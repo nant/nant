@@ -310,6 +310,58 @@ namespace NAnt.Core.Util {
             }
         }
 
+        /// <summary>
+        /// Scans a list of directories for the specified filename.
+        /// </summary>
+        /// <param name="directories">The list of directories to search.</param>
+        /// <param name="fileName">The name of the file to look for.</param>
+        /// <param name="recursive">Specifies whether the directory should be searched recursively.</param>
+        /// <remarks>
+        /// The directories are scanned in the order in which they are defined.
+        /// </remarks>
+        /// <returns>
+        /// The absolute path to the specified file, or null if the file was
+        /// not found.
+        /// </returns>
+        public static string ResolveFile(string[] directories, string fileName, bool recursive) {
+            if (directories == null)
+                throw new ArgumentNullException("directories");
+            if (fileName == null)
+                throw new ArgumentNullException("fileName");
+
+            string resolvedFile = null;
+
+            foreach (string directory in directories) {
+                if (!Directory.Exists(directory))
+                    continue;
+
+                resolvedFile = ScanDirectory (directory, fileName, recursive);
+                if (resolvedFile != null)
+                    break;
+            }
+
+            return resolvedFile;
+        }
+
+        private static string ScanDirectory(string directory, string fileName, bool recursive) {
+            string absolutePath = Path.Combine(directory, fileName);
+            if (File.Exists(absolutePath))
+                return absolutePath;
+
+            if (!recursive)
+                return null;
+
+            string[] subDirs = Directory.GetDirectories(directory);
+            foreach (string subDir in subDirs) {
+                absolutePath = ScanDirectory (Path.Combine (directory, subDir),
+                    fileName, recursive);
+                if (absolutePath != null)
+                    return absolutePath;
+            }
+
+            return null;
+        }
+
         #endregion Public Static Methods
     }
 }
