@@ -17,7 +17,7 @@
             </sources>
             <references>
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${lib.framework.dir}/nunit.framework.dll" />
+                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
             </references>
         </csc>
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
@@ -38,7 +38,7 @@
                 <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
-                <include name="${lib.dir}/common/neutral/NUnitCore.dll" />
+                <include name="${nant::scan-probing-paths('NUnitCore.dll')}" />
             </references>
             <resources>
                 <include name="*.resx"/>
@@ -55,16 +55,12 @@
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
             <references>
-                <!-- temporary workaround for Mono runtime bug #57602 -->
-                <include name="${lib.framework.dir}/log4net.dll" />
-                <include name="${lib.framework.dir}/NDoc.Core.dll" />
-                <!-- end workaround -->
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
                 <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
-                <include name="${lib.framework.dir}/nunit.framework.dll" />
-                <include name="${lib.framework.dir}/nunit.core.dll" />
-                <include name="${lib.framework.dir}/nunit.util.dll" />
+                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
+                <include name="${nant::scan-probing-paths('nunit.core.dll')}" />
+                <include name="${nant::scan-probing-paths('nunit.util.dll')}" />
             </references>
         </csc>
     </target>
