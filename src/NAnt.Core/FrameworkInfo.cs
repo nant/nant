@@ -224,7 +224,7 @@ namespace NAnt.Core {
                 return _clrVersion; 
             }
         }
-        
+
         /// <summary>
         /// Gets the Visual Studio version that corresponds with this
         /// framework.
@@ -298,7 +298,7 @@ namespace NAnt.Core {
                 return _runtime;
             }
         }
-       
+
         /// <summary>
         /// Gets the directory where the system assemblies for the framework
         /// are located.
@@ -628,20 +628,10 @@ namespace NAnt.Core {
         ///   </para>
         /// </remarks>
         internal string GetToolPath (string tool) {
-            string toolPath = null;
-
-            if (tool == null) {
+            if (tool == null)
                 throw new ArgumentNullException ("tool");
-            }
 
-            foreach (string dir in ToolPaths) {
-                string fullPath = Path.Combine (dir, tool);
-                if (File.Exists (fullPath)) {
-                    toolPath = fullPath;
-                    break;
-                }
-            }
-            return toolPath;
+            return FileUtils.ResolveFile(ToolPaths, tool, false);
         }
 
         #endregion Internal Instance Methods
