@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="ReferenceAssemblies" default="run">
+<project name="ReferenceAssemblies" default="build">
 	<target name="clean">
 		<delete>
 			<fileset>
@@ -31,7 +31,7 @@
 		</csc>
 	</target>
 
-	<target name="run" depends="compile-test">
+	<target name="build" depends="compile-test">
 		<nunit2>
 			<formatter type="Plain" />
 			<test>
