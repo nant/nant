@@ -1,12 +1,14 @@
 .menucontainer {
-    float: left;
     background-color: #dfff80;
     margin: 0px 5px;
-    width: 250px;
+}
+
+.sidebar {
+    padding: 0px 0px 0px 10px;
 }
 
 .main {
-    float: auto;
+    top: 0;
 }
 
 .treeDiv {
