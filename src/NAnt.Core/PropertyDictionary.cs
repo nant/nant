@@ -307,7 +307,7 @@ namespace NAnt.Core {
         /// <param name="state">A mapping from properties to states. The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
         /// <param name="visiting">A stack of properties which are currently being visited. Must not be <see langword="null" />.</param>
         /// <returns>The expanded and replaced string.</returns>
-        internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {            
+        internal string ExpandProperties(string input, Location location, Hashtable state, Stack visiting) {
             return EvaluateEmbeddedExpressions(input, location, state, visiting);
         }
 
