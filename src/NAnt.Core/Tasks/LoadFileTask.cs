@@ -146,32 +146,12 @@ namespace NAnt.Core.Tasks {
             string content = null;
 
             try {
-                // determine character encoding to use
-                Encoding encoding = (Encoding != null) ? Encoding : Encoding.Default;
-                // load file
-                using (StreamReader sr = new StreamReader(File.FullName, encoding, true)) {
-                    if (FilterChain == null || FilterChain.Filters.Count == 0) {
-                        content = sr.ReadToEnd();
-                    } else {
-                        Filter baseFilter = FilterChain.GetBaseFilter(
-                            new PhysicalTextReader(sr));
-
-                        StringWriter sw = new StringWriter();
-                        while (true) {
-                            int character = baseFilter.Read();
-                            if (character > -1) {
-                                sw.Write((char) character);
-                            } else {
-                                break;
-                            }
-                        }
-                        content = sw.ToString();
-                    }
-                }
+                content = FileUtils.ReadFile(File.FullName, FilterChain,
+                    Encoding);
             } catch (IOException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                                       ResourceUtils.GetString("NA1129"),
-                    File.FullName), Location, ex);
+                    ResourceUtils.GetString("NA1129"), File.FullName),
+                    Location, ex);
             }
 
             // add/update property
