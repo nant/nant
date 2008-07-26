@@ -972,11 +972,11 @@ namespace NAnt.Core.Types {
                             while (line != null) {
                                 // remove leading and trailing whitespace
                                 line = line.Trim ();
-                                // ignore empty lines and comments
-                                if (line.Length == 0 || line [0] == '#')
-                                    continue;
-                                // add line as pattern
-                                patterns.Add(line);
+                                // only consider non-empty lines that are not comments
+                                if (line.Length != 0 && line [0] != '#') {
+                                    // add line as pattern
+                                    patterns.Add(line);
+                                }
                                 // read next line
                                 line = sr.ReadLine ();
                             }
