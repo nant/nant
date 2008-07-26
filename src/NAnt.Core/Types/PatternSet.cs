@@ -46,6 +46,19 @@ namespace NAnt.Core.Types {
     ///   pattern.
     ///   </para>
     ///   <para>
+    ///   The number sign (#) as the first non-blank character in a line denotes
+    ///   that all text following it is a comment:
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    ///        EventLog.cs
+    ///        # requires Mono.Posix
+    ///        SysLogEventLogImpl.cs
+    ///        # uses the win32 eventlog API
+    ///        Win32EventLogImpl.cs
+    ///     ]]>
+    ///   </code>
+    ///   <para>
     ///   Patterns can be grouped to sets, and later be referenced by their
     ///   <see cref="DataTypeBase.ID" />.
     ///   </para>
@@ -321,7 +334,14 @@ namespace NAnt.Core.Types {
             using (StreamReader sr = new StreamReader(fileName, Encoding.Default, true)) {
                 string line = sr.ReadLine ();
                 while (line != null) {
+                    // remove leading and trailing whitespace
+                    line = line.Trim ();
+                    // ignore empty lines and comments
+                    if (line.Length == 0 || line [0] == '#')
+                        continue;
+                    // add line as pattern
                     patterns.Add(line);
+                    // read next line
                     line = sr.ReadLine ();
                 }
             }

@@ -22,6 +22,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
@@ -513,7 +514,7 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
-        /// The files from which a list of patterns or files to include should 
+        /// The files from which a list of patterns or files to include should
         /// be obtained.
         /// </summary>
         [BuildElementArray("includesfile")]
@@ -543,7 +544,7 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
-        /// The files from which a list of patterns or files to exclude should 
+        /// The files from which a list of patterns or files to exclude should
         /// be obtained.
         /// </summary>
         [BuildElementArray("excludesfile")]
@@ -966,10 +967,18 @@ namespace NAnt.Core.Types {
                     }
 
                     try {
-                        using (Stream file = File.OpenRead(PatternFile.FullName)) {
-                            StreamReader rd = new StreamReader(file);
-                            while (rd.Peek() > -1) {
-                                patterns.Add(rd.ReadLine());
+                        using (StreamReader sr = new StreamReader(PatternFile.FullName, Encoding.Default, true)) {
+                            string line = sr.ReadLine ();
+                            while (line != null) {
+                                // remove leading and trailing whitespace
+                                line = line.Trim ();
+                                // ignore empty lines and comments
+                                if (line.Length == 0 || line [0] == '#')
+                                    continue;
+                                // add line as pattern
+                                patterns.Add(line);
+                                // read next line
+                                line = sr.ReadLine ();
                             }
                         }
                         return patterns;
