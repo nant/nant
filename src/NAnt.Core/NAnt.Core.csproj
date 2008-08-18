@@ -176,6 +176,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "FrameworkTypes.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "FunctionSetBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -526,6 +531,11 @@
                 />
                 <File
                     RelPath = "Functions\FileVersionInfoFunctions.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Functions\FrameworkFunctions.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
