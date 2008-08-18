@@ -1655,16 +1655,16 @@
                     <td>datetime</td>
                     <td>timespan</td>
                     <td>
-                        <code>timespan::from-seconds(30) - timespan::from-seconds(10)</code> evaluates 
-                        to a timespan representing a duration of 20 seconds
+                        <code>datetime::now() - timespan::from-days(3)</code> evaluates 
+                        to a datetime 3 days in the past
                     </td>
                 </tr>
                 <tr>
                     <td>timespan</td>
                     <td>timespan</td>
                     <td>
-                        <code>timespan::from-seconds(30) + timespan::from-minutes(10)</code> evaluates 
-                        to a timespan representing 10 minutes and 30 seconds
+                        <code>timespan::from-minutes(15) - timespan::from-minutes(10)</code> evaluates 
+                        to a timespan representing 5 minutes
                     </td>
                 </tr>
             </table>
@@ -1695,7 +1695,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() == (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() == (datetime::now() + timespan::from-days(10))</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
@@ -1735,7 +1735,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() != (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() != (datetime::now() + timespan::from-days(10))</code> evaluates 
                         to <b>true</b>
                     </td>
                 </tr>
@@ -1775,7 +1775,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() > (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() > (datetime::now() + timespan::from-days(10))</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
@@ -1815,7 +1815,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() >= (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() >= (datetime::now() + timespan::from-days(10))</code> evaluates 
                         to <b>false</b>
                     </td>
                 </tr>
@@ -1824,7 +1824,7 @@
                     <td>timespan</td>
                     <td>
                         <code>timespan::from-seconds(30) >= timespan::from-seconds(30)</code> evaluates 
-                        to <b>false</b>
+                        to <b>true</b>
                     </td>
                 </tr>
             </table>
@@ -1855,7 +1855,7 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() &lt; (datetime::now()+timespan::from-days(10))</code> evaluates 
+                        <code>datetime::now() &lt; (datetime::now() + timespan::from-days(10))</code> evaluates 
                         to <b>true</b>
                     </td>
                 </tr>
@@ -1895,8 +1895,8 @@
                     <td>datetime</td>
                     <td>datetime</td>
                     <td>
-                        <code>datetime::now() &lt;= (datetime::now()+timespan::from-days(10))</code> evaluates 
-                        to <b>false</b>
+                        <code>datetime::now() &lt;= (datetime::now() + timespan::from-days(10))</code> evaluates 
+                        to <b>true</b>
                     </td>
                 </tr>
                 <tr>
@@ -2094,8 +2094,8 @@
         <h4><a id="op-version-less-than-or-equal" />4.6.6 Less than or equal</h4>
         <h5>Summary</h5>
         <p>
-            Returns <b>true</b> if the value of the left operand is less than the 
-            value of the right operand.
+            Returns <b>true</b> if the value of the left operand is less than or
+            equal to the value of the right operand.
         </p>
         <h5>Operands</h5>
         <div class="table">
