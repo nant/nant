@@ -59,13 +59,13 @@ namespace NDoc.Documenter.NAnt {
             ShowMissingReturns = false;
             ShowMissingSummaries = false;
             ShowMissingValues = false;
-            DocumentAttributes = true; 
+            DocumentAttributes = true;
             DocumentEmptyNamespaces = false;
             DocumentInternals = false;
             DocumentPrivates = false;
             DocumentProtected = true;
             SkipNamespacesWithoutSummaries = false;
-            EditorBrowsableFilter = EditorBrowsableFilterLevel.HideNever;
+            EditorBrowsableFilter = EditorBrowsableFilterLevel.HideAdvanced;
         }
 
         #endregion Public Instance Constructors
