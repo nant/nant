@@ -99,12 +99,12 @@ namespace NAnt.Core {
             _description = info.GetString("Description");
             _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
             _clrType = (ClrType) info.GetValue("ClrType", typeof(ClrType));
+            _version = (Version) info.GetValue("Version", typeof(Version));
+            _clrVersion = (Version) info.GetValue("ClrVersion", typeof(Version));
             if (_status != InitStatus.Valid) {
                 return;
             }
 
-            _version = (Version) info.GetValue("Version", typeof(Version));
-            _clrVersion = (Version) info.GetValue("ClrVersion", typeof(Version));
             _frameworkDirectory = (DirectoryInfo) info.GetValue("FrameworkDirectory", typeof(DirectoryInfo));
             _sdkDirectory = (DirectoryInfo) info.GetValue("SdkDirectory", typeof(DirectoryInfo));
             _frameworkAssemblyDirectory = (DirectoryInfo) info.GetValue("FrameworkAssemblyDirectory", typeof(DirectoryInfo));
@@ -124,9 +124,10 @@ namespace NAnt.Core {
             info.AddValue("Family", Family);
             info.AddValue("Description", Description);
             info.AddValue("ClrType", ClrType);
+            info.AddValue("Version", Version);
+            info.AddValue("ClrVersion", ClrVersion);
+            info.AddValue("Status", _status);
             if (IsValid) {
-                info.AddValue("Version", Version);
-                info.AddValue("ClrVersion", ClrVersion);
                 info.AddValue("FrameworkDirectory", FrameworkDirectory);
                 info.AddValue("SdkDirectory", SdkDirectory);
                 info.AddValue("FrameworkAssemblyDirectory", FrameworkAssemblyDirectory);
@@ -136,7 +137,6 @@ namespace NAnt.Core {
                 info.AddValue("ReferenceAssemblies", ReferenceAssemblies);
                 info.AddValue("ToolPaths", ToolPaths);
             }
-            info.AddValue("Status", _status);
         }
 
         #endregion Private Instance Constructors
@@ -186,15 +186,15 @@ namespace NAnt.Core {
         /// </remarks>
         public Version Version {
             get {
-                // ensure we're not dealing with an invalid framework
-                AssertNotInvalid();
-
                 if (_version == null) {
+                    if (_frameworkNode == null) {
+                        throw new ArgumentException("The current framework " +
+                            "is not valid.");
+                    }
+
                     string version = GetXmlAttributeValue(_frameworkNode,
                         "version");
                     if (version != null) {
-                        version = Project.ExpandProperties(version,
-                            Location.UnknownLocation);
                         _version = new Version(version);
                     }
                 }
@@ -215,10 +215,12 @@ namespace NAnt.Core {
         /// </remarks>
         public Version ClrVersion {
             get {
-                // ensure we're not dealing with an invalid framework
-                AssertNotInvalid();
-
                 if (_clrVersion == null) {
+                    if (_frameworkNode == null) {
+                        throw new ArgumentException("The current framework " +
+                            "is not valid.");
+                    }
+
                     string clrVersion = GetXmlAttributeValue(_frameworkNode,
                         "clrversion");
                     if (clrVersion != null) {
@@ -236,9 +238,26 @@ namespace NAnt.Core {
         /// The CLR type of the framework.
         /// </value>
         /// <exception cref="ArgumentException">The framework is not valid.</exception>
-        internal ClrType ClrType {
+        public ClrType ClrType {
             get {
-                Init();
+                if (_clrType == 0) {
+                    if (_frameworkNode == null) {
+                        throw new ArgumentException("The current framework " +
+                            "is not valid.");
+                    }
+
+                    string clrType = GetXmlAttributeValue(_frameworkNode, "clrtype");
+                    if (clrType != null) {
+                        try {
+                            _clrType = (ClrType) Enum.Parse(typeof (ClrType),
+                                clrType, true);
+                        } catch (Exception ex) {
+                            throw new ArgumentException("The value of the \"clrtype\" " +
+                                "attribute is not valid.", ex);
+                        }
+                    }
+                }
+
                 return _clrType;
             }
         }
@@ -254,8 +273,10 @@ namespace NAnt.Core {
         /// <exception cref="BuildException">There is no version of Visual Studio that corresponds with this framework.</exception>
         public Version VisualStudioVersion {
             get {
-                // ensure we're not dealing with an invalid framework
-                AssertNotInvalid();
+                if (ClrVersion == null) {
+                    throw new ArgumentException("The current framework " +
+                        "is not valid.");
+                }
 
                 switch (ClrVersion.ToString(2)) {
                     case "1.0":
@@ -754,19 +775,6 @@ namespace NAnt.Core {
                 _sdkDirectory = new DirectoryInfo(sdkDir);
             }
 
-            string clrType = GetXmlAttributeValue(_frameworkNode, "clrtype");
-            if (clrType == null) {
-                throw new ArgumentException("The \"clrtype\" attribute " +
-                    "does not exist, or has no value.");
-            }
-
-            try {
-                _clrType = (ClrType) Enum.Parse(typeof (ClrType), clrType, true);
-            } catch (Exception ex) {
-                throw new ArgumentException("The value of the \"clrtype\" " +
-                    "attribute is not valid.", ex);
-            }
-
             _project = frameworkProject;
             _status = InitStatus.Initialized;
         }
@@ -825,8 +833,8 @@ namespace NAnt.Core {
     }
 
     public enum ClrType {
-        Desktop,
-        Compact,
-        Browser
+        Desktop = 1,
+        Compact = 2,
+        Browser = 3
     }
 }
