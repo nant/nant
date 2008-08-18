@@ -113,17 +113,13 @@ namespace Tests.NAnt.Core {
                 Assert.AreEqual(framework.Family, df.Family, "#A4");
                 Assert.IsNotNull(framework.Name, "#A5");
                 Assert.AreEqual(framework.Name, df.Name, "#A6");
-
-                try {
-                    object x = df.ClrVersion;
-                    Assert.Fail ("#B1:" + x);
-                } catch (ArgumentException ex) {
-                    // The current framework is not valid
-                    Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#B2");
-                    Assert.IsNull(ex.InnerException, "#B3");
-                    Assert.IsNotNull(ex.Message, "#B4");
-                    Assert.IsNull(ex.ParamName, "#B5");
-                }
+                Assert.IsNotNull(framework.ClrVersion, "#A7");
+                Assert.AreEqual(framework.ClrVersion, df.ClrVersion, "#A8");
+                Assert.IsNotNull(framework.Version, "#A7");
+                Assert.AreEqual(framework.Version, df.Version, "#A8");
+                Assert.IsTrue (Enum.IsDefined(typeof(ClrType), framework.ClrType), "#A9");
+                Assert.AreEqual(framework.ClrType, df.ClrType, "#A10");
+                Assert.IsNotNull(framework.VisualStudioVersion, "#A11");
 
                 try {
                     object x = df.FrameworkAssemblyDirectory;
@@ -178,28 +174,6 @@ namespace Tests.NAnt.Core {
                     Assert.IsNull(ex.InnerException, "#G3");
                     Assert.IsNotNull(ex.Message, "#G4");
                     Assert.IsNull(ex.ParamName, "#G5");
-                }
-
-                try {
-                    object x = df.Version;
-                    Assert.Fail ("#H1" + x);
-                } catch (ArgumentException ex) {
-                    // The current framework is not valid
-                    Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#H2");
-                    Assert.IsNull(ex.InnerException, "#H3");
-                    Assert.IsNotNull(ex.Message, "#H4");
-                    Assert.IsNull(ex.ParamName, "#H5");
-                }
-
-                try {
-                    object x = df.VisualStudioVersion;
-                    Assert.Fail ("#I1" + x);
-                } catch (ArgumentException ex) {
-                    // The current framework is not valid
-                    Assert.AreEqual(typeof(ArgumentException), ex.GetType(), "#I2");
-                    Assert.IsNull(ex.InnerException, "#I3");
-                    Assert.IsNotNull(ex.Message, "#I4");
-                    Assert.IsNull(ex.ParamName, "#I5");
                 }
             }
         }
