@@ -402,6 +402,31 @@ namespace NDoc.Documenter.NAnt {
             // add extension object to Xslt arguments
             arguments.AddExtensionObject("urn:NAntUtil", utilities);
 
+            // document parameter types
+            foreach (XmlAttribute paramTypeAttribute in functionElement.SelectNodes("parameter/@type")) {
+                string paramType = "T:" + paramTypeAttribute.Value;
+                XmlNode typeNode = utilities.GetTypeNodeByID(paramType);
+                if (typeNode != null) {
+                    ElementDocType paramDocType = utilities.GetElementDocType(typeNode);
+                    if (paramDocType != ElementDocType.None) {
+                        DocumentType(typeNode, paramDocType, utilities);
+                    }
+                }
+            }
+
+            // document return type
+            XmlAttribute returnTypeAttribute = functionElement.Attributes["returnType"];
+            if (returnTypeAttribute != null) {
+                string returnType = "T:" + returnTypeAttribute.Value;
+                XmlNode returnTypeNode = utilities.GetTypeNodeByID(returnType);
+                if (returnTypeNode != null) {
+                    ElementDocType returnDocType = utilities.GetElementDocType(returnTypeNode);
+                    if (returnDocType != ElementDocType.None) {
+                        DocumentType(returnTypeNode, returnDocType, utilities);
+                    }
+                }
+            }
+
             // create the page
             TransformAndWriteResult(_xsltFunctionDoc, arguments, filename);
         }
