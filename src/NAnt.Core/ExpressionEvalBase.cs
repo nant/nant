@@ -23,6 +23,7 @@ using System.Collections;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -1058,8 +1059,20 @@ namespace NAnt.Core {
                 }
 
                 if (returnType.IsEnum) {
-                    if (source is string) {
-                        return Enum.Parse(returnType, (string) source, false);
+                    string sourceText = source as string;
+                    if (sourceText != null) {
+                        // support both ',' and ' ' as separator chars for flags
+                        string[] flags = sourceText.Split(' ', ',');
+                        StringBuilder sb = new StringBuilder(sourceText.Length);
+                        for (int i = 0; i < flags.Length; i++) {
+                            string flag = flags[i].Trim();
+                            if (flag.Length == 0)
+                                continue;
+                            if (sb.Length > 0)
+                                sb.Append(',');
+                            sb.Append(flag);
+                        }
+                        return Enum.Parse(returnType, sb.ToString(), true);
                     } else {
                         return Enum.ToObject(returnType, source);
                     }
