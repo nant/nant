@@ -132,17 +132,6 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
-            <div style="margin-left: 20px;">
-                <p>
-                    Solution Folders result in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1732361&amp;group_id=31650&amp;atid=402868">#1732361</a>).
-                </p>
-            </div>
-        </div>
-        <h3>Changes</h3>
-        <h4>Tasks</h4>
-        <div style="margin-left: 20px;">
-            <h5>
                 <a class="heading">ExternalProgramBase</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -151,6 +140,42 @@
                     <a 
                 </p>
             </div>
+            <h5>
+                <a class="heading" href="help/tasks/solution.html">&lt;solution&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Solution Folders result in build failure (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1732361&amp;group_id=31650&amp;atid=402868">#1732361</a>).
+                </p>
+            </div>
+        </div>
+        <h3>Additions</h3>
+        <h4>Functions</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/functions/framework.get-frameworks.html">framework::get-frameworks</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Gets a comma-separated list of frameworks filtered by the
+                    specified <a href="help/enums/NAnt.Core.FrameworkTypes.html">FrameworkTypes</a>.
+                </p>
+                <p>For example:</p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="build-all"&gt;</span>
+        <span class="xmltext">&lt;</span><span class="xmlelement">foreach</span> <span class="xmlattribute">item</span><span class="xmltext">="String"</span> <span class="xmlattribute">in</span><span class="xmltext">="${framework::get-frameworks('installed compact')}"</span> <span class="xmlattribute">delim</span><span class="xmltext">=","</span> <span class="xmlattribute">property</span><span class="xmltext">="framework"&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">property</span> <span class="xmlattribute">name</span><span class="xmltext">="nant.settings.currentframework"</span> <span class="xmlattribute">value</span><span class="xmltext">="${framework}" /&gt;</span>
+            <span class="xmltext">&lt;</span><span class="xmlelement">call</span> <span class="xmlattribute">target</span><span class="xmltext">="${framework}" /&gt;</span>
+        <span class="xmltext">&lt;/</span><span class="xmlelement">foreach</span><span class="xmltext">&gt;</span>
+    <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>
+
+    <span class="xmltext">&lt;</span><span class="xmlelement">target</span> <span class="xmlattribute">name</span><span class="xmltext">="build"&gt;</span>
+        ...
+    <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>		
+                </pre>
+            </div>
+        </div>
+        <h3>Changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
             <h5>
                 <a class="heading" href="help/tasks/csc.html">&lt;csc&gt;</a> / <a class="heading" href="help/tasks/jsc.html">&lt;jsc&gt;</a> / <a class="heading" href="help/tasks/vbc.html">&lt;vbc&gt;</a> / <a class="heading" href="help/tasks/vjc.html">&lt;vjc&gt;</a></h5>
             <div style="margin-left: 20px;">
