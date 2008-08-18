@@ -164,22 +164,19 @@ namespace NAnt.Core {
                         // insert empty line
                         Console.Error.WriteLine();
 
-                        if (project.Frameworks.Count == 0) {
+                        FrameworkInfo[] installedFrameworks = project.GetFrameworks(
+                            FrameworkTypes.Installed);
+
+                        if (installedFrameworks.Length == 0) {
                             Console.Error.WriteLine("There are no supported frameworks available on your system.");
                         } else {
-                            ArrayList frameworks = new ArrayList(project.Frameworks.Count);
-                            frameworks.AddRange(project.Frameworks.Values);
-                            frameworks.Sort(new FrameworkNameComparer());
-
                             Console.Error.WriteLine("Possible values include:");
                             // insert empty line
                             Console.Error.WriteLine();
 
-                            foreach (FrameworkInfo fi in frameworks) {
-                                if (fi.IsValid) {
-                                    Console.Error.WriteLine("{0} ({1})",
-                                        fi.Name, fi.Description);
-                                }
+                            foreach (FrameworkInfo fi in installedFrameworks) {
+                                Console.Error.WriteLine("{0} ({1})",
+                                    fi.Name, fi.Description);
                             }
                         }
                         // signal error
@@ -588,15 +585,5 @@ namespace NAnt.Core {
         private const int INDENTATION_SIZE = 4;
 
         #endregion Private Static Fields
-
-        private class FrameworkNameComparer : IComparer {
-            public int Compare(object x, object y) {
-                FrameworkInfo fix = x as FrameworkInfo;
-                FrameworkInfo fiy = y as FrameworkInfo;
-
-                return string.Compare(fix.Name, fiy.Name,false, CultureInfo.InvariantCulture);
-            }
-        }
-
     }
 }

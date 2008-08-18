@@ -18,6 +18,7 @@
 // Ian MacLean (imaclean@gmail.com)
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
@@ -44,6 +45,7 @@ namespace NAnt.Core {
         private readonly string _description;
         private Version _version;
         private Version _clrVersion;
+        private ClrType _clrType;
         private DirectoryInfo _frameworkDirectory;
         private DirectoryInfo _sdkDirectory;
         private DirectoryInfo _frameworkAssemblyDirectory;
@@ -96,6 +98,7 @@ namespace NAnt.Core {
             _family = info.GetString("Family");
             _description = info.GetString("Description");
             _status = (InitStatus) info.GetValue("Status", typeof(InitStatus));
+            _clrType = (ClrType) info.GetValue("ClrType", typeof(ClrType));
             if (_status != InitStatus.Valid) {
                 return;
             }
@@ -120,6 +123,7 @@ namespace NAnt.Core {
             info.AddValue("Name", Name);
             info.AddValue("Family", Family);
             info.AddValue("Description", Description);
+            info.AddValue("ClrType", ClrType);
             if (IsValid) {
                 info.AddValue("Version", Version);
                 info.AddValue("ClrVersion", ClrVersion);
@@ -222,6 +226,20 @@ namespace NAnt.Core {
                     }
                 }
                 return _clrVersion; 
+            }
+        }
+
+        /// <summary>
+        /// Gets the CLR type of the framework.
+        /// </summary>
+        /// <value>
+        /// The CLR type of the framework.
+        /// </value>
+        /// <exception cref="ArgumentException">The framework is not valid.</exception>
+        internal ClrType ClrType {
+            get {
+                Init();
+                return _clrType;
             }
         }
 
@@ -528,6 +546,16 @@ namespace NAnt.Core {
 
         #endregion Private Instance Properties
 
+        #region Internal Static Properties
+
+        internal static IComparer NameComparer {
+            get {
+                return new FrameworkNameComparer ();
+            }
+        }
+
+        #endregion Internal Static Properties
+
         #region Public Instance Methods
 
         /// <summary>
@@ -726,6 +754,19 @@ namespace NAnt.Core {
                 _sdkDirectory = new DirectoryInfo(sdkDir);
             }
 
+            string clrType = GetXmlAttributeValue(_frameworkNode, "clrtype");
+            if (clrType == null) {
+                throw new ArgumentException("The \"clrtype\" attribute " +
+                    "does not exist, or has no value.");
+            }
+
+            try {
+                _clrType = (ClrType) Enum.Parse(typeof (ClrType), clrType, true);
+            } catch (Exception ex) {
+                throw new ArgumentException("The value of the \"clrtype\" " +
+                    "attribute is not valid.", ex);
+            }
+
             _project = frameworkProject;
             _status = InitStatus.Initialized;
         }
@@ -772,5 +813,20 @@ namespace NAnt.Core {
             Invalid,
             Valid
         }
+
+        private class FrameworkNameComparer : IComparer {
+            public int Compare(object x, object y) {
+                FrameworkInfo fix = x as FrameworkInfo;
+                FrameworkInfo fiy = y as FrameworkInfo;
+
+                return string.Compare(fix.Name, fiy.Name,false, CultureInfo.InvariantCulture);
+            }
+        }
+    }
+
+    public enum ClrType {
+        Desktop,
+        Compact,
+        Browser
     }
 }

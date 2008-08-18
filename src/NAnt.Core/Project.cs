@@ -23,6 +23,7 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -440,6 +441,73 @@ namespace NAnt.Core {
         /// </value>
         public FrameworkInfoDictionary Frameworks {
             get { return _frameworks; }
+        }
+
+        /// <summary>
+        /// Gets the list of supported frameworks filtered by the specified
+        /// <see cref="FrameworkTypes" /> parameter.
+        /// </summary>
+        /// <param name="types">A bitwise combination of <see cref="FrameworkTypes" /> values that filter the frameworks to retrieve.</param>
+        /// <returns>
+        /// An array of type <see cref="FrameworkInfo" /> that contains the
+        /// frameworks specified by the <paramref name="types" /> parameter,
+        /// sorted on name.
+        /// </returns>
+        internal FrameworkInfo[] GetFrameworks (FrameworkTypes types) {
+            ArrayList matches = new ArrayList(Frameworks.Count);
+
+            foreach (FrameworkInfo framework in Frameworks.Values) {
+                if ((types & FrameworkTypes.InstallStateMask) != 0) {
+                    if (framework.IsValid && (types & FrameworkTypes.Installed) == 0)
+                        continue;
+                }
+
+                if ((types & FrameworkTypes.DeviceMask) != 0) {
+                    switch (framework.ClrType) {
+                        case ClrType.Compact:
+                            if ((types & FrameworkTypes.Compact) == 0)
+                                continue;
+                            break;
+                        case ClrType.Desktop:
+                            if ((types & FrameworkTypes.Desktop) == 0)
+                                continue;
+                            break;
+                        case ClrType.Browser:
+                            if ((types & FrameworkTypes.Browser) == 0)
+                                continue;
+                            break;
+                        default:
+                            throw new NotSupportedException(string.Format(
+                                CultureInfo.InvariantCulture, "CLR type '{0}'"
+                                + " is not supported.", framework.ClrType));
+                    }
+                }
+
+                if ((types & FrameworkTypes.VendorMask) != 0) {
+                    switch (framework.Family) {
+                        case "mono":
+                            if ((types & FrameworkTypes.Mono) == 0)
+                                continue;
+                            break;
+                        case "net":
+                            if ((types & FrameworkTypes.MS) == 0)
+                                continue;
+                            break;
+                        default:
+                            throw new NotSupportedException(string.Format(
+                                CultureInfo.InvariantCulture, "Framework family "
+                                + "'{0}' is not supported.", framework.Family));
+                    }
+                }
+                        
+                matches.Add(framework);
+            }
+
+            matches.Sort(FrameworkInfo.NameComparer);
+
+            FrameworkInfo[] frameworks = new FrameworkInfo[matches.Count];
+            matches.CopyTo(frameworks);
+            return frameworks;
         }
 
         /// <summary>
