@@ -34,7 +34,7 @@ namespace NAnt.Core {
                 // we're on Mono
                 IsMono = true;
             }
-            
+
             PlatformID platformID = Environment.OSVersion.Platform;
 
             if (platformID == PlatformID.Win32NT || platformID == PlatformID.Win32Windows) {
