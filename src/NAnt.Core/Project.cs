@@ -458,7 +458,9 @@ namespace NAnt.Core {
 
             foreach (FrameworkInfo framework in Frameworks.Values) {
                 if ((types & FrameworkTypes.InstallStateMask) != 0) {
-                    if (framework.IsValid && (types & FrameworkTypes.Installed) == 0)
+                    if ((types & FrameworkTypes.Installed) == 0 && framework.IsValid)
+                        continue;
+                    if ((types & FrameworkTypes.NotInstalled) == 0 && !framework.IsValid)
                         continue;
                 }
 
@@ -484,22 +486,18 @@ namespace NAnt.Core {
                 }
 
                 if ((types & FrameworkTypes.VendorMask) != 0) {
-                    switch (framework.Family) {
-                        case "mono":
+                    switch (framework.Vendor) {
+                        case VendorType.Mono:
                             if ((types & FrameworkTypes.Mono) == 0)
                                 continue;
                             break;
-                        case "net":
+                        case VendorType.Microsoft:
                             if ((types & FrameworkTypes.MS) == 0)
                                 continue;
                             break;
-                        default:
-                            throw new NotSupportedException(string.Format(
-                                CultureInfo.InvariantCulture, "Framework family "
-                                + "'{0}' is not supported.", framework.Family));
                     }
                 }
-                        
+
                 matches.Add(framework);
             }
 
