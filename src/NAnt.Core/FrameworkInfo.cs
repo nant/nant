@@ -46,6 +46,7 @@ namespace NAnt.Core {
         private Version _version;
         private Version _clrVersion;
         private ClrType _clrType;
+        private VendorType _vendor;
         private DirectoryInfo _frameworkDirectory;
         private DirectoryInfo _sdkDirectory;
         private DirectoryInfo _frameworkAssemblyDirectory;
@@ -72,20 +73,35 @@ namespace NAnt.Core {
             _nsMgr = nsMgr;
 
             _name = GetXmlAttributeValue(frameworkNode, "name");
-            _family = GetXmlAttributeValue(frameworkNode, "family");
-            _description = GetXmlAttributeValue(_frameworkNode, "description");
-
             if (_name == null) {
                 throw new ArgumentException("The \"name\" attribute does not " +
                     "exist, or has no value.");
             }
+
+            _family = GetXmlAttributeValue(frameworkNode, "family");
             if (_family == null) {
                 throw new ArgumentException("The \"family\" attribute does " +
                     "not exist, or has no value.");
             }
+
+            _description = GetXmlAttributeValue(_frameworkNode, "description");
             if (_description == null) {
                 throw new ArgumentException("The \"description\" attribute " +
                     "does not exist, or has no value.");
+            }
+
+            string vendor  = GetXmlAttributeValue(_frameworkNode, "vendor");
+            if (vendor == null) {
+                throw new ArgumentException("The \"vendor\" attribute does " +
+                    "not exist, or has no value.");
+            }
+
+            try {
+                _vendor = (VendorType) Enum.Parse(typeof (VendorType),
+                    vendor, true);
+            } catch (Exception ex) {
+                throw new ArgumentException("The value of the \"vendor\" " +
+                    "attribute is not valid.", ex);
             }
         }
 
@@ -101,6 +117,7 @@ namespace NAnt.Core {
             _clrType = (ClrType) info.GetValue("ClrType", typeof(ClrType));
             _version = (Version) info.GetValue("Version", typeof(Version));
             _clrVersion = (Version) info.GetValue("ClrVersion", typeof(Version));
+            _vendor = (VendorType) info.GetValue("Vendor", typeof(VendorType));
             if (_status != InitStatus.Valid) {
                 return;
             }
@@ -127,6 +144,7 @@ namespace NAnt.Core {
             info.AddValue("Version", Version);
             info.AddValue("ClrVersion", ClrVersion);
             info.AddValue("Status", _status);
+            info.AddValue("Vendor", Vendor);
             if (IsValid) {
                 info.AddValue("FrameworkDirectory", FrameworkDirectory);
                 info.AddValue("SdkDirectory", SdkDirectory);
@@ -172,7 +190,17 @@ namespace NAnt.Core {
         public string Description {
             get { return _description; }
         }
-        
+
+        /// <summary>
+        /// Gets the vendor of the framework.
+        /// </summary>
+        /// <value>
+        /// The vendor of the framework.
+        /// </value>
+        internal VendorType Vendor {
+            get { return _vendor; }
+        }
+
         /// <summary>
         /// Gets the version of the framework.
         /// </summary>
@@ -836,5 +864,10 @@ namespace NAnt.Core {
         Desktop = 1,
         Compact = 2,
         Browser = 3
+    }
+
+    public enum VendorType {
+        Microsoft = 1,
+        Mono = 2
     }
 }
