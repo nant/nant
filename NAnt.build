@@ -778,8 +778,7 @@
 
     <target name="install" depends="install-windows, install-linux" />
 
-<!--depends="userdoc" -->
-    <target name="install-windows" depends="build" if="${platform::is-win32()}">
+    <target name="install-windows" depends="userdoc" if="${platform::is-win32()}">
         <!-- install to program files directory by default -->
         <property name="install.prefix" value="${environment::get-folder-path('ProgramFiles')}" />
         <if test="${property::exists('prefix') and string::get-length(prefix) != 0}">
