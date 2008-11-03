@@ -5,4 +5,4 @@ libdir=${prefix}/share/NAnt/bin/lib
 Name: NAnt
 Description: A build tool for .NET and Mono
 Version: @VERSION@
-Libs:-r:"${prefix}/share/NAnt/bin/NAnt.Core.dll"
+Libs: -r:"${prefix}/share/NAnt/bin/NAnt.Core.dll"
