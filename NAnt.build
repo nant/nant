@@ -820,6 +820,7 @@
             <property name="install.destdir" value="${destdir}" />
         </if>
         <property name="install.bindir" value="${install.destdir + path::combine(install.prefix, 'bin')}" />
+        <property name="install.pkgconfigdir" value="${install.destdir + path::combine(install.prefix, 'lib/pkgconfig')}" />
         <property name="install.copylocation" value="${install.destdir + install.nant}" />
 
         <!-- perform (staged) install -->
@@ -832,6 +833,15 @@
                 <exclude name="bin/nant.tests.config" />
                 <exclude name="bin/*.Tests.*" />
             </fileset>
+        </copy>
+
+        <mkdir dir="${install.pkgconfigdir}" />
+        <copy file="etc/nant.pc.in" tofile="${install.pkgconfigdir}/nant.pc">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${project.version}" />
+                </replacetokens>
+            </filterchain>
         </copy>
 
         <!-- create wrapper script -->
