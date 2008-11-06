@@ -754,6 +754,54 @@ namespace NAnt.Core {
         #region Public Instance Methods
 
         /// <summary>
+        /// Returns the <see cref="Location"/> of the given node in an XML
+        /// file loaded by NAnt.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///   The <paramref name="node" /> must be from an <see cref="XmlDocument" />
+        ///   that has been loaded by NAnt.
+        ///   </para>
+        ///   <para>
+        ///   NAnt also does not process any of the following node types:
+        ///   </para>
+        ///   <list type="bullet">
+        ///     <item>
+        ///         <description><see cref="XmlNodeType.Whitespace" /></description>
+        ///     </item>
+        ///     <item>
+        ///         <description><see cref="XmlNodeType.EndElement" /></description>
+        ///     </item>
+        ///     <item>
+        ///         <description><see cref="XmlNodeType.ProcessingInstruction" /></description>
+        ///     </item>
+        ///     <item>
+        ///         <description><see cref="XmlNodeType.XmlDeclaration" /></description>
+        ///     </item>
+        ///     <item>
+        ///         <description><see cref="XmlNodeType.DocumentType" /></description>
+        ///     </item>
+        ///   </list>
+        ///   <para>
+        ///   As a result, no location information is available for these nodes.
+        ///   </para>
+        /// </remarks>
+        /// <param name="node">The <see cref="XmlNode" /> to get the <see cref="Location"/> for.</param>
+        /// <returns>
+        /// <see cref="Location"/> of the given node in an XML file loaded by NAnt, or
+        /// <see cref="Location.UnknownLocation" /> if the node was not loaded from
+        /// an XML file.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///   <para><paramref name="node" /> is from an XML file that was not loaded by NAnt.</para>
+        ///   <para>-or</para>
+        ///   <para><paramref name="node" /> was not processed by NAnt (eg. an XML declaration).</para>
+        /// </exception>
+        public Location GetLocation(XmlNode node) {
+            return LocationMap.GetLocation(node);
+        }
+
+        /// <summary>
         /// Dispatches a <see cref="BuildStarted" /> event to the build listeners 
         /// for this <see cref="Project" />.
         /// </summary>

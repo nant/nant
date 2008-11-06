@@ -33,7 +33,7 @@ namespace NAnt.Core {
     /// Maps XML nodes to the text positions from their original source.
     /// </summary>
     [Serializable()]
-    public class LocationMap {
+    internal class LocationMap {
         #region Private Instance Fields
 
         // The LocationMap uses a hash table to map filenames to resolve specific maps.
@@ -184,9 +184,8 @@ namespace NAnt.Core {
         /// </remarks>
         public Location GetLocation(XmlNode node) {
             // check for non-backed documents
-            if (StringUtils.IsNullOrEmpty(node.BaseURI)) {
-                return new Location(null, 0, 0 ); // return null location because we have a fileless node.
-            } 
+            if (StringUtils.IsNullOrEmpty(node.BaseURI))
+                return Location.UnknownLocation; // return empty location because we have a fileless node.
 
             // convert URI to absolute URI
             Uri uri = new Uri(node.BaseURI);

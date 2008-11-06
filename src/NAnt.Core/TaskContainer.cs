@@ -132,7 +132,7 @@ namespace NAnt.Core {
                 } else {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1071"), childNode.Name), 
-                        Project.LocationMap.GetLocation(childNode));
+                        Project.GetLocation(childNode));
                 }
             }
         }
