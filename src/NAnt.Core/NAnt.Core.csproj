@@ -405,6 +405,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Extensibility\FunctionArgument.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Extensibility\IPlugin.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
