@@ -15,9 +15,9 @@
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
-            <references>
-                <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths('ICSharpCode.SharpZipLib.dll')}" />
+            <references basedir="${build.dir}/bin">
+                <include name="NAnt.Core.dll" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','ICSharpCode.SharpZipLib.dll')}" />
             </references>
             <resources>
                 <include name="*.resx"/>

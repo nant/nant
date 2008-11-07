@@ -22,8 +22,8 @@
             </sources>
             <references>
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths('NDoc.ExtendedUI.dll')}" />
-                <include name="${nant::scan-probing-paths('NDoc.Core.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','NDoc.ExtendedUI.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','NDoc.Core.dll')}" />
             </references>
             <resources prefix="NAnt.DotNet" dynamicprefix="true">
                 <include name="Resources/**/*" />

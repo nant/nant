@@ -35,7 +35,7 @@
             <references>
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
-                <include name="${nant::scan-probing-paths('NUnitCore.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','NUnitCore.dll')}" />
             </references>
             <resources>
                 <include name="*.resx"/>
@@ -55,9 +55,9 @@
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
                 <include name="${build.dir}/bin/NAnt.NUnit.dll" />
                 <include name="${build.dir}/bin/NAnt.DotNetTasks.dll" />
-                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
-                <include name="${nant::scan-probing-paths('nunit.core.dll')}" />
-                <include name="${nant::scan-probing-paths('nunit.util.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.framework.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.core.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.util.dll')}" />
             </references>
         </csc>
     </target>
