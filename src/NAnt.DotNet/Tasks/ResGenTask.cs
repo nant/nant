@@ -576,7 +576,7 @@ namespace NAnt.DotNet.Tasks {
         /// </returns>
         /// <remarks>
         /// This check will only be accurate for 1.0 resource file, but the
-        /// 2.0 resx files can only be compiled with a resgen tool that supported
+        /// 2.0 resx files can only be compiled with a resgen tool that supports
         /// assembly references, so this method will not be used anyway.
         /// </remarks>
         private bool ReferencesThirdPartyAssemblies(string resourceFile) {
