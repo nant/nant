@@ -153,7 +153,7 @@
                         <!-- output function name in italics to indicate that its deprecated -->
                         <td>
                             <a>
-                                <xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode($Prefix)" />.<xsl:value-of select="NAntUtil:UrlEncode($Name)" />.html</xsl:attribute>
+                                <xsl:attribute name="href"><xsl:value-of select="string(NAntUtil:GetHRef(@id))" /></xsl:attribute>
                                 <i><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></i>
                             </a>
                         </td>
@@ -166,7 +166,10 @@
             <xsl:otherwise>
                 <tr>
                     <td>
-                        <a><xsl:attribute name="href"><xsl:value-of select="NAntUtil:UrlEncode($Prefix)" />.<xsl:value-of select="NAntUtil:UrlEncode($Name)" />.html</xsl:attribute><xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" /></a>
+                        <a>
+                            <xsl:attribute name="href"><xsl:value-of select="string(NAntUtil:GetHRef(@id))" /></xsl:attribute>
+                            <xsl:value-of select="$Prefix" />::<xsl:value-of select="$Name" />
+                        </a>
                     </td>
                     <td>
                         <xsl:apply-templates select="documentation/summary/node()" mode="slashdoc" />

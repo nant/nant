@@ -291,7 +291,7 @@ namespace NDoc.Documenter.NAnt {
                 return;
             }
 
-            string filename = utilities.GetFileNameForType(typeNode);
+            string filename = utilities.GetFileNameForType(typeNode, false);
             if (filename == null) {
                 // we should never get here, but just in case ...
                 return;
@@ -391,7 +391,7 @@ namespace NDoc.Documenter.NAnt {
             }
 
             string methodID = functionElement.GetAttribute("id");
-            string filename = utilities.GetFileNameForFunction(functionElement);
+            string filename = utilities.GetFileNameForFunction(functionElement, false);
 
             XsltArgumentList arguments = CreateXsltArgumentList();
 

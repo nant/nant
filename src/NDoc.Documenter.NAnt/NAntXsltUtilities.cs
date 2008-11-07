@@ -211,10 +211,10 @@ namespace NDoc.Documenter.NAnt {
 
                 switch (cref.Substring(0, 2)) {
                     case "T:":
-                        fileName = GetFileNameForType(cref);
+                        fileName = GetFileNameForType(cref, true);
                         break;
                     case "M:":
-                        fileName = GetFileNameForFunction(cref);
+                        fileName = GetFileNameForFunction(cref, true);
                         break;
                 }
 
@@ -330,7 +330,7 @@ namespace NDoc.Documenter.NAnt {
             if (!cref.StartsWith("M:")) {
                 cref = "M:" + cref;
             }
-            
+
             return Document.SelectSingleNode("//method[@id='" + cref + "']");
         }
 
@@ -523,19 +523,35 @@ namespace NDoc.Documenter.NAnt {
         /// Returns the filename to use for the given function XmlElement
         /// </summary>
         /// <param name="typeNode">The "method" element to find the filename for.</param>
-        internal string GetFileNameForFunction(XmlNode functionNode) {
-            string name = "";
+        /// <param name="urlEncode">Specified whether to URLencode the filename.</param>
+        internal string GetFileNameForFunction(XmlNode functionNode, bool urlEncode) {
+            StringBuilder sb = new StringBuilder();
             XmlNode n = functionNode.SelectSingleNode("../attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Prefix']/@value");
             if (n != null && n.InnerText != "") {
-                name += n.InnerText + ".";
+                sb.Append(n.InnerText);
+                sb.Append('.');
             }
             n = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionAttribute']/property[@name='Name']/@value");
             if (n != null && n.InnerText != "") {
-                name += n.InnerText;
+                sb.Append(n.InnerText);
             } else {
-                name += functionNode.Attributes["name"].Value;
+                sb.Append(functionNode.Attributes["name"].Value);
             }
-            return "functions/" + UrlEncode(name) + ".html";
+
+            sb.Append('(');
+
+            XmlNodeList parameters = functionNode.SelectNodes("parameter");
+            for (int i = 0; i < parameters.Count; i++) {
+                if (i > 0)
+                    sb.Append(',');
+                XmlElement param = (XmlElement) parameters[i];
+                sb.Append(param.GetAttribute("type"));
+            }
+
+            sb.Append(')');
+
+            string file = sb.ToString ();
+            return string.Concat("functions/", (urlEncode ? UrlEncode (file) :  file), ".html");
         }
 
         /// <summary>
@@ -551,7 +567,7 @@ namespace NDoc.Documenter.NAnt {
         /// functionset, the returned filename will point to the SDK docs for
         /// that type.
         /// </remarks>
-        internal string GetFileNameForType(XmlNode typeNode) {
+        internal string GetFileNameForType(XmlNode typeNode, bool urlEncode) {
             if (typeNode == null) {
                 return null;
             }
@@ -561,12 +577,13 @@ namespace NDoc.Documenter.NAnt {
             // if type is task use name set using TaskNameAttribute
             string taskName = GetTaskNameForType(typeNode);
             if (taskName != null) {
-                return "tasks/" + UrlEncode(taskName) + ".html";
+                return "tasks/" + (urlEncode ? UrlEncode(taskName) : taskName) + ".html";
             }
 
             // check if type is an enum
             if (typeNode.LocalName == "enumeration") {
-                return "enums/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+                string enumFile = typeNode.Attributes["id"].Value.Substring(2);
+                return "enums/" + (urlEncode ? UrlEncode(enumFile) : enumFile) + ".html";
             }
 
             // check if type derives from NAnt.Core.DataTypeBase
@@ -574,7 +591,8 @@ namespace NDoc.Documenter.NAnt {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return "types/" + UrlEncode(elementNameAttribute.Value) + ".html";
+                    string dtFile = elementNameAttribute.Value;
+                    return "types/" + (urlEncode ? UrlEncode(dtFile) : dtFile) + ".html";
                 }
             }
 
@@ -583,33 +601,30 @@ namespace NDoc.Documenter.NAnt {
                 // make sure the type has a ElementName assigned to it
                 XmlAttribute elementNameAttribute = typeNode.SelectSingleNode("attribute[@name='" + typeof(ElementNameAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
                 if (elementNameAttribute != null) {
-                    return "filters/" + UrlEncode(elementNameAttribute.Value) + ".html";
+                    string filterFile = elementNameAttribute.Value;
+                    return "filters/" + (urlEncode ? UrlEncode(filterFile) : filterFile) + ".html";
                 }
             }
 
             // check if type is a functionset
-            partialURL = GetFileNameForFunctionSet(typeNode);
+            partialURL = GetHRefForFunctionSet(typeNode);
             if (partialURL != null) {
                 return partialURL;
             }
 
             // check if type derives from NAnt.Core.Element
             if (typeNode.SelectSingleNode("descendant::base[@id='T:" + typeof(Element).FullName + "']") != null) {
-                return "elements/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+                string elementFile = typeNode.Attributes["id"].Value.Substring(2);
+                return "elements/" + (urlEncode ? UrlEncode(elementFile) : elementFile) + ".html";
             }
 
-            return "../sdk/" + UrlEncode(typeNode.Attributes["id"].Value.Substring(2)) + ".html";
+            string sdkFile = typeNode.Attributes["id"].Value.Substring(2);
+            return "../sdk/" + (urlEncode ? UrlEncode(sdkFile) : sdkFile) + ".html";
         }
 
         #endregion Internal Instance Methods
 
         #region Private Instance Methods
-
-/*
-        private string GetElementNameForType(string id) {
-            return GetElementNameForType(GetTypeNodeByID(id));
-        }
-*/
 
         private string GetElementNameForType(XmlNode typeNode) {
             if (typeNode == null) {
@@ -646,16 +661,16 @@ namespace NDoc.Documenter.NAnt {
             return null;
         }
 
-        private string GetFileNameForFunction(string type) {
+        private string GetFileNameForFunction(string type, bool urlEncode) {
             XmlNode functionNode = GetMethodNodeByID(type);
             if (functionNode != null) {
-                return GetFileNameForFunction(functionNode);
+                return GetFileNameForFunction(functionNode, true);
             }
             return null;
         }
 
-        private string GetFileNameForType(string type) {
-            return GetFileNameForType(GetTypeNodeByID(type));
+        private string GetFileNameForType(string type, bool urlEncode) {
+            return GetFileNameForType(GetTypeNodeByID(type), urlEncode);
         }
 
         private string GetFilenameForSystemMember(string cref) {
@@ -725,7 +740,7 @@ namespace NDoc.Documenter.NAnt {
         /// Returns a partial URL to link to the functionset in the function index.
         /// </summary>
         /// <param name="typeNode">The "Class" element to find the filename for.</param>
-        private string GetFileNameForFunctionSet(XmlNode functionNode) {
+        private string GetHRefForFunctionSet(XmlNode functionNode) {
             XmlAttribute categoryValueAttribute = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value") as XmlAttribute;
             if (categoryValueAttribute != null && categoryValueAttribute.Value != "") {
                 return "functions/index.html#" + UrlEncode(categoryValueAttribute.Value);
