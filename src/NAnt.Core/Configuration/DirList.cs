@@ -39,11 +39,18 @@ namespace NAnt.Core.Configuration {
         }
 
         public string[] GetDirectories() {
+            string baseDir = Directory.FullName;
+            return GetDirectories(baseDir);
+        }
+
+        internal string[] GetDirectories(string baseDir) {
+            if (baseDir == null)
+                throw new ArgumentNullException("baseDir");
+
             if (_directoryNames == null) {
                 return new string[0];
             }
 
-            string baseDir = Directory.FullName;
             string[] directories = new string[_directoryNames.Length];
             for (int i = 0; i < _directoryNames.Length; i++) {
                 DirectoryName dirName = _directoryNames [i];

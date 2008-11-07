@@ -201,13 +201,10 @@
         <value>Attempt to divide by zero.</value>
     </data>
     <data name="NA1044">
-        <value>Too few actual parameters for '{0}'.</value>
+        <value>No overload for '{0}' takes '{1}' arguments.</value>
     </data>
     <data name="NA1045">
         <value>Cannot convert {0} to '{1}' (value was null).</value>
-    </data>
-    <data name="NA1046">
-        <value>Too many actual parameters for '{0}'.</value>
     </data>
     <data name="NA1047">
         <value>Operator '%' cannot be applied to arguments of type '{0}' and '{1}'.</value>

@@ -93,6 +93,10 @@ namespace NAnt.Core.Functions {
         /// <exception cref="FileNotFoundException"><paramref name="fileName" /> could not be found in the configured probing paths.</exception>
         /// <remarks>
         ///   <para>
+        ///   The (relative) probing paths are resolved relative to the base
+        ///   directory of the appdomain in which NAnt is running.
+        ///   </para>
+        ///   <para>
         ///   The configured probing paths are scanned recursively in the order
         ///   in which they are defined in the framework configuration.
         ///   </para>
@@ -128,6 +132,69 @@ namespace NAnt.Core.Functions {
             FrameworkInfo fi = Project.TargetFramework;
             if (fi.Runtime != null) {
                 string[] probingPaths = fi.Runtime.ProbingPaths.GetDirectories();
+                libPath = FileUtils.ResolveFile(probingPaths, fileName, true);
+            }
+
+            if (libPath == null) {
+                throw new FileNotFoundException (string.Format (CultureInfo.InvariantCulture,
+                    "\"{0}\" could not be found in any of the configured " +
+                    "probing paths.", fileName));
+            }
+            return libPath;
+        }
+
+        /// <summary>
+        /// Searches the probing paths of the current target framework for the
+        /// specified file.
+        /// </summary>
+        /// <param name="baseDirectory">The directory to use a base directory for the probing paths.</param>
+        /// <param name="fileName">The name of the file to search for.</param>
+        /// <returns>
+        /// The absolute path to <paramref name="fileName" /> if found in one of the
+        /// configured probing; otherwise, an error is reported.
+        /// </returns>
+        /// <exception cref="FileNotFoundException"><paramref name="fileName" /> could not be found in the configured probing paths.</exception>
+        /// <remarks>
+        ///   <para>
+        ///   The (relative) probing paths are resolved relative to the specified
+        ///   base directory.
+        ///   </para>
+        ///   <para>
+        ///   The configured probing paths are scanned recursively in the order
+        ///   in which they are defined in the framework configuration.
+        ///   </para>
+        ///   <para>
+        ///   The file name to search should include the extension.
+        ///   </para>
+        /// </remarks>
+        /// <example>
+        ///   <para>
+        ///   Compile an assembly referencing the <c>nunit.framework</c> assembly
+        ///   for the current target framework that is shipped as part of the
+        ///   NAnt distribution.
+        ///   </para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <csc target="library" output="NAnt.Core.Tests.dll">
+        ///     <sources basedir="NAnt.Core">
+        ///         <include name="**/*.cs" />
+        ///     </sources>
+        ///     <references>
+        ///         <include name="NAnt.Core.dll" />
+        ///         <include name="${framework::get-lib-path('nunit.framework.dll')}" />
+        ///     </references>
+        /// </csc>
+        ///     ]]>
+        ///   </code>
+        /// </example>
+        [Function("scan-probing-paths")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string ScanProbingPaths(string baseDirectory, string fileName) {
+            string libPath = null;
+
+            FrameworkInfo fi = Project.TargetFramework;
+            if (fi.Runtime != null) {
+                string[] probingPaths = fi.Runtime.ProbingPaths.GetDirectories(baseDirectory);
                 libPath = FileUtils.ResolveFile(probingPaths, fileName, true);
             }
 

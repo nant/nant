@@ -25,6 +25,7 @@ using System.Globalization;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
+using NAnt.Core.Extensibility;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -35,14 +36,13 @@ namespace NAnt.Core {
         private PropertyDictionary _properties;
         private Hashtable _state;
         private Stack _visiting;
-        private Project _project;
 
         #endregion Private Instance Fields
 
         #region Public Instance Constructors
 
-        public ExpressionEvaluator(Project project, PropertyDictionary properties, Hashtable state, Stack visiting) {
-            _project = project;
+        public ExpressionEvaluator(Project project, PropertyDictionary properties, Hashtable state, Stack visiting)
+            : base(project) {
             _properties = properties;
             _state = state;
             _visiting = visiting;
@@ -50,36 +50,13 @@ namespace NAnt.Core {
 
         #endregion Public Instance Constructors
 
-        #region Public Instance Properties
-
-        public Project Project {
-            get { return _project; }
-        }
-
-        #endregion Public Instance Properties
-
         #region Override implementation of ExpressionEvalBase
 
         protected override object EvaluateProperty(string propertyName) {
             return GetPropertyValue(propertyName);
         }
 
-        protected override ParameterInfo[] GetFunctionParameters(string functionName) {
-            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
-            if (methodInfo == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                                                       ResourceUtils.GetString("NA1052"), functionName));
-            }
-            return methodInfo.GetParameters();
-        }
-
-        protected override object EvaluateFunction(string functionName, object[] args) {
-            MethodInfo methodInfo = TypeFactory.LookupFunction(functionName, Project);
-            if (methodInfo == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("NA1052"), functionName));
-            }
-
+        protected override object EvaluateFunction(MethodInfo methodInfo, object[] args) {
             try {
                 if (methodInfo.IsStatic) {
                     return methodInfo.Invoke(null, args);
@@ -88,7 +65,7 @@ namespace NAnt.Core {
                 } else {
                     // create new instance.
                     ConstructorInfo constructor = methodInfo.DeclaringType.GetConstructor(new Type[] {typeof(Project), typeof(PropertyDictionary)});
-                    object o = constructor.Invoke(new object[] {_project, _properties});
+                    object o = constructor.Invoke(new object[] {Project, _properties});
 
                     return methodInfo.Invoke(o, args);
                 }

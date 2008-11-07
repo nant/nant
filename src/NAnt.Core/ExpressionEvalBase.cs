@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 
+using NAnt.Core.Extensibility;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -35,9 +36,23 @@ namespace NAnt.Core {
         }
 
         private EvalMode _evalMode = EvalMode.Evaluate;
-
         private ExpressionTokenizer _tokenizer;
-        public ExpressionEvalBase() {}
+        private readonly Project _project;
+
+        public ExpressionEvalBase(Project project) {
+            if (project == null)
+                throw new ArgumentNullException("project");
+
+            _project = project;
+        }
+
+        #region Public Instance Properties
+
+        public Project Project {
+            get { return _project; }
+        }
+
+        #endregion Public Instance Properties
 
         public object Evaluate(ExpressionTokenizer tokenizer) {
             _evalMode = EvalMode.Evaluate;
@@ -149,11 +164,11 @@ namespace NAnt.Core {
             object o = ParseAddSubtract();
 
             if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.EQ
-             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE
-             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT
-             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GT
-             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LE
-             || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GE) {
+                || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.NE
+                || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LT
+                || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GT
+                || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.LE
+                || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.GE) {
                 
                 ExpressionTokenizer.TokenType op = _tokenizer.CurrentToken;
                 _tokenizer.GetNextToken();
@@ -210,7 +225,7 @@ namespace NAnt.Core {
                         }
 
                         throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                                            ResourceUtils.GetString("NA1038"), 
+                            ResourceUtils.GetString("NA1038"), 
                             GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), 
                             p0, p2);
                     case ExpressionTokenizer.TokenType.NE:
@@ -528,8 +543,8 @@ namespace NAnt.Core {
                             o = (double) o * (long) o2;
                         } else {
                             throw BuildParseError(string.Format(CultureInfo.InvariantCulture, 
-                                        ResourceUtils.GetString("NA1036"), 
-                                        GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
+                                ResourceUtils.GetString("NA1036"), 
+                                GetSimpleTypeName(o.GetType()), GetSimpleTypeName(o2.GetType())), p0, p3);
                         }
                     }
                 } else if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Div) {
@@ -891,9 +906,9 @@ namespace NAnt.Core {
                     _tokenizer.GetNextToken();
                 } else {
                     while (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Dot
-                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus
-                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Keyword
-                            || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
+                        || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Minus
+                        || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Keyword
+                        || _tokenizer.CurrentToken == ExpressionTokenizer.TokenType.Number) {
                         functionOrPropertyName += _tokenizer.TokenText;
                         _tokenizer.GetNextToken();
                     }
@@ -905,6 +920,8 @@ namespace NAnt.Core {
                     _tokenizer.GetNextToken();
                 }
 
+                MethodInfo function = null;
+
                 if (isFunction) {
                     if ( _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.LeftParen) {
                         throw BuildParseError("'(' expected.", _tokenizer.CurrentPosition);
@@ -913,56 +930,61 @@ namespace NAnt.Core {
                     _tokenizer.GetNextToken();
 
                     int currentArgument = 0;
-                    ParameterInfo[] formalParameters = null;
-
-                    try {
-                        formalParameters = GetFunctionParameters(functionOrPropertyName);
-                    } catch (Exception e) {
-                        throw BuildParseError(e.Message, p0, _tokenizer.CurrentPosition);
-                    }
 
                     while (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen &&
-                            _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
-                        if (currentArgument >= formalParameters.Length) {
-                            throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
-                                        ResourceUtils.GetString("NA1046"), functionOrPropertyName), p0, _tokenizer.CurrentPosition);
-                        }
+                        _tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
 
                         ExpressionTokenizer.Position beforeArgument = _tokenizer.CurrentPosition;
                         object e = ParseExpression();
                         ExpressionTokenizer.Position afterArgument = _tokenizer.CurrentPosition;
 
-                        if (!SyntaxCheckOnly()) {
-                            object convertedValue = SafeConvert(formalParameters[currentArgument].ParameterType,
-                                    e,
-                                    string.Format(CultureInfo.InvariantCulture, "argument {1} ({0}) of {2}()", formalParameters[currentArgument].Name, currentArgument + 1, functionOrPropertyName),
-                                    beforeArgument, afterArgument);
-                            args.Add(convertedValue);
-                        }
+                        args.Add (new FunctionArgument(functionOrPropertyName,
+                            currentArgument, e, beforeArgument, afterArgument));
+
                         currentArgument++;
-                        if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.RightParen) {
+                        if (_tokenizer.CurrentToken == ExpressionTokenizer.TokenType.RightParen)
                             break;
-                        }
-                        if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma) {
+                        if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Comma)
                             throw BuildParseError("',' expected.", _tokenizer.CurrentPosition);
-                        }
                         _tokenizer.GetNextToken();
-                    }
-                    if (currentArgument < formalParameters.Length) {
-                        throw BuildParseError(string.Format(CultureInfo.InvariantCulture,
-                                    ResourceUtils.GetString("NA1044"), functionOrPropertyName), p0, _tokenizer.CurrentPosition);
                     }
 
                     if (_tokenizer.CurrentToken != ExpressionTokenizer.TokenType.RightParen) {
                         throw BuildParseError("')' expected.", _tokenizer.CurrentPosition);
                     }
                     _tokenizer.GetNextToken();
+
+                    if (!SyntaxCheckOnly()) {
+                        FunctionArgument[] functionArgs = new FunctionArgument[args.Count];
+                        args.CopyTo(0, functionArgs, 0, args.Count);
+
+                        // lookup function matching name and argument count
+                        try {
+                            function = TypeFactory.LookupFunction(functionOrPropertyName,
+                                functionArgs, Project);
+                        } catch (BuildException ex) {
+                            throw BuildParseError(ex.Message, p0, _tokenizer.CurrentPosition);
+                        }
+
+                        ParameterInfo[] formalParameters = function.GetParameters ();
+                        args.Clear ();
+
+                        for (int i = 0; i < functionArgs.Length; i++) {
+                            FunctionArgument arg = functionArgs[i];
+                            ParameterInfo pi = formalParameters[i];
+                            object convertedValue = SafeConvert(pi.ParameterType,
+                                arg.Value, string.Format(CultureInfo.InvariantCulture,
+                                "argument {1} ({0}) of {2}()", pi.Name, arg.Index, arg.Name),
+                                arg.BeforeArgument, arg.AfterArgument);
+                            args.Add(convertedValue);
+                        }
+                    }
                 }
 
                 try {
                     if (!SyntaxCheckOnly()) {
                         if (isFunction) {
-                            return EvaluateFunction(functionOrPropertyName, args.ToArray());
+                            return EvaluateFunction(function, args.ToArray ());
                         } else {
                             return EvaluateProperty(functionOrPropertyName);
                         }
@@ -1120,8 +1142,7 @@ namespace NAnt.Core {
 
         #region Overridables
 
-        protected abstract object EvaluateFunction(string functionName, object[] args);
-        protected abstract ParameterInfo[] GetFunctionParameters(string functionName);
+        protected abstract object EvaluateFunction(MethodInfo method, object[] args);
         protected abstract object EvaluateProperty(string propertyName);
 
         protected virtual object UnexpectedToken() {

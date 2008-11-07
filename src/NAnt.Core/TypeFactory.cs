@@ -276,43 +276,67 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Looks up a function by name.
+        /// Looks up a function by name and argument count.
         /// </summary>
-        /// <param name="methodName">The name of the function to lookup, including namespace prefix.</param>
+        /// <param name="functionName">The name of the function to lookup, including namespace prefix.</param>
+        /// <param name="args">The argument of the function to lookup.</param>
         /// <param name="project">The <see cref="Project" /> in which the function is invoked.</param>
         /// <returns>
         /// A <see cref="MethodInfo" /> representing the function, or 
-        /// <see langword="null" /> if a function with the given name does not
-        /// exist.
+        /// <see langword="null" /> if a function with the given name and
+        /// arguments does not exist.
         /// </returns>
-        public static MethodInfo LookupFunction(string methodName, Project project) {
-            MethodInfo function = (MethodInfo) _methodInfoCollection[methodName];
-            if (function != null) {
-                // check whether the function is deprecated
-                ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
-                    Attribute.GetCustomAttribute(function, 
-                    typeof(ObsoleteAttribute), true);
+        internal static MethodInfo LookupFunction(string functionName, FunctionArgument[] args, Project project) {
+            object function = _methodInfoCollection[functionName];
+            if (function == null)
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    ResourceUtils.GetString("NA1052"), functionName));
 
-                // if function itself is not deprecated, check if its declaring
-                // type is deprecated
-                if (obsoleteAttribute == null) {
-                    obsoleteAttribute = (ObsoleteAttribute) 
-                        Attribute.GetCustomAttribute(function.DeclaringType, 
-                        typeof(ObsoleteAttribute), true);
+            MethodInfo mi = function as MethodInfo;
+            if (mi != null) {
+                if (mi.GetParameters ().Length == args.Length) {
+                    CheckDeprecation(functionName, mi, project);
+                    return mi;
                 }
-
-                if (obsoleteAttribute != null) {
-                    string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
-                        ResourceUtils.GetString("NA1087"), methodName, 
-                        obsoleteAttribute.Message);
-                    if (obsoleteAttribute.IsError) {
-                        throw new BuildException(obsoleteMessage, Location.UnknownLocation);
-                    } else {
-                        project.Log(Level.Warning, "{0}", obsoleteMessage);
+            } else {
+                ArrayList matches = (ArrayList) function;
+                for (int i = 0; i < matches.Count; i++) {
+                    mi = (MethodInfo) matches [i];
+                    if (mi.GetParameters ().Length == args.Length) {
+                        CheckDeprecation(functionName, mi, project);
+                        return mi;
                     }
                 }
             }
-            return function;
+
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                ResourceUtils.GetString("NA1044"), functionName, args.Length));
+        }
+
+        private static void CheckDeprecation(string functionName, MethodInfo function, Project project) {
+            // check whether the function is deprecated
+            ObsoleteAttribute obsoleteAttribute = (ObsoleteAttribute) 
+                Attribute.GetCustomAttribute(function, 
+                typeof(ObsoleteAttribute), true);
+
+            // if function itself is not deprecated, check if its declaring
+            // type is deprecated
+            if (obsoleteAttribute == null) {
+                obsoleteAttribute = (ObsoleteAttribute) 
+                    Attribute.GetCustomAttribute(function.DeclaringType, 
+                    typeof(ObsoleteAttribute), true);
+            }
+
+            if (obsoleteAttribute != null) {
+                string obsoleteMessage = string.Format(CultureInfo.InvariantCulture,
+                    ResourceUtils.GetString("NA1087"), functionName, 
+                    obsoleteAttribute.Message);
+                if (obsoleteAttribute.IsError) {
+                    throw new BuildException(obsoleteMessage, Location.UnknownLocation);
+                } else {
+                    project.Log(Level.Warning, "{0}", obsoleteMessage);
+                }
+            }
         }
 
         /// <summary> 
@@ -571,31 +595,13 @@ namespace NAnt.Core {
                     }
 
                     //
-                    // add instance methods
+                    // add public static/instance methods
                     // 
-                    foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Instance)) {
+                    foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)) {
                         FunctionAttribute functionAttribute = (FunctionAttribute)
                             Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
-                        if (functionAttribute != null) {
-                            // look at scoping each class by namespace prefix
-                            if (! _methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
-                                _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
-                            }
-                        }
-                    }
-
-                    //
-                    // add static methods
-                    // 
-                    foreach (MethodInfo info in type.GetMethods(BindingFlags.Public | BindingFlags.Static)) {
-                        FunctionAttribute functionAttribute = (FunctionAttribute)
-                            Attribute.GetCustomAttribute(info, typeof(FunctionAttribute));
-                        if (functionAttribute != null) {
-                            // look at scoping each class by prefix
-                            if (!_methodInfoCollection.ContainsKey(prefix + functionAttribute.Name)) {
-                                _methodInfoCollection.Add(prefix + functionAttribute.Name, info);
-                            }
-                        }
+                        if (functionAttribute != null)
+                            RegisterFunction(prefix + functionAttribute.Name, info);
                     }
 
                     // specified type represents a valid functionset
@@ -609,6 +615,28 @@ namespace NAnt.Core {
                     type.AssemblyQualifiedName);
                 throw;
             }
+        }
+
+        private static void RegisterFunction(string key, MethodInfo info) {
+            object functions = _methodInfoCollection [key];
+            if (functions == null) {
+                _methodInfoCollection.Add(key, info);
+            } else {
+                MethodInfo mi = functions as MethodInfo;
+                if (mi == null) {
+                    ArrayList overloads = (ArrayList) functions;
+                    overloads.Add (info);
+                } else {
+                    ArrayList overloads = new ArrayList (3);
+                    overloads.Add (mi);
+                    overloads.Add (info);
+                    _methodInfoCollection [key] = overloads;
+                }
+            }
+        }
+
+        private static string GenerateKey(string prefix, FunctionAttribute functionAttr, MethodInfo mi) {
+            return string.Concat(prefix, functionAttr.Name, mi.GetParameters ().Length);
         }
 
         /// <summary>
