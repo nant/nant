@@ -635,10 +635,6 @@ namespace NAnt.Core {
             }
         }
 
-        private static string GenerateKey(string prefix, FunctionAttribute functionAttr, MethodInfo mi) {
-            return string.Concat(prefix, functionAttr.Name, mi.GetParameters ().Length);
-        }
-
         /// <summary>
         /// Scans a given <see cref="Type" /> for filters.
         /// </summary>
