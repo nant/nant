@@ -112,6 +112,18 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Gets the version of the current target framework.
+        /// </summary>
+        /// <returns>
+        /// The version of the current target framework.
+        /// </returns>
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
+        [Function("get-version")]
+        public Version GetVersion() {
+            return Project.TargetFramework.Version;
+        }
+
+        /// <summary>
         /// Gets the version of the specified framework.
         /// </summary>
         /// <param name="framework">The framework of which the version should be returned.</param>
@@ -125,8 +137,20 @@ namespace NAnt.Core.Functions {
         public Version GetVersion(string framework) {
             // obtain framework and ensure it's valid
             FrameworkInfo fi = GetFramework(framework);
-            // return the family of the specified framework
+            // return the version of the specified framework
             return fi.Version;
+        }
+
+        /// <summary>
+        /// Gets the description of the current target framework.
+        /// </summary>
+        /// <returns>
+        /// The description of the current target framework.
+        /// </returns>
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
+        [Function("get-description")]
+        public string GetDescription() {
+            return Project.TargetFramework.Description;
         }
 
         /// <summary>
@@ -145,6 +169,19 @@ namespace NAnt.Core.Functions {
             FrameworkInfo fi = GetFramework(framework);
             // return the description of the specified framework
             return fi.Description;
+        }
+
+        /// <summary>
+        /// Gets the Common Language Runtime version of the current target
+        /// framework.
+        /// </summary>
+        /// <returns>
+        /// The Common Language Runtime version of the current target framework.
+        /// </returns>
+        /// <seealso cref="FrameworkFunctions.GetTargetFramework()" />
+        [Function("get-clr-version")]
+        public Version GetClrVersion() {
+            return Project.TargetFramework.ClrVersion;
         }
 
         /// <summary>
