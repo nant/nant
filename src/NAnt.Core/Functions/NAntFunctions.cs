@@ -527,22 +527,36 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
 
         /// <summary>
-        /// Checks whether NAnt is running on the win32 platform.
+        /// Checks whether NAnt is running on Windows (and not just 32-bit Windows
+        /// as the name may lead you to believe).
         /// </summary>
         /// <returns>
-        /// <see langword="true" /> if NAnt is running on the win32 platform;
+        /// <see langword="true" /> if NAnt is running on Windows;
         /// otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-win32")]
+        [Obsolete("Use the is-windows function instead.")]
         public static bool IsWin32() {
-            return PlatformHelper.IsWin32;
+            return PlatformHelper.IsWindows;
         }
 
         /// <summary>
-        /// Checks whether NAnt is running on unix.
+        /// Checks whether NAnt is running on Windows.
         /// </summary>
         /// <returns>
-        /// <see langword="true" /> if NAnt is running on unix;
+        /// <see langword="true" /> if NAnt is running on Windows;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-windows")]
+        public static bool IsWindows() {
+            return PlatformHelper.IsWindows;
+        }
+
+        /// <summary>
+        /// Checks whether NAnt is running on Unix.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if NAnt is running on Unix;
         /// otherwise, <see langword="false" />.
         /// </returns>
         [Function("is-unix")]
