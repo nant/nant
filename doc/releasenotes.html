@@ -95,7 +95,7 @@
             <div style="margin-left: 20px;">
                 <p>
                     The target framework cannot be initialized if the .NET
-                    Framework SDK is not installed (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1859708&amp;group_id=31650">1859708</a>).
+                    Framework SDK is not installed (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1859708&amp;group_id=31650">#1859708</a>).
                 </p>
             </div>
             <h5>
@@ -122,12 +122,15 @@
             </div>
             <h5>
                 <a class="heading">.NET Framework 3.5</a></h5>
-            <div style="margin-left: 20px;">
-                <p>
-                    Modified version (as returned by <a href="help/functions/framework.get-version.html">framework::get-version</a>)
-                    to &quot;3.5&quot;.
-                </p>
-            </div>
+            <ul>
+                <li>
+                Modified version (as returned by <a href="help/functions/framework.get-version().html">framework::get-version()</a>)
+                to &quot;3.5&quot;.
+                </li>
+                <li>
+                Added support for Windows SDK 6.1 (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1986551&amp;group_id=31650&amp;atid=402868">#1986551</a>).
+                </li>
+            </ul>
         </div>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
@@ -152,7 +155,17 @@
         <h4>Functions</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/functions/framework.get-frameworks.html">framework::get-frameworks</a></h5>
+                <a class="heading" href="help/functions/framework.get-description().html">framework::get-description()</a></h5>
+            <div style="margin-left: 20px;">
+                <p>Gets the description of the current target framework.</p>
+            </div>
+            <h5>
+                <a class="heading" href="help/functions/framework.get-clr-version().html">framework::get-clr-version()</a></h5>
+            <div style="margin-left: 20px;">
+                <p>Gets the CLR version of the current target framework.</p>
+            </div>
+            <h5>
+                <a class="heading" href="help/functions/framework.get-frameworks(NAnt.Core.FrameworkTypes).html">framework::get-frameworks(NAnt.Core.FrameworkTypes)</a></h5>
             <div style="margin-left: 20px;">
                 <p>
                     Gets a comma-separated list of frameworks filtered by the
@@ -171,6 +184,16 @@
         ...
     <span class="xmltext">&lt;/</span><span class="xmlelement">target</span><span class="xmltext">&gt;</span>		
                 </pre>
+            </div>
+            <h5>
+                <a class="heading" href="help/functions/framework.get-version().html">framework::get-version()</a></h5>
+            <div style="margin-left: 20px;">
+                <p>Gets the version of the current target framework.</p>
+            </div>
+            <h5>
+                <a class="heading" href="help/functions/platform.is-windows().html">platform::is-windows()</a></h5>
+            <div style="margin-left: 20px;">
+                <p>Return a value indicating whether NAnt is running on Windows.</p>
             </div>
         </div>
         <h3>Changes</h3>
@@ -288,7 +311,7 @@
                 <p>
                     With the introduction of expression support in NAnt 0.85, we
                     provided a more powerful alternative through the 
-                    <a href="help/functions/task.exists.html">task::exists</a>
+                    <a href="help/functions/task.exists(System.String).html">task::exists</a>
                     function.
                 </p>
                 <p>
@@ -358,7 +381,7 @@
             <ul>
                 <li>
                     Quoted arguments are not parsed correctly from response files
-                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1736526&amp;group_id=31650">1736526</a>).
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1736526&amp;group_id=31650">#1736526</a>).
                 </li>
             </ul>
             <h5>
@@ -366,7 +389,7 @@
             <ul>
                 <li>
                     Executing a project with a DTD can lead to an internal error.
-                    (bug <a href="https://sourceforge.net/tracker/?func=detail&atid=402868&aid=1809994&group_id=31650">1809994</a>).
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&atid=402868&aid=1809994&group_id=31650">#1809994</a>).
                 </li>
             </ul>
         </div>
@@ -390,7 +413,7 @@
             <ul>
                 <li>
                     Target is not re-executed if &quot;cascade&quot; is <b>false</b>
-                    (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1474159&amp;group_id=31650">1474159</a>).
+                    (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1474159&amp;group_id=31650">#1474159</a>).
                 </li>
             </ul>
             <h5>
@@ -398,7 +421,7 @@
             <ul>
                 <li>
                     Satellite assemblies are not signed when signing key is 
-                    specified using &quot;keyfile&quot; attribute (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1587739&amp;group_id=31650&amp;atid=402868">1587739</a>).
+                    specified using &quot;keyfile&quot; attribute (bug <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1587739&amp;group_id=31650&amp;atid=402868">#1587739</a>).
                 </li>
             </ul>
             <h5>
@@ -446,7 +469,7 @@
             <ul>
                 <li>
                     Files with a compressed size of over 4GB cannot be added to zip archive
-                    (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1698336&group_id=31650&atid=402868">1698336</a>).
+                    (bug <a href="https://sourceforge.net/tracker/index.php?func=detail&aid=1698336&group_id=31650&atid=402868">#1698336</a>).
                 </li>
             </ul>
         </div>
@@ -457,11 +480,11 @@
             <ul>
                 <li>
                     Case differences are not always ignored on a case-insensitive filesystem
-                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1776101&amp;group_id=31650">1776101</a>).
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1776101&amp;group_id=31650">#1776101</a>).
                 </li>
                 <li>
                     Pattern mathing for files in the root directory of a volume is
-                    always case-sensitive (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1761377&amp;group_id=31650">1761377</a>).
+                    always case-sensitive (bug <a href="https://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=1761377&amp;group_id=31650">#1761377</a>).
                 </li>
             </ul>
         </div>
@@ -523,7 +546,7 @@
                 </p>
                 <p>
                     To expose this functionality to build authors, we've added a
-                    <a href="help/functions/framework.get-tool-path.html">framework::get-tool-path()</a>
+                    <a href="help/functions/framework.get-tool-path(System.String).html">framework::get-tool-path</a>
                     function that can be used to search for a given tool.
                 </p>
                 <p>For example:</p>
@@ -794,7 +817,7 @@
         <h4>Functions</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/functions/file.is-assembly.html">file::is-assembly</a></h5>
+                <a class="heading" href="help/functions/file.is-assembly(System.String).html">file::is-assembly</a></h5>
             <ul>
                 <li>
                     Function call fails when a file name that does not correspond
@@ -1578,7 +1601,7 @@
         <h4>Functions</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/functions/target.get-current-target.html">target::get-current-target()</a></h5>
+                <a class="heading" href="help/functions/target.get-current-target().html">target::get-current-target()</a></h5>
             <ul>
                 <li>
                     Current target is incorrect after execution of target using <code><a href="help/tasks/call.html">
