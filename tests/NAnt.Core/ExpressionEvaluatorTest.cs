@@ -18,18 +18,18 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Globalization;
-
-using NUnit.Framework;
 using System.Collections;
 using System.Collections.Specialized;
+using System.IO;
+using System.Globalization;
 
 using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
+using NUnit.Framework;
+
 namespace Tests.NAnt.Core {
-    [TestFixture] 
+    [TestFixture]
     public class ExpressionEvaluatorTest : BuildTestBase {
         #region Private Instance Fields
 
