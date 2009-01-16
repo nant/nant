@@ -18,9 +18,10 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Globalization;
+
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -85,13 +86,11 @@ namespace NAnt.Core {
         #region Static Constructor
 
         static ExpressionTokenizer() {
-            for (int i = 0; i < 128; ++i) {
+            for (int i = 0; i < 128; ++i)
                 charIndexToTokenType[i] = TokenType.Punctuation;
-            };
 
-            foreach (CharToTokenType cht in charToTokenType) {
-                charIndexToTokenType[(int)cht.ch] = cht.tokenType;
-            }
+            foreach (CharToTokenType cht in charToTokenType)
+                charIndexToTokenType[(int) cht.ch] = cht.tokenType;
         }
 
         #endregion Static Constructor
@@ -136,58 +135,55 @@ namespace NAnt.Core {
             if (_tokenType == TokenType.EOF)
                 throw new ExpressionParseException(ResourceUtils.GetString("String_CannotReadPastStream"), -1, -1);
 
-            if (IgnoreWhitespace) {
+            if (IgnoreWhitespace)
                 SkipWhitespace();
-            };
 
             _tokenStartPosition = new Position(_position);
 
-            int i = PeekChar();
-            if (i == -1) {
+            int peek = PeekChar();
+            if (peek == -1) {
                 _tokenType = TokenType.EOF;
-                return ;
+                return;
             }
 
-            char ch = (char)i;
+            char ch = (char) peek;
 
             if (!SingleCharacterMode) {
                 if (!IgnoreWhitespace && Char.IsWhiteSpace(ch)) {
                     StringBuilder sb = new StringBuilder();
-                    int ch2;
 
-                    while ((ch2 = PeekChar()) != -1) {
-                        if (!Char.IsWhiteSpace((char)ch2)) {
+                    while ((peek = PeekChar()) != -1) {
+                        if (!Char.IsWhiteSpace((char) peek))
                             break;
-                        }
 
-                        sb.Append((char)ch2);
+                        sb.Append((char) peek);
                         ReadChar();
-                    };
+                    }
 
                     _tokenType = TokenType.Whitespace;
                     _tokenText = sb.ToString();
-                    return ;
+                    return;
                 }
 
                 if (Char.IsDigit(ch)) {
                     _tokenType = TokenType.Number;
-                    string s = "";
+                    string s = string.Empty;
 
                     s += ch;
                     ReadChar();
 
-                    while ((i = PeekChar()) != -1) {
-                        ch = (char)i;
+                    while ((peek = PeekChar()) != -1) {
+                        ch = (char) peek;
 
                         if (Char.IsDigit(ch)) {
-                            s += (char)ReadChar();
+                            s += (char) ReadChar();
                         } else {
                             break;
-                        };
-                    };
+                        }
+                    }
 
                     _tokenText = s;
-                    return ;
+                    return;
                 }
 
                 if (ch == '\'') {
@@ -195,8 +191,8 @@ namespace NAnt.Core {
 
                     string s = "";
                     ReadChar();
-                    while ((i = ReadChar()) != -1) {
-                        ch = (char)i;
+                    while ((peek = ReadChar()) != -1) {
+                        ch = (char) peek;
 
                         if (ch == '\'') {
                             if (PeekChar() == (int)'\'') {
@@ -205,79 +201,81 @@ namespace NAnt.Core {
                                 break;
                         }
                         s += ch;
-                    };
+                    }
 
                     _tokenText = s;
-                    return ;
+                    return;
                 }
 
                 if (ch == '_' || Char.IsLetter(ch)) {
                     _tokenType = TokenType.Keyword;
 
                     StringBuilder sb = new StringBuilder();
-
-                    sb.Append((char)ch);
-
+                    sb.Append((char) ch);
                     ReadChar();
 
-                    while ((i = PeekChar()) != -1) {
-                        if ((char)i == '_' || (char)i == '-' || Char.IsLetterOrDigit((char)i)) {
-                            sb.Append((char)ReadChar());
+                    while ((peek = PeekChar()) != -1) {
+                        char c = (char) peek;
+                        if (c == '_' || c == '-' || c == '.' || c == '\\' || Char.IsLetterOrDigit(c)) {
+                            ReadChar();
+                            sb.Append(c);
                         } else {
                             break;
-                        };
-                    };
+                        }
+                    }
 
                     _tokenText = sb.ToString();
-                    if (_tokenText.EndsWith("-"))
+                    if (_tokenText.EndsWith("-") || _tokenText.EndsWith("."))
                         throw new ExpressionParseException(String.Format(CultureInfo.InvariantCulture, 
-							ResourceUtils.GetString("NA1182"), _tokenText), CurrentPosition.CharIndex);
-                    return ;
+                            ResourceUtils.GetString("NA1182"), _tokenText), CurrentPosition.CharIndex);
+                    return;
                 }
 
                 ReadChar();
+                peek = PeekChar();
 
-                if (ch == ':' && PeekChar() == (int)':') {
+                if (ch == ':' && peek == (int) ':') {
                     _tokenType = TokenType.DoubleColon;
                     _tokenText = "::";
                     ReadChar();
-                    return ;
+                    return;
                 }
 
-                if (ch == '!' && PeekChar() == (int)'=') {
+                if (ch == '!' && peek == (int) '=') {
                     _tokenType = TokenType.NE;
                     _tokenText = "!=";
                     ReadChar();
-                    return ;
+                    return;
                 }
 
-                if (ch == '=' && PeekChar() == (int)'=') {
+                if (ch == '=' && peek == (int) '=') {
                     _tokenType = TokenType.EQ;
                     _tokenText = "==";
                     ReadChar();
-                    return ;
+                    return;
                 }
 
-                if (ch == '<' && PeekChar() == (int)'=') {
+                if (ch == '<' && peek == (int) '=') {
                     _tokenType = TokenType.LE;
                     _tokenText = "<=";
                     ReadChar();
-                    return ;
+                    return;
                 }
 
-                if (ch == '>' && PeekChar() == (int)'=') {
+                if (ch == '>' && peek == (int) '=') {
                     _tokenType = TokenType.GE;
                     _tokenText = ">=";
                     ReadChar();
-                    return ;
+                    return;
                 }
             } else {
                 ReadChar();
             }
             _tokenText = new String(ch, 1);
-            _tokenType = TokenType.Punctuation;
             if (ch >= 32 && ch < 128) {
                 _tokenType = charIndexToTokenType[ch];
+            } else {
+                _tokenType = TokenType.Punctuation;
             }
         }
 
@@ -290,29 +288,25 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         private int ReadChar() {
-            if (_position < _text.Length) {
+            if (_position < _text.Length)
                 return _text[_position++];
-            } else {
-                return -1;
-            }
+            return -1;
         }
 
         private int PeekChar() {
-            if (_position < _text.Length) {
+            if (_position < _text.Length)
                 return _text[_position];
-            } else {
-                return -1;
-            }
+            return -1;
         }
 
         private void SkipWhitespace() {
             int ch;
 
             while ((ch = PeekChar()) != -1) {
-                if (!Char.IsWhiteSpace((char)ch))
+                if (!Char.IsWhiteSpace((char) ch))
                     break;
                 ReadChar();
-            };
+            }
         }
 
         #endregion Private Instance Methods
