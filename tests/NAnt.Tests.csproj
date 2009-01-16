@@ -160,6 +160,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "NAnt.Core\ExpressionTokenizerTest.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "NAnt.Core\Framework.config"
                     BuildAction = "EmbeddedResource"
                 />
