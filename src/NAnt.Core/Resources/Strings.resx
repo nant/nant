@@ -231,7 +231,7 @@
     <!--Messages From: \NAnt.Core/ExpressionParseException.cs-->  
     <!--Messages From: \NAnt.Core/ExpressionTokenizer.cs--> 
     <data name="NA1182">
-        <value>Identifier cannot end with a dash: {0}</value>
+        <value>Identifier cannot end with a dash or a dot: {0}</value>
     </data>
     <!--Messages From: \NAnt.Core/FrameworkInfo.cs-->
     <data name="NA1054">
@@ -717,14 +717,6 @@
     <data name="NA1180">
         <value>Task not allowed in targets.  Must be at project level.</value>
     </data>    
-    <data name="NA1181">
-        <value>The default targetframework '{0}' is invalid and has not been loaded : {1}.</value>
-    </data>     
-    <data name="NA1182">
-        <value>Framework '{0}' is invalid and has not been loaded : {1}.</value>
-    </data>
-    
-        
     
     <!--Messages From: \NAnt.Core/Util/DefaultCommandLineArgumentAttribute.cs-->
     <!--Messages From: \NAnt.Core/Util/FileUtils.cs-->
