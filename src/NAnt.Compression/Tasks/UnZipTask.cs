@@ -31,7 +31,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Compression.Tasks {
     /// <summary>
-    /// Extracts files from a zip file.
+    /// Extracts files from a zip archive.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -48,12 +48,11 @@ namespace NAnt.Compression.Tasks {
     ///   </code>
     /// </example>
     [TaskName("unzip")]
-    public class UnZipTask : Task {
+    public class UnZipTask : ExpandBaseTask {
         #region Private Instance Fields
 
         private FileInfo _zipfile;
         private DirectoryInfo _toDir;
-        private bool _overwrite = true;
         private Encoding _encoding;
 
         #endregion Private Instance Fields
@@ -76,21 +75,11 @@ namespace NAnt.Compression.Tasks {
         [TaskAttribute("todir", Required=false)]
         public DirectoryInfo ToDirectory {
             get { 
-                if (_toDir == null) {
-                    return new DirectoryInfo(Project.BaseDirectory);
-                }
+                if (_toDir == null)
+                    _toDir = new DirectoryInfo(Project.BaseDirectory);
                 return _toDir;
             }
             set { _toDir = value; }
-        }
-
-        /// <summary>
-        /// Overwrite files, even if they are newer than the corresponding 
-        /// entries in the archive. The default is <see langword="true" />.
-        /// </summary>
-        public bool Overwrite {
-            get { return _overwrite; }
-            set { _overwrite = value; }
         }
 
         /// <summary>
@@ -136,9 +125,11 @@ namespace NAnt.Compression.Tasks {
                     // extract the file or directory entry
                     while ((entry = s.GetNextEntry()) != null) {
                         if (entry.IsDirectory) {
-                            ExtractDirectory(s, entry.Name, entry.DateTime);
+                            ExtractDirectory(s, ToDirectory.FullName,
+                                entry.Name, entry.DateTime);
                         } else {
-                            ExtractFile(s, entry.Name, entry.DateTime, entry.Size);
+                            ExtractFile(s, ToDirectory.FullName, entry.Name,
+                                entry.DateTime, entry.Size);
                         }
                     }
 
@@ -147,7 +138,7 @@ namespace NAnt.Compression.Tasks {
                 }
             } catch (IOException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Failed to extract '{0}' to '{1}'.", ZipFile.FullName, 
+                    "Failed to expand '{0}' to '{1}'.", ZipFile.FullName, 
                     ToDirectory.FullName), Location, ex);
             } catch (ZipException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
@@ -156,104 +147,5 @@ namespace NAnt.Compression.Tasks {
         }
 
         #endregion Override implementation of Task
-
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Extracts a file entry from the specified stream.
-        /// </summary>
-        /// <param name="inputStream">The <see cref="Stream" /> containing the compressed entry.</param>
-        /// <param name="entryName">The name of the entry including directory information.</param>
-        /// <param name="entryDate">The date of the entry.</param>
-        /// <param name="entrySize">The uncompressed size of the entry.</param>
-        /// <exception cref="BuildException">
-        ///   <para>The destination directory for the entry could not be created.</para>
-        ///   <para>-or-</para>
-        ///   <para>The entry could not be extracted.</para>
-        /// </exception>
-        /// <remarks>
-        /// We cannot rely on the fact that the directory entry of a given file
-        /// is created before the file is extracted, so we should create the
-        /// directory if it doesn't yet exist.
-        /// </remarks>
-        protected void ExtractFile(Stream inputStream, string entryName, DateTime entryDate, long entrySize) {
-            // determine destination file
-            FileInfo destFile = new FileInfo(Path.Combine(ToDirectory.FullName,
-                entryName));
-
-            // ensure destination directory exists
-            if (!destFile.Directory.Exists) {
-                try {
-                    destFile.Directory.Create();
-                    destFile.Directory.LastWriteTime = entryDate;
-                    destFile.Directory.Refresh();
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Directory '{0}' could not be created.", destFile.DirectoryName),
-                        Location, ex);
-                }
-            }
-
-            // determine if entry actually needs to be extracted
-            if (!Overwrite && destFile.Exists && destFile.LastWriteTime >= entryDate) {
-                Log(Level.Debug, "Skipping '{0}' as it is up-to-date.", 
-                    destFile.FullName);
-                return;
-            }
-
-            Log(Level.Verbose, "Extracting '{0}' to '{1}'.", entryName, 
-                ToDirectory.FullName);
-
-            try {
-                // extract the entry
-                using (FileStream sw = new FileStream(destFile.FullName, FileMode.Create, FileAccess.Write)) {
-                    int size = 2048;
-                    byte[] data = new byte[2048];
-
-                    while (true) {
-                        size = inputStream.Read(data, 0, data.Length);
-                        if (size == 0) {
-                            break;
-                        }
-                        sw.Write(data, 0, size);
-                    }
-
-                    sw.Close();
-                }
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    "Unable to expand '{0}' to '{1}'.", entryName, ToDirectory.FullName),
-                    Location, ex);
-            }
-
-            destFile.LastWriteTime = entryDate;
-        }
-
-        /// <summary>
-        /// Extracts a directory entry from the specified stream.
-        /// </summary>
-        /// <param name="inputStream">The <see cref="Stream" /> containing the directory entry.</param>
-        /// <param name="entryName">The name of the directory entry.</param>
-        /// <param name="entryDate">The date of the entry.</param>
-        /// <exception cref="BuildException">
-        ///   <para>The destination directory for the entry could not be created.</para>
-        /// </exception>
-        protected void ExtractDirectory(Stream inputStream, string entryName, DateTime entryDate) {
-            DirectoryInfo destDir = new DirectoryInfo(Path.Combine(
-                ToDirectory.FullName, entryName));
-            if (!destDir.Exists) {
-                try {
-                    destDir.Create();
-                    destDir.LastWriteTime = entryDate;
-                    destDir.Refresh();
-                } catch (Exception ex) {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Directory '{0}' could not be created.", destDir.FullName),
-                        Location, ex);
-                }
-            }
-        }
-
-        #endregion Private Instance Methods
     }
 }
