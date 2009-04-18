@@ -301,24 +301,4 @@ namespace NAnt.Compression.Tasks {
 
         #endregion Private Instance Methods
     }
-
-    /// <summary>
-    /// Specifies the compression methods supported by <see cref="TarTask" />.
-    /// </summary>
-    public enum TarCompressionMethod {
-        /// <summary>
-        /// No compression.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// GZIP compression.
-        /// </summary>
-        GZip = 1,
-
-        /// <summary>
-        /// BZIP2 compression.
-        /// </summary>
-        BZip2 = 2
-    }
 }

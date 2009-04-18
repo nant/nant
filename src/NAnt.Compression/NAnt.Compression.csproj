@@ -95,12 +95,22 @@
                     BuildAction = "None"
                 />
                 <File
+                    RelPath = "Tasks\ExpandBaseTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\GUnzip.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Tasks\TarTask.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Tasks\UnTarTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -116,6 +126,11 @@
                 />
                 <File
                     RelPath = "Types\DuplicateHandling.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Types\TarCompressionMethod.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -102,11 +102,9 @@ namespace NAnt.Compression.Tasks {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Failed to expand '{0}' to '{1}'.", SrcFile.FullName, 
                     DestFile.FullName), Location, ex);
-            /* Uncomment when upgrade to next #ziplib release is done
             } catch (GZipException ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Invalid gzip file '{0}'.", SrcFile.FullName), Location, ex);
-            */
             }
         }
 
