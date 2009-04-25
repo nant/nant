@@ -254,7 +254,7 @@ namespace NAnt.Core {
                     _baseDirectory = new DirectoryInfo(CleanPath(
                         Environment.CurrentDirectory).ToString());
                 }
-                return _baseDirectory; 
+                return _baseDirectory;
             }
             set { 
                 if (value != null) {
@@ -404,9 +404,9 @@ namespace NAnt.Core {
                     string exactName = Path.Combine(searchDirectory, regexPattern);
                     if (!nonRegexFiles.Contains(exactName)) {
                         nonRegexFiles.Add(exactName);
-                    } 
+                    }
                 }
-                
+
                 if (!addSearchDirectories) {
                     continue;
                 }
@@ -418,10 +418,8 @@ namespace NAnt.Core {
                     if (!(bool)_searchDirIsRecursive[index] && isRecursive) {
                         _searchDirIsRecursive[index] = isRecursive;
                     }
-                }
-
-                // if the directory has not been added, add it
-                if (index == -1) {
+                } else {
+                    // if the directory has not been added, add it
                     _searchDirectories.Add(searchDirectory);
                     _searchDirIsRecursive.Add(isRecursive);
                 }
@@ -477,10 +475,10 @@ namespace NAnt.Core {
                     s += Path.DirectorySeparatorChar;
                 }
             } else {
-                s = "";
+                s = string.Empty;
             }
-            
-            //We only prepend BaseDirectory when s represents a relative path.
+
+            // we only prepend BaseDirectory when s represents a relative path.
             if (Path.IsPathRooted(s)) {
                 searchDirectory = new DirectoryInfo(s).FullName;
             } else {
@@ -488,7 +486,7 @@ namespace NAnt.Core {
                 searchDirectory = new DirectoryInfo(Path.Combine(
                     BaseDirectory.FullName, s)).FullName;
             }
-            
+
             // remove trailing directory separator character, fixes bug #1195736
             //
             // do not remove trailing directory separator if search directory is
@@ -497,10 +495,14 @@ namespace NAnt.Core {
                 searchDirectory = searchDirectory.Substring(0, searchDirectory.Length - 1);
             }
 
-            string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
-            
+            // check if the pattern matches shorthand for full recursive
+            // match
+            // for example: mypackage/ is shorthand for mypackage/**
+            bool shorthand = indexOfLastOriginalDirectorySeparator != -1 && 
+                indexOfLastOriginalDirectorySeparator == (originalNAntPattern.Length - 1);
+
             // if it's not a wildcard, just return
-            if (indexOfFirstWildcard == -1) {
+            if (indexOfFirstWildcard == -1 && !shorthand) {
                 regexPattern = CleanPath(BaseDirectory.FullName, originalNAntPattern);
                 isRegex = false;
 #if DEBUG_REGEXES
@@ -509,13 +511,19 @@ namespace NAnt.Core {
                 return;
             }
 
+            string modifiedNAntPattern = originalNAntPattern.Substring(indexOfLastDirectorySeparator + 1);
+            if (shorthand) {
+                modifiedNAntPattern += "**";
+                recursive = true;
+            }
+
             //if the fs in case-insensitive, make all the regex directories lowercase.
             regexPattern = ToRegexPattern(modifiedNAntPattern);
 
 #if DEBUG_REGEXES
             Console.WriteLine( "Convert pattern: {0} -> [{1}]{2}", originalNAntPattern, searchDirectory, regexPattern );
 #endif
-            
+
             isRegex = true;
         }
 
@@ -580,7 +588,7 @@ namespace NAnt.Core {
             }
 
             foreach (RegexEntry entry in _excludePatterns) {
-                string baseDirectory = entry.BaseDirectory; 
+                string baseDirectory = entry.BaseDirectory;
                 
                 if (entry.BaseDirectory.Length == 0 || compare.Compare(path, baseDirectory, compareOptions) == 0) {
                     excludedPatterns.Add(entry);
@@ -604,8 +612,7 @@ namespace NAnt.Core {
                 }
             }
 
-            foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) 
-            {
+            foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
                 if (recursive) {
                     // scan subfolders if we are running recursively
                     ScanDirectory(directoryInfo.FullName, true);
@@ -755,8 +762,7 @@ namespace NAnt.Core {
 
         #region Private Static Methods
 
-        private static StringBuilder CleanPath(string nantPath) 
-        {
+        private static StringBuilder CleanPath(string nantPath) {
             StringBuilder pathBuilder = new StringBuilder(nantPath);
 
             // NAnt patterns can use either / \ as a directory separator.
@@ -767,8 +773,7 @@ namespace NAnt.Core {
             return pathBuilder;
         }
 
-        private static string CleanPath(string baseDirectory, string nantPath) 
-        {
+        private static string CleanPath(string baseDirectory, string nantPath) {
             return new DirectoryInfo(Path.Combine(baseDirectory, CleanPath(nantPath).ToString())).FullName;
         }
 
@@ -799,17 +804,8 @@ namespace NAnt.Core {
 
             // Special case directory seperator string under Windows.
             string seperator = Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
-            if (seperator == @"\") {
+            if (seperator == @"\")
                 seperator = @"\\";
-            }
-
-            // workaround for mono bug #72166
-            string replacementSeparator = null;
-            if (PlatformHelper.IsMono && seperator == @"\\") {
-                replacementSeparator = "MONOBUG72166";
-            } else {
-                replacementSeparator = seperator;
-            }
 
             // Convert NAnt pattern characters to regular expression patterns.
 
@@ -819,19 +815,19 @@ namespace NAnt.Core {
             // SPECIAL CASE: any *'s directory between slashes or at the end of the
             // path are replaced with a 1..n pattern instead of 0..n: (?<=\\)\*(?=($|\\))
             // This ensures that C:\*foo* matches C:\foo and C:\* won't match C:.
-            pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + replacementSeparator + "]+"));
+            pattern = new StringBuilder(Regex.Replace(pattern.ToString(), "(?<=" + seperator + ")\\*(?=($|" + seperator + "))", "[^" + seperator + "]+"));
             
             // SPECIAL CASE: to match subdirectory OR current directory, If
             // we do this then we can write something like 'src/**/*.cs'
             // to match all the files ending in .cs in the src directory OR
             // subdirectories of src.
-            pattern.Replace(seperator + "**" + seperator, replacementSeparator + "(.|?" + replacementSeparator + ")?" );
-            pattern.Replace("**" + seperator, ".|(?<=^|" + replacementSeparator + ")" );
-            pattern.Replace(seperator + "**", "(?=$|" + replacementSeparator + ").|" );
+            pattern.Replace(seperator + "**" + seperator, seperator + "(.|?" + seperator + ")?" );
+            pattern.Replace("**" + seperator, ".|(?<=^|" + seperator + ")" );
+            pattern.Replace(seperator + "**", "(?=$|" + seperator + ").|" );
 
             // .| is a place holder for .* to prevent it from being replaced in next line
             pattern.Replace("**", ".|");
-            pattern.Replace("*", "[^" + replacementSeparator + "]*");
+            pattern.Replace("*", "[^" + seperator + "]*");
             pattern.Replace(".|", ".*"); // replace place holder string
 
             // Help speed up the search
@@ -840,18 +836,12 @@ namespace NAnt.Core {
                 pattern.Append('$'); // end of line
             }
 
-            if (PlatformHelper.IsMono && seperator == @"\\") {
-                pattern.Replace("MONOBUG72166", seperator);
-            }
-
             string patternText = pattern.ToString();
-
             if (patternText.StartsWith("^.*"))
                 patternText = patternText.Substring(3);
             if (patternText.EndsWith(".*$"))
                 patternText = patternText.Substring(0, pattern.Length - 3);
-
-            return patternText.ToString();
+            return patternText;
         }
 
         #endregion Private Static Methods
