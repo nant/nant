@@ -57,45 +57,213 @@ namespace Tests.NAnt.Core.Tasks {
         protected override void SetUp() {
             base.SetUp();
             _tempDirDest = CreateTempDir("foob");
-            _tempFileSrc = CreateTempFile("foo.xml");
+            _tempFileSrc = CreateTempFile("foo.xml", "SRC");
         }
 
         [Test]
-        public void Test_Move() {
+        public void NoOverwrite_Destination_DoesNotExist() {
+            string tempFileDest = Path.Combine(_tempDirDest, "foo.xml");
+
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
-                _xmlProjectTemplate, _tempFileSrc, Path.Combine(_tempDirDest, "foo.xml"),
-                "false"));
-            
-            Assert.IsFalse(File.Exists(_tempFileSrc), "File should have been removed (during move):" + result);
-            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "File should have been added (during move):" + result);
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
+
+            Assert.IsFalse(File.Exists(_tempFileSrc), "#1:" + result);
+            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
         }
 
         [Test]
-        public void Test_MoveOverwrite() {
-            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"));
+        public void NoOverwrite_Destination_Newer() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            // ensure destination file is more recent than source file
+            File.SetLastWriteTime(tempFileDest, DateTime.Now.AddDays(1));
 
-            RunBuild(string.Format(CultureInfo.InvariantCulture, 
-                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
+
+            Assert.IsTrue(File.Exists(_tempFileSrc), "#1");
+            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "#2");
+
+            using (StreamReader sr = new StreamReader (_tempFileSrc, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#4");
+            }
         }
 
         [Test]
-        public void Test_MoveNoOverwrite() {
-            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo-dest.xml"));
-
+        public void NoOverwrite_Destination_Older() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
             // ensure source file is more recent than destination file
             File.SetLastWriteTime(_tempFileSrc, DateTime.Now.AddDays(1));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
+
+            Assert.IsFalse(File.Exists(_tempFileSrc), "#1:" + result);
+            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+        }
+
+        [Test]
+        public void NoOverwrite_Destination_Same() {
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, _tempFileSrc, "false"));
+
+            Assert.IsTrue(File.Exists(_tempFileSrc), "#1:" + result);
+
+            using (StreamReader sr = new StreamReader (_tempFileSrc, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#2");
+            }
+        }
+
+        [Test]
+        public void NoOverwrite_Destination_UpToDate() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            // ensure destination file has same write time than source file
+            File.SetLastWriteTime(tempFileDest, File.GetLastWriteTime (_tempFileSrc));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
+
+            Assert.IsTrue (File.Exists (_tempFileSrc), "#1:" + result);
+            Assert.IsTrue (File.Exists (tempFileDest), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (_tempFileSrc, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#4");
+            }
+        }
+
+        [Test]
+        public void NoOverwrite_Source_DoesNotExist() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            File.Delete (_tempFileSrc);
+
             try {
-                RunBuild(string.Format(CultureInfo.InvariantCulture, 
+                string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
                     _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
-                // on non-windows platforms overwriting a file is permitted without a warning or exception
-                if (PlatformHelper.IsWin32) {
-                    Assert.Fail("Build should have failed with File Overwrite exception.");
-                }
+                Assert.Fail (result);
             } catch (TestBuildException) {
                 // just catch the exception
-            } catch (Exception) {
-                Assert.Fail("Unexpected Exception.");
-            }     
+            }
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1");
+            Assert.IsTrue (File.Exists (tempFileDest), "#2");
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#3");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Destination_DoesNotExist() {
+            string tempFileDest = Path.Combine(_tempDirDest, "foo.xml");
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1:" + result);
+            Assert.IsTrue (File.Exists (tempFileDest), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Destination_Newer() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            // ensure destination file is more recent than source file
+            File.SetLastWriteTime(tempFileDest, DateTime.Now.AddDays(1));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1:" + result);
+            Assert.IsTrue (File.Exists (tempFileDest), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Destination_Older() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"));
+            // ensure source file is more recent than destination file
+            File.SetLastWriteTime(_tempFileSrc, DateTime.Now.AddDays(1));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1:" + result);
+            Assert.IsTrue (File.Exists (tempFileDest), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Destination_Same() {
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, _tempFileSrc, "true"));
+
+            Assert.IsTrue(File.Exists(_tempFileSrc), "#1:" + result);
+
+            using (StreamReader sr = new StreamReader (_tempFileSrc, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#2");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Destination_UpToDate() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            // ensure destination file has same write time than source file
+            File.SetLastWriteTime(tempFileDest, File.GetLastWriteTime (_tempFileSrc));
+
+            string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1:" + result);
+            Assert.IsTrue (File.Exists (tempFileDest), "#2:" + result);
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#4");
+            }
+        }
+
+        [Test]
+        public void Overwrite_Source_DoesNotExist() {
+            string tempFileDest = CreateTempFile(Path.Combine(_tempDirDest, "foo.xml"), "DEST");
+            File.Delete (_tempFileSrc);
+
+            try {
+                string result = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                    _xmlProjectTemplate, _tempFileSrc, tempFileDest, "true"));
+                Assert.Fail (result);
+            } catch (TestBuildException) {
+                // just catch the exception
+            }
+
+            Assert.IsFalse (File.Exists (_tempFileSrc), "#1");
+            Assert.IsTrue (File.Exists (tempFileDest), "#2");
+
+            using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
+                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#3");
+            }
         }
 
         /// <summary>
