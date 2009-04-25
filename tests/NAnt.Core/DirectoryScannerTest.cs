@@ -545,6 +545,35 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
+        /// <summary>Test shorthand for including all files recursively.</summary>
+        [Test]
+        public void Test_ShorthandIncludes() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "XYZ.txt"),
+                                                          Path.Combine(_folder3, "XYZ.bak")
+            };
+            string[] excludedFileNames = new string[0];
+
+            _scanner.Includes.Add(@"folder2/");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
+        /// <summary>Test shorthand for exclusing all files recursively.</summary>
+        [Test]
+        public void Test_ShorthandExcludes() {
+            string[] includedFileNames = new string[] {
+                                                          Path.Combine(_folder1, "filea.txt")
+            };
+            string[] excludedFileNames = new string[] {
+                                                          Path.Combine(_folder2, "fileb.txt"),
+                                                          Path.Combine(_folder3, "filec.txt")
+            };
+
+            _scanner.Includes.Add(@"**");
+            _scanner.Excludes.Add(@"folder2/");
+            CheckScan(includedFileNames, excludedFileNames);
+        }
+
         /// <summary>Test excluding files.</summary>
         /// <remarks>
         ///   Matches all XYZ* files, but then excludes them.
