@@ -196,15 +196,13 @@ namespace NAnt.Core.Tasks {
 
                             Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
 
-                            if (Overwrite) {
-                                // if destination file exists, remove it first if
-                                // in overwrite mode
-                                if (File.Exists(destinationPath)) {
-                                    Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
-                                    File.Delete(destinationPath);
-                                }
+                            // if destination file exists, remove it first if
+                            // in overwrite mode
+                            if (File.Exists(destinationPath)) {
+                                Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
+                                File.Delete(destinationPath);
                             }
-                            
+
                             // move the file and apply filters
                             FileUtils.MoveFile(sourcePath, destinationPath, Filters, 
                                 InputEncoding, OutputEncoding);
@@ -217,6 +215,12 @@ namespace NAnt.Core.Tasks {
                 }
                 Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
             }
+        }
+
+        protected override BuildException CreateSourceFileNotFoundException (string sourceFile) {
+            return new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Could not find file '{0}' to move.", sourceFile),
+                Location);
         }
 
         #endregion Override implementation of CopyTask

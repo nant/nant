@@ -353,9 +353,7 @@ namespace NAnt.Core.Tasks {
                         }
                     }
                 } else {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        "Could not find file '{0}' to copy.", SourceFile.FullName), 
-                        Location);
+                    throw CreateSourceFileNotFoundException (SourceFile.FullName);
                 }
             } else { // copy file set contents.
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
@@ -419,9 +417,7 @@ namespace NAnt.Core.Tasks {
                             }
                         }
                     } else {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Could not find file '{0}' to copy.", srcInfo.FullName), 
-                            Location);
+                        throw CreateSourceFileNotFoundException (srcInfo.FullName);
                     }
                 }
                 
@@ -504,6 +500,12 @@ namespace NAnt.Core.Tasks {
                     }
                 }
             }
+        }
+
+        protected virtual BuildException CreateSourceFileNotFoundException (string sourceFile) {
+            return new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Could not find file '{0}' to copy.", sourceFile),
+                Location);
         }
 
         #endregion Protected Instance Methods
