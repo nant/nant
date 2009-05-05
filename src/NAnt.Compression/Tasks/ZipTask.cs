@@ -272,23 +272,26 @@ namespace NAnt.Compression.Tasks {
                             entry.DateTime = File.GetLastWriteTime(file);
                         }
 
-                        Log(Level.Verbose, "Adding {0}.", entryName);
-                    
-                        // write file to zip file
-                        zOutstream.PutNextEntry(entry);
-
                         // write file content to stream in small chuncks
                         using (FileStream fs = File.OpenRead(file)) {
+                            // set size for backward compatibility with older unzip
+                            entry.Size = fs.Length;
+
+                            Log(Level.Verbose, "Adding {0}.", entryName);
+
+                            // write file to zip file
+                            zOutstream.PutNextEntry(entry);
+
                             byte[] buffer = new byte[50000];
 
                             while (true) {
                                 int bytesRead = fs.Read(buffer, 0, buffer.Length);
-                                if (bytesRead == 0) {
+                                if (bytesRead == 0)
                                     break;
-                                }
                                 zOutstream.Write(buffer, 0, bytesRead);
                             }
                         }
+
                     }
 
                     // add (possibly empty) directories to zip
@@ -327,6 +330,9 @@ namespace NAnt.Compression.Tasks {
 
                             // create directory entry
                             ZipEntry entry = new ZipEntry(entryName);
+
+                            // set size for backward compatibility with older unzip
+                            entry.Size = 0L;
 
                             // write directory to zip file
                             zOutstream.PutNextEntry(entry);
