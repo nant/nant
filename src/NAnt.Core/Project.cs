@@ -1343,14 +1343,14 @@ namespace NAnt.Core {
             if (StringUtils.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
                 string defURI;
 
-                if (doc.DocumentElement.Attributes["xmlns", "nant"] == null) {
+                XmlAttribute nantNS = doc.DocumentElement.Attributes["xmlns", "nant"];
+                if (nantNS == null) {
                     defURI = @"http://none";
                 } else {
-                    defURI = doc.DocumentElement.Attributes["xmlns", "nant"].Value;
+                    defURI = nantNS.Value;
                 }
 
                 XmlAttribute attr = doc.CreateAttribute("xmlns");
-
                 attr.Value = defURI;
                 doc.DocumentElement.Attributes.Append(attr);
             }
