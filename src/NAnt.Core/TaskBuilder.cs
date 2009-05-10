@@ -34,6 +34,25 @@ namespace NAnt.Core {
         /// <summary>
         /// Creates a new instance of the <see cref="TaskBuilder" /> class
         /// for the specified <see cref="Task" /> class in the specified
+        /// <see cref="Assembly" />.
+        /// </summary>
+        /// <remarks>
+        /// An <see cref="ExtensionAssembly" /> for the specified <see cref="Assembly" />
+        /// is cached for future use.
+        /// </remarks>
+        /// <param name="assembly">The <see cref="Assembly" /> containing the <see cref="Task" />.</param>
+        /// <param name="className">The class representing the <see cref="Task" />.</param>
+        public TaskBuilder (Assembly assembly, string className)
+            : this (ExtensionAssembly.Create (assembly), className) {
+        }
+
+        #endregion Public Instance Constructors
+
+        #region Internal Instance Constructors
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="TaskBuilder" /> class
+        /// for the specified <see cref="Task" /> class in the specified
         /// <see cref="ExtensionAssembly" />.
         /// </summary>
         /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> containing the <see cref="Task" />.</param>
@@ -42,7 +61,7 @@ namespace NAnt.Core {
             _className = className;
         }
 
-        #endregion Public Instance Constructors
+        #endregion Internal Instance Constructors
 
         #region Public Instance Properties
 

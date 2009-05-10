@@ -20,8 +20,8 @@
 using System;
 
 namespace NAnt.Core.Extensibility {
-    public class PluginBuilder : ExtensionBuilder {
-        public PluginBuilder(ExtensionAssembly extensionAssembly, Type pluginType) : base (extensionAssembly) {
+    internal class PluginBuilder : ExtensionBuilder {
+        internal PluginBuilder(ExtensionAssembly extensionAssembly, Type pluginType) : base (extensionAssembly) {
             _pluginType = pluginType;
         }
 

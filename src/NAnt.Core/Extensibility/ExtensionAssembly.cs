@@ -18,6 +18,7 @@
 // Gert Driesen (gert.driesen@cegeka.be)
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -27,13 +28,17 @@ namespace NAnt.Core.Extensibility {
     /// Represents an <see cref="Assembly" /> in which one or more extensions
     /// are found.
     /// </summary>
-    public class ExtensionAssembly {
+    internal class ExtensionAssembly {
         /// <summary>
         /// Initializes a new instance of the <see cref="ExtensionAssembly" />
         /// class for a given <see cref="Assembly" />.
         /// </summary>
+        /// <remarks>
+        /// The <see cref="ExtensionAssembly" /> instance is not cached for
+        /// future use. If this is required, use <see cref="Create(Assembly)" />.
+        /// </remarks>
         /// <param name="assembly">The <see cref="Assembly" /> for which to construct an <see cref="ExtensionAssembly" />.</param>
-        public ExtensionAssembly(Assembly assembly) {
+        internal ExtensionAssembly(Assembly assembly) {
             _assembly = assembly;
         }
 
@@ -46,16 +51,19 @@ namespace NAnt.Core.Extensibility {
 
         internal XmlNode ConfigurationSection {
             get {
-                if (_configurationInit) {
+                if (_configurationInit)
                     return _configurationSection;
-                }
 
                 try {
                     Stream s = _assembly.GetManifestResourceStream ("NAnt.Extension.config");
                     if (s != null) {
-                        XmlDocument doc = new XmlDocument ();
-                        doc.Load (s);
-                        _configurationSection = doc.DocumentElement;
+                        try {
+                            XmlDocument doc = new XmlDocument ();
+                            doc.Load (s);
+                            _configurationSection = doc.DocumentElement;
+                        } finally {
+                            s.Close ();
+                        }
                     }
                     return _configurationSection;
                 } finally {
@@ -63,6 +71,34 @@ namespace NAnt.Core.Extensibility {
                 }
             }
         }
+
+        /// <summary>
+        /// Creates an  <see cref="ExtensionAssembly" /> for the specified
+        /// <see cref="Assembly" /> and caches it for future use.
+        /// </summary>
+        /// <remarks>
+        /// If an <see cref="ExtensionAssembly" /> for the same assembly is
+        /// available in the cache, then this cached instance is returned.
+        /// </remarks>
+        /// <param name="assembly">The <see cref="Assembly" /> for which to construct an <see cref="ExtensionAssembly" />.</param>
+        /// <returns>
+        /// The <see cref="ExtensionAssembly" /> for the specified <see cref="Assembly" />.
+        /// </returns>
+        public static ExtensionAssembly Create (Assembly assembly) {
+            if (assembly == null)
+                throw new ArgumentNullException ("assembly");
+
+            string aname = assembly.FullName;
+            ExtensionAssembly ext = _extensionAssemblies [aname]
+                as ExtensionAssembly;
+            if (ext == null) {
+                ext = new ExtensionAssembly (assembly);
+                _extensionAssemblies [aname] = assembly;
+            }
+            return ext;
+        }
+
+        private static Hashtable _extensionAssemblies = new Hashtable ();
 
         private readonly Assembly _assembly;
         private XmlNode _configurationSection;

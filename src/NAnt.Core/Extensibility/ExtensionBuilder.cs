@@ -28,7 +28,7 @@ namespace NAnt.Core.Extensibility {
         /// </summary>
         /// <param name="extensionAssembly">The <see cref="ExtensionAssembly" /> in which the extension is found.</param>
         /// <exception cref="ArgumentNullException"><paramref name="extensionAssembly" /> is <see langword="null" />.</exception>
-        protected ExtensionBuilder(ExtensionAssembly extensionAssembly) {
+        internal ExtensionBuilder(ExtensionAssembly extensionAssembly) {
             if (extensionAssembly == null) {
                 throw new ArgumentNullException("extensionAssembly");
             }
@@ -36,10 +36,20 @@ namespace NAnt.Core.Extensibility {
         }
 
         /// <summary>
+        /// Initializes a instance of the <see cref="ExtensionBuilder" /> 
+        /// class for an extension in a given <see cref="Assembly" />.
+        /// </summary>
+        /// <param name="assembly">The <see cref="Assembly" /> in which the extension is found.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="assembly" /> is <see langword="null" />.</exception>
+        protected ExtensionBuilder(Assembly assembly)
+            : this (ExtensionAssembly.Create (assembly)) {
+        }
+
+        /// <summary>
         /// Gets the <see cref="ExtensionAssembly" /> in which the extension
         /// was found.
         /// </summary>
-        public ExtensionAssembly ExtensionAssembly {
+        internal ExtensionAssembly ExtensionAssembly {
             get { return _extensionAssembly; }
         }
 
