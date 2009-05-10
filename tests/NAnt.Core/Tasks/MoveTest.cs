@@ -84,15 +84,15 @@ namespace Tests.NAnt.Core.Tasks {
             string result = RunBuild(string.Format(CultureInfo.InvariantCulture, 
                 _xmlProjectTemplate, _tempFileSrc, tempFileDest, "false"));
 
-            Assert.IsTrue(File.Exists(_tempFileSrc), "#1");
-            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "#2");
+            Assert.IsTrue(File.Exists(_tempFileSrc), "#1:" + result);
+            Assert.IsTrue(File.Exists(Path.Combine(_tempDirDest, "foo.xml")), "#2:" + result);
 
             using (StreamReader sr = new StreamReader (_tempFileSrc, Encoding.UTF8, true)) {
-                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3");
+                Assert.AreEqual ("SRC", sr.ReadToEnd (), "#3:" + result);
             }
 
             using (StreamReader sr = new StreamReader (tempFileDest, Encoding.UTF8, true)) {
-                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#4");
+                Assert.AreEqual ("DEST", sr.ReadToEnd (), "#4:" + result);
             }
         }
 
