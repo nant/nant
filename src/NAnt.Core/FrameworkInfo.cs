@@ -740,43 +740,17 @@ namespace NAnt.Core {
             XmlNode projectNode = _frameworkNode.SelectSingleNode("nant:project", 
                 NamespaceManager);
 
-            if (projectNode == null) {
+            if (projectNode == null)
                 throw new ArgumentException("No <project> node is defined.");
-            }
 
-            string tempBuildFile = Path.GetTempFileName();
-            XmlTextWriter writer = null;
-            Project frameworkProject = null;
+            // create XmlDocument from project node
+            XmlDocument projectDoc = new XmlDocument();
+            projectDoc.LoadXml(projectNode.OuterXml);
 
-            try {
-                // write project to file
-                writer = new XmlTextWriter(tempBuildFile, Encoding.UTF8);
-                writer.WriteStartDocument(true);
-                writer.WriteRaw(projectNode.OuterXml);
-                writer.Flush();
-                writer.Close();
-
-                // use StreamReader to load build file from to avoid
-                // having location information as part of the error
-                // messages
-                using (StreamReader sr = new StreamReader(new FileStream(tempBuildFile, FileMode.Open, FileAccess.Read, FileShare.Write), Encoding.UTF8)) {
-                    XmlDocument projectDoc = new XmlDocument();
-                    projectDoc.Load(sr);
-
-                    // create and execute project
-                    frameworkProject = new Project(projectDoc);
-                    frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                    frameworkProject.Execute();
-                }
-            } finally {
-                if (writer != null) {
-                    writer.Close();
-                }
-
-                if (File.Exists(tempBuildFile)) {
-                    File.Delete(tempBuildFile);
-                }
-            }
+            // create and execute project
+            Project frameworkProject = new Project(projectDoc);
+            frameworkProject.BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            frameworkProject.Execute();
 
             XmlNode runtimeNode = _frameworkNode.SelectSingleNode ("runtime",
                 NamespaceManager);
@@ -799,9 +773,8 @@ namespace NAnt.Core {
 
             // the sdk directory does not actually have to exist for a
             // framework to be considered valid
-            if (sdkDir != null && Directory.Exists(sdkDir)) {
+            if (sdkDir != null && Directory.Exists(sdkDir))
                 _sdkDirectory = new DirectoryInfo(sdkDir);
-            }
 
             _project = frameworkProject;
             _status = InitStatus.Initialized;
