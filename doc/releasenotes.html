@@ -60,6 +60,21 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
+                <a class="heading" href="help/tasks/echo.html">&lt;echo&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    When writing messages to a file, the encoding now defaults to the
+                    system's current ANSI code page compared to UTF-8 for previous
+                    releases.
+                </p>
+                <p>
+                    The &quot;encoding&quot; attribute can be used to specify another encoding:
+                </p>
+                <pre class="code">
+    <span class="xmltext">&lt;</span><span class="xmlelement">echo</span> <span class="xmlattribute">file</span><span class="xmltext">="build.cmd"</span> <span class="xmlattribute">encoding</span><span class="xmltext">="utf-8"&gt;</span>...<span class="xmltext">&lt;/</span><span class="xmlelement">echo</span><span class="xmltext">&gt;</span>
+                </pre>
+            </div>
+            <h5>
                 <a class="heading" href="help/tasks/script.html">&lt;script&gt;</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -155,6 +170,14 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
+                <a class="heading" href="help/tasks/echo.html">&lt;echo&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    A newline is implicitly added when writing a message to a file
+                    (bug <a href="http://sourceforge.net/tracker/?func=detail&amp;atid=402868&amp;aid=2807728&amp;group_id=31650">#2807728</a>).
+                </p>
+            </div>
+            <h5>
                 <a class="heading">ExternalProgramBase</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -246,11 +269,11 @@
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
-                <a class="heading" href="help/tasks/untar">&lt;untar&gt;</a></h5>
+                <a class="heading" href="help/tasks/untar.html">&lt;untar&gt;</a></h5>
             <div style="margin-left: 20px;">
                 <p>Extracts files from a tar archive.</p>
             </div>
-		</div>
+        </div>
         <h3>Changes</h3>
         <h4>Packaging</h4>
         <div style="margin-left: 20px;">
@@ -281,6 +304,14 @@
             <div style="margin-left: 20px;">
                 <p>
                     Added &quot;winres&quot; attribute to specify a Win32 resource file.
+                </p>
+            </div>
+            <h5>
+                <a class="heading" href="help/tasks/echo.html">&lt;echo&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    The &quot;encoding&quot; attribute specifies the encoding
+                    to use when writing messages to a file.
                 </p>
             </div>
             <h5>
