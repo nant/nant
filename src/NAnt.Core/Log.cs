@@ -30,6 +30,7 @@
 
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Remoting.Lifetime;
@@ -43,6 +44,7 @@ namespace NAnt.Core {
     /// <summary>
     /// Defines the set of levels recognised by the NAnt logging system.
     /// </summary>
+    [TypeConverter(typeof(LevelConverter))]
     public enum Level : int {
         /// <summary>
         /// Designates fine-grained informational events that are most useful 
@@ -79,6 +81,38 @@ namespace NAnt.Core {
         /// No events should be logged with this <see cref="Level" />.
         /// </remarks>
         None = 9999
+    }
+
+    /// <summary>
+    /// Specialized <see cref="EnumConverter" /> for <see cref="Level" />
+    /// that ignores case when converting from string.
+    /// </summary>
+    internal class LevelConverter : EnumConverter {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LevelConverter" />
+        /// class.
+        /// </summary>
+        public LevelConverter() : base(typeof(Level)) {
+        }
+
+        /// <summary>
+        /// Converts the given object to the type of this converter, using the 
+        /// specified context and culture information.
+        /// </summary>
+        /// <param name="context">An <see cref="ITypeDescriptorContext"/> that provides a format context.</param>
+        /// <param name="culture">A <see cref="CultureInfo"/> object. If a <see langword="null"/> is passed, the current culture is assumed.</param>
+        /// <param name="value">The <see cref="Object"/> to convert.</param>
+        /// <returns>
+        /// An <see cref="Object"/> that represents the converted value.
+        /// </returns>
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+            string stringValue = value as string;
+            if (stringValue != null)
+                return Enum.Parse(EnumType, stringValue, true);
+
+            // default to EnumConverter behavior
+            return base.ConvertFrom(context, culture, value);
+        }
     }
 
     /// <summary>
