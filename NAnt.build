@@ -161,6 +161,16 @@
             <arg value="self-test" />
         </exec>
     </target>
+    <target name="test-core" depends="build">
+        <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
+            <arg value="-buildfile:NAnt.build" />
+            <arg value="-D:project.version=${project.version}" />
+            <arg value="-D:project.release.type=${project.release.type}" />
+            <arg value="-targetframework:${framework::get-target-framework()}" />
+            <arg value="${project.config}" />
+            <arg value="self-test-core" />
+        </exec>
+    </target>
     <target name="test-dotnet" depends="build">
         <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-buildfile:NAnt.build" />
@@ -211,6 +221,13 @@
                  value="${framework::get-target-framework()}"/>
         <!-- output the config file that will be used to run the tests -->
         <echo message="testing with config '${path::combine(nant::get-base-directory(), 'nant.tests.config')}'" />
+    </target>
+    <target name="self-test-core" depends="prepare-self-test">
+        <nant target="test">
+            <buildfiles basedir="tests">
+                <include name="NAnt.Core/NAnt.Core.build" />
+            </buildfiles>
+        </nant>
     </target>
     <target name="self-test-dotnet" depends="prepare-self-test">
         <nant target="test">
