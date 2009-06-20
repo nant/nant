@@ -21,6 +21,7 @@
 using System;
 using System.IO;
 using System.Globalization;
+using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
@@ -93,10 +94,25 @@ namespace NAnt.Core.Tasks {
         private FileInfo _file;
         private bool _append;
         private Level _messageLevel = Level.Info;
+        private Encoding _encoding;
 
         #endregion Private Instance Fields
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// The encoding to use when writing message to a file. The default is
+        /// the system's current ANSI code page.
+        /// </summary>
+        [TaskAttribute("encoding")]
+        public Encoding Encoding {
+            get {
+                if (_encoding == null)
+                    return Encoding.Default;
+                return _encoding;
+            }
+            set { _encoding = value; }
+        }
 
         /// <summary>
         /// The message to output.
@@ -195,13 +211,11 @@ namespace NAnt.Core.Tasks {
                     }
 
                     // write the message to the file
-                    using (StreamWriter writer = new StreamWriter(File.FullName, Append)) {
+                    using (StreamWriter writer = new StreamWriter(File.FullName, Append, Encoding)) {
                         if (!StringUtils.IsNullOrEmpty(Message)) {
-                            writer.WriteLine(Message);
+                            writer.Write(Message);
                         } else if (!StringUtils.IsNullOrEmpty(Contents)) {
-                            writer.WriteLine(Contents);
-                        } else {
-                            writer.WriteLine();
+                            writer.Write(Contents);
                         }
                     }
                 } catch (Exception ex) {
