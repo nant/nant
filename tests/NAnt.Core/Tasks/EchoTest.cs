@@ -335,7 +335,6 @@ namespace Tests.NAnt.Core.Tasks {
         public void File_Message_Empty() {
             string logfile = Path.Combine (TempDirName, "log");
             TestBuildListener listener;
-            string result;
 
             string _xml1 = @"
                 <project>
@@ -343,7 +342,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
 
             listener = new TestBuildListener();
-            result = RunBuild (_xml1, listener);
+            RunBuild (_xml1, listener);
             Assert.IsTrue (File.Exists(logfile), "#A1");
             Assert.IsFalse(listener.HasMessageBeenLogged (" ", true), "#A2");
             using (StreamReader sr = new StreamReader (logfile, Encoding.UTF8)) {
@@ -359,7 +358,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
 
             listener = new TestBuildListener();
-            result = RunBuild (_xml2, listener);
+            RunBuild (_xml2, listener);
             Assert.IsTrue (File.Exists(logfile), "#B1");
             Assert.IsFalse(listener.HasMessageBeenLogged (" ", true), "#B2");
             using (StreamReader sr = new StreamReader (logfile, Encoding.UTF8)) {
@@ -376,7 +375,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
 
             listener = new TestBuildListener();
-            result = RunBuild (_xml3, listener);
+            RunBuild (_xml3, listener);
             Assert.IsTrue (File.Exists(logfile), "#C1");
             Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#C2");
             using (StreamReader sr = new StreamReader (logfile, Encoding.UTF8)) {
@@ -436,7 +435,6 @@ namespace Tests.NAnt.Core.Tasks {
             string dir = Path.Combine (TempDirName, "tmp");
             string logfile = Path.Combine (dir, "log");
             TestBuildListener listener;
-            string result;
 
             string _xml = @"
                 <project>
@@ -444,7 +442,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
 
             listener = new TestBuildListener();
-            result = RunBuild (_xml, listener);
+            RunBuild (_xml, listener);
             Assert.IsTrue (File.Exists(logfile), "#1");
             Assert.IsFalse(listener.HasMessageBeenLogged ("sometest", true), "#2");
             using (StreamReader sr = new StreamReader (logfile, Encoding.Default)) {
