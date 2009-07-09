@@ -450,5 +450,58 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.AreEqual ("sometest", content, "#3");
             }
         }
+
+        [Test]
+        public void MultilineMessage() {
+            string msg;
+            string logfile = Path.Combine (TempDirName, "log");
+            TestBuildListener listener;
+            string result;
+
+            msg = " \u0041\u2262" + Environment.NewLine + "\u0391\u002E! ";
+            string _xml1 = @"
+                <project>
+                    <echo append='true' file='log' message='" + msg + @"' encoding='utf-8'/>
+                </project>";
+
+            using (StreamWriter sw = new StreamWriter (logfile, false, Encoding.UTF8)) {
+                sw.Write ("ok");
+            }
+
+            listener = new TestBuildListener();
+            result = RunBuild (_xml1, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#A1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#A2");
+            Assert.IsTrue (File.Exists(logfile), "#A3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual ("ok" + msg, content, "#A5");
+                }
+            }
+
+            msg = string.Format ("{0}\u0041\u2262{0}\u0391\u002E!{0}",
+                Environment.NewLine);
+            string _xml2 = @"
+                <project>
+                    <echo append='true' file='log' encoding='utf-8'>" + msg + @"</echo>
+                </project>";
+
+            using (StreamWriter sw = new StreamWriter (logfile, false, Encoding.UTF8)) {
+                sw.Write ("ok" + Environment.NewLine);
+            }
+
+            listener = new TestBuildListener();
+            result = RunBuild (_xml2, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#B1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#B2");
+            Assert.IsTrue (File.Exists(logfile), "#B3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual ("ok" + Environment.NewLine + msg, content, "#B5");
+                }
+            }
+        }
     }
 }
