@@ -869,7 +869,7 @@
             the line endings of the generated file match the platform on which 
             the wrapper is created
         -->
-        <echo file="${wrapper}" append="false">#!/bin/sh</echo>
+        <echo file="${wrapper}" append="false">#!/bin/sh${environment::newline()}</echo>
         <echo file="${wrapper}" append="true">exec ${path::combine(install.prefix, 'bin')}/mono ${path::combine(install.nant, 'bin')}/NAnt.exe "$@"</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}" />
     </target>
