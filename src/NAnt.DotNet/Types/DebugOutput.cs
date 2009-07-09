@@ -106,15 +106,12 @@ namespace NAnt.DotNet.Types {
         /// An <see cref="Object"/> that represents the converted value.
         /// </returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value is string) {
-                string stringValue = (string) value;
-                if (string.Compare(stringValue, "true", true, culture) == 0) {
+            string stringValue = value as string;
+            if (stringValue != null) {
+                if (string.Compare(stringValue, "true", true, culture) == 0)
                     return DebugOutput.Enable;
-                }
-                if (string.Compare(stringValue, "false", true, culture) == 0) {
+                if (string.Compare(stringValue, "false", true, culture) == 0)
                     return DebugOutput.None;
-                }
-
                 return Enum.Parse(typeof(DebugOutput), stringValue, true);
             }
 
