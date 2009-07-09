@@ -33,8 +33,9 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   The message can be specified using the <see cref="Message" /> attribute 
-    ///   or as inline content.
+    ///   The message can be specified using the <see cref="Message" /> attribute
+    ///   or as inline content. If neither is included - or the message contains
+    ///   only whitespace - then an empty message will be emitted in the output.
     ///   </para>
     ///   <para>
     ///   Macros in the message will be expanded.
@@ -43,6 +44,10 @@ namespace NAnt.Core.Tasks {
     ///   When writing to a file, the <see cref="MessageLevel" /> attribute is
     ///   ignored.
     ///   </para>
+    ///   <note>
+    ///   Since NAnt 0.86, a newline will no longer be implictly added when
+    ///   writing a message to a file.
+    ///   </note>
     /// </remarks>
     /// <example>
     ///   <para>
@@ -51,6 +56,28 @@ namespace NAnt.Core.Tasks {
     ///   <code>
     ///     <![CDATA[
     /// <echo message="Hello, World!" level="Debug" />
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Writes a two-line message to the build log using inline content.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo>First line
+    /// Second line</echo>
+    ///     ]]>
+    ///   </code>
+    /// </example>
+    /// <example>
+    ///   <para>
+    ///   Writes a two-line message to the build log using the <see cref="Message" /> attribute.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <echo message='First line
+    /// Second line</echo>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -121,8 +148,8 @@ namespace NAnt.Core.Tasks {
         public string Message {
             get { return _message; }
             set {
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (!StringUtils.IsNullOrEmpty(Contents)) {
+                if (value != null && value.Trim ().Length > 0) {
+                    if (Contents != null) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <echo> task.", Location);
                     } else {
                         _message = value;
@@ -142,8 +169,8 @@ namespace NAnt.Core.Tasks {
         public string Contents {
             get { return _contents; }
             set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (!StringUtils.IsNullOrEmpty(Message)) {
+                if (value != null && value.Trim ().Length > 0) {
+                    if (Message != null) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <echo> task.", Location);
                     } else {
                         _contents = value;
@@ -224,17 +251,20 @@ namespace NAnt.Core.Tasks {
                         Location, ex);
                 }
             } else { // output to build log
-                if (!StringUtils.IsNullOrEmpty(Message)) {
+                if (Message != null) {
                     Log(MessageLevel, Message);
-                } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                } else if (Contents != null) {
                     Log(MessageLevel, Contents);
                 } else {
                     Log(MessageLevel, string.Empty);
                 }
             }
-        }        
-        
+        }
+
         protected override void Initialize() {
+            if (XmlNode.ChildNodes.Count == 0)
+                return;
+
             Contents = Project.ExpandProperties(XmlNode.InnerText, Location);
         }
 
