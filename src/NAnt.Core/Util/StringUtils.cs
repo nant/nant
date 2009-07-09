@@ -53,9 +53,8 @@ namespace NAnt.Core.Util {
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="value" /> is <see langword="null" />.</exception>
         public static bool EndsWith(string value, char c) {
-            if (value == null) {
+            if (value == null)
                 throw new ArgumentNullException("value");
-            }
 
             int stringLength = value.Length;
             if ((stringLength != 0) && (value[stringLength - 1] == c)) {
@@ -74,7 +73,7 @@ namespace NAnt.Core.Util {
         /// or an empty string (""); otherwise, <see langword="false" />.
         /// </returns>
         public static bool IsNullOrEmpty(string value) {
-            return (value == null || value.Trim().Length == 0);
+            return (value == null || value.Length == 0);
         }
 
         /// <summary>
@@ -86,10 +85,8 @@ namespace NAnt.Core.Util {
         /// string ("") or <see langword="null" />; otherwise, <paramref name="value" />.
         /// </returns>
         public static string ConvertEmptyToNull(string value) {
-            if (!IsNullOrEmpty(value)) {
+            if (!IsNullOrEmpty(value))
                 return value;
-            }
-
             return null;
         }
 
@@ -102,10 +99,8 @@ namespace NAnt.Core.Util {
         /// otherwise, <paramref name="value" />.
         /// </returns>
         public static string ConvertNullToEmpty(string value) {
-            if (value == null) {
+            if (value == null)
                 return string.Empty;
-            }
-
             return value;
         }
 
@@ -133,13 +128,11 @@ namespace NAnt.Core.Util {
         /// </para>
         /// </remarks>
         public static string Join(string separator, StringCollection value) {
-            if (value == null) {
+            if (value == null)
                 throw new ArgumentNullException("value");
-            }
 
-            if (separator == null) {
+            if (separator == null)
                 separator = string.Empty;
-            }
 
             // create with size equal to number of elements in collection
             string[] elements = new string[value.Count];
