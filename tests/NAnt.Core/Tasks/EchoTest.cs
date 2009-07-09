@@ -110,13 +110,39 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        [ExpectedException(typeof(TestBuildException))]
         public void Test_EchoMessageAndInlineContent() {
-            string _xml = @"
+            string xml1 = @"
                     <project>
                         <echo message='Go Away!' level='Debug'>Go Away!</echo>
                     </project>";
-            RunBuild(_xml, Level.Info);
+
+            try {
+                RunBuild(xml1, Level.Info);
+                Assert.Fail ("#1");
+            } catch (TestBuildException) {
+            }
+
+            string xml2 = @"
+                    <project>
+                        <echo message='a' level='Debug'>Go Away!</echo>
+                    </project>";
+
+            try {
+                RunBuild(xml2, Level.Info);
+                Assert.Fail ("#2");
+            } catch (TestBuildException) {
+            }
+
+            string xml3 = @"
+                    <project>
+                        <echo message='Go Away!' level='Debug'>a</echo>
+                    </project>";
+
+            try {
+                RunBuild(xml3, Level.Info);
+                Assert.Fail ("#3");
+            } catch (TestBuildException) {
+            }
         }
 
         [Test]
@@ -452,7 +478,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
-        public void MultilineMessage() {
+        public void File_Multiline() {
             string msg;
             string logfile = Path.Combine (TempDirName, "log");
             TestBuildListener listener;
@@ -476,7 +502,7 @@ namespace Tests.NAnt.Core.Tasks {
             using (FileStream fs = File.OpenRead (logfile)) {
                 using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
                     string content = sr.ReadToEnd ();
-                    Assert.AreEqual ("ok" + msg, content, "#A5");
+                    Assert.AreEqual ("ok" + msg, content, "#A4");
                 }
             }
 
@@ -499,9 +525,230 @@ namespace Tests.NAnt.Core.Tasks {
             using (FileStream fs = File.OpenRead (logfile)) {
                 using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
                     string content = sr.ReadToEnd ();
-                    Assert.AreEqual ("ok" + Environment.NewLine + msg, content, "#B5");
+                    Assert.AreEqual ("ok" + Environment.NewLine + msg, content, "#B4");
                 }
             }
+        }
+
+        [Test]
+        public void File_Message_Missing() {
+            string logfile = Path.Combine (TempDirName, "log");
+            TestBuildListener listener;
+
+            string xml = @"
+                <project>
+                    <echo append='false' file='log' />
+                </project>";
+
+            listener = new TestBuildListener();
+            RunBuild (xml, listener);
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#1");
+            Assert.IsTrue (File.Exists(logfile), "#2");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (string.Empty, content, "#3");
+                }
+            }
+        }
+
+        [Test]
+        public void File_Message_Whitespace() {
+            string msg;
+            string logfile = Path.Combine (TempDirName, "log");
+            TestBuildListener listener;
+            string result;
+
+            msg = " \t \n  ";
+
+            string xml1 = @"
+                <project>
+                    <echo append='false' file='log' message='" + msg + @"' encoding='utf-8'></echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml1, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#A1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#A2");
+            Assert.IsTrue (File.Exists(logfile), "#A3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (string.Empty, content, "#A4");
+                }
+            }
+
+            string xml2 = @"
+                <project>
+                    <echo append='false' file='log' message='' encoding='utf-8'>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml2, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#B1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#B2");
+            Assert.IsTrue (File.Exists(logfile), "#B3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (string.Empty, content, "#B4");
+                }
+            }
+
+            string xml3 = @"
+                <project>
+                    <echo append='false' file='log' message='" + msg + @"' encoding='utf-8'> " + Environment.NewLine + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml3, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#C1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#C2");
+            Assert.IsTrue (File.Exists(logfile), "#C3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (string.Empty, content, "#C4");
+                }
+            }
+
+            string xml4 = @"
+                <project>
+                    <echo append='false' file='log' message=' " + Environment.NewLine + @" ' encoding='utf-8'>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml4, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#D1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#D2");
+            Assert.IsTrue (File.Exists(logfile), "#D3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (string.Empty, content, "#D4");
+                }
+            }
+
+            msg = " \t X \n  ";
+
+            string xml5 = @"
+                <project>
+                    <echo append='false' file='log' message='" + msg + @"' encoding='utf-8'> " + Environment.NewLine + @" </echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml5, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#E1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#E2");
+            Assert.IsTrue (File.Exists(logfile), "#E3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (msg, content, "#E4");
+                }
+            }
+
+            string xml6 = @"
+                <project>
+                    <echo append='false' file='log' message=' " + Environment.NewLine + @" ' encoding='utf-8'>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml6, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#F1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#F2");
+            Assert.IsTrue (File.Exists(logfile), "#F3");
+            using (FileStream fs = File.OpenRead (logfile)) {
+                using (StreamReader sr = new StreamReader (fs, Encoding.UTF8)) {
+                    string content = sr.ReadToEnd ();
+                    Assert.AreEqual (msg, content, "#F4");
+                }
+            }
+        }
+
+        [Test]
+        public void Log_Message_Missing() {
+            string xml = @"
+                <project>
+                    <echo />
+                </project>";
+
+            TestBuildListener listener = new TestBuildListener();
+            RunBuild (xml, listener);
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#1");
+        }
+
+        [Test]
+        public void Log_Message_Whitespace() {
+            string msg;
+            TestBuildListener listener;
+            string result;
+
+            msg = " \t \n  ";
+
+            string xml1 = @"
+                <project>
+                    <echo message='" + msg + @"'></echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml1, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#A1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#A2");
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#A3");
+
+            string xml2 = @"
+                <project>
+                    <echo message=''>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml2, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#B1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#B2");
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#B3");
+
+            string xml3 = @"
+                <project>
+                    <echo message='" + msg + @"'> " + Environment.NewLine + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml3, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#C1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#C2");
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#C3");
+
+            string xml4 = @"
+                <project>
+                    <echo message=' " + Environment.NewLine + @" '>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml4, listener);
+            Assert.IsTrue(result.IndexOf(msg) == -1, "#D1");
+            Assert.IsFalse(listener.HasMessageBeenLogged (msg, true), "#D2");
+            Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#D3");
+
+            msg = " \t X \n  ";
+
+            string xml5 = @"
+                <project>
+                    <echo message='" + msg + @"'> " + Environment.NewLine + @" </echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml5, listener);
+            Assert.IsTrue(listener.HasMessageBeenLogged (msg, true), "#E");
+
+            string xml6 = @"
+                <project>
+                    <echo message=' " + Environment.NewLine + @" '>" + msg + @"</echo>
+                </project>";
+
+            listener = new TestBuildListener();
+            result = RunBuild (xml6, listener);
+            Assert.IsTrue(listener.HasMessageBeenLogged (msg, true), "#F");
         }
     }
 }
