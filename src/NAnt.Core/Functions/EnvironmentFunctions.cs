@@ -201,6 +201,26 @@ namespace NAnt.Core.Functions {
             return Environment.Version;
         }
 
+        /// <summary>
+        /// Gets the newline string defined for this environment.
+        /// </summary>
+        /// <returns>
+        /// A string containing CRLF for non-Unix platforms, or LF for Unix
+        /// platforms.
+        /// </returns>
+        /// <example>
+        ///   <para>Output two lines in a log file.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <echo file="build.log" message="First line${environment::newline()}Second line" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
+        [Function("newline")]
+        public static string NewLine() {
+            return Environment.NewLine;
+        }
+
         #endregion Public Instance Methods
     }
 }
