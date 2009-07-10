@@ -25,6 +25,7 @@ using System.Text;
 using NUnit.Framework;
 
 using NAnt.Core;
+using NAnt.Core.Tasks;
 
 namespace Tests.NAnt.Core.Tasks {
     /// <summary>
@@ -37,6 +38,18 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
         }
         
+        [Test]
+        public void EncodingTest () {
+            EchoTask echo = new EchoTask();
+            Assert.AreEqual (65001, echo.Encoding.CodePage, "#1");
+            Assert.AreEqual (new byte [0], echo.Encoding.GetPreamble (), "#2");
+            echo.Encoding = Encoding.ASCII;
+            Assert.AreEqual (Encoding.ASCII, echo.Encoding, "#3");
+            echo.Encoding = null;
+            Assert.AreEqual (65001, echo.Encoding.CodePage, "#4");
+            Assert.AreEqual (new byte [0], echo.Encoding.GetPreamble (), "#5");
+        }
+
         [Test]
         public void Test_EchoDefaultProjectInfo() {
             string _xml = @"

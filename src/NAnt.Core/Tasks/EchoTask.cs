@@ -129,13 +129,13 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// The encoding to use when writing message to a file. The default is
-        /// the system's current ANSI code page.
+        /// UTF-8 encoding without a Byte Order Mark (BOM).
         /// </summary>
         [TaskAttribute("encoding")]
         public Encoding Encoding {
             get {
                 if (_encoding == null)
-                    return Encoding.Default;
+                    return new UTF8Encoding ();
                 return _encoding;
             }
             set { _encoding = value; }
