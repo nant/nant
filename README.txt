@@ -26,7 +26,7 @@ Compilation and Installation
 -------------------------------
 
    a. Build Requirements
-   --------------------
+   ---------------------
    To build NAnt, you will need the following components:
 
    on Windows
@@ -38,7 +38,7 @@ Compilation and Installation
          you will need the .NET Framework SDK as well as the runtime components 
 	 if you intend to compile programs.
 
-         note that NAnt currently supports versions 1.0, 1.1 and 2.0 (Beta 1) 
+         note that NAnt currently supports versions 1.0, 1.1 and 2.0 
 	 of the Microsoft .NET Framework. 
 
        or
