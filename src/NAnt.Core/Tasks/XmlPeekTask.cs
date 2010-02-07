@@ -146,7 +146,7 @@ namespace NAnt.Core.Tasks {
         /// Executes the XML peek task.
         /// </summary>
         protected override void ExecuteTask() {
-            Log(Level.Info, "Peeking at '{0}' with XPath expression '{1}'.", 
+            Log(Level.Verbose, "Peeking at '{0}' with XPath expression '{1}'.", 
                 XmlFile.FullName,  XPath);
 
             // ensure the specified xml file exists
@@ -226,7 +226,7 @@ namespace NAnt.Core.Tasks {
                     Location);
             }
 
-            Log(Level.Info, "Found '{0}' nodes with the XPath expression '{1}'.",
+            Log(Level.Verbose, "Found '{0}' nodes with the XPath expression '{1}'.",
                 nodes.Count, xpath);
           
             if (nodeIndex >= nodes.Count){
