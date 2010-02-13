@@ -22,8 +22,17 @@ Details of the latest version can be found on the NAnt project web site
 http://nant.sourceforge.net/
 
 
+Files
+-----
+  README.txt      - This file.
+  NAnt.sln        - Visual Studio 2003 Solution for editing in an IDE.
+  NAnt.build      - XML build file for compilation with NAnt.
+  Makefile        - Makefile for compilation with GNU Make.
+  Makefile.nmake  - Makefile for compilation with Microsoft NMake.
+
+
 Compilation and Installation
--------------------------------
+----------------------------
 
    a. Build Requirements
    ---------------------
