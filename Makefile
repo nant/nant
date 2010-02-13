@@ -1,4 +1,4 @@
-#NAnt make file for *nix
+#NAnt make makefile for *nix
 MONO=mono
 MCS=mcs
 RESGEN=resgen

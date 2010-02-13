@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<!-- NAnt build file for building NAnt -->
 <project name="nant" default="test">
     <!-- set build.date property to current date in format yyyy-MM-dd -->
     <tstamp property="build.date" pattern="yyyy-MM-dd" />
