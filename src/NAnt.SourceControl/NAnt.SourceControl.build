@@ -15,11 +15,11 @@
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
-            <references>
-                <include name="${build.dir}/bin/log4net.dll" />
-                <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths(build.dir + '/bin','ICSharpCode.SharpZipLib.dll')}" />
-                <include name="${nant::scan-probing-paths(build.dir + '/bin','ICSharpCode.SharpCvsLib.dll')}" />
+            <references basedir="${build.dir}/bin">
+                <include name="log4net.dll" />
+                <include name="NAnt.Core.dll" />
+				<include name="lib/common/neutral/ICSharpCode.SharpZipLib.dll" />
+				<include name="lib/common/neutral/ICSharpCode.SharpCvsLib.dll" />				
             </references>
             <resources>
                 <include name="*.resx"/>

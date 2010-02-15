@@ -17,7 +17,7 @@
             </sources>
             <references basedir="${build.dir}/bin">
                 <include name="NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths(build.dir + '/bin','ICSharpCode.SharpZipLib.dll')}" />
+                <include name="lib/common/neutral/ICSharpCode.SharpZipLib.dll" />
             </references>
             <resources>
                 <include name="*.resx"/>
