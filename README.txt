@@ -25,8 +25,6 @@ http://nant.sourceforge.net/
 Files
 -----
   README.txt      - This file.
-  NAnt.sln        - Visual Studio 2003 Solution for editing in an IDE.
-  NAnt.build      - XML build file for compilation with NAnt.
   Makefile        - Makefile for compilation with GNU Make.
   Makefile.nmake  - Makefile for compilation with Microsoft NMake.
 
@@ -34,29 +32,40 @@ Files
 Compilation and Installation
 ----------------------------
 
-   a. Build Requirements
-   ---------------------
+   a. Overview
+   -----------
+   The compilation process uses NAnt to build NAnt.
+   
+   The approach is to first compile a copy NAnt (using make/nmake) for 
+   bootstrapping purpose. Next, the bootstrapped version of NAnt is used in 
+   conjunction with NAnt build file (NAnt.build) to build the full version.
+   
+   
+   b. Prerequisites
+   ----------------
    To build NAnt, you will need the following components:
 
-   on Windows
+   Windows
+   -------
 
        * A version of the Microsoft .NET Framework
 
-         Available from http://msdn.microsoft.com/netframework/
+           Available from http://msdn.microsoft.com/netframework/
          
-         you will need the .NET Framework SDK as well as the runtime components 
-	 if you intend to compile programs.
+           You will need the .NET Framework SDK as well as the runtime 
+           components if you intend to compile programs.
 
-         note that NAnt currently supports versions 1.0, 1.1 and 2.0 
-	 of the Microsoft .NET Framework. 
+           Note: NAnt currently supports versions 1.0, 1.1 and 2.0 
+           of the Microsoft .NET Framework. 
 
        or
 
        * Mono for Windows (version 1.0 or higher)
 
-         Available from http://www.mono-project.com/downloads/
+           Available from http://www.mono-project.com/downloads/
    
    Linux/Unix
+   ----------
 
        * GNU toolchain - including GNU make
 
@@ -72,38 +81,34 @@ Compilation and Installation
     b. Building the Software
     ------------------------
       
-    Build NAnt using Microsoft .NET
+    Build NAnt using Microsoft .NET:     
 
-	GNU Make
-	--------
+    GNU Make
+    --------
+        make install MONO= MCS=csc prefix=<installation path> [DESTDIR=<staging path>]
 
-	make install MONO= MCS=csc prefix=<installation path> [DESTDIR=<staging path>]
+        eg. make install MONO= MCS=csc prefix="c:\Program Files"
 
-	eg. make install MONO= MCS=csc prefix="c:\Program Files"
-
-	NMake
-	-----
-
-	nmake -f Makefile.nmake install prefix=<installation path> [DESTDIR=<staging path>]
-	
-	eg. nmake -f Makefile.nmake install prefix="c:\Program Files"
+    NMake
+    -----
+        nmake -f Makefile.nmake install prefix=<installation path> [DESTDIR=<staging path>]
+    
+        eg. nmake -f Makefile.nmake install prefix="c:\Program Files"
 
 
-    Building NAnt using Mono
+    Building NAnt using Mono:
 
-	GNU Make
-	--------
+    GNU Make
+    --------
+        make install prefix=<installation path> [DESTDIR=<staging path>]
 
-	make install prefix=<installation path> [DESTDIR=<staging path>]
+        eg. make install prefix="c:\Program Files"
 
-	eg. make install prefix="c:\Program Files"
-
-	NMake
-	-----
-
-	nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path> [DESTDIR=<staging path>]
-	
-	eg. nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/
+    NMake
+    -----
+        nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path> [DESTDIR=<staging path>]
+    
+        eg. nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/
 
 Note: 
 
