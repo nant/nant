@@ -19,11 +19,11 @@
                 <include name="**/*.cs" />
                 <!-- common assembly-level attributes -->
                 <include name="../CommonAssemblyInfo.cs" />
-            </sources>		
-            <references basedir="${build.dir}/bin">
-                <include name="NAnt.Core.dll" />
-                <include name="lib/common/neutral/NDoc.ExtendedUI.dll" />
-                <include name="lib/common/neutral/NDoc.Core.dll" />
+            </sources>
+            <references>
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','NDoc.ExtendedUI.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','NDoc.Core.dll')}" />
             </references>
             <resources prefix="NAnt.DotNet" dynamicprefix="true">
                 <include name="Resources/**/*" />

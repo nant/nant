@@ -18,11 +18,11 @@
                 <!-- common assembly-level attributes -->
                 <include name="../../src/CommonAssemblyInfo.cs" />
             </sources>
-            <references basedir="${build.dir}/bin">
-                <include name="NAnt.Core.dll" />
-                <include name="NAnt.Core.Tests.dll" />
-                <include name="NAnt.VisualCppTasks.dll" />
-				<include name="lib/common/${framework::get-version(framework::get-target-framework())}/nunit.framework.dll" />
+            <references>
+                <include name="${build.dir}/bin/NAnt.Core.dll" />
+                <include name="${build.dir}/bin/NAnt.Core.Tests.dll" />
+                <include name="${build.dir}/bin/NAnt.VisualCppTasks.dll" />
+                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
             </references>
         </csc>
     </target>
