@@ -36,7 +36,7 @@ Compilation and Installation
    -----------
    The compilation process uses NAnt to build NAnt.
    
-   The approach is to first compile a copy NAnt (using make/nmake) for 
+   The approach is to first compile a copy of NAnt (using make/nmake) for 
    bootstrapping purpose. Next, the bootstrapped version of NAnt is used in 
    conjunction with NAnt build file (NAnt.build) to build the full version.
    
