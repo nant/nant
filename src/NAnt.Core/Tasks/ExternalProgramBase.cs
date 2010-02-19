@@ -554,13 +554,14 @@ namespace NAnt.Core.Tasks {
 
                 // ensure only one thread writes to the log at any time
                 lock (_lockObject) {
-                    OutputWriter.WriteLine(logContents);
                     if (Output != null) {
                         StreamWriter writer = new StreamWriter(Output.FullName, doAppend);
                         writer.WriteLine(logContents);
                         doAppend = true;
                         writer.Close();
-                    }
+                    } else {
+                        OutputWriter.Write(logContents);                
+                    } 
                 }
             }
 
