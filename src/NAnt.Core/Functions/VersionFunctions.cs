@@ -95,25 +95,6 @@ namespace NAnt.Core.Functions {
             return version.Revision;
         }
 
-        /*
-        /// <summary>
-        /// Initializes a new <see cref="Version" /> instance using the value 
-        /// represented by the specified <see cref="string" />.
-        /// </summary>
-        /// <param name="version">A string containing the major, minor, build, and revision numbers, where each number is delimited with a period character ('.').</param>
-        /// <returns>
-        /// A <see cref="Version" /> instance representing the specified 
-        /// <see cref="string" />.
-        /// </returns>
-        /// <exception cref="ArgumentException"><paramref name="version" /> has fewer than two components or more than four components.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">A major, minor, build, or revision component is less than zero.</exception>
-        /// <exception cref="FormatException">At least one component of <paramref name="version" /> does not parse to a decimal integer.</exception>
-        [Function("init")]
-        public static Version Init(string version) {
-            return new Version(version);
-        }
-        */
-
         #endregion Public Static Methods
     }
 
