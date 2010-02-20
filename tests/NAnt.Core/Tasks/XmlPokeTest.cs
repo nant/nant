@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Globalization;
+using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
@@ -38,6 +39,13 @@ namespace Tests.NAnt.Core.Tasks {
                 + "<xmlpeek {1} property=\"configuration.server\" />" 
                 + "<echo message=\"configuration.server={2}!\" />"
             + "</project>";
+            
+        private const string _projectXmlPreserveWhitespace = "<?xml version=\"1.0\"?>"
+            + "<project>"
+                + "<xmlpoke {0} preserveWhitespace=\"{1}\" />"
+                + "<xmlpeek {2} property=\"configuration.server\" />"
+                + "<echo message=\"configuration.server={3}!\" />"
+            + "</project>";            
 
         private const string _projectXmlWithNamespace = "<?xml version=\"1.0\"?>"
             + "<project>"
@@ -67,6 +75,14 @@ namespace Tests.NAnt.Core.Tasks {
                     + "<add key=\"server\" value=\"testhost.somecompany.com\" />"
                 + "</appSettings>"
             + "</configuration>";
+            
+        // note the extra whitespace before the nodes
+        private const string _validXmlWithWhitespace = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" 
+            + " <configuration>" 
+                + " <appSettings>"
+                    + " <add key=\"server\" value=\"testhost.somecompany.com\" />"
+                + " </appSettings>"
+            + " </configuration>";            
 
         #endregion Private Instance Fields
 
@@ -213,7 +229,69 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.IsTrue((ex.InnerException.InnerException != null && ex.InnerException.InnerException.GetType() == typeof(XmlException)));
             }
         }
+        
+        [Test]
+        public void Test_PokePreserveWhitespaceTrue()
+        {
+            AssertPokePreserveWhitespace(true);
+        }
+
+        [Test]
+        public void Test_PokePreserveWhitespaceFalse()
+        {
+            AssertPokePreserveWhitespace(false);
+        }        
 
         #endregion Public Instance Methods
+        
+        #region Private Instance Methods
+
+        private void AssertPokePreserveWhitespace(bool preserveWhitespace)
+        {
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxmlwithwhitespace.xml", _validXmlWithWhitespace);
+
+            string originalXmlFile = ReadFile(xmlFile);
+
+            // set-up <xmlpoke> task attributes
+            string xmlPokeTaskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key ='server']/@value\"" +
+                " value=\"testhost.somecompany.com\"", xmlFile); // don't change anything
+
+            // set-up <xmlpeek> task attributes
+            string xmlPeekTaskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key ='server']/@value\"",
+                xmlFile);
+
+            // execute build, preserving whitespace
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture,
+                _projectXmlPreserveWhitespace, xmlPokeTaskAttributes, preserveWhitespace, xmlPeekTaskAttributes,
+                "${configuration.server}"));
+
+            string currentXmlFile = ReadFile(xmlFile);
+
+            if (preserveWhitespace)
+            {
+                Assert.AreEqual(originalXmlFile, currentXmlFile);
+            }
+            else
+            {
+                Assert.AreNotEqual(originalXmlFile, currentXmlFile);
+            }
+        }
+
+        private static string ReadFile(string path)
+        {
+            string contents;
+
+            using (StreamReader sr = new StreamReader(path, Encoding.UTF8, true))
+            {
+                contents = sr.ReadToEnd();
+            }
+
+            return contents;
+        }
+
+        #endregion Private Instance Methods      
     }
 }
