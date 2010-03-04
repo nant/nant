@@ -264,7 +264,7 @@ namespace Tests.NAnt.Core.Tasks {
                 xmlFile);
 
             // execute build, preserving whitespace
-            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture,
+            RunBuild(string.Format(CultureInfo.InvariantCulture,
                 _projectXmlPreserveWhitespace, xmlPokeTaskAttributes, preserveWhitespace, xmlPeekTaskAttributes,
                 "${configuration.server}"));
 
