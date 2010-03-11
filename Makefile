@@ -26,6 +26,9 @@ FRAMEWORK_DIR = net
 DEFINE= NET
 endif
 
+ifdef TARGET
+TARGET_FRAMEWORK = -t:$(TARGET)
+endif
 
 
 NANT=$(MONO) bootstrap/NAnt.exe
@@ -34,16 +37,16 @@ NANT=$(MONO) bootstrap/NAnt.exe
 all: bootstrap build-nant
 
 build-nant: 
-	$(NANT) -f:NAnt.build build
+	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build build
 
 clean:
 	rm -fR build bootstrap
 
 install: bootstrap
-	$(NANT) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="${DESTDIR}"
+	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="${DESTDIR}"
 
 run-test: bootstrap
-	$(NANT) -f:NAnt.build test
+	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build test
 	
 bootstrap/NAnt.exe:
 	$(MCS) -target:exe -define:${DEFINE} -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
