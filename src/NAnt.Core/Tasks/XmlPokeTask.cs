@@ -97,6 +97,7 @@ namespace NAnt.Core.Tasks {
         private FileInfo _xmlFile;
         private string _value;
         private string _xPathExpression;
+        private bool _preserveWhitespace;
         private XmlNamespaceCollection _namespaces = new XmlNamespaceCollection();
         
         #endregion Private Instance Fields
@@ -142,6 +143,19 @@ namespace NAnt.Core.Tasks {
             set { _namespaces = value; }
         }
 
+        /// <summary>
+        /// Namespace definitions to resolve prefixes in the XPath expression.
+        /// </summary>
+        [TaskAttribute("preserveWhitespace", Required = false)]
+        [StringValidator(AllowEmpty = false)]
+        public bool PreserveWhitespace
+        {
+            get { return _preserveWhitespace; }
+            set { _preserveWhitespace = value; }
+        }
+
+
+
         #endregion Public Instance Properties
         
         #region Override implementation of Task
@@ -157,7 +171,7 @@ namespace NAnt.Core.Tasks {
             }
 
             try {
-                XmlDocument document = LoadDocument(XmlFile.FullName);
+                XmlDocument document = LoadDocument(XmlFile.FullName, PreserveWhitespace);
 
                 XmlNamespaceManager nsMgr = new XmlNamespaceManager(document.NameTable);
                 foreach (XmlNamespace xmlNamespace in Namespaces) {
@@ -192,11 +206,14 @@ namespace NAnt.Core.Tasks {
         /// <param name="fileName">
         /// The file name of the file to load the XML document from.
         /// </param>
+        /// <param name="preserveWhitespace">
+        /// Value for XmlDocument.PreserveWhitespace that is set before the xml is loaded.
+        /// </param>
         /// <returns>
         /// An <see cref="System.Xml.XmlDocument" /> containing
         /// the document object model representing the file.
         /// </returns>
-        private XmlDocument LoadDocument(string fileName) {
+        private XmlDocument LoadDocument(string fileName, bool preserveWhitespace) {
             XmlDocument document = null;
 
             try {
@@ -204,6 +221,7 @@ namespace NAnt.Core.Tasks {
                     + " in file '{0}'.", fileName);
 
                 document = new XmlDocument();
+                document.PreserveWhitespace = preserveWhitespace;
                 document.Load(fileName);
 
                 Log(Level.Verbose, "XML document in file '{0}' loaded" 
