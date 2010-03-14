@@ -29,6 +29,7 @@
     <target name="test" depends="build" if="${platform::is-win32()}">
          <nunit2>
             <formatter type="Plain" />
+            <formatter type="Xml" usefile="true" extension=".xml" outputdir="${build.dir}/results" />
             <test assemblyname="${build.dir}/bin/${project::get-name()}.Tests.dll" appconfig="${path::combine(nant::get-base-directory(), 'nant.tests.config')}" />
          </nunit2>
     </target>
