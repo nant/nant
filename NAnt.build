@@ -568,6 +568,7 @@
                 <include name="tests/**" />
                 <include name="examples/**" />
                 <include name="schema/**" />
+                <include name="etc/nant.pc.in" />
                 <!-- third party assemblies -->
                 <include name="lib/**" />
                 <!-- website -->
@@ -643,6 +644,7 @@
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
+                <include name="etc/nant.pc.in" />
                 <!-- third party assemblies -->
                 <include name="lib/**/*" />
                 <!-- license & release notes -->
@@ -670,6 +672,7 @@
                 <include name="NAnt.sln" />
                 <include name="COPYING.txt" />
                 <include name="README.txt" />
+                <include name="etc/nant.pc.in" />
                 <!-- third party assemblies -->
                 <include name="lib/**/*" />
                 <!-- license & release notes -->
