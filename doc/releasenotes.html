@@ -54,9 +54,22 @@
             </tr>
         </table>
         <h2>
-            0.86-beta2 (TBD)</h2>
+            0.90-alpha1 (TBD)</h2>
         <h3>
-            Breaking changes</h3>
+            Breaking changes</h3>        
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                Extensibility</h5>
+            <ul>
+                <li>
+                    Deprecated NAnt.Core.Element.InitializeElement(XmlNode) and
+                    NAnt.Core.Task.InitializeTask(XmlNode) in favor of
+                    NAnt.Core.Element.Initialize(). This was done to discourage direct access to
+                    the XML node that was used to initialize the construct.
+                </li>
+            </ul>
+        </div>            
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
             <h5>
@@ -405,7 +418,7 @@
                     <a 
                 </p>
             </div>
-        </div>
+        </div>       
         <h2>
             0.86-beta1 (December 8, 2007)</h2>
         <h3>
