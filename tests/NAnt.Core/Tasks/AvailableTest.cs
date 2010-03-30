@@ -99,7 +99,8 @@ namespace Tests.NAnt.Core.Tasks {
                     <echo message='file.exists={2}'/>
                 </project>";
             // unix accepts most characters ( except / ) so this test won't fail there.
-            if (! PlatformHelper.IsUnix ) {
+            // mono even on windows acts like unix here.
+            if (!(PlatformHelper.IsMono)) {
                 RunBuild(string.Format(CultureInfo.InvariantCulture, 
                     xml, AvailableTask.ResourceType.File.ToString(CultureInfo.InvariantCulture), 
                     "###-?", "${file.exists}"));
