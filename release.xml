@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <project name="nant" default="build-release">
-    <property name="sf.net.ssh.server" value="projects.sourceforge.net" />
-    <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
-    <!-- setup property that holds partial path to be used by scp -->
-    <property name="serverpart" value="${environment::get-user-name() + '@' + sf.net.ssh.server + ':' + sf.net.web.path}" />
+    <!-- import necessary sourceforge.net ssh configurations -->
+	<include buildfile="SFNetInclude.xml" />
+    
     <!-- include master build file -->
     <include buildfile="nant.build" />
     <!-- perform a 'release' package and upload to sf.net -->
@@ -32,7 +31,7 @@
         </exec>
     </target>
     <!-- copy the release notes and license to sourceforge -->
-    <target name="deploy-releasenotes-sf" depends="set-net-1.0-framework-configuration, release, package">
+    <target name="deploy-releasenotes-sf" depends="set-net-1.0-framework-configuration, release, package, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -57,7 +56,7 @@
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration, release, package">
+    <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration, release, package, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -82,7 +81,7 @@
         </exec>
     </target>
     <!-- copy online docs (manual) to sourceforge -->
-    <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, release, package-doc">
+    <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, release, package-doc, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -111,7 +110,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web-sf" depends="set-net-1.0-framework-configuration, release">
+    <target name="deploy-web-sf" depends="set-net-1.0-framework-configuration, release, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />

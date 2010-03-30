@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<project name="nant">
+    <property name="sf.net.ssh.server" value="shell.sourceforge.net" />
+    <property name="sf.net.ssh.user" value="${environment::get-user-name()}" unless="${property::exists('sf.net.ssh.user')}" />
+    <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
+    <property name="serverpart" value="${sf.net.ssh.user},${project::get-name()}@${sf.net.ssh.server}:${sf.net.web.path}" />
+
+    <target name="create-shell">
+        <exec program="ssh">
+            <arg line="${sf.net.ssh.user},${project::get-name()}@${sf.net.ssh.server}" />
+            <arg value="create" />
+        </exec>
+    </target>
+</project>
