@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="nant" default="build-release">
     <!-- import necessary sourceforge.net ssh configurations -->
-	<include buildfile="SFNetInclude.xml" />
+    <include buildfile="SFNetInclude.xml" />
     
     <!-- include master build file -->
     <include buildfile="nant.build" />
@@ -14,7 +14,7 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="rm --force ${sf.net.web.path}/release/latest" />
         </exec>
-        <!-- finally, create symlink to the just uploaded nightly build -->
+        <!-- finally, create symlink to the just uploaded release build -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="ln -s ${sf.net.web.path}/release/${project.version.full} ${sf.net.web.path}/release/latest" />
@@ -28,6 +28,27 @@
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
             <arg value="chgrp -R nant ${sf.net.web.path}/release/latest" />
+        </exec>
+        <!-- Now put the files in the Sourceforge File Manager -->
+        <exec program="ssh" failonerror="false">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="mkdir --mode=755 -p ${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <exec program="scp">
+            <arg value="${project.zip-path.src}" />
+            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <exec program="scp">
+            <arg value="${project.gzip-path.src}" />
+            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <exec program="scp">
+            <arg value="${project.zip-path.bin}" />
+            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <exec program="scp">
+            <arg value="${project.gzip-path.bin}" />
+            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
         </exec>
     </target>
     <!-- copy the release notes and license to sourceforge -->
