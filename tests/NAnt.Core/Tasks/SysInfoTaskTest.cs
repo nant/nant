@@ -35,7 +35,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         const string _format = @"<?xml version='1.0' ?>
             <project>
-                <sysinfo {0}/>
+                <sysinfo {0} failonerror='false' />
             </project>";
 
         [Test]
@@ -57,8 +57,8 @@ namespace Tests.NAnt.Core.Tasks {
             //
             string xml = @"<?xml version='1.0' ?>
             <project>
-                <sysinfo/>
-                <sysinfo/>
+                <sysinfo failonerror='false' />
+                <sysinfo failonerror='false' />
             </project>";
 
            try {
@@ -75,7 +75,7 @@ namespace Tests.NAnt.Core.Tasks {
             //
             string xml = @"<?xml version='1.0' ?>
             <project>
-                <sysinfo prefix='test'/>
+                <sysinfo prefix='test' failonerror='false' />
                 <property name='test.clr.version' value='44.32.23'/>
                 <echo message='test.clr.version = ${test.clr.version}'/>
             </project>";
@@ -85,5 +85,43 @@ namespace Tests.NAnt.Core.Tasks {
             Match match = Regex.Match(result, expression);
             Assert.IsTrue(match.Success, "SysInfo property should've been modified!" + Environment.NewLine + result);
         }
+
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_FailOnIllegalPropertyNames() {
+            //
+            // ensure properties with parentheses will fail like ProgramFiles(x86)
+            // SetEnvironmentVariable is first available on .Net 2.0
+            //
+            string xml = @"<?xml version='1.0' ?>
+            <project>
+                <sysinfo />
+            </project>";
+            if (AssignEnvironmentVariable("AnIllegalPropertyWithPa(rens)", "AnIllegalPropertyWithParens")) {
+                RunBuild(xml);
+            } else {
+                throw new TestBuildException();
+            }
+
+        }
+        
+#if (ONLY_1_0 || ONLY_1_1)
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError=true)]
+        static extern bool SetEnvironmentVariable(string lpName, string lpValue);
+#endif
+
+        private bool AssignEnvironmentVariable(string propName, string propValue) {
+
+#if (ONLY_1_0 || ONLY_1_1)
+            SetEnvironmentVariable(propName, propValue);
+            return true;
+#elif (NET_2_0)
+            Environment.SetEnvironmentVariable(propName, propValue);
+            return true;
+#else
+            return false;
+#endif      
+        } 
+
     }
 }
