@@ -34,19 +34,19 @@
             <arg value="${sf.net.ssh.server}" />
             <arg value="mkdir --mode=775 -p ${sf.net.release.path}/${project.version.full}" />
         </exec>
-        <exec program="scp">
+        <exec program="scp" workingdir="${path::get-directory-name(project.zip-path.src)}">
             <arg value="${path::get-file-name(project.zip-path.src)}" />
             <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
-        <exec program="scp">
+        <exec program="scp" workingdir="${path::get-directory-name(project.zip-path.src)}">
             <arg value="${path::get-file-name(project.gzip-path.src)}" />
             <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
-        <exec program="scp">
+        <exec program="scp" workingdir="${path::get-directory-name(project.zip-path.bin)}">
             <arg value="${path::get-file-name(project.zip-path.bin)}" />
             <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
-        <exec program="scp">
+        <exec program="scp" workingdir="${path::get-directory-name(project.zip-path.bin)}">
             <arg value="${path::get-file-name(project.gzip-path.bin)}" />
             <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
