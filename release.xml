@@ -30,25 +30,35 @@
             <arg value="chgrp -R nant ${sf.net.web.path}/release/latest" />
         </exec>
         <!-- Now put the files in the Sourceforge File Manager -->
-        <exec program="ssh" failonerror="false">
+        <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
-            <arg value="mkdir --mode=755 -p ${sf.net.release.path}/${project.version.full}" />
+            <arg value="mkdir --mode=775 -p ${sf.net.release.path}/${project.version.full}" />
         </exec>
         <exec program="scp">
-            <arg value="${project.zip-path.src}" />
-            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+            <arg value="${path::get-file-name(project.zip-path.src)}" />
+            <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
         <exec program="scp">
-            <arg value="${project.gzip-path.src}" />
-            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+            <arg value="${path::get-file-name(project.gzip-path.src)}" />
+            <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
         <exec program="scp">
-            <arg value="${project.zip-path.bin}" />
-            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+            <arg value="${path::get-file-name(project.zip-path.bin)}" />
+            <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
         </exec>
         <exec program="scp">
-            <arg value="${project.gzip-path.bin}" />
-            <arg value="${sf.net.ssh.server}:${sf.net.release.path}/${project.version.full}" />
+            <arg value="${path::get-file-name(project.gzip-path.bin)}" />
+            <arg value="${sf.connection}:${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <!-- make sure permissions are set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chmod -R 775 ${sf.net.release.path}/${project.version.full}" />
+        </exec>
+        <!-- make sure group is set right -->
+        <exec program="ssh">
+            <arg value="${sf.net.ssh.server}" />
+            <arg value="chgrp -R nant ${sf.net.release.path}/${project.version.full}" />
         </exec>
     </target>
     <!-- copy the release notes and license to sourceforge -->

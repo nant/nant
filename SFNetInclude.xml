@@ -4,11 +4,13 @@
     <property name="sf.net.ssh.user" value="${environment::get-user-name()}" unless="${property::exists('sf.net.ssh.user')}" />
     <property name="sf.net.web.path" value="/home/groups/n/na/nant/htdocs" />
     <property name="sf.net.release.path" value="/home/frs/project/n/na/nant/nant" />
-    <property name="serverpart" value="${sf.net.ssh.user},${project::get-name()}@${sf.net.ssh.server}:${sf.net.web.path}" />
+    <property name="sf.net.nightly.path" value="${sf.net.release.path}/nightly" />
+    <property name="sf.connection" value="${sf.net.ssh.user},${project::get-name()}@${sf.net.ssh.server}" />
+    <property name="serverpart" value="${sf.connection}:${sf.net.web.path}" />
 
     <target name="create-shell">
         <exec program="ssh">
-            <arg line="${sf.net.ssh.user},${project::get-name()}@${sf.net.ssh.server}" />
+            <arg line="${sf.connection}" />
             <arg value="create" />
         </exec>
     </target>
