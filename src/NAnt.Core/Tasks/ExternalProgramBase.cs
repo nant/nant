@@ -560,8 +560,8 @@ namespace NAnt.Core.Tasks {
                         doAppend = true;
                         writer.Close();
                     } else {
-                        OutputWriter.Write(logContents);                
-                    } 
+                        OutputWriter.WriteLine(logContents);
+                    }
                 }
             }
 
