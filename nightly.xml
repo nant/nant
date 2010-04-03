@@ -76,7 +76,6 @@
             before implementation.
         -->
         <!-- Now put the nightly files in the Sourceforge File Manager -->
-        <!--
         <echo message="Uploading to Sourceforge File Manager" />
         <exec program="ssh">
             <arg line="${sf.connection}" />
@@ -112,7 +111,6 @@
             <arg line="${sf.connection}" />
             <arg value="chgrp -R nant ${sf.net.nightly.path}/${build.date}" />
         </exec>
-        -->
     </target>
     <!-- copy schema to sourceforge -->
     <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration,package,create-shell">
