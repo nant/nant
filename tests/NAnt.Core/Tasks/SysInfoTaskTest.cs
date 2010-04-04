@@ -104,7 +104,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
 
         }
-        
+
 #if (ONLY_1_0 || ONLY_1_1)
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError=true)]
         static extern bool SetEnvironmentVariable(string lpName, string lpValue);
@@ -112,16 +112,17 @@ namespace Tests.NAnt.Core.Tasks {
 
         private bool AssignEnvironmentVariable(string propName, string propValue) {
 
-#if (ONLY_1_0 || ONLY_1_1)
-            SetEnvironmentVariable(propName, propValue);
-            return true;
-#elif (NET_2_0)
+#if (NET_2_0)
             Environment.SetEnvironmentVariable(propName, propValue);
             return true;
 #else
+            if (PlatformHelper.IsWindows) {
+                SetEnvironmentVariable(propName, propValue);
+                return true;
+            }
             return false;
-#endif      
-        } 
+#endif
+        }
 
     }
 }
