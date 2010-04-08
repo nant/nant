@@ -25,7 +25,7 @@
             </references>
         </csc>
     </target>
-    <target name="test" depends="build" if="${platform::is-win32()}">
+    <target name="test" depends="build" if="${platform::is-windows()}">
         <nunit2>
             <formatter type="Plain" />
             <formatter type="Xml" usefile="true" extension=".xml" outputdir="${build.dir}/results" />
