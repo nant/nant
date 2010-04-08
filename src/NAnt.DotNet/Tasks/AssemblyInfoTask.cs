@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Gordon Weakliem (gweakliem@oddpost.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 // Ian MacLean (ian_maclean@another.com)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 

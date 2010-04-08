@@ -17,7 +17,7 @@
 //
 // Martin Aliger (martin_aliger@myrealbox.com)
 // Matthew Mastracci (matt@aclaro.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 
 using System;
 using System.CodeDom.Compiler;

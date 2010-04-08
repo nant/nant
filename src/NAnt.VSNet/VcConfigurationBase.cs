@@ -17,7 +17,7 @@
 //
 // Dmitry Jemerov <yole@yole.ru>
 // Scott Ford (sford@RJKTECH.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 // Hani Atassi (haniatassi@users.sourceforge.net)
 
 using System;

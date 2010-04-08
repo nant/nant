@@ -17,7 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Tomas Restrepo (tomasr@mvps.org)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 
 using System;
 using System.Collections;

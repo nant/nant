@@ -17,7 +17,7 @@
 //
 // Joe Jones (joejo@microsoft.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 
 using System;

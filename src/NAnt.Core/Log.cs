@@ -18,7 +18,7 @@
 // John R. Hicks (angryjohn69@nc.rr.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 //
 // Some of this class was based on code from the Mono class library.
 // Copyright (C) 2002 John R. Hicks <angryjohn69@nc.rr.com>

@@ -17,7 +17,7 @@
 //
 // Ian MacLean (ian@maclean.ms)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (driesen@users.sourceforge.net)
 // Scott Hernandez (ScottHernandez_hotmail_com)
 
 using System;
