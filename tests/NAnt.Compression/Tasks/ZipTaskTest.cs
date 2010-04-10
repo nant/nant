@@ -96,7 +96,32 @@ namespace Tests.NAnt.Compression.Tasks {
                 Assert.IsTrue(be.RawMessage.IndexOf("whatever/test.txt") != -1, "#6");
             }
         }
-
+        
+        
+        [Test]
+        /// <summary>
+        /// Ensures a zip file can be created, even if the path does not exist yet.
+        /// </summary>        
+        public void Test_CreateZipAndParentDirectory() {
+            const string projectXML = @"<?xml version='1.0'?>
+                <project>
+                    <zip zipfile='dir1/dir2/test.zip'>
+                        <fileset prefix='src'>
+                            <include name='**' />
+                        </fileset>
+                    </zip>
+                </project>";
+            
+            CreateTempDir("src");
+            CreateTempFile(Path.Combine("src", "temp1.file"),"hello");                
+            RunBuild(projectXML);            
+            Assert.IsTrue(File.Exists(
+                Path.Combine(TempDirName, 
+                    Path.Combine("dir1", 
+                        Path.Combine("dir2", "test.zip")))),
+                "Zip File not created.");
+        }
+        
         [Test]
         public void Duplicate_Add() {
             const string projectXML = @"<?xml version='1.0'?>

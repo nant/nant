@@ -177,8 +177,12 @@ namespace NAnt.Compression.Tasks {
             
             Log(Level.Info, "Zipping {0} files to '{1}'.", 
                 ZipFileSets.FileCount, ZipFile.FullName);
-
+                
             try {
+                if (!Directory.Exists(ZipFile.DirectoryName)) {
+                    Directory.CreateDirectory(ZipFile.DirectoryName);
+                }
+            
                 // set encoding to use for filenames and comment
                 ZipConstants.DefaultCodePage = Encoding.CodePage;
 
