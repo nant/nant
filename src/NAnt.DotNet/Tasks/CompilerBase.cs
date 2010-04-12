@@ -538,6 +538,11 @@ namespace NAnt.DotNet.Tasks {
                     // rescan to ensure correct assembly resolution
                     References.Scan();
                     Modules.Scan();
+
+                    // create the base directory if it does not exist
+                    if (!Directory.Exists(OutputFile.DirectoryName)) {
+                        Directory.CreateDirectory(OutputFile.DirectoryName);
+                    }                    
                     
                     Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
                         Sources.FileNames.Count, OutputFile.FullName);

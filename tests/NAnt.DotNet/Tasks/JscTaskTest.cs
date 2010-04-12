@@ -38,11 +38,11 @@ namespace Tests.NAnt.DotNet.Tasks {
 
         private const string _format = @"<?xml version='1.0'?>
             <project>
-                <jsc target='exe' output='{0}.exe' {2}>
-                    <sources basedir='{1}'>
-                        <include name='{0}'/>
+                <jsc target='exe' output='{0}.exe' {1}>
+                    <sources basedir='{2}'>
+                        <include name='{3}'/>
                     </sources>
-                    <resources basedir='{1}'>
+                    <resources basedir='{2}'>
                         <include name='**/*.resx' />
                     </resources>
                 </jsc>
@@ -85,17 +85,44 @@ namespace Tests.NAnt.DotNet.Tasks {
             Assert.IsFalse(File.Exists(_sourceFileName + ".pdb"), _sourceFileName + ".pdb does exists, program did compiled with debug switch.");
         }
 
+        /// <summary>
+        /// Test to make sure output can be created, even if the path does not exist yet.
+        /// </summary>
+        [Test] 
+        public void Test_CreateParentDirectory() {
+            _sourceFileName = Path.Combine(TempDirName, 
+                Path.Combine("bin", "HelloWorld.js"));
+            TempFile.CreateWithContents(_sourceCode, _sourceFileName);            
+
+            RunBuild(FormatBuildFile(
+                Path.Combine("bin", "HelloWorld.js"), null, null, null));
+            Assert.IsTrue(File.Exists(_sourceFileName + ".exe"), _sourceFileName + ".exe does not exists, program did compile.");            // Comment this for now as its hard to know which framework was used to compile and it was mono there will be no pdb file.
+        }
+
         #endregion Public Instance Methods
 
         #region Private Instance Methods
 
-        private string FormatBuildFile(string attributes) {
-            return string.Format(CultureInfo.InvariantCulture, _format, 
-                Path.GetFileName(_sourceFileName), 
-                Path.GetDirectoryName(_sourceFileName), 
-                attributes);
+        private string FormatBuildFile (string attributes)
+        {
+            return FormatBuildFile(
+                null,
+                attributes,
+                null,
+                null);
         }
 
+        private string FormatBuildFile(
+            string output, 
+            string attributes, 
+            string basedir,
+            string includefiles) {
+            return string.Format(CultureInfo.InvariantCulture, _format, 
+                output       != null ? output : Path.GetFileName(_sourceFileName), 
+                attributes   != null ? attributes : "",
+                basedir      != null ? basedir : Path.GetDirectoryName(_sourceFileName), 
+                includefiles != null ? includefiles : Path.GetFileName(_sourceFileName));
+        }
         #endregion Private Instance Methods
     }
 }

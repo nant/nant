@@ -40,9 +40,9 @@ namespace Tests.NAnt.DotNet.Tasks
 
         private const string _format = @"<?xml version='1.0'?>
             <project>
-                <vjc target='exe' output='{0}.exe' {2}>
-                    <sources basedir='{1}'>
-                        <includes name='{0}'/>
+                <vjc target='exe' output='{0}.exe' {1}>
+                    <sources basedir='{2}'>
+                        <includes name='{3}'/>
                     </sources>
                 </vjc>
             </project>";
@@ -61,7 +61,7 @@ namespace Tests.NAnt.DotNet.Tasks
         [SetUp]
         protected override void SetUp() {
             base.SetUp();
-            _sourceFileName = Path.Combine(TempDirName, "HelloWorld.cs");
+            _sourceFileName = Path.Combine(TempDirName, "HelloWorld.jsl");
             TempFile.CreateWithContents(_sourceCode, _sourceFileName);
         }
 
@@ -88,16 +88,43 @@ namespace Tests.NAnt.DotNet.Tasks
             Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
             Assertion.Assert(_sourceFileName + ".pdb does exists, program did compiled with debug switch.", !File.Exists(_sourceFileName + ".pdb"));
         }
+
+        /// <summary>
+        /// Test to make sure output can be created, even if the path does not exist yet.
+        /// </summary>		
+        [Test]
+        public void Test_CreateParentDirectory() {
+            _sourceFileName = Path.Combine(TempDirName, 
+                Path.Combine("bin", "HelloWorld.jsl"));
+            TempFile.CreateWithContents(_sourceCode, _sourceFileName);            
+
+            RunBuild(FormatBuildFile(
+                Path.Combine("bin", "HelloWorld.jsl"), null, null, null));
+            Assertion.Assert(_sourceFileName + ".exe does not exists, program did compile.", File.Exists(_sourceFileName + ".exe"));
+        }
          
         #endregion Public Instance Methods
 
         #region Private Instance Methods
 
         private string FormatBuildFile(string attributes) {
+            return FormatBuildFile(
+                null,
+                attributes,
+                null,
+                null);
+        }
+
+        private string FormatBuildFile(
+            string output, 
+            string attributes, 
+            string basedir,
+            string includefiles) {
             return string.Format(CultureInfo.InvariantCulture, _format, 
-                Path.GetFileName(_sourceFileName), 
-                Path.GetDirectoryName(_sourceFileName), 
-                attributes);
+                output       != null ? output : Path.GetFileName(_sourceFileName), 
+                attributes   != null ? attributes : "",
+                basedir      != null ? basedir : Path.GetDirectoryName(_sourceFileName), 
+                includefiles != null ? includefiles : Path.GetFileName(_sourceFileName));
         }
 
         #endregion Private Instance Methods
