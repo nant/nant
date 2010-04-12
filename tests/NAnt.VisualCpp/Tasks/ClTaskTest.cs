@@ -108,7 +108,7 @@ namespace Tests.NAnt.VisualCpp.Tasks {
                 void test2(void) {
                     printf(""test2 function"");
                 }
-            ",
+            "
         };
 
         const string _test_build = @"<?xml version='1.0'?>
