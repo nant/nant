@@ -126,6 +126,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// Test to make sure output can be created, even if the path does not exist yet.
         /// </summary>		
         [Test]
+        [Category ("NotMono")]
         public void Test_CreateParentDirectory() {
             _sourceFileName = Path.Combine(TempDirName, 
                 Path.Combine("bin", "HelloWorld.vb"));
