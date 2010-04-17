@@ -352,12 +352,18 @@ namespace NAnt.DotNet.Tasks {
             // implicitly reference the NAnt.Core assembly
             options.ReferencedAssemblies.Add (typeof (Project).Assembly.Location);
 
+            // Log the assembly being added to the CompilerParameters
+            Log(Level.Verbose, "Adding assembly {0}", typeof (Project).Assembly.GetName().Name);
+
             // add (and load) assemblies specified by user
             foreach (string assemblyFile in References.FileNames) {
                 try {
                     // load the assembly into current AppDomain to ensure it is
                     // available when executing the emitted assembly
                     Assembly asm = Assembly.LoadFrom(assemblyFile);
+
+                    // Log the assembly being added to the CompilerParameters
+                    Log(Level.Verbose, "Adding assembly {0}", asm.GetName().Name);
 
                     // add the location of the loaded assembly
                     if (!StringUtils.IsNullOrEmpty(asm.Location)) {

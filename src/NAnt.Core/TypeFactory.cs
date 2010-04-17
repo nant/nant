@@ -111,8 +111,17 @@ namespace NAnt.Core {
         /// </returns>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static bool ScanAssembly(Assembly assembly, Task task) {
-            task.Log(Level.Info, "Scanning assembly \"{0}\" for extensions.", 
+            task.Log(Level.Verbose, "Scanning assembly \"{0}\" for extensions.", 
                 assembly.GetName().Name);
+                
+            foreach (Type type in assembly.GetExportedTypes()) {
+                foreach (MethodInfo methodInfo in type.GetMethods()) {
+                    if (methodInfo.IsStatic) {
+                        task.Log(Level.Verbose, "Found method {0}.",
+                            methodInfo.Name);
+                    }
+                }
+            }
 
             bool isExtensionAssembly = false;
 
