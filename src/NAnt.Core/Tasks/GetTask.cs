@@ -339,7 +339,7 @@ namespace NAnt.Core.Tasks {
                         //download happened when it didn't
 
                         Log(Level.Verbose, "'{0}' not downloaded.  Not modified since {1}.", 
-                            Source, httpResponse.LastModified.ToString(CultureInfo.InvariantCulture));
+                            Source, DestinationFile.LastWriteTime.ToString(CultureInfo.InvariantCulture));
                         return;
                     } else {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
@@ -394,18 +394,18 @@ namespace NAnt.Core.Tasks {
                 HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(uri);
 
                 //modify the headers
-                if (!fileLastModified.Equals(new DateTime())) {
-                    // When IfModifiedSince is set, it internally converts the local time
-                    // to UTC (or, for us old farts, GMT). For all locations behind UTC
-                    // (US and Canada), this causes the IfModifiedSince time to always be
-                    // set to a time earlier than the file timestamp and force the file
-                    // to be fetched, even if it hasn't changed. The UtcOffset is used to
-                    // counter this behavior and a second is added for good measure.
-
-                    TimeSpan timeSpan = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
-                    DateTime gmtTime = fileLastModified.AddSeconds(1).Subtract(timeSpan);
-                    httpRequest.IfModifiedSince = gmtTime;
-
+                if (!fileLastModified.Equals(new DateTime())) {                                      
+                    // IfModifiedSince is an HTTP request header field for
+                    // conditionally downloading only resource modified after 
+                    // the specific time. If the resource has not been modified
+                    // since the specific time, then a 304 response will be 
+                    // returned.
+                    // By default all System.Net writes out the property in 
+                    // GMT/UTC format. For good measure, 1 second is added to 
+                    // make sure the the resource is newer.
+                    DateTime utcTime = fileLastModified.ToUniversalTime().AddSeconds(1);                   
+                    httpRequest.IfModifiedSince = utcTime;
+                                        
                     //REVISIT: at this point even non HTTP connections may support the if-modified-since
                     //behaviour -we just check the date of the content and skip the write if it is not
                     //newer. Some protocols (FTP) dont include dates, of course.
