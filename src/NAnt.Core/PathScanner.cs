@@ -41,6 +41,7 @@ namespace NAnt.Core {
     public sealed class PathScanner : ICloneable {
         #region Private Instance Fields
 
+        private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);        
         private StringCollection _unscannedNames = new StringCollection();
 
         #endregion Private Instance Fields
@@ -147,11 +148,19 @@ namespace NAnt.Core {
                         }
                     }
 
-                    string[] found = Directory.GetFiles(scanPath, fileName);
+                    try {
+                        string[] found = Directory.GetFiles(scanPath, fileName);
 
-                    if (found.Length > 0) {
-                        scannedNames.Add(found[0]);
-                        break;
+                        if (found.Length > 0) {
+                            scannedNames.Add(found[0]);
+                            break;
+                        } 
+                    } catch (UnauthorizedAccessException e) {
+                        // In case of UnauthorizedAccessException,
+                        // log the issue as a warning and move on to
+                        // the next path.
+                        logger.Warn( "Access to the path "{0}" is denied..", scanPath );
+                        continue;
                     }
                 }
             }
