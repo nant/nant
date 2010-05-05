@@ -196,7 +196,7 @@ namespace NAnt.VSNet {
         /// <param name="projectDefault">The value to return if setting is not defined in both the file and project configuration.</param>
         /// <returns>
         /// The value of a setting for the specified tool, or 
-        /// <paramref name="defaultValue" /> if the setting is not defined in
+        /// <paramref name="settingName" /> if the setting is not defined in
         /// both the file and project configuration.
         /// </returns>
         /// <remarks>

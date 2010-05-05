@@ -1151,7 +1151,7 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="name">The name of the option which should be passed to the compiler.</param>
         /// <param name="value">The value of the option which should be passed to the compiler.</param>
         /// <remarks>
-        /// The combination of <paramref name="option" /> and 
+        /// The combination of <paramref name="name" /> and 
         /// <paramref name="value" /> (separated by a colon) is quoted
         /// unless <paramref name="value" /> is already surrounded by quotes.
         /// </remarks>

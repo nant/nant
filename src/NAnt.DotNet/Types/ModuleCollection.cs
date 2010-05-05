@@ -203,7 +203,7 @@ namespace NAnt.DotNet.Types {
         /// Inserts a <see cref="Module" /> into the collection at the
         /// specified index.
         /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="index">The zero-based index at which <paramref name="value"/> should be inserted.</param>
         /// <param name="value">The <see cref="Module"/> to insert.</param>
         void IList.Insert(int index, object value) {
             if (value == null) {
@@ -342,7 +342,7 @@ namespace NAnt.DotNet.Types {
         /// Inserts a <see cref="Module" /> into the collection at the
         /// specified index.
         /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="index">The zero-based index at which <paramref name="value"/> should be inserted.</param>
         /// <param name="value">The <see cref="Module"/> to insert.</param>
         public void Insert(int index, Module value) {
             if (value.ModuleSet != null) {

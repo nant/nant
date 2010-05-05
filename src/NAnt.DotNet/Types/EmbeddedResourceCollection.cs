@@ -116,7 +116,7 @@ namespace NAnt.DotNet.Types {
         /// Inserts a <see cref="EmbeddedResource" /> into the collection at the
         /// specified index.
         /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="index">The zero-based index at which <paramref name="value"/> should be inserted.</param>
         /// <param name="value">The <see cref="EmbeddedResource"/> to insert.</param>
         void IList.Insert(int index, object value) {
             ValidateType(value);
@@ -205,7 +205,7 @@ namespace NAnt.DotNet.Types {
         /// Inserts a <see cref="EmbeddedResource" /> into the collection at the
         /// specified index.
         /// </summary>
-        /// <param name="index">The zero-based index at which <paramref name="item"/> should be inserted.</param>
+        /// <param name="index">The zero-based index at which <paramref name="value"/> should be inserted.</param>
         /// <param name="value">The <see cref="EmbeddedResource"/> to insert.</param>
         public void Insert(int index, EmbeddedResource value) {
             List.Insert(index, value);

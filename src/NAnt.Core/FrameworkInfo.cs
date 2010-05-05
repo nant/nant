@@ -313,6 +313,8 @@ namespace NAnt.Core {
                         return new Version(7, 1);
                     case "2.0":
                         return new Version(8, 0);
+                    case "4.0":
+                        return new Version(10, 0);
                     default:
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                             ResourceUtils.GetString("NA1055"),

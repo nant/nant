@@ -76,7 +76,7 @@ namespace NAnt.Core.Attributes {
         /// reflection.
         /// </para>
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value" /> is <see langword="null" />.</exception>
         public Type ElementType {
             get { return _elementType; }
             set { 
