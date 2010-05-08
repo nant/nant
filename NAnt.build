@@ -830,7 +830,9 @@
 
     <target name="install" depends="install-windows, install-linux" />
 
-    <target name="install-windows" depends="userdoc" if="${platform::is-windows()}">
+    <target name="install-windows" depends="build" if="${platform::is-windows()}">
+        <!-- Make sure that the docs are only built/installed when needed -->
+        <call target="userdoc" cascade="false" />
         <!-- install to program files directory by default -->
         <property name="install.prefix" value="${environment::get-folder-path('ProgramFiles')}" />
         <if test="${property::exists('prefix') and string::get-length(prefix) != 0}">
