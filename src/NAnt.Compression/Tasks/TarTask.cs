@@ -125,6 +125,10 @@ namespace NAnt.Compression.Tasks {
                 TarFileSets.FileCount, DestFile.FullName);
 
             try {
+                if (!Directory.Exists(DestFile.DirectoryName)) {
+                    Directory.CreateDirectory(DestFile.DirectoryName);
+                }
+                
                 outstream = File.Create(DestFile.FullName);
 
                 // wrap outputstream with corresponding compression method
