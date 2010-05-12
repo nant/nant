@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Ian MacLean (imaclean@gmail.com)
-// Gert Driesen  (gert.driesen@cegeka.be)
+// Gert Driesen (driesen@users.sourceforge.net)
 
 using System;
 using System.ComponentModel;
@@ -264,8 +264,13 @@ using NAnt.Core.Util;
                 name, value);
 
             // expand any env vars in value
+            // If value is null or empty (""), keep the expanded variable null.
+            // This will prevent the SetEnvironmentVariable method (both from 
+            // kernel.dll (.NET 1.0) and System.Environment (.NET 2.0+)) from
+            // assigning a env var an empty value.  Seems to be an issue that
+            // was introduced with .NET 4.0
             string expandedValue = null;
-            if (value != null) {
+            if (!StringUtils.IsNullOrEmpty(value)) {
                 expandedValue = Environment.ExpandEnvironmentVariables(value);
             }
 
