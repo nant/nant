@@ -3,7 +3,7 @@
 <project name="nant" default="test">
     <!-- set build.date property to current date in format yyyy-MM-dd -->
     <tstamp property="build.date" pattern="yyyy-MM-dd" />
-	
+
     <!-- global project settings -->
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.91" unless="${property::exists('project.version')}" />
@@ -15,12 +15,12 @@
     <if test="${project.release.type != 'nightly'}">
         <property name="project.version.full" value="${project.version + if(project.release.type == 'release', '', '-' + project.release.type)}" dynamic="true" />
     </if>
-	
+
     <property name="build.warnaserror" value="false" />
     <if test="${project.release.type == 'dev' or project.release.type == 'nightly'}">
         <property name="build.warnaserror" value="true" />
-    </if>	
-	
+    </if>
+
     <!--
         specifies whether the CommonAssemblyInfo.cs file should be created.
         we do not want this for releases (whether they're beta or release) as
@@ -58,20 +58,20 @@
         <include name="NAnt.VSNet/NAnt.VSNet.build" />
     </fileset>
 
-	<!-- build in help manual -->
-	<target name="help" description="Describe usage of this file">
-		<echo message="Synopsis:" />
-		<echo message="  nant" />		
-		<echo message="  nant [debug|release] [clean|cleanall] [build] [test]" />
-		<echo message="" />
-		<echo message="Targets:" />
-		<echo message="  clean    - clean the files for the current project configuration" />
-		<echo message="  cleanall - clean the files for all project configurations" />
-		<echo message="  debug    - setup the build for 'debug' project configuration" />
-		<echo message="  release  - setup the build for 'release' project configuration" />
-		<echo message="" />				
-	</target>	
-	
+    <!-- build in help manual -->
+    <target name="help" description="Describe usage of this file">
+        <echo message="Synopsis:" />
+        <echo message="  nant" />
+        <echo message="  nant [debug|release] [clean|cleanall] [build] [test]" />
+        <echo message="" />
+        <echo message="Targets:" />
+        <echo message="  clean    - clean the files for the current project configuration" />
+        <echo message="  cleanall - clean the files for all project configurations" />
+        <echo message="  debug    - setup the build for 'debug' project configuration" />
+        <echo message="  release  - setup the build for 'release' project configuration" />
+        <echo message="" />
+    </target>
+
     <!-- project configurations (used by self-test and self-doc tasks) -->
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
@@ -83,7 +83,7 @@
         <property name="build.debug" value="false" />
         <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}" />
     </target>
-	
+
     <!-- build tasks -->
     <target name="init" description="Initializes build properties">
         <call target="${project.config}" />
@@ -115,8 +115,8 @@
             </attributes>
         </asminfo>
     </target>
-	
-	<!-- cleanup -->
+
+    <!-- cleanup -->
     <target name="clean" depends="init" description="Deletes current build configuration">
         <delete dir="${build.dir}" if="${directory::exists(build.dir)}" />
     </target>
@@ -124,7 +124,7 @@
         <echo message="Deleting all builds from all configurations" />
         <delete dir="build" if="${directory::exists('build')}" />
     </target>
-	
+
     <target name="build" depends="init, create-common-assemblyinfo" description="Builds current configuration">
         <echo message="Build Directory is ${build.dir}" />
         <!-- ensure bin directory exists -->
@@ -172,7 +172,7 @@
             <buildfiles refid="ext.core.tests"/>
         </nant>
     </target>
-	
+
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
         <echo message="Running unit tests with just built version of NAnt." />
@@ -304,8 +304,8 @@
             </buildfiles>
         </nant>
     </target>
-	
-	<!-- generate user documentation -->
+
+    <!-- generate user documentation -->
     <target name="userdoc" depends="build" description="Builds user documentation">
         <!-- build the documenter -->
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
@@ -786,6 +786,12 @@
     <target name="set-net-3.5-framework-configuration">
         <property name="nant.settings.currentframework" value="net-3.5" />
         <property name="current.build.defines" value="${build.defines}NET,NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5" dynamic="true" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="true" />
+    </target>
+    <target name="set-net-4.0-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-4.0" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
