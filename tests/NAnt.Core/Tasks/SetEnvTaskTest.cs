@@ -95,21 +95,33 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsNull (Environment.GetEnvironmentVariable("var8"), "#8");
             Assert.AreEqual ("value9", Environment.GetEnvironmentVariable("var9"), "#9");
         }
-        
+
         [Test]
         public void Test_ExpandEnvStrings() {
-            string _xml = @"
+            string _xml1 = @"
                     <project>
                         <setenv >
+                            <variable name='var1' />
                             <variable name='var2' value='value2' />
-                            <variable name='var3' value='value3:%var2%' />
+                            <variable name='var3' value='value3:%var2%:%var1%' />
                         </setenv>
                     </project>";
-            RunBuild(_xml);
-            Assert.IsTrue( Environment.GetEnvironmentVariable("var3") != null, 
-                "Environment variable var3 should have been set" );
-            Assert.IsTrue( Environment.GetEnvironmentVariable("var3") == "value3:value2", 
-                "Environment variable var3 should have been set to 'value3:value2'" );
+            string _xml2 = @"
+                    <project>
+                        <setenv name='var4' />
+                        <setenv name='var5' value='value5' />
+                        <setenv name='var6' value='value6:%var5%:%var4%' />
+                    </project>";
+
+            RunBuild(_xml1);
+            Assert.IsNull (Environment.GetEnvironmentVariable ("var1"), "#A1");
+            Assert.AreEqual ("value2", Environment.GetEnvironmentVariable("var2"), "#A2");
+            Assert.AreEqual("value3:value2:%var1%", Environment.GetEnvironmentVariable("var3"), "#A3");
+
+            RunBuild (_xml2);
+            Assert.IsNull (Environment.GetEnvironmentVariable ("var4"), "#B1");
+            Assert.AreEqual ("value5", Environment.GetEnvironmentVariable ("var5"), "#B2");
+            Assert.AreEqual ("value6:value5:%var4%", Environment.GetEnvironmentVariable ("var6"), "#B3");
         }
 
         [Test]
