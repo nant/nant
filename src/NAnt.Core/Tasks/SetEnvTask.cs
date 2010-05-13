@@ -264,13 +264,8 @@ using NAnt.Core.Util;
                 name, value);
 
             // expand any env vars in value
-            // If value is null or empty (""), keep the expanded variable null.
-            // This will prevent the SetEnvironmentVariable method (both from 
-            // kernel.dll (.NET 1.0) and System.Environment (.NET 2.0+)) from
-            // assigning a env var an empty value.  Seems to be an issue that
-            // was introduced with .NET 4.0
             string expandedValue = null;
-            if (!StringUtils.IsNullOrEmpty(value)) {
+            if (value != null) {
                 expandedValue = Environment.ExpandEnvironmentVariables(value);
             }
 
@@ -287,7 +282,7 @@ using NAnt.Core.Util;
 
             // set the environment variable
             if (PlatformHelper.IsUnix) {
-                if (expandedValue == null || expandedValue.Length == 0 || expandedValue [0] == '\0') {
+                if (IsNullValue(expandedValue)) {
                     result = unsetenv(name) == 0;
                 } else {
                     result = setenv(name, expandedValue, 1) == 0;
@@ -299,6 +294,12 @@ using NAnt.Core.Util;
                         name, value), Location);
                 }
             } else {
+                // The SetEnvironmentVariable Win32 function only deletes an
+                // environment when its value is set to NULL. To match the
+                // behavior of Environment.SetEnvironmentVariable, we need to
+                // normalize a zero-length value or a value with a leading null
+                // char (\0) to a NULL value.
+                expandedValue = NormalizeValue(expandedValue);
                 result = SetEnvironmentVariable(name, expandedValue);
                 if (!result) {
                     int error = Marshal.GetLastWin32Error ();
@@ -316,5 +317,21 @@ using NAnt.Core.Util;
         }
         
         #endregion Private Instance Methods
+
+        #region Private Static Methods
+
+#if !NET_2_0
+        private static string NormalizeValue (string value) {
+            if (IsNullValue (value))
+                return null;
+            return value;
+        }
+
+        private static bool IsNullValue (string value) {
+            return (StringUtils.IsNullOrEmpty (value) || value [0] == '\0');
+        }
+#endif
+
+        #endregion Private Static Methods
     }
 }
