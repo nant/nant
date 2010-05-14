@@ -51,7 +51,7 @@ bootstrap\NAnt.Core.dll:
 bootstrap\NAnt.DotNetTasks.dll:
 	$(RESGEN)  src\NAnt.DotNet\Resources\Strings.resx bootstrap\NAnt.DotNet.Resources.Strings.resources
 	$(CSC) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll \
-		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\net\1.0\NDoc.Core.dll \
+		-r:bootstrap\NAnt.Core.dll -r:bootstrap/lib/common/neutral/NDoc.Core.dll \
 		-resource:bootstrap\NAnt.DotNet.Resources.Strings.resources -recurse:src\NAnt.DotNet\*.cs \
 		src\CommonAssemblyInfo.cs
 	
