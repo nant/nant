@@ -873,6 +873,12 @@
         <if test="${property::exists('destdir') and string::get-length(destdir) != 0}">
             <property name="install.destdir" value="${destdir}" />
         </if>
+        
+        <property name="install.docdir" value="${install.destdir + path::combine(path::combine(install.share, 'doc'), 'NAnt')}" />
+        <if test="${property::exists('doc.prefix') and string::get-length(doc.prefix) != 0}">
+            <property name="install.docdir" value="${install.destdir + path::combine(doc.prefix, 'NAnt')}" />
+        </if>
+        
         <property name="install.bindir" value="${install.destdir + path::combine(install.prefix, 'bin')}" />
         <property name="install.pkgconfigdir" value="${install.destdir + path::combine(install.prefix, 'lib/pkgconfig')}" />
         <property name="install.copylocation" value="${install.destdir + install.nant}" />
@@ -882,10 +888,17 @@
         <copy todir="${install.copylocation}" overwrite="true">
             <fileset basedir="${build.dir}">
                 <include name="bin/**/*" />
-                <include name="doc/**/*" />
 
                 <exclude name="bin/nant.tests.config" />
                 <exclude name="bin/*.Tests.*" />
+            </fileset>
+        </copy>
+
+        <echo message="Installing NAnt Docs to '${install.docdir}' ..." />
+        <mkdir dir="${install.docdir}" />
+        <copy todir="${install.docdir}" overwrite="true">
+            <fileset basedir="./doc">
+                <include name="**/*" />
             </fileset>
         </copy>
 

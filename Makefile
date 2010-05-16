@@ -30,7 +30,6 @@ ifdef TARGET
 TARGET_FRAMEWORK = -t:$(TARGET)
 endif
 
-
 NANT=$(MONO) bootstrap/NAnt.exe
 
 
@@ -43,7 +42,7 @@ clean:
 	rm -fR build bootstrap
 
 install: bootstrap
-	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="${DESTDIR}"
+	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="$(destdir)" -D:doc.prefix="$(docdir)"
 
 run-test: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build test
