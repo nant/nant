@@ -15,6 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
+// Ian McLean (ianm@activestate.com)
+// Mitch Denny (mitch.denny@monash.net)
 // Gert Driesen (driesen@users.sourceforge.net)
 
 using System;
@@ -54,6 +56,19 @@ namespace Tests.NAnt.Core.Tasks {
                     + "<add key=\"server\" value=\"testhost.somecompany.com\" />"
                 + "</appSettings>"
             + "</configuration>";
+            
+        private const string _validXmlWithMultipleNodes = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" 
+            + "<configuration>" 
+                + "<appSettings>"
+                    + "<add key=\"server\" value=\"testhost.somecompany.com\" />"
+                    + "<add key=\"server.backup\" value=\"backuphost1.somecompany.com\" />"
+                    + "<add key=\"server.backup\" value=\"backuphost2.somecompany.com\" />"                    
+                + "</appSettings>"
+                + "<constants>"
+                    + "<pi>3.14159265</pi>"
+                    + "<c>2.99E8</c>" // speed of light
+                + "</constants>"                
+            + "</configuration>";
 
         private const string _validXmlWithNamespace = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
             + "<configuration xmlns=\"http://www.gordic.cz/shared/project-config/v_1.0.0.0\">"
@@ -84,6 +99,95 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(buildLog.IndexOf("configuration.server=testhost.somecompany.com") != -1,
                 "Invalid node was retrieved.");
         }
+
+        [Test]
+        public void Test_PeekValidXmlRetrieveDoubleValue() {
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxml.xml", _validXmlWithMultipleNodes);
+
+            // set-up task attributes
+            string taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/constants/pi\"",
+                xmlFile);
+
+            // execute build
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
+                taskAttributes, "${configuration.server}"));
+
+            // ensure the correct node was read
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=3.14159265") != -1,
+                "XPath count() failed.");
+                
+            // set-up task attributes
+            taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/constants/c\"",
+                xmlFile);
+
+            // execute build
+            buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
+                taskAttributes, "${configuration.server}"));
+
+            // ensure the correct node was read
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=2.99E8") != -1,
+                "XPath count() failed.");                
+        }
+        
+        [Test]
+        public void Test_PeekValidXmlUsingXPathNumericFunction() {
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxml.xml", _validXmlWithMultipleNodes);
+
+            // set-up task attributes
+            string taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"count(/configuration/appSettings/add)\"",
+                xmlFile);
+
+            // execute build
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
+                taskAttributes, "${configuration.server}"));
+
+            // ensure the correct node was read
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=3") != -1,
+                "XPath count() failed.");        
+        }
+        
+        [Test]
+        public void Test_PeekValidXmlUsingXPathBooleanFunction() {
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxml.xml", _validXmlWithMultipleNodes);
+
+            // set-up task attributes
+            string taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"boolean(count(/configuration/appSettings/add) = 3)\"",
+                xmlFile);
+
+            // execute build
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
+                taskAttributes, "${configuration.server}"));
+
+            // ensure the correct node was read
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=True") != -1,
+                "XPath count() failed.");        
+        }        
+
+        [Test]
+        public void Test_PeekValidXmlUsingXPathNodeExpression() {
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxml.xml", _validXmlWithMultipleNodes);
+
+            // set-up task attributes
+            string taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key='server.backup'][2]/@value\"",
+                xmlFile);
+
+            // execute build
+            string buildLog = RunBuild(string.Format(CultureInfo.InvariantCulture, _projectXml,
+                taskAttributes, "${configuration.server}"));
+
+            // ensure the correct node was read
+            Assert.IsTrue(buildLog.IndexOf("configuration.server=backuphost2.somecompany.com") != -1,
+                "XPath expression failed.");        
+        }              
 
         [Test]
         public void Test_PeekValidXmlWithNamespace() {

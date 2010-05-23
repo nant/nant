@@ -22,6 +22,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using System.Xml.XPath;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -204,7 +205,9 @@ namespace NAnt.Core.Tasks {
         /// </returns>
         private string GetNodeContents(string xpath, XmlDocument document, int nodeIndex ) {
             string contents = null;
-            XmlNodeList nodes;
+            // XmlNodeList nodes;            
+            Object result = null;
+            int numNodes = 0;
 
             try {
                 XmlNamespaceManager nsMgr = new XmlNamespaceManager(document.NameTable);
@@ -213,29 +216,61 @@ namespace NAnt.Core.Tasks {
                         nsMgr.AddNamespace(xmlNamespace.Prefix, xmlNamespace.Uri);
                     }
                 }
-                nodes = document.SelectNodes(xpath, nsMgr);
+                // nodes = document.SelectNodes(xpath, nsMgr);
+                XPathNavigator nav = document.CreateNavigator();
+                XPathExpression expr = nav.Compile(xpath);
+                expr.SetContext(nsMgr);
+                result = nav.Evaluate(expr);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1155"), xpath), 
                     Location, ex);
             }
-
-            if (nodes == null || nodes.Count == 0) {
+            
+            if (result == null) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1156"), xpath), 
                     Location);
+            }        
+            
+            // When using XPathNavigator.Evaluate(),
+            // the result of the expression can be one of Boolean, number, 
+            // string, or node set). This maps to Boolean, Double, String, 
+            // or XPathNodeIterator objects respectively.
+            // So therefore if the result is not null, then there is at least
+            // 1 node that matches.
+            numNodes = 1;
+            
+            // If the result is a node set, then there could be multiple nodes.          
+            XPathNodeIterator xpathNodesIterator = result as XPathNodeIterator;
+            if (xpathNodesIterator != null) {
+                numNodes = xpathNodesIterator.Count;
             }
 
             Log(Level.Verbose, "Found '{0}' nodes with the XPath expression '{1}'.",
-                nodes.Count, xpath);
+                numNodes, xpath);
           
-            if (nodeIndex >= nodes.Count){
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    ResourceUtils.GetString("NA1157"), nodeIndex), Location);
+            if (xpathNodesIterator != null) {          
+                if (nodeIndex >= numNodes){
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        ResourceUtils.GetString("NA1157"), nodeIndex), Location);
+                }
+                
+                while (xpathNodesIterator.MoveNext()) {       
+                    // CurrentPosition is 1-based.
+                    if (xpathNodesIterator.CurrentPosition == nodeIndex+1) {
+                        contents = xpathNodesIterator.Current.ToString();
+                    }
+                }
+            } else {
+                if (result is IFormattable) {
+                    IFormattable formattable = (IFormattable) result;
+                    contents = formattable.ToString(null, CultureInfo.InvariantCulture);
+                } else {
+                    contents = result.ToString();
+                }
             }
-            
-            XmlNode selectedNode = nodes[nodeIndex];
-            contents = selectedNode.InnerXml;
+
             return contents;
         }
 
