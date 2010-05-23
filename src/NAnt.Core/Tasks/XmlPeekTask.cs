@@ -17,6 +17,7 @@
 //
 // Ian McLean (ianm@activestate.com)
 // Mitch Denny (mitch.denny@monash.net)
+// Charles Chan (cchan_qa@users.sourceforge.net)
 
 using System;
 using System.Globalization;
@@ -180,7 +181,7 @@ namespace NAnt.Core.Tasks {
         /// A <see cref="XmlDocument">document</see> containing
         /// the document object representing the file.
         /// </returns>
-        private XmlDocument LoadDocument(string fileName)  {
+        private XmlDocument LoadDocument(string fileName) {
             XmlDocument document = null;
 
             try {
@@ -189,7 +190,7 @@ namespace NAnt.Core.Tasks {
                 return document;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    ResourceUtils.GetString("NA1158"), fileName), Location, 
+                    ResourceUtils.GetString("NA1158"), fileName), Location,
                     ex);
             }
         }
@@ -205,7 +206,6 @@ namespace NAnt.Core.Tasks {
         /// </returns>
         private string GetNodeContents(string xpath, XmlDocument document, int nodeIndex ) {
             string contents = null;
-            // XmlNodeList nodes;            
             Object result = null;
             int numNodes = 0;
 
@@ -216,7 +216,6 @@ namespace NAnt.Core.Tasks {
                         nsMgr.AddNamespace(xmlNamespace.Prefix, xmlNamespace.Uri);
                     }
                 }
-                // nodes = document.SelectNodes(xpath, nsMgr);
                 XPathNavigator nav = document.CreateNavigator();
                 XPathExpression expr = nav.Compile(xpath);
                 expr.SetContext(nsMgr);
@@ -226,13 +225,13 @@ namespace NAnt.Core.Tasks {
                     ResourceUtils.GetString("NA1155"), xpath), 
                     Location, ex);
             }
-            
+
             if (result == null) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    ResourceUtils.GetString("NA1156"), xpath), 
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                    ResourceUtils.GetString("NA1156"), xpath),
                     Location);
-            }        
-            
+            }
+
             // When using XPathNavigator.Evaluate(),
             // the result of the expression can be one of Boolean, number, 
             // string, or node set). This maps to Boolean, Double, String, 
@@ -240,8 +239,8 @@ namespace NAnt.Core.Tasks {
             // So therefore if the result is not null, then there is at least
             // 1 node that matches.
             numNodes = 1;
-            
-            // If the result is a node set, then there could be multiple nodes.          
+
+            // If the result is a node set, then there could be multiple nodes.
             XPathNodeIterator xpathNodesIterator = result as XPathNodeIterator;
             if (xpathNodesIterator != null) {
                 numNodes = xpathNodesIterator.Count;
@@ -250,16 +249,16 @@ namespace NAnt.Core.Tasks {
             Log(Level.Verbose, "Found '{0}' nodes with the XPath expression '{1}'.",
                 numNodes, xpath);
           
-            if (xpathNodesIterator != null) {          
+            if (xpathNodesIterator != null) {
                 if (nodeIndex >= numNodes){
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1157"), nodeIndex), Location);
                 }
-                
-                while (xpathNodesIterator.MoveNext()) {       
+
+                while (xpathNodesIterator.MoveNext()) {
                     // CurrentPosition is 1-based.
-                    if (xpathNodesIterator.CurrentPosition == nodeIndex+1) {
-                        contents = xpathNodesIterator.Current.ToString();
+                    if (xpathNodesIterator.CurrentPosition == (nodeIndex + 1)) {
+                        contents = xpathNodesIterator.Current.Value;
                     }
                 }
             } else {
