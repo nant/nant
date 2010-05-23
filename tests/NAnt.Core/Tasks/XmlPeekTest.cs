@@ -103,7 +103,7 @@ namespace Tests.NAnt.Core.Tasks {
                 _projectXml, taskAttributes, "${configuration.server}"));
 
             // execute build
-            string buildLog = ExecuteProject(p);
+            ExecuteProject(p);
 
             // ensure the correct node was read
             Assert.AreEqual("testhost.somecompany.com", p.Properties["configuration.server"]);
