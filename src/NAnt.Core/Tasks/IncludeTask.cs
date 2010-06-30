@@ -142,10 +142,16 @@ namespace NAnt.Core.Tasks {
                     ResourceUtils.GetString("NA1127"), includedFileName), Location);
             }
 
-            // check if file has already been mapped
+            // check if file has already been mapped, if it has not yet been mapped,
+            // add the include file to the map.  This addresses Bug#: 3016497
             if (Project.LocationMap.FileIsMapped(includedFileName)) {
                 Log(Level.Verbose, ResourceUtils.GetString("String_DuplicateInclude"), includedFileName);
                 return;
+            } else {
+                XmlDocument mapDoc = new XmlDocument();
+                mapDoc.Load(includedFileName);
+                Project.LocationMap.Add(mapDoc);
+                mapDoc = null;
             }
             
             // push ourselves onto the stack (prevents recursive includes)
@@ -212,7 +218,6 @@ namespace NAnt.Core.Tasks {
                 // local string variable if it is not blank.
                 if (!StringUtils.IsNullOrEmpty(projectNamespaceURI)) {
                     projectURI = projectNamespaceURI;
-                    
                 }
                 
                 // If the projectURI is not empty at this point, add
@@ -241,7 +246,6 @@ namespace NAnt.Core.Tasks {
                     ((IDisposable)includeFileXW).Dispose();
                     includeFileXW = null;
                 }
-                
                 // Pass the loadDoc XmlDocument to the project.
                 Project.InitializeProjectDocument(loadDoc);
                 

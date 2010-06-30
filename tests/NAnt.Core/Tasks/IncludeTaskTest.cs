@@ -141,6 +141,35 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(result.IndexOf("Target executed") != -1, "Include target with xmlns did not execute." + Environment.NewLine + result);
             
         }
+        
+        [Test]
+        public void Test_IncludeDuplicateFile() {
+            const string mainBuildFile = @"<project name='ot' default='targets.coverage' basedir='.' >
+                          <include buildfile='includes.include'/>
+                          <include buildfile='targets.include'/>
+                        </project>";
+                        
+            const string includeIncludeFile = @"<project name='includes' basedir='.'>
+                          <include buildfile='targets.include'/>
+                        </project>";
+                        
+            const string targetIncludeFile = @"<?xml version='1.0' encoding='ISO-8859-1'?>
+                        <project name='ect.nant.targets' default='' basedir='.'>
+                          <target name='targets.coverage'>
+                            <echo message='Message from targets' />
+                          </target>
+                        </project>";
+            
+            string includeIncludeFileName = Path.Combine(TempDirName, "includes.include");
+            TempFile.CreateWithContents(includeIncludeFile, includeIncludeFileName);
+            
+            string targetIncludeFileName = Path.Combine(TempDirName, "targets.include");
+            TempFile.CreateWithContents(targetIncludeFile, targetIncludeFileName);
+            
+            string result = RunBuild(FormatBuildFile(mainBuildFile));
+            Assert.IsTrue(result.IndexOf("Message from targets") != -1, "Include target with duplicate include did not execute." + Environment.NewLine + result);
+            
+        }
 
         private string FormatBuildFile(string format) {
             return String.Format(CultureInfo.InvariantCulture, format, TempDirName);
