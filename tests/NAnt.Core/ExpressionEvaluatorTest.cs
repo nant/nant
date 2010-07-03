@@ -24,6 +24,7 @@ using System.IO;
 using System.Globalization;
 
 using NAnt.Core;
+using NAnt.Core.Attributes;
 using Tests.NAnt.Core.Util;
 
 using NUnit.Framework;
@@ -432,7 +433,17 @@ namespace Tests.NAnt.Core {
 
             // string to datetime
             AssertExpression("datetime::parse('12/31/1999 01:23:34')", new DateTime(1999,12,31,1,23,34));
-            AssertFailure("datetime::parse('B')");  
+            AssertFailure("datetime::parse('B')");
+
+            // coercion
+            AssertExpression("coercion::get-name(coercion::create-bar())", "default bar");
+            AssertExpression("coercion::get-name(coercion::create-bar('a'))", "a");
+            AssertExpression("coercion::get-name(coercion::create-boo())", "default boo");
+            AssertExpression("coercion::get-name(coercion::create-boo('b'))", "b");
+            AssertExpression("coercion::get-name(coercion::create-zoo())", "default zoo");
+            AssertExpression("coercion::get-name(coercion::create-zoo('c'))", "c");
+            AssertFailure("coercion::get-name(coercion::create-foo())");
+            AssertFailure("coercion::get-name(coercion::create-foo('d'))");
         }
 
         [Test]
@@ -587,5 +598,176 @@ namespace Tests.NAnt.Core {
         }
 
         #endregion Private Instance Methods
+    }
+
+    [FunctionSet("coercion", "Test Function Extensibility")]
+    public class CoercionFunctions : FunctionSetBase {
+        public CoercionFunctions(Project project, PropertyDictionary propDict ) :
+            base(project, propDict) {
+        }
+
+        [Function("create-foo")]
+        public static Foo CreateFoo() {
+            return new Foo();
+        }
+
+        [Function("create-foo")]
+        public static Foo CreateFoo(string name) {
+            return new Foo(name);
+        }
+
+        [Function("create-bar")]
+        public static Bar CreateBar() {
+            return new Bar();
+        }
+
+        [Function("create-bar")]
+        public static Bar CreateBar(string name) {
+            return new Bar(name);
+        }
+
+        [Function("create-zoo")]
+        public static Zoo CreateZoo() {
+            return new Zoo();
+        }
+
+        [Function("create-zoo")]
+        public static Zoo CreateZoo(string name) {
+            return new Zoo(name);
+        }
+
+        [Function("create-boo")]
+        public static Bar CreateBoo() {
+            return new Boo();
+        }
+
+        [Function("create-boo")]
+        public static Boo CreateBoo(string name) {
+            return new Boo(name);
+        }
+
+        [Function("get-name")]
+        public static string GetName(Bar bar) {
+            return bar.Name;
+        }
+    }
+
+    public class Foo {
+        private readonly string name;
+
+        public Foo() : this("default foo") {
+        }
+
+        public Foo(String name) {
+            this.name = name;
+        }
+
+        public string Name {
+            get { return name; }
+        }
+    }
+
+    public class Bar : Foo {
+        public Bar() : this("default bar") {
+        }
+
+        public Bar(String name) : base(name) {
+        }
+    }
+
+    public class Zoo : Bar {
+        public Zoo() : this("default zoo") {
+        }
+
+        public Zoo(String name) : base(name) {
+        }
+    }
+
+    public class Boo : Bar, IConvertible {
+        public Boo() : this("default boo") {
+        }
+
+        public Boo(String name) : base(name) {
+        }
+
+        #region IConvertible Members
+
+        [CLSCompliant(false)]
+        public ulong ToUInt64(IFormatProvider provider) {
+            return 0;
+        }
+
+        [CLSCompliant(false)]
+        public sbyte ToSByte(IFormatProvider provider) {
+            return 0;
+        }
+
+        public double ToDouble(IFormatProvider provider) {
+            return 0;
+        }
+
+        public DateTime ToDateTime(IFormatProvider provider) {
+            return new DateTime ();
+        }
+
+        public float ToSingle(IFormatProvider provider) {
+            return 0;
+        }
+
+        public bool ToBoolean(IFormatProvider provider) {
+            return false;
+        }
+
+        public int ToInt32(IFormatProvider provider) {
+            return 0;
+        }
+
+        [CLSCompliant(false)]
+        public ushort ToUInt16(IFormatProvider provider) {
+            return 0;
+        }
+
+        public short ToInt16(IFormatProvider provider) {
+            return 0;
+        }
+
+        public string ToString(IFormatProvider provider) {
+            return null;
+        }
+
+        public byte ToByte(IFormatProvider provider) {
+            return 0;
+        }
+
+        public char ToChar(IFormatProvider provider) {
+            return '\0';
+        }
+
+        public long ToInt64(IFormatProvider provider) {
+            return 0;
+        }
+
+        public System.TypeCode GetTypeCode() {
+            return new System.TypeCode ();
+        }
+
+        public decimal ToDecimal(IFormatProvider provider) {
+            return 0;
+        }
+
+        public object ToType(Type conversionType, IFormatProvider provider) {
+            if (conversionType == typeof(Foo))
+                return new Foo(Name + " => foo");
+            if (conversionType == typeof(Bar))
+                return new Bar(Name + " => bar");
+            throw new InvalidCastException();
+        }
+
+        [CLSCompliant(false)]
+        public uint ToUInt32(IFormatProvider provider) {
+            return 0;
+        }
+
+        #endregion
     }
 }

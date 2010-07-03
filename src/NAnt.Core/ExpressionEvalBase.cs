@@ -1106,6 +1106,9 @@ namespace NAnt.Core {
                         description, GetSimpleTypeName(returnType), 
                         GetSimpleTypeName(source.GetType())), p0, p1);
                 }
+
+                if (returnType.IsAssignableFrom(source.GetType()))
+                    return source;
                 
                 return Convert.ChangeType(source, returnType, CultureInfo.InvariantCulture);
             } catch (ExpressionParseException) {
