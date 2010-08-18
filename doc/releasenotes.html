@@ -54,6 +54,42 @@
             </tr>
         </table>
         <h2>
+            0.91-alpha2 (August 17, 2010)</h2>
+        <h3>
+            Bug fixes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">App.config</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed typo that prevented System.Management.dll from being included.
+                </p>
+            </div>
+        </div>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/tasks/include.html">&lt;include&gt;</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed error with the &lt;include&gt; task when different build files include the same file. 
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&aid=3016497&group_id=31650&atid=402868">#3016497</a>).
+                </p>
+            </div>
+        </div>
+        <h4>Functions</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading" href="help/functions/nant.get-assembly().html">NAnt::get-assembly()</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+					Using the NAnt::get-assembly() function causes an &quot;Object must implement IConvertible&quot; error.
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&aid=3013492&group_id=31650&atid=402868">#3013492</a>).
+                </p>
+            </div>
+        </div>
+        <h2>
             0.91-alpha1 (May 29, 2010)</h2>
         <h3>
             Framework&nbsp;support</h3>
