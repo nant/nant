@@ -210,7 +210,7 @@ namespace NAnt.Core.Tasks {
         /// Value for XmlDocument.PreserveWhitespace that is set before the xml is loaded.
         /// </param>
         /// <returns>
-        /// An <see cref="System.Xml.XmlDocument" /> containing
+        /// An <see cref="T:System.Xml.XmlDocument" /> containing
         /// the document object model representing the file.
         /// </returns>
         private XmlDocument LoadDocument(string fileName, bool preserveWhitespace) {

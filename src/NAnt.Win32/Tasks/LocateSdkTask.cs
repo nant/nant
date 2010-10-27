@@ -244,7 +244,7 @@ namespace NAnt.Win32.Tasks {
         /// Converts a version expressed as a string into a Version object 
         /// </summary>
         /// <param name="sdkVersion">
-        /// A <see cref="System.String"/> containing the version to convert.
+        /// A <see cref="T:System.String"/> containing the version to convert.
         /// </param>
         /// <returns>
         /// A <see cref="Version"/> object representing the version string.

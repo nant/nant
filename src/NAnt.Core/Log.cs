@@ -1388,7 +1388,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Writes out a formatted string using the same semantics as 
-        /// <see cref="string.Format(string, object[])" />.
+        /// <see cref="M:string.Format(string, object[])" />.
         /// </summary>
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>

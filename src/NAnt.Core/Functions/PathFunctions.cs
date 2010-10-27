@@ -82,7 +82,7 @@ namespace NAnt.Core.Functions {
         /// Changes the extension of the path string.
         /// </summary>
         /// <param name="path">The path information to modify. The path cannot contain any of the characters 
-        /// defined in <see cref="System.IO.Path.InvalidPathChars"/>InvalidPathChars.</param>
+        /// defined in <see cref="T:System.IO.Path.InvalidPathChars"/>InvalidPathChars.</param>
         /// <param name="extension">The new extension (with a leading period). Specify a null reference 
         /// to remove an existing extension from <paramref name="path" />.</param>
         /// <returns>
@@ -98,7 +98,7 @@ namespace NAnt.Core.Functions {
         /// </para>
         /// </returns>
         /// <remarks>
-        /// For more information see the <see cref="System.IO.Path"/> documentation.
+        /// For more information see the <see cref="T:System.IO.Path"/> documentation.
         /// </remarks>
         /// <exception cref="ArgumentException"><paramref name="path" /> contains one or more invalid characters.</exception>
         [Function("change-extension")]

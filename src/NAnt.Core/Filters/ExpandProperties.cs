@@ -138,7 +138,7 @@ namespace NAnt.Core.Filters {
 
         /// <summary>
         /// Refills the buffer, running our input through 
-        /// <see cref="PropertyDictionary.ExpandProperties(string, Location)" />.)
+        /// <see cref="M:PropertyDictionary.ExpandProperties(string, Location)" />.)
         /// </summary>
         private void ReplenishBuffer () {
             // Fill buffer from input.

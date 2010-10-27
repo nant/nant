@@ -232,9 +232,9 @@ namespace NAnt.VSNet {
 
         /// <summary>
         /// Is called each time a regular expression match is found during a 
-        /// <see cref="Regex.Replace(string, MatchEvaluator)" /> operation.
+        /// <see cref="M:Regex.Replace(string, MatchEvaluator)" /> operation.
         /// </summary>
-        /// <param name="m">The <see cref="Match" /> resulting from a single regular expression match during a <see cref="Regex.Replace(string, MatchEvaluator)" />.</param>
+        /// <param name="m">The <see cref="Match" /> resulting from a single regular expression match during a <see cref="M:Regex.Replace(string, MatchEvaluator)" />.</param>
         /// <returns>
         /// The expanded <see cref="Match" />.
         /// </returns>

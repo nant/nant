@@ -56,7 +56,7 @@ namespace NAnt.Core.Util {
         /// aren't found in the local satellite assembly.
         /// </summary>
         /// <param name="assembly">
-        /// A <see cref="System.Reflection.Assembly" /> that represents the
+        /// A <see cref="T:System.Reflection.Assembly" /> that represents the
         /// assembly to register.
         /// </param>
         /// <example>
@@ -77,23 +77,23 @@ namespace NAnt.Core.Util {
         /// Returns the value of the specified string resource.
         /// </summary>
         /// <param name="name">
-        /// A <see cref="System.String" /> that contains the name of the
+        /// A <see cref="T:System.String" /> that contains the name of the
         /// resource to get.
         /// </param>
         /// <returns>
-        /// A <see cref="System.String" /> that contains the value of the
+        /// A <see cref="T:System.String" /> that contains the value of the
         /// resource localized for the current culture.
         /// </returns>
         /// <remarks>
         /// The returned resource is localized for the cultural settings of the
-        /// current <see cref="System.Threading.Thread" />.
+        /// current <see cref="T:System.Threading.Thread" />.
         /// <note>
         /// The <c>GetString</c> method is thread-safe.
         /// </note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the <c>GetString</c> method using
-        /// the cultural settings of the current <see cref="System.Threading.Thread" />.
+        /// the cultural settings of the current <see cref="T:System.Threading.Thread" />.
         /// <code>
         /// <![CDATA[
         /// string localizedString = ResourceUtils.GetString("String_HelloWorld");
@@ -113,7 +113,7 @@ namespace NAnt.Core.Util {
         /// <param name="name"></param>
         /// <param name="culture"></param>
         /// <returns>
-        /// A <see cref="System.String" /> that contains the value of the
+        /// A <see cref="T:System.String" /> that contains the value of the
         /// resource localized for the specified culture. 
         ///</returns>
         /// <remarks>
@@ -142,18 +142,18 @@ namespace NAnt.Core.Util {
         /// the specified culture for the specified assembly.
         /// </summary>
         /// <param name="name">
-        /// A <see cref="System.String" /> that contains the name of the
+        /// A <see cref="T:System.String" /> that contains the name of the
         /// resource to get.
         /// </param>
         /// <param name="culture">
-        /// A <see cref="System.Globalization.CultureInfo" /> that represents
+        /// A <see cref="T:System.Globalization.CultureInfo" /> that represents
         /// the culture for which the resource is localized.
         /// </param>
         /// <param name="assembly">
-        /// A <see cref="System.Reflection.Assembly" />
+        /// A <see cref="T:System.Reflection.Assembly" />
         /// </param>
         /// <returns>
-        /// A <see cref="System.String" /> that contains the value of the
+        /// A <see cref="T:System.String" /> that contains the value of the
         /// resource localized for the specified culture.
         /// </returns>
         /// <remarks>
@@ -202,7 +202,7 @@ namespace NAnt.Core.Util {
         /// Registers the specified assembly.
         /// </summary>
         /// <param name="assembly">
-        /// A <see cref="System.Reflection.Assembly" /> that represents the
+        /// A <see cref="T:System.Reflection.Assembly" /> that represents the
         /// assembly to register.
         /// </param>
         private static void RegisterAssembly(Assembly assembly) {

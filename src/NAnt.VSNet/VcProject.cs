@@ -186,7 +186,7 @@ namespace NAnt.VSNet {
         /// Get the location of the project.
         /// </summary>
         /// <value>
-        /// <see cref="NAnt.VSNet.ProjectLocation.Local" />.
+        /// <see cref="T:NAnt.VSNet.ProjectLocation.Local" />.
         /// </value>
         /// <remarks>
         /// For now, we only support local Visual C++ projects.

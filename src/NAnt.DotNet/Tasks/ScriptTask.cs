@@ -19,7 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian at maclean.ms)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
-// Gert Driesen (gert.driesen@cegeka.be)
+// Gert Driesen (driesen@users.sourceforge.net)
 
 using System;
 using System.CodeDom;
@@ -263,7 +263,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// The language of the script block. Possible values are "VB", "vb", "VISUALBASIC", "C#", "c#", "CSHARP".
         /// "JS", "js", "JSCRIPT" "VJS", "vjs", "JSHARP" or a fully-qualified name for a class implementing 
-        /// <see cref="System.CodeDom.Compiler.CodeDomProvider" />.
+        /// <see cref="T:System.CodeDom.Compiler.CodeDomProvider" />.
         /// </summary>
         [TaskAttribute("language", Required=true)]
         public string Language {

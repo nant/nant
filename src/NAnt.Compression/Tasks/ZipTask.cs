@@ -142,7 +142,7 @@ namespace NAnt.Compression.Tasks {
 
         /// <summary>
         /// Specifies the behaviour when a duplicate file is found. The default
-        /// is <see cref="NAnt.Compression.Types.DuplicateHandling.Add" />.
+        /// is <see cref="T:NAnt.Compression.Types.DuplicateHandling.Add" />.
         /// </summary>
         [TaskAttribute("duplicate")]
         public DuplicateHandling DuplicateHandling {

@@ -307,7 +307,7 @@ namespace NAnt.DotNet.Tasks {
         /// <summary>
         /// Specifies whether to delay sign the assembly using only the public
         /// portion of the strong name key. The default is 
-        /// <see cref="NAnt.DotNet.Types.DelaySign.NotSet" />.
+        /// <see cref="T:NAnt.DotNet.Types.DelaySign.NotSet" />.
         /// </summary>
         [TaskAttribute("delaysign")]
         public virtual DelaySign DelaySign {

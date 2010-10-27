@@ -54,10 +54,10 @@ namespace NAnt.Core.Filters {
     /// </para>
     /// <list type="bullet">
     ///   <item>
-    ///     <description><see cref="NAnt.Core.Tasks.CopyTask"/></description>
+    ///     <description><see cref="T:NAnt.Core.Tasks.CopyTask"/></description>
     ///   </item>
     ///   <item>
-    ///     <description><see cref="NAnt.Core.Tasks.MoveTask"/></description>
+    ///     <description><see cref="T:NAnt.Core.Tasks.MoveTask"/></description>
     ///   </item>
     /// </list>
     /// </remarks>

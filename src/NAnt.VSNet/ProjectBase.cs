@@ -137,11 +137,11 @@ namespace NAnt.VSNet {
         /// </summary>
         /// <remarks>
         ///   <para>
-        ///   For <see cref="NAnt.VSNet.ProjectLocation.Local" /> projects, this is defined
+        ///   For <see cref="T:NAnt.VSNet.ProjectLocation.Local" /> projects, this is defined
         ///   as <c>&lt;Project Directory&lt;\obj</c>.
         ///   </para>
         ///   <para>
-        ///   For <see cref="NAnt.VSNet.ProjectLocation.Web" /> projects, this is defined
+        ///   For <see cref="T:NAnt.VSNet.ProjectLocation.Web" /> projects, this is defined
         ///   as <c>%HOMEPATH%\VSWebCache\&lt;Machine Name&gt;\&lt;Project Directory&gt;\obj</c>.
         ///   </para>
         /// </remarks>

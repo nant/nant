@@ -207,7 +207,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="uriOrFilePath">
         /// <para>The full path to the build file.</para>
-        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// <para>This can be of any form that <see cref="M:XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
@@ -232,7 +232,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="uriOrFilePath">
         /// <para>The full path to the build file.</para>
-        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// <para>This can be of any form that <see cref="M:XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="threshold">The message threshold.</param>
         /// <param name="indentLevel">The project indentation level.</param>
@@ -261,7 +261,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="uriOrFilePath">
         /// <para>The full path to the build file.</para>
-        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// <para>This can be of any form that <see cref="M:XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <param name="parent">The parent <see cref="Project" />.</param>
         /// <remarks>
@@ -1428,7 +1428,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// This method is only meant to be used by the <see cref="Project"/> 
-        /// class and <see cref="NAnt.Core.Tasks.IncludeTask"/>.
+        /// class and <see cref="T:NAnt.Core.Tasks.IncludeTask"/>.
         /// </summary>
         internal void InitializeProjectDocument(XmlDocument doc) {
             // load line and column number information into position map
@@ -1491,7 +1491,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="uriOrFilePath">
         /// <para>The full path to the build file.</para>
-        /// <para>This can be of any form that <see cref="XmlDocument.Load(string)" /> accepts.</para>
+        /// <para>This can be of any form that <see cref="M:XmlDocument.Load(string)" /> accepts.</para>
         /// </param>
         /// <returns>
         /// An <see cref="XmlDocument" /> based on the specified project 

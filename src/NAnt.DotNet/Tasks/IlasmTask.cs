@@ -176,7 +176,7 @@ namespace NAnt.DotNet.Tasks {
         /// the PE header.
         /// </summary>
         /// <value>
-        /// An <see cref="System.Int32" /> that represents the <i>FileAlignment</i>
+        /// An <see cref="T:System.Int32" /> that represents the <i>FileAlignment</i>
         /// value to set in the PE header. The value must be a power of 2, in
         /// range from 512 to 65536.
         /// </value>
@@ -197,7 +197,7 @@ namespace NAnt.DotNet.Tasks {
         /// the PE header.
         /// </summary>
         /// <value>
-        /// A <see cref="System.Int32" /> that represents the <i>ImageBase</i>
+        /// A <see cref="T:System.Int32" /> that represents the <i>ImageBase</i>
         /// value to set in the PE header.
         /// </value>
         /// <remarks>
@@ -217,7 +217,7 @@ namespace NAnt.DotNet.Tasks {
         /// header.
         /// </summary>
         /// <value>
-        /// An <see cref="System.Int32" /> that represents the <i>Flags</i>
+        /// An <see cref="T:System.Int32" /> that represents the <i>Flags</i>
         /// value to set in the CLR header. The most frequently value are 1
         /// (pre-IL code) and 2 (mixed code). The third bit indicating that
         /// the PE file is strong signed, is ignored.
@@ -239,7 +239,7 @@ namespace NAnt.DotNet.Tasks {
         /// header.
         /// </summary>
         /// <value>
-        /// An <see cref="System.Int32" /> that represents the <i>Subsystem</i>
+        /// An <see cref="T:System.Int32" /> that represents the <i>Subsystem</i>
         /// value to set in the PE header. The most frequently value are 3
         /// (console application) and 2 (GUI application).
         /// </value>
@@ -259,7 +259,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies which output type should be generated.
         /// </summary>
         /// <value>
-        /// A <see cref="System.String" /> that contains the target type.
+        /// A <see cref="T:System.String" /> that contains the target type.
         /// Possible values are <c>dll</c> and <c>exe</c>.
         /// </value>
         /// <remarks>
@@ -279,7 +279,7 @@ namespace NAnt.DotNet.Tasks {
         /// file.
         /// </summary>
         /// <value>
-        /// A <see cref="System.String" /> that contains the private
+        /// A <see cref="T:System.String" /> that contains the private
         /// encryption key.
         /// </value>
         /// <remarks>
@@ -299,7 +299,7 @@ namespace NAnt.DotNet.Tasks {
         /// file.
         /// </summary>
         /// <value>
-        /// A <see cref="System.IO.FileInfo" /> that represents the file
+        /// A <see cref="T:System.IO.FileInfo" /> that represents the file
         /// containing the private encryption key.
         /// </value>
         /// <remarks>
@@ -318,7 +318,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies the name of the output file created by the compiler.
         /// </summary>
         /// <value>
-        /// A <see cref="System.IO.FileInfo" /> that represents the name of
+        /// A <see cref="T:System.IO.FileInfo" /> that represents the name of
         /// the output file.
         /// </value>
         /// <remarks>
@@ -337,7 +337,7 @@ namespace NAnt.DotNet.Tasks {
         /// file into the resulting PE file.
         /// </summary>
         /// <value>
-        /// A <see cref="System.IO.FileInfo" /> that represents the unmanaged
+        /// A <see cref="T:System.IO.FileInfo" /> that represents the unmanaged
         /// resource file to link.
         /// </value>
         /// <remarks>
@@ -355,7 +355,7 @@ namespace NAnt.DotNet.Tasks {
         /// Specifies the set of source files to compile.
         /// </summary>
         /// <value>
-        /// A <see cref="NAnt.Core.Types.FileSet" /> that represents the set
+        /// A <see cref="T:NAnt.Core.Types.FileSet" /> that represents the set
         /// of source files to compile.
         /// </value>
         [BuildElement("sources", Required=true)]
@@ -372,7 +372,7 @@ namespace NAnt.DotNet.Tasks {
         /// Gets the command-line arguments for the external program.
         /// </summary>
         /// <value>
-        /// A <see cref="System.String" /> that contains the command-line
+        /// A <see cref="T:System.String" /> that contains the command-line
         /// arguments for the external program.
         /// </value>
         public override string ProgramArguments {
@@ -504,7 +504,7 @@ namespace NAnt.DotNet.Tasks {
         /// be written.
         ///</param>
         /// <param name="name">
-        /// A <see cref="System.String" /> that contains the name of the
+        /// A <see cref="T:System.String" /> that contains the name of the
         /// option which should be passed to the compiler.
         /// </param>
         private void WriteOption(StringWriter writer, string name) {
@@ -519,11 +519,11 @@ namespace NAnt.DotNet.Tasks {
         /// be written.
         /// </param>
         /// <param name="name">
-        /// A <see cref="System.String" /> that contains the name of the
+        /// A <see cref="T:System.String" /> that contains the name of the
         /// option which should be passed to the compiler.
         /// </param>
         /// <param name="arg">
-        /// A <see cref="System.String" /> that contains the value of the
+        /// A <see cref="T:System.String" /> that contains the value of the
         /// option which should be passed to the compiler.
         /// </param>
         private void WriteOption(StringWriter writer, string name, string arg) {

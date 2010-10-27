@@ -255,11 +255,11 @@ namespace NAnt.Win32.Tasks {
 
         /// <summary>
         /// Specifies whether to import a COM style SafeArray as a managed 
-        /// <see cref="System.Array" /> class type. The default is <see langword="false" />.
+        /// <see cref="T:System.Array" /> class type. The default is <see langword="false" />.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if a COM style SafeArray should be imported 
-        /// as a managed <see cref="System.Array" /> class type; otherwise, 
+        /// as a managed <see cref="T:System.Array" /> class type; otherwise, 
         /// <see langword="false" />.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>

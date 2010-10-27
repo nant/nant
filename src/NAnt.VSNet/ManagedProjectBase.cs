@@ -185,7 +185,7 @@ namespace NAnt.VSNet {
         /// <remarks>
         /// If the url of a web project has been mapped to a local path
         /// (using the &lt;webmap&gt; element), then this property will return
-        /// <see langword="false" /> for a <see cref="NAnt.VSNet.ProjectLocation.Web" />
+        /// <see langword="false" /> for a <see cref="T:NAnt.VSNet.ProjectLocation.Web" />
         /// project.
         /// </remarks>
         private bool IsWebProject {
