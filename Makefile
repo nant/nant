@@ -42,7 +42,7 @@ clean:
 	rm -fR build bootstrap
 
 install: bootstrap
-	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="$(destdir)" -D:doc.prefix="$(docdir)"
+	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="$(DESTDIR)" -D:doc.prefix="$(docdir)"
 
 run-test: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build test
