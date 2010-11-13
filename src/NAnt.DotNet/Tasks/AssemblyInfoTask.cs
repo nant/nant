@@ -447,11 +447,18 @@ namespace NAnt.DotNet.Tasks {
                 // locate type assuming TypeName is fully qualified typename
                 AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
                     AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+#if (NET_4_0)
+                TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
+                    newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
+                    typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
+                    null, new object[0], CultureInfo.InvariantCulture, new object[0]);
+#else
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
                     null, new object[0], CultureInfo.InvariantCulture, new object[0], 
                     AppDomain.CurrentDomain.Evidence);
+#endif
 
                 object typedValue = typedValueGatherer.GetTypedValue(
                     assemblies, imports, attribute.TypeName, attribute.Value);
