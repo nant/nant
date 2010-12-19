@@ -38,6 +38,7 @@ setup:
 	xcopy lib bootstrap\lib /S /Y /Q
 	copy lib\common\neutral\log4net.dll bootstrap
 	copy src\NAnt.Console\App.config bootstrap\NAnt.exe.config
+    copy src\NAnt.Console\Runtime.Legacy.config bootstrap\Runtime.config
 
 bootstrap\NAnt.exe:
 	$(CSC) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs

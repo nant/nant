@@ -39,5 +39,11 @@
             </resources>
         </csc>
         <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="App.config" />
+        <if test="${framework::get-version(framework::get-target-framework()) >= version::parse('4.0')}">
+            <copy tofile="${build.dir}/bin/Runtime.config" file="Runtime.Post4.config" />
+        </if>
+        <if test="${version::parse('4.0') > framework::get-version(framework::get-target-framework())}">
+            <copy tofile="${build.dir}/bin/Runtime.config" file="Runtime.Pre4.config" />
+        </if>
     </target>
 </project>
