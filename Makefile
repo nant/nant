@@ -62,7 +62,7 @@ setup:
 	# as NAnt.exe
 	cp lib/common/neutral/log4net.dll bootstrap
 	cp src/NAnt.Console/App.config bootstrap/NAnt.exe.config
-    cp src/NAnt.Console/Runtime.Legacy.config bootstrap/Runtime.config
+    cp src/NAnt.Console/Runtime.Pre4.config bootstrap/Runtime.config
 
 bootstrap/NAnt.Core.dll:
 	$(RESGEN)  src/NAnt.Core/Resources/Strings.resx bootstrap/NAnt.Core.Resources.Strings.resources
