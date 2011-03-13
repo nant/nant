@@ -442,9 +442,18 @@ namespace NAnt.VSNet.Tasks {
                     }
 
                     // create temporary domain
+#if NET_4_0
+                    Evidence tempDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
+                    tempDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
+                    
+                    PermissionSet tempDomainPermSet = SecurityManager.GetStandardSandbox(tempDomainEvidence);
+                    
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", null, 
+                        AppDomain.CurrentDomain.SetupInformation, tempDomainPermSet);
+#else
                     AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
                         AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-
+#endif
                     try {
                         ReferencesResolver referencesResolver =
                             ((ReferencesResolver) temporaryDomain.CreateInstanceFrom(Assembly.GetExecutingAssembly().Location,

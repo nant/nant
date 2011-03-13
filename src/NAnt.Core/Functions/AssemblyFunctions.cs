@@ -55,8 +55,12 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">An assembly or module was loaded twice with two different evidences, or the assembly name is longer than MAX_PATH characters.</exception>
         [Function("load-from-file")]
         public Assembly LoadFromFile(string assemblyFile) {
+#if NET_4_0
+            return Assembly.LoadFrom(Project.GetFullPath(assemblyFile));
+#else
             return Assembly.LoadFrom(Project.GetFullPath(assemblyFile),
                 AppDomain.CurrentDomain.Evidence);
+#endif
         }
 
         /// <summary>
@@ -83,7 +87,11 @@ namespace NAnt.Core.Functions {
         /// </example>
         [Function("load")]
         public Assembly Load(string assemblyString) {
+#if NET_4_0
+            return Assembly.Load(assemblyString);
+#else
             return Assembly.Load(assemblyString, AppDomain.CurrentDomain.Evidence);
+#endif
         }
 
         #endregion Public Instance Methods

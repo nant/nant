@@ -31,6 +31,12 @@ using System.Runtime.Remoting.Lifetime;
 using System.Security.Cryptography;
 using System.Text;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -445,14 +451,22 @@ namespace NAnt.DotNet.Tasks {
 
             private object GetTypedValue(AssemblyAttribute attribute, StringCollection assemblies, StringCollection imports) {
                 // locate type assuming TypeName is fully qualified typename
-                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
-                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-#if (NET_4_0)
+#if NET_4_0
+                Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
+                newDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Internet));
+                
+                PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(newDomainEvidence);
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", null, 
+                    AppDomain.CurrentDomain.SetupInformation, domainPermSet);
+
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
                     null, new object[0], CultureInfo.InvariantCulture, new object[0]);
 #else
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
+                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 

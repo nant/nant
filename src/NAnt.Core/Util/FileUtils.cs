@@ -194,7 +194,11 @@ namespace NAnt.Core.Util {
         /// </returns>
         /// <remarks>
         ///   <para>
+#if MONO && NET_4_0
+        ///   On *nix, processing is delegated to Path.Combine(string, string).
+#else
         ///   On *nix, processing is delegated to <see cref="Path.Combine(string, string)" />.
+#endif
         ///   </para>
         ///   <para>
         ///   On Windows, this method normalized the paths to avoid running into

@@ -207,8 +207,15 @@ namespace NAnt.NUnit1.Tasks {
             domSetup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             domSetup.ConfigurationFile = Project.GetFullPath(test.AppConfigFile);
             domSetup.ApplicationName = "NAnt Remote Domain";
-            AppDomain newDomain =  AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
-
+#if NET_4_0
+            Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
+            newDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
+            
+            PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(newDomainEvidence);
+            AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, null, domSetup, domainPermSet);
+#else
+            AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
+#endif
             // instantiate subclassed test runner in new domain
             Type runnerType = typeof(RemoteNUnitTestRunner);
             ObjectHandle oh = newDomain.CreateInstance ( 

@@ -211,7 +211,7 @@ namespace NAnt.Core.Tasks {
                 doc.DocumentElement.Attributes.RemoveNamedItem("xmlns");
                 
                 // Kill the XmlTextReader
-                includeXmlReader.Close();
+                ((IDisposable)includeXmlReader).Dispose();
                 includeXmlReader = null;
                 
                 // Assigns the main build file's namespace to the
@@ -243,7 +243,7 @@ namespace NAnt.Core.Tasks {
                     loadDoc.LoadXml(includeFileSW.ToString());
                     
                     // Kill the XmlTextWriter
-                    includeFileXW.Close();
+                    ((IDisposable)includeFileXW).Dispose();
                     includeFileXW = null;
                 }
                 // Pass the loadDoc XmlDocument to the project.

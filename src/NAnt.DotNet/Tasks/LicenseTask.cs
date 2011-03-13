@@ -423,14 +423,21 @@ namespace NAnt.DotNet.Tasks {
                 }
             } else {
                 // create new domain
+#if (NET_4_0)
+                AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain");
+                LicenseGatherer licenseGatherer = (LicenseGatherer)
+                    newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
+                    typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
+                    null, new object[0], CultureInfo.InvariantCulture, new object[0]);
+#else
                 AppDomain newDomain = AppDomain.CreateDomain("LicenseGatheringDomain", 
                     AppDomain.CurrentDomain.Evidence);
-
                 LicenseGatherer licenseGatherer = (LicenseGatherer)
                     newDomain.CreateInstanceAndUnwrap(typeof(LicenseGatherer).Assembly.FullName,
                     typeof(LicenseGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance,
                     null, new object[0], CultureInfo.InvariantCulture, new object[0],
                     AppDomain.CurrentDomain.Evidence);
+#endif
                 licenseGatherer.CreateLicenseFile(this, licensesFile.FullName);
 
                 // unload newly created domain
