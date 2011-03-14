@@ -136,11 +136,11 @@ namespace NAnt.DotNet.Tasks {
         [StringValidator(AllowEmpty=false)]
         public CodeLanguage Language {
             get { return _language; }
-            set { 
+            set {
                 if (!Enum.IsDefined(typeof(CodeLanguage), value)) {
                     throw new ArgumentException(string.Format(
                         CultureInfo.InvariantCulture,
-                        ResourceUtils.GetString("NA2002"), value)); 
+                        ResourceUtils.GetString("NA2002"), value));
                 } else {
                     _language = value;
                 }
@@ -205,7 +205,7 @@ namespace NAnt.DotNet.Tasks {
                 // write out code to memory stream, so we can compare it later 
                 // to what is already present (if necessary)
                 MemoryStream generatedAsmInfoStream = new MemoryStream();
-                
+
                 using (StreamWriter writer = new StreamWriter(generatedAsmInfoStream, Encoding.Default)) {
                     // create new instance of CodeProviderInfo for specified CodeLanguage
                     CodeProvider codeProvider = new CodeProvider(this, Language);
@@ -320,7 +320,7 @@ namespace NAnt.DotNet.Tasks {
             VB = 2,
         }
 
-        /// <summary> 
+        /// <summary>
         /// Encapsulates functionality to generate a code file with imports
         /// and assembly-level attributes.
         /// </summary>
@@ -361,7 +361,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             #endregion Public Instance Constructors
-    
+
             #region Private Instance Properties
 
             /// <summary>
