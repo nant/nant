@@ -29,6 +29,12 @@ using NAnt.Core.Attributes;
 using NAnt.NUnit.Types;
 using NAnt.NUnit1.Types;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 namespace NAnt.NUnit1.Tasks {
     /// <summary>
     /// Runs tests using the NUnit V1.0 framework.
@@ -209,10 +215,10 @@ namespace NAnt.NUnit1.Tasks {
             domSetup.ApplicationName = "NAnt Remote Domain";
 #if NET_4_0
             Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-            newDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
             
-            PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(newDomainEvidence);
-            AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, null, domSetup, domainPermSet);
+            PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
+            AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
+                                    domSetup, domainPermSet);
 #else
             AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
 #endif

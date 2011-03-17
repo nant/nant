@@ -193,13 +193,7 @@ namespace NAnt.Core.Util {
         /// returns <paramref name="path2" />.
         /// </returns>
         /// <remarks>
-        ///   <para>
-#if MONO && NET_4_0
-        ///   On *nix, processing is delegated to Path.Combine(string, string).
-#else
-        ///   On *nix, processing is delegated to <see cref="Path.Combine(string, string)" />.
-#endif
-        ///   </para>
+        ///   <para>On *nix, processing is delegated to <see cref="System.IO.Path.Combine(string, string)" />.</para>
         ///   <para>
         ///   On Windows, this method normalized the paths to avoid running into
         ///   the 260 character limit of a path and converts forward slashes in 

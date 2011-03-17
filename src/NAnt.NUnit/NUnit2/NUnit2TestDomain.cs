@@ -27,6 +27,12 @@ using System.Runtime.Remoting;
 
 using NUnit.Core;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
     /// Custom TestDomain, similar to the one included with NUnit, in order 

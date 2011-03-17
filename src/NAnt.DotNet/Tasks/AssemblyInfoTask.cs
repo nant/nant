@@ -451,12 +451,9 @@ namespace NAnt.DotNet.Tasks {
 
             private object GetTypedValue(AssemblyAttribute attribute, StringCollection assemblies, StringCollection imports) {
                 // locate type assuming TypeName is fully qualified typename
-#if NET_4_0
-                Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-                newDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Internet));
-                
-                PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(newDomainEvidence);
-                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", null, 
+#if NET_4_0     
+                PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", AppDomain.CurrentDomain.Evidence, 
                     AppDomain.CurrentDomain.SetupInformation, domainPermSet);
 
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 

@@ -38,6 +38,12 @@ using NAnt.Core.Util;
 using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Types;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 namespace NAnt.VSNet.Tasks {
     /// <summary>
     /// Compiles VS.NET solutions (or sets of projects), automatically determining 
@@ -443,12 +449,9 @@ namespace NAnt.VSNet.Tasks {
 
                     // create temporary domain
 #if NET_4_0
-                    Evidence tempDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-                    tempDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
+                    PermissionSet tempDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
                     
-                    PermissionSet tempDomainPermSet = SecurityManager.GetStandardSandbox(tempDomainEvidence);
-                    
-                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", null, 
+                    AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", AppDomain.CurrentDomain.Evidence, 
                         AppDomain.CurrentDomain.SetupInformation, tempDomainPermSet);
 #else
                     AppDomain temporaryDomain = AppDomain.CreateDomain("temporaryDomain", 
