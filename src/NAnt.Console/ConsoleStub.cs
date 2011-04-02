@@ -29,6 +29,7 @@ using System.Xml;
 
 #if NET_4_0
 using System.Security;
+using System.Security.Permissions;
 using System.Security.Policy;
 #endif
 
@@ -151,12 +152,13 @@ namespace NAnt.Console {
                 }
 
                 // create the domain.
-#if NET_4_0
-                Evidence executingEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-                executingEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
+#if NET_4_0     
+                PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
+                FileIOPermission fioPerm = new FileIOPermission(PermissionState.Unrestricted);
+                fioPerm.AllFiles = FileIOPermissionAccess.Read;
+                myDomainPermSet.AddPermission(fioPerm);
                 
-                PermissionSet myDomainPermSet = SecurityManager.GetStandardSandbox(executingEvidence);
-                executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, null, 
+                executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
                     myDomainSetup, myDomainPermSet);
 #else
                 executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName,
@@ -424,11 +426,7 @@ namespace NAnt.Console {
                 // its added to privatebinpath in the config file, as entries 
                 // in the config file are not reflected in SetupInformation
                 if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib"))) {
-#if NET_4_0
-                    AppDomain.CurrentDomain.SetupInformation.PrivateBinPath += ";lib";
-#else
                     AppDomain.CurrentDomain.AppendPrivatePath("lib");
-#endif
                 }
 
                 // add framework specific entries to privatebinpath
@@ -436,11 +434,7 @@ namespace NAnt.Console {
                     foreach (string probePath in _probePaths.Split(Path.PathSeparator)) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture,
                             "Adding '{0}' to private bin path.", probePath));
-#if NET_4_0
-                        AppDomain.CurrentDomain.SetupInformation.PrivateBinPath += string.Concat(";", probePath);
-#else
                         AppDomain.CurrentDomain.AppendPrivatePath(probePath);
-#endif
                     }
                 }
 
