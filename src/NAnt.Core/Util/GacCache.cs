@@ -30,6 +30,7 @@ using System.Runtime.Remoting.Lifetime;
 
 #if NET_4_0
 using System.Security;
+using System.Security.Permissions;
 using System.Security.Policy;
 #endif
 
@@ -124,11 +125,8 @@ namespace NAnt.Core.Util {
 
             _resolver = null;
 #if NET_4_0
-            Evidence domainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-            domainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
-            
-            PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(domainEvidence);
-            _domain = AppDomain.CreateDomain("GacCacheDomain", null, 
+            PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
+            _domain = AppDomain.CreateDomain("GacCacheDomain", AppDomain.CurrentDomain.Evidence, 
                 AppDomain.CurrentDomain.SetupInformation, domainPermSet);
 #else
             _domain = AppDomain.CreateDomain("GacCacheDomain", 

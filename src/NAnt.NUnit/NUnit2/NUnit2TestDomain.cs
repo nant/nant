@@ -144,10 +144,8 @@ namespace NAnt.NUnit2.Tasks {
             }
 
 #if NET_4_0
-            Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-            newDomainEvidence.AddHostEvidence(new Zone(SecurityZone.Trusted));
-            PermissionSet domainPermSet = SecurityManager.GetStandardSandbox(newDomainEvidence);
-            return AppDomain.CreateDomain(domSetup.ApplicationName, null, domSetup, domainPermSet);
+            PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
+            return AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup, myDomainPermSet);
 #else
             return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 

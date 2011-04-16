@@ -154,10 +154,6 @@ namespace NAnt.Console {
                 // create the domain.
 #if NET_4_0     
                 PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
-                FileIOPermission fioPerm = new FileIOPermission(PermissionState.Unrestricted);
-                fioPerm.AllFiles = FileIOPermissionAccess.Read;
-                myDomainPermSet.AddPermission(fioPerm);
-                
                 executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
                     myDomainSetup, myDomainPermSet);
 #else

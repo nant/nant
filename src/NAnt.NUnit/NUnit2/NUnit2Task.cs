@@ -30,6 +30,12 @@ using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 using NUnit.Core;
 using TestCase = NUnit.Core.TestCase;
 using TestOutput = NUnit.Core.TestOutput;
