@@ -32,11 +32,28 @@ namespace Tests.NAnt.Win32.Tasks {
 
         [Test]
         public void Test_Read_Defaults() {
-            string _xml = @"
-                    <project name='PropTests'>
-                        <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows\CurrentVersion\ProductId'/>
-                        <echo message='productID=${windows.id};'/>
-                    </project>";
+            string _xml = string.Empty;
+            switch (Environment.OSVersion.Platform) {
+                case PlatformID.Win32Windows:
+                    // String to use for win9x system
+                    _xml = @"
+                        <project name='PropTests'>
+                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows\CurrentVersion\ProductId'/>
+                            <echo message='productID=${windows.id};'/>
+                        </project>";
+                    break;
+                case PlatformID.Win32NT:
+                    // String to use for winnt system
+                    _xml = @"
+                        <project name='PropTests'>
+                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProductId'/>
+                            <echo message='productID=${windows.id};'/>
+                        </project>";
+                    break;
+                default:
+                    Assert.Fail("Unsupported Windows version detected.");
+                    break;
+            }
 
             string result = RunBuild(_xml);
             Assert.IsTrue(result.IndexOf("productID=;") == -1,
