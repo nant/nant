@@ -9,6 +9,8 @@
             * nant.console.name     - assembly name for NAnt Console
     -->
     <target name="build">
+        <!-- Target Config (App.config) Filename and path -->
+        <property name="target.config.file" value="${build.dir}/bin/${nant.console.name}.exe.config" />
         <!-- build NAnt.Console -->
         <csc target="exe" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <warnaserror>
@@ -38,6 +40,11 @@
                 <include name="*.resx"/>
             </resources>
         </csc>
-        <copy tofile="${build.dir}/bin/${nant.console.name}.exe.config" file="App.config" />
+        <copy tofile="${target.config.file}" file="App.config" />
+        <!-- If the target framework is 1.0 - 3.5, enable the Legacy Security Policy -->
+        <!-- This is needed if NAnt is built on anything prior to 4.0 but running on 4.0 or (probably) later -->
+        <if test="${framework::get-version(framework::get-target-framework()) &lt; version::parse('4.0')}">
+            <xmlpoke file="${target.config.file}" xpath="/configuration/runtime/NetFx40_LegacySecurityPolicy/@enabled" value="true" />
+        </if>
     </target>
 </project>
