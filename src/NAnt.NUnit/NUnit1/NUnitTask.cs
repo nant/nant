@@ -214,8 +214,6 @@ namespace NAnt.NUnit1.Tasks {
             domSetup.ConfigurationFile = Project.GetFullPath(test.AppConfigFile);
             domSetup.ApplicationName = "NAnt Remote Domain";
 #if NET_4_0
-            Evidence newDomainEvidence = new Evidence(AppDomain.CurrentDomain.Evidence);
-            
             PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
             AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
                                     domSetup, domainPermSet);
