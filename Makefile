@@ -29,16 +29,16 @@ endif
 ifdef TARGET
 TARGET_FRAMEWORK = -t:$(TARGET)
 
-ifeq ($(TARGET),net-1.0)
-DEFINE = $(DEFINE),NET_1_0,ONLY_1_0
-else ifeq ($(TARGET),net-1.1)
-DEFINE = $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
-else ifeq ($(TARGET),net-2.0)
-DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
-else ifeq ($(TARGET),net-3.5)
-DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
-else ifeq ($(TARGET),net-4.0)
-DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
+ifeq ($(findstring 1.0,$(TARGET)),1.0)
+DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
+else ifeq ($(findstring 1.1,$(TARGET)),1.1)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
+else ifeq ($(findstring 2.0,$(TARGET)),2.0)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
+else ifeq ($(findstring 3.5,$(TARGET)),3.5)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
+else ifeq ($(findstring 4.0,$(TARGET)),4.0)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
 endif
 
 endif
