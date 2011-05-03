@@ -27,6 +27,12 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 namespace NAnt.Console {
     /// <summary>
     /// Stub used to created <see cref="AppDomain" /> and launch real <c>ConsoleDriver</c> 
@@ -146,9 +152,14 @@ namespace NAnt.Console {
                 }
 
                 // create the domain.
+#if NET_4_0     
+                PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
+                executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
+                    myDomainSetup, myDomainPermSet);
+#else
                 executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName,
                     AppDomain.CurrentDomain.Evidence, myDomainSetup);
-
+#endif
                 logger.Debug(string.Format(
                     CultureInfo.InvariantCulture,
                     "NAntDomain.SetupInfo:\n{0}", 
@@ -419,7 +430,6 @@ namespace NAnt.Console {
                     foreach (string probePath in _probePaths.Split(Path.PathSeparator)) {
                         logger.Debug(string.Format(CultureInfo.InvariantCulture,
                             "Adding '{0}' to private bin path.", probePath));
-
                         AppDomain.CurrentDomain.AppendPrivatePath(probePath);
                     }
                 }

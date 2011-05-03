@@ -31,6 +31,12 @@ using System.Runtime.Remoting.Lifetime;
 using System.Security.Cryptography;
 using System.Text;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -130,11 +136,11 @@ namespace NAnt.DotNet.Tasks {
         [StringValidator(AllowEmpty=false)]
         public CodeLanguage Language {
             get { return _language; }
-            set { 
+            set {
                 if (!Enum.IsDefined(typeof(CodeLanguage), value)) {
                     throw new ArgumentException(string.Format(
                         CultureInfo.InvariantCulture,
-                        ResourceUtils.GetString("NA2002"), value)); 
+                        ResourceUtils.GetString("NA2002"), value));
                 } else {
                     _language = value;
                 }
@@ -199,7 +205,7 @@ namespace NAnt.DotNet.Tasks {
                 // write out code to memory stream, so we can compare it later 
                 // to what is already present (if necessary)
                 MemoryStream generatedAsmInfoStream = new MemoryStream();
-                
+
                 using (StreamWriter writer = new StreamWriter(generatedAsmInfoStream, Encoding.Default)) {
                     // create new instance of CodeProviderInfo for specified CodeLanguage
                     CodeProvider codeProvider = new CodeProvider(this, Language);
@@ -314,7 +320,7 @@ namespace NAnt.DotNet.Tasks {
             VB = 2,
         }
 
-        /// <summary> 
+        /// <summary>
         /// Encapsulates functionality to generate a code file with imports
         /// and assembly-level attributes.
         /// </summary>
@@ -355,7 +361,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             #endregion Public Instance Constructors
-    
+
             #region Private Instance Properties
 
             /// <summary>
@@ -445,14 +451,19 @@ namespace NAnt.DotNet.Tasks {
 
             private object GetTypedValue(AssemblyAttribute attribute, StringCollection assemblies, StringCollection imports) {
                 // locate type assuming TypeName is fully qualified typename
-                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
-                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-#if (NET_4_0)
+#if NET_4_0     
+                PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", AppDomain.CurrentDomain.Evidence, 
+                    AppDomain.CurrentDomain.SetupInformation, domainPermSet);
+
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
                     null, new object[0], CultureInfo.InvariantCulture, new object[0]);
 #else
+                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
+                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 

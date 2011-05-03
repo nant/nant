@@ -27,6 +27,12 @@ using System.Runtime.Remoting;
 
 using NUnit.Core;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
     /// Custom TestDomain, similar to the one included with NUnit, in order 
@@ -82,6 +88,16 @@ namespace NAnt.NUnit2.Tasks {
             probePaths [probePaths.Length - 1] = AppDomain.CurrentDomain.BaseDirectory;
 
             // create an instance of our custom Assembly Resolver in the target domain.
+#if NET_4_0
+            _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase,
+                    typeof(AssemblyResolveHandler).FullName,
+                    false, 
+                    BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    new object[] {probePaths, references},
+                    CultureInfo.InvariantCulture,
+                    null);
+#else
             _domain.CreateInstanceFrom(Assembly.GetExecutingAssembly().CodeBase,
                     typeof(AssemblyResolveHandler).FullName,
                     false, 
@@ -91,7 +107,7 @@ namespace NAnt.NUnit2.Tasks {
                     CultureInfo.InvariantCulture,
                     null,
                     AppDomain.CurrentDomain.Evidence);
-
+#endif
             // create testrunner
             return CreateTestRunner(_domain);
         }
@@ -127,16 +143,32 @@ namespace NAnt.NUnit2.Tasks {
                 domSetup.ConfigurationFile = assemblyFile.FullName + ".config";
             }
 
+#if NET_4_0
+            PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
+            return AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup, myDomainPermSet);
+#else
             return AppDomain.CreateDomain( 
                 domSetup.ApplicationName, 
                 AppDomain.CurrentDomain.Evidence, 
                 domSetup);
+#endif
         }
 
         private RemoteTestRunner CreateTestRunner(AppDomain domain) {
             ObjectHandle oh;
             Type rtrType = typeof(RemoteTestRunner);
 
+#if NET_4_0
+            oh = domain.CreateInstance(
+                rtrType.Assembly.FullName,
+                rtrType.FullName,
+                false, 
+                BindingFlags.Public | BindingFlags.Instance, 
+                null,
+                null,
+                CultureInfo.InvariantCulture,
+                null);
+#else
             oh = domain.CreateInstance(
                 rtrType.Assembly.FullName,
                 rtrType.FullName,
@@ -147,6 +179,7 @@ namespace NAnt.NUnit2.Tasks {
                 CultureInfo.InvariantCulture,
                 null,
                 AppDomain.CurrentDomain.Evidence);
+#endif
             return (RemoteTestRunner) oh.Unwrap();
         }
 

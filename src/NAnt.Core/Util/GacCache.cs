@@ -28,6 +28,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Lifetime;
 
+#if NET_4_0
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+#endif
+
 using NAnt.Core;
 
 namespace NAnt.Core.Util {
@@ -118,8 +124,14 @@ namespace NAnt.Core.Util {
                 AppDomain.Unload(_domain);
 
             _resolver = null;
+#if NET_4_0
+            PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
+            _domain = AppDomain.CreateDomain("GacCacheDomain", AppDomain.CurrentDomain.Evidence, 
+                AppDomain.CurrentDomain.SetupInformation, domainPermSet);
+#else
             _domain = AppDomain.CreateDomain("GacCacheDomain", 
                 AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
+#endif
             _hasLoadedAssembly = false;
         }
 

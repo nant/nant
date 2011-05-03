@@ -141,7 +141,7 @@ namespace NAnt.Core.Tasks {
                 }
                 TaskFileSet.DirectoryNames.Add(Path.FullName);
             }
-
+            
             // process the fileset
             foreach (string assemblyPath in TaskFileSet.FileNames) {
                 try {

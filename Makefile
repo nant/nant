@@ -28,6 +28,19 @@ endif
 
 ifdef TARGET
 TARGET_FRAMEWORK = -t:$(TARGET)
+
+ifeq ($(findstring 1.0,$(TARGET)),1.0)
+DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
+else ifeq ($(findstring 1.1,$(TARGET)),1.1)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
+else ifeq ($(findstring 2.0,$(TARGET)),2.0)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
+else ifeq ($(findstring 3.5,$(TARGET)),3.5)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
+else ifeq ($(findstring 4.0,$(TARGET)),4.0)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
+endif
+
 endif
 
 NANT=$(MONO) bootstrap/NAnt.exe
@@ -48,7 +61,7 @@ run-test: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build test
 	
 bootstrap/NAnt.exe:
-	$(MCS) -target:exe -define:${DEFINE} -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
+	$(MCS) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
 		-recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 	
 
@@ -65,24 +78,24 @@ setup:
 
 bootstrap/NAnt.Core.dll:
 	$(RESGEN)  src/NAnt.Core/Resources/Strings.resx bootstrap/NAnt.Core.Resources.Strings.resources
-	$(MCS) -target:library -warn:0 -define:${DEFINE} -out:bootstrap/NAnt.Core.dll -debug \
+	$(MCS) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap/NAnt.Core.dll -debug \
 		-resource:bootstrap/NAnt.Core.Resources.Strings.resources -r:lib${DIRSEP}common${DIRSEP}neutral${DIRSEP}log4net.dll \
 		-r:System.Web.dll -recurse:src${DIRSEP}NAnt.Core${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.DotNetTasks.dll:
 	$(RESGEN)  src/NAnt.DotNet/Resources/Strings.resx bootstrap/NAnt.DotNet.Resources.Strings.resources
-	$(MCS) -target:library -warn:0 -define:MONO -out:bootstrap/NAnt.DotNetTasks.dll \
+	$(MCS) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap/NAnt.DotNetTasks.dll \
 		-r:./bootstrap/NAnt.Core.dll -r:bootstrap/lib/common/neutral/NDoc.Core.dll \
 		-recurse:src${DIRSEP}NAnt.DotNet${DIRSEP}*.cs -resource:bootstrap/NAnt.DotNet.Resources.Strings.resources \
 		src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.CompressionTasks.dll:
-	$(MCS) -target:library -warn:0 -define:MONO -out:bootstrap/NAnt.CompressionTasks.dll \
+	$(MCS) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap/NAnt.CompressionTasks.dll \
 		-r:./bootstrap/NAnt.Core.dll -r:bootstrap/lib/common/neutral/ICSharpCode.SharpZipLib.dll \
 		-recurse:src${DIRSEP}NAnt.Compression${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 
 bootstrap/NAnt.Win32Tasks.dll:
-	$(MCS) -target:library -warn:0 -define:${DEFINE} -out:bootstrap/NAnt.Win32Tasks.dll \
+	$(MCS) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap/NAnt.Win32Tasks.dll \
 		-r:./bootstrap/NAnt.Core.dll -r:./bootstrap/NAnt.DotNetTasks.dll -r:System.ServiceProcess.dll \
 		-r:Microsoft.JScript.dll -recurse:src${DIRSEP}NAnt.Win32${DIRSEP}*.cs \
 		src${DIRSEP}CommonAssemblyInfo.cs
