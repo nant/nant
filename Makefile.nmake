@@ -53,28 +53,28 @@ setup:
 	copy src\NAnt.Console\App.config bootstrap\NAnt.exe.config
 
 bootstrap\NAnt.exe:
-	"$(CSC)" $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
+	$(CSC) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Core.dll:
-	"$(RESGEN)"  src\NAnt.Core\Resources\Strings.resx bootstrap\NAnt.Core.Resources.Strings.resources
-	"$(CSC)" $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll \
+	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\NAnt.Core.Resources.Strings.resources
+	$(CSC) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Core.dll -r:bootstrap\log4net.dll \
 		-r:System.Web.dll -resource:bootstrap\NAnt.Core.Resources.Strings.resources \
 		-recurse:src\NAnt.Core\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.DotNetTasks.dll:
-	"$(RESGEN)"  src\NAnt.DotNet\Resources\Strings.resx bootstrap\NAnt.DotNet.Resources.Strings.resources
-	"$(CSC)" $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll \
+	$(RESGEN)  src\NAnt.DotNet\Resources\Strings.resx bootstrap\NAnt.DotNet.Resources.Strings.resources
+	$(CSC) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.DotNetTasks.dll \
 		-r:bootstrap\NAnt.Core.dll -r:bootstrap/lib/common/neutral/NDoc.Core.dll \
 		-resource:bootstrap\NAnt.DotNet.Resources.Strings.resources -recurse:src\NAnt.DotNet\*.cs \
 		src\CommonAssemblyInfo.cs
 	
 bootstrap\NAnt.CompressionTasks.dll:
-	"$(CSC)" $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll \
+	$(CSC) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.CompressionTasks.dll \
 		-r:bootstrap\NAnt.Core.dll -r:bootstrap\lib\common\neutral\ICSharpCode.SharpZipLib.dll \
 		-recurse:src\NAnt.Compression\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Win32Tasks.dll:
-	"$(CSC)" $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Win32Tasks.dll \
+	$(CSC) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap\NAnt.Win32Tasks.dll \
 		-r:bootstrap\NAnt.Core.dll -r:bootstrap\NAnt.DotNetTasks.dll -r:System.ServiceProcess.dll \
 		-r:Microsoft.JScript.dll -recurse:src\NAnt.Win32\*.cs \
 		src\CommonAssemblyInfo.cs
