@@ -41,10 +41,9 @@
             </resources>
         </csc>
         <copy tofile="${target.config.file}" file="App.config" />
-        <!-- If the target framework is 1.0 - 3.5, enable the Legacy Security Policy -->
-        <!-- This is needed if NAnt is built on anything prior to 4.0 but running on 4.0 or (probably) later -->
-        <if test="${framework::get-version(framework::get-target-framework()) &lt; version::parse('4.0')}">
-            <xmlpoke file="${target.config.file}" xpath="/configuration/runtime/NetFx40_LegacySecurityPolicy/@enabled" value="true" />
+        <!-- If the target framework is 4.0 or greater, disable the Legacy Security Policy -->
+        <if test="${framework::get-version(framework::get-target-framework()) &gt;= version::parse('4.0')}">
+            <xmlpoke file="${target.config.file}" xpath="/configuration/runtime/NetFx40_LegacySecurityPolicy/@enabled" value="false" />
         </if>
     </target>
 </project>
