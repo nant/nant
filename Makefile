@@ -62,7 +62,7 @@ run-test: bootstrap
 	
 bootstrap/NAnt.exe:
 	$(MCS) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
-		-recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
+		-r:System.Configuration.dll -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 	
 
 bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
@@ -97,5 +97,4 @@ bootstrap/NAnt.CompressionTasks.dll:
 bootstrap/NAnt.Win32Tasks.dll:
 	$(MCS) $(DEBUG) -target:library -warn:0 -define:$(DEFINE) -out:bootstrap/NAnt.Win32Tasks.dll \
 		-r:./bootstrap/NAnt.Core.dll -r:./bootstrap/NAnt.DotNetTasks.dll -r:System.ServiceProcess.dll \
-		-r:Microsoft.JScript.dll -recurse:src${DIRSEP}NAnt.Win32${DIRSEP}*.cs \
-		src${DIRSEP}CommonAssemblyInfo.cs
+		-recurse:src${DIRSEP}NAnt.Win32${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
