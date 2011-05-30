@@ -11,13 +11,17 @@ DEFINE = NET
 FRAMEWORK_DIR = net
 !endif
 
+SYSCONFIGURATION = -r:System.Configuration.dll
+
 !ifdef TARGET
 TARGET_FRAMEWORK = -t:$(TARGET)
 
 !if "$(TARGET)" == "net-1.0" || "$(TARGET)" == "mono-1.0"
 DEFINE = $(DEFINE),NET_1_0,ONLY_1_0
+SYSCONFIGURATION =
 !else if "$(TARGET)" == "net-1.1"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
+SYSCONFIGURATION = 
 !else if "$(TARGET)" == "net-2.0" || "$(TARGET)" == "mono-2.0"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 !else if "$(TARGET)" == "net-3.5" || "$(TARGET)" == "mono-3.5"
@@ -54,7 +58,7 @@ setup:
 
 bootstrap\NAnt.exe:
 	$(CSC) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll \
-    -r:System.Configuration.dll -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
+   $(SYSCONFIGURATION) -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Core.dll:
 	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\NAnt.Core.Resources.Strings.resources

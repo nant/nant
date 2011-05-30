@@ -3,6 +3,8 @@ MONO=mono
 MCS=mcs
 RESGEN=resgen
 
+SYSCONFIGURATION = -r:System.Configuration.dll
+
 ifndef DIRSEP
 ifeq ($(OS),Windows_NT)
 DIRSEP = \\
@@ -31,8 +33,10 @@ TARGET_FRAMEWORK = -t:$(TARGET)
 
 ifeq ($(findstring 1.0,$(TARGET)),1.0)
 DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
+SYSCONFIGURATION = 
 else ifeq ($(findstring 1.1,$(TARGET)),1.1)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
+SYSCONFIGURATION = 
 else ifeq ($(findstring 2.0,$(TARGET)),2.0)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 else ifeq ($(findstring 3.5,$(TARGET)),3.5)
@@ -62,7 +66,7 @@ run-test: bootstrap
 	
 bootstrap/NAnt.exe:
 	$(MCS) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
-		-r:System.Configuration.dll -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
+		$(SYSCONFIGURATION) -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 	
 
 bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
