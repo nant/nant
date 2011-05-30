@@ -148,7 +148,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void NamespaceImports () {
-#if ONLY_1_0
+#if ONLY_1_1
              if (PlatformHelper.IsMono) {
                 Assert.Ignore("Skip this to make mono-1.0 on tc@codebetter.com happy. Should be removed when 1.x runtime support is dropped")
              }
