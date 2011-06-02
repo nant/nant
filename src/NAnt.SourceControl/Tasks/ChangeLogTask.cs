@@ -28,9 +28,6 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-using ICSharpCode.SharpCvsLib.Commands;
-using ICSharpCode.SharpCvsLib.Util;
-
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
     /// Produces an XML report that represents the cvs changes from the given 
@@ -92,7 +89,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime StartDate {
             get { return Convert.ToDateTime(((Option)CommandOptions["start"]).Value); }
-            set { SetCommandOption("start", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
+            set { SetCommandOption("start", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", ToCvsDateTimeString(value)), true); }
         }
 
         /// <summary>
@@ -102,7 +99,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime EndDate {
             get { return Convert.ToDateTime(((Option)CommandOptions["end"]).Value); }
-            set { SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
+            set { SetCommandOption("end", string.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", ToCvsDateTimeString(value)), true); }
         }
 
         #endregion Public Instance Properties

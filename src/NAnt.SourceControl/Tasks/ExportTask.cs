@@ -29,8 +29,6 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-using ICSharpCode.SharpCvsLib.Util;
-
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
     /// Exports a cvs module in preperation for a release (i.e. the CVS version
@@ -180,7 +178,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime Date {
             get { return Convert.ToDateTime(((Option)CommandOptions["date"]).Value); }
-            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"\"-D {0}\"", DateParser.GetCvsDateString(value)), true); }
+            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"\"-D {0}\"", ToCvsDateTimeString(value)), true); }
         }
 
         /// <summary>

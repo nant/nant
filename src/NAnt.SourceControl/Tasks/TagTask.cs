@@ -25,10 +25,7 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 using NAnt.Core.Types;
 
-using ICSharpCode.SharpCvsLib.Util;
-
-namespace NAnt.SourceControl.Tasks
-{
+namespace NAnt.SourceControl.Tasks {
     /// <summary>
     /// Tags all local sources with the specified tag.  
     /// </summary>
@@ -187,7 +184,7 @@ namespace NAnt.SourceControl.Tasks
         [DateTimeValidator()]
         public DateTime ActOnDate {
             get { return Convert.ToDateTime(((Option)CommandOptions["act-on-date"]).Value); }
-            set { SetCommandOption("act-on-date", String.Format(CultureInfo.InvariantCulture,"-D {0}", DateParser.GetCvsDateString(value)), true); }
+            set { SetCommandOption("act-on-date", String.Format(CultureInfo.InvariantCulture,"-D {0}", ToCvsDateTimeString(value)), true); }
         }
 
         /// <summary>

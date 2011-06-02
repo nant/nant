@@ -29,8 +29,6 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-using ICSharpCode.SharpCvsLib.Commands;
-
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
     /// Executes the cvs login command which appends or updates an entry to the

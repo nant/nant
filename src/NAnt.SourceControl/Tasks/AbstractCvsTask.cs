@@ -32,7 +32,6 @@ using NAnt.Core.Util;
 using NAnt.SourceControl.Types;
 
 using ICSharpCode.SharpCvsLib.FileSystem;
-using ICSharpCode.SharpCvsLib.Exceptions;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
@@ -139,7 +138,7 @@ namespace NAnt.SourceControl.Tasks {
         /// The environment name for the ssh variable.
         /// </summary>
         protected override string SshEnv {
-            get {return CvsRsh;}
+            get { return CvsRsh; }
         }
 
         /// <summary>
@@ -147,7 +146,7 @@ namespace NAnt.SourceControl.Tasks {
         /// was written.
         /// </summary>
         protected override string VcsExeName {
-            get {return CvsExe;}
+            get { return CvsExe; }
         }
 
         /// <summary>
@@ -155,7 +154,7 @@ namespace NAnt.SourceControl.Tasks {
         /// of this writing.
         /// </summary>
         protected override string PassFileName {
-            get {return CvsPassfile;}
+            get { return CvsPassfile; }
         }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace NAnt.SourceControl.Tasks {
         /// variable.
         /// </summary>
         protected override string VcsHomeEnv {
-            get {return CvsHome;}
+            get { return CvsHome; }
         }
 
         /// <summary>
@@ -176,6 +175,24 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         #endregion
+
+        #region Protected Instance Methods
+        
+        /// <summary>
+        /// Converts a <see cref="System.DateTime"/> value to a <see cref="System.String"/> 
+        /// representation that can be interpreted by cvs.
+        /// </summary>
+        /// <param name="item"><see cref="System.DateTime"/> to convert.</param>
+        /// <returns>
+        /// <see cref="System.String"/> interpretation of <paramref name="item"/>.
+        /// </returns>
+        protected string ToCvsDateTimeString(DateTime item) {
+            return string.Format("{0} {1} {2,2} {3} {4}", item.ToString("ddd"), 
+                item.ToString("MMM"), item.Day.ToString(), item.ToString("HH:mm:ss"), 
+                item.Year.ToString());
+        }
+        
+        #endregion Protected Instance Methods
 
         #region Public Instance Properties
 
@@ -236,8 +253,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </value>
         [TaskAttribute("cvsfullpath", Required=false)]
         public FileInfo CvsFullPath {
-            get {return _cvsFullPath;}
-            set {_cvsFullPath = value;}
+            get { return _cvsFullPath; }
+            set { _cvsFullPath = value; }
         }
 
         /// <summary>
@@ -340,7 +357,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
         public virtual bool UseSharpCvsLib {
-            get {return _useSharpCvsLib;}
+            get { return _useSharpCvsLib; }
             set {
                 _isUseSharpCvsLibSet = true;
                 _useSharpCvsLib = value;
@@ -352,8 +369,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         [TaskAttribute("cvsrsh", Required=false)]
         public override FileInfo Ssh {
-            get {return base.Ssh;}
-            set {base.Ssh = value;}
+            get { return base.Ssh; }
+            set { base.Ssh = value; }
         }
 
         /// <summary>
@@ -367,7 +384,7 @@ namespace NAnt.SourceControl.Tasks {
                 Option option = (Option)GlobalOptions["quiet"];
                 return null == option ? false : option.IfDefined;
             }
-            set {SetGlobalOption("quiet", "-q", value);}
+            set { SetGlobalOption("quiet", "-q", value); }
         }
 
         /// <summary>
@@ -381,7 +398,7 @@ namespace NAnt.SourceControl.Tasks {
                 Option option = (Option)GlobalOptions["reallyquiet"];
                 return null == option ? false : option.IfDefined;
             }
-            set {SetGlobalOption("reallyquiet", "-Q", value);}
+            set { SetGlobalOption("reallyquiet", "-Q", value); }
         }
 
         /// <summary>
@@ -395,7 +412,7 @@ namespace NAnt.SourceControl.Tasks {
                 Option option = (Option)GlobalOptions["readonly"];
                 return null == option ? false : option.IfDefined;
             }
-            set {SetGlobalOption("readonly", "-r", value);}
+            set { SetGlobalOption("readonly", "-r", value); }
         }
 
         /// <summary>
@@ -409,7 +426,7 @@ namespace NAnt.SourceControl.Tasks {
                 Option option = (Option)GlobalOptions["readwrite"];
                 return null == option ? false : option.IfDefined;
             }
-            set {SetGlobalOption("readwrite", "-w", value);}
+            set { SetGlobalOption("readwrite", "-w", value); }
         }
 
         /// <summary>
@@ -424,7 +441,7 @@ namespace NAnt.SourceControl.Tasks {
                 Option option = (Option)GlobalOptions["compressionlevel"];
                 return null == option ? DefaultCompressionLevel : Convert.ToInt32(option.Value);
             }
-            set {SetGlobalOption("readwrite", String.Format("-z{0}", value), true);}
+            set { SetGlobalOption("readwrite", String.Format("-z{0}", value), true); }
         }
 
         #endregion Public Instance Properties

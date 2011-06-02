@@ -21,8 +21,6 @@ using System;
 using System.Globalization;
 using System.IO;
 
-using ICSharpCode.SharpCvsLib.Util;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -205,7 +203,7 @@ namespace NAnt.SourceControl.Tasks {
         [DateTimeValidator()]
         public DateTime Date {
             get { return Convert.ToDateTime(((Option)CommandOptions["date"]).Value); }
-            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", DateParser.GetCvsDateString(value)), true); }
+            set { SetCommandOption("date", String.Format(CultureInfo.InvariantCulture,"-D \"{0}\"", ToCvsDateTimeString(value)), true); }
         }
 
         #endregion
