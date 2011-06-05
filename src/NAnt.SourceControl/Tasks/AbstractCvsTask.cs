@@ -35,7 +35,7 @@ using ICSharpCode.SharpCvsLib.FileSystem;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
-    /// A base class for creating tasks for executing CVS client commands on a 
+    /// A base class for creating tasks for executing CVS client commands on a
     /// CVS repository.
     /// </summary>
     public abstract class AbstractCvsTask : AbstractSourceControlTask {
@@ -46,7 +46,7 @@ namespace NAnt.SourceControl.Tasks {
         #region Protected Static Fields
 
         /// <summary>
-        /// Default value for the recursive directive.  The default is 
+        /// Default value for the recursive directive.  The default is
         /// <see langword="false" />.
         /// </summary>
         protected const bool DefaultRecursive = false;
@@ -68,7 +68,7 @@ namespace NAnt.SourceControl.Tasks {
         protected const string CvsHome = "CVS_HOME";
 
         /// <summary>
-        /// Name of the password file that cvs stores pserver 
+        /// Name of the password file that cvs stores pserver
         ///     cvsroot/ password pairings.
         /// </summary>
         protected const String CvsPassfile = ".cvspass";
@@ -89,7 +89,7 @@ namespace NAnt.SourceControl.Tasks {
         protected const string CvsExe = "cvs.exe";
 
         /// <summary>
-        /// The temporary name of the sharpcvslib binary file, to avoid 
+        /// The temporary name of the sharpcvslib binary file, to avoid
         /// conflicts in the path variable.
         /// </summary>
         protected const string SharpCvsExe = "scvs.exe";
@@ -122,7 +122,7 @@ namespace NAnt.SourceControl.Tasks {
 
         #region Protected Instance Contructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractCvsTask" /> 
+        /// Initializes a new instance of the <see cref="AbstractCvsTask" />
         /// class.
         /// </summary>
         protected AbstractCvsTask () : base() {
@@ -142,7 +142,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// The name of the cvs binary, or <c>cvs.exe</c> at the time this 
+        /// The name of the cvs binary, or <c>cvs.exe</c> at the time this
         /// was written.
         /// </summary>
         protected override string VcsExeName {
@@ -158,7 +158,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// The name of the version control system specific home environment 
+        /// The name of the version control system specific home environment
         /// variable.
         /// </summary>
         protected override string VcsHomeEnv {
@@ -177,9 +177,9 @@ namespace NAnt.SourceControl.Tasks {
         #endregion
 
         #region Protected Instance Methods
-        
+
         /// <summary>
-        /// Converts a <see cref="System.DateTime"/> value to a <see cref="System.String"/> 
+        /// Converts a <see cref="System.DateTime"/> value to a <see cref="System.String"/>
         /// representation that can be interpreted by cvs.
         /// </summary>
         /// <param name="item"><see cref="System.DateTime"/> to convert.</param>
@@ -187,11 +187,10 @@ namespace NAnt.SourceControl.Tasks {
         /// <see cref="System.String"/> interpretation of <paramref name="item"/>.
         /// </returns>
         protected string ToCvsDateTimeString(DateTime item) {
-            return string.Format("{0} {1} {2,2} {3} {4}", item.ToString("ddd"), 
-                item.ToString("MMM"), item.Day.ToString(), item.ToString("HH:mm:ss"), 
-                item.Year.ToString());
+            return string.Format("{0} {1,2} {2}", item.ToString("ddd MMM"), 
+                item.Day.ToString(), item.ToString("HH:mm:ss yyyy"));
         }
-        
+
         #endregion Protected Instance Methods
 
         #region Public Instance Properties
@@ -248,7 +247,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         /// <value>
         /// A full path (i.e. including file name) of your cvs binary:
-        ///     On Windows: c:\vcs\cvs\cvs.exe 
+        ///     On Windows: c:\vcs\cvs\cvs.exe
         ///     On *nix: /usr/bin/cvs
         /// </value>
         [TaskAttribute("cvsfullpath", Required=false)]
@@ -279,8 +278,8 @@ namespace NAnt.SourceControl.Tasks {
         /// </example>
         [TaskAttribute("cvsroot", Required=false)]
         [StringValidator(AllowEmpty=false)]
-        public override string Root {       
-            get { 
+        public override string Root {
+            get {
                 if (null == base.Root) {
                     try {
                         ICSharpCode.SharpCvsLib.FileSystem.Root root = 
@@ -310,7 +309,7 @@ namespace NAnt.SourceControl.Tasks {
         [TaskAttribute("module", Required=false)]
         [StringValidator(AllowEmpty=true)]
         public virtual string Module {
-            get { 
+            get {
                 if (null == _module) {
                     try {
                         Repository repository = Repository.Load(this.DestinationDirectory);
@@ -320,14 +319,14 @@ namespace NAnt.SourceControl.Tasks {
                             this.DestinationDirectory.FullName));
                     }
                 }
-                return _module; 
+                return _module;
             }
             set { _module = StringUtils.ConvertEmptyToNull(value); }
         }
 
         /// <summary>
         /// <para>
-        /// <see langword="true" /> if the SharpCvsLib binaries that come bundled 
+        /// <see langword="true" /> if the SharpCvsLib binaries that come bundled
         /// with NAnt should be used to perform the cvs commands, <see langword="false" />
         /// otherwise.
         /// </para>
@@ -337,7 +336,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <c>sourcecontrol.usesharpcvslib</c> to <see langword="false" />.
         /// </para>
         /// <warn>
-        /// If you choose not to use SharpCvsLib to checkout from cvs you will 
+        /// If you choose not to use SharpCvsLib to checkout from cvs you will
         /// need to include a cvs.exe binary in your path.
         /// </warn>
         /// </summary>
@@ -345,14 +344,14 @@ namespace NAnt.SourceControl.Tasks {
         ///     To use a cvs client in your path instead of sharpcvslib specify
         ///         the property:
         ///     &gt;property name="sourcecontrol.usesharpcvslib" value="false"&lt;
-        ///     
+        ///
         ///     The default settings is to use sharpcvslib and the setting closest
         ///     to the task execution is used to determine which value is used
         ///     to execute the process.
-        ///     
-        ///     For instance if the attribute usesharpcvslib was set to false 
-        ///     and the global property was set to true, the usesharpcvslib is 
-        ///     closes to the point of execution and would be used and is false. 
+        ///
+        ///     For instance if the attribute usesharpcvslib was set to false
+        ///     and the global property was set to true, the usesharpcvslib is
+        ///     closes to the point of execution and would be used and is false.
         ///     Therefore the sharpcvslib binary would NOT be used.
         /// </example>
         [TaskAttribute("usesharpcvslib", Required=false)]
@@ -374,7 +373,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates if the output from the cvs command should be supressed.  
+        /// Indicates if the output from the cvs command should be supressed.
         /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("quiet", Required=false)]
@@ -388,7 +387,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates if the output from the cvs command should be stopped.  
+        /// Indicates if the output from the cvs command should be stopped.
         /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("reallyquiet", Required=false)]
@@ -416,7 +415,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// <see langword="true" /> if the sandbox files should be checked out in 
+        /// <see langword="true" /> if the sandbox files should be checked out in
         /// read/write mode. The default is <see langword="true" />.
         /// </summary>
         [TaskAttribute("readwrite", Required=false)]
@@ -450,7 +449,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Build up the command line arguments, determine which executable is being
-        ///     used and find the path to that executable and set the working 
+        ///     used and find the path to that executable and set the working
         ///     directory.
         /// </summary>
         /// <param name="process">The process to prepare.</param>
