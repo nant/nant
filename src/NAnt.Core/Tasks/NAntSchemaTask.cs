@@ -63,6 +63,11 @@ namespace NAnt.Core.Tasks {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
+        // Contains names of tasks that should have the "mixed" attribute for the complex types.
+        private static readonly string[] mixedTaskNames = new string[] {
+            "NAnt.Core.Tasks.DescriptionTask"
+        };
 
         #endregion Private Static Fields
 
@@ -327,6 +332,8 @@ namespace NAnt.Core.Tasks {
                 // create target ComplexType
                 _targetCT = CreateTaskListComplexType(tasks, dataTypes, false);
                 _targetCT.Name = "Target";
+                // This is a response to Bug#: 3058913.  If not considered neccessary, remove line below.
+                _targetCT.IsMixed = true;
 
                 // name attribute
                 _targetCT.Attributes.Add(CreateXsdAttribute("name", true));
@@ -482,6 +489,11 @@ namespace NAnt.Core.Tasks {
 
                 ct = new XmlSchemaComplexType();
                 ct.Name = typeId;
+
+                // Force mixed attribute for tasks names in the mixedTaskNames array.  Fixes Bug#: 3058913
+                if (Array.IndexOf(mixedTaskNames, ct.Name) != -1) {
+                    ct.IsMixed = true;
+                }
 
                 // add complex type to collection immediately to avoid stack 
                 // overflows, when we allow a type to be nested
