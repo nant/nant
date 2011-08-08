@@ -250,8 +250,11 @@ namespace NAnt.VSNet {
         /// in the framework assembly directory; otherwise, <see langword="null" />.
         /// </returns>
         protected string ResolveFromFramework(string fileName) {
-            string systemAssembly = FileUtils.CombinePaths(SolutionTask.Project.TargetFramework.
-                FrameworkAssemblyDirectory.FullName, fileName);
+
+            //string systemAssembly = FileUtils.CombinePaths(SolutionTask.Project.TargetFramework.
+            //    FrameworkAssemblyDirectory.FullName, fileName);
+            string systemAssembly = SolutionTask.Project.TargetFramework.ResolveAssembly(fileName);
+
             if (File.Exists(systemAssembly)) {
                 return systemAssembly;
             }

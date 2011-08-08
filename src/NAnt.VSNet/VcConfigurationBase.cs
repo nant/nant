@@ -116,9 +116,19 @@ namespace NAnt.VSNet {
                 if (usePCHString == null) {
                     return UsePrecompiledHeader.Unspecified;
                 }
+                int intVal = int.Parse(usePCHString, CultureInfo.InvariantCulture);
 
-                return (UsePrecompiledHeader) Enum.ToObject(typeof(UsePrecompiledHeader), 
-                    int.Parse(usePCHString, CultureInfo.InvariantCulture));
+                if (this.Project.ProductVersion >= ProductVersion.Whidbey) {
+                    switch(intVal) {
+                        case 0 :
+                            return UsePrecompiledHeader.No;
+                        case 1:
+                            return UsePrecompiledHeader.Create;
+                        case 2:
+                            return UsePrecompiledHeader.Use;
+                    }
+                }
+                return (UsePrecompiledHeader) Enum.ToObject(typeof(UsePrecompiledHeader), intVal);
             }
         }
 

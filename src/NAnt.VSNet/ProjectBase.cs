@@ -804,17 +804,27 @@ namespace NAnt.VSNet {
         /// <summary>
         /// Visual Studio.NET 2002
         /// </summary>
-        Rainier = 1,
+        Rainier = 70,
 
         /// <summary>
         /// Visual Studio.NET 2003
         /// </summary>
-        Everett = 2,
+        Everett = 71,
 
         /// <summary>
         /// Visual Studio 2005
         /// </summary>
-        Whidbey =3,
+        Whidbey = 80,
+
+        /// <summary>
+        /// Visual Studio 2008
+        /// </summary>
+        Orcas = 90,
+
+        /// <summary>
+        /// Visual Studio 2010
+        /// </summary>
+        Rosario = 100,
     }
 
     /// <summary>

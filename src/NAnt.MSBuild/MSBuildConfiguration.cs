@@ -40,13 +40,15 @@ namespace NAnt.MSBuild {
         private readonly string _asmname;
         private readonly string _platform;
 
-        public MSBuildConfiguration(MSBuildProject project, Microsoft.Build.BuildEngine.Project msproj, Configuration projectConfig)
+        public MSBuildConfiguration(MSBuildProject project, NAnt.MSBuild.BuildEngine.Project msproj, Configuration projectConfig)
             : base(project) {
             _name = projectConfig.Name;
+            _platform = projectConfig.Platform;
 
+            //explicit set. EvaluatedProperties will use those.
+            //Its caller responsibility to set it back to original values, if needed
             msproj.GlobalProperties.SetProperty("Configuration", _name);
-            project.SetPlatform (projectConfig.Platform);
-            _platform = msproj.GetEvaluatedProperty("Platform");
+            msproj.GlobalProperties.SetProperty("Platform", _platform.Replace(" ", string.Empty));
 
             _relativeOutputDir = msproj.GetEvaluatedProperty("OutputPath");
             if (!_relativeOutputDir.EndsWith(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture))) {

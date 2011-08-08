@@ -37,13 +37,16 @@ namespace NAnt.MSBuild {
         private readonly string _assemblyFile;
         private readonly string _hintpath;
 
-        public MSBuildAssemblyReference(XmlElement xe, ReferencesResolver referencesResolver, ProjectBase parent, GacCache gacCache, string name, string priv, string hintpath)
+        public MSBuildAssemblyReference(XmlElement xe, ReferencesResolver referencesResolver, ProjectBase parent, GacCache gacCache, string name, string priv, string hintpath, string extension)
             : base(new DummyXmlElement(xe.OwnerDocument), referencesResolver, parent, gacCache) {
+            if (extension == null || extension.Length == 0) {
+                extension = ".dll";
+            }
             if (name.Contains(",")) {
                 //fully specified reference. Hmmm - just ignore it for now.
                 name = name.Split(',')[0];
-                if (hintpath.Length == 0)  //hintpath workaround
-                    hintpath = "." + Path.DirectorySeparatorChar + name + ".dll";
+                //if (hintpath.Length == 0)  //hintpath workaround
+                //    hintpath = "." + Path.DirectorySeparatorChar + name + extension; // ".dll";
             }
             _name = name;
             _helper = new MSBuildReferenceHelper(priv, false);
@@ -98,6 +101,13 @@ namespace NAnt.MSBuild {
                 return resolvedAssemblyFile;
             }
 
+            // resolve from outputPath
+            if (Parent is MSBuildProject) {
+                resolvedAssemblyFile = ResolveFromRelativePath(Path.Combine(((MSBuildProject)Parent).OutputPath, assemblyFileName));
+                if (resolvedAssemblyFile != null) {
+                    return resolvedAssemblyFile;
+                }
+            }
             // assembly reference could not be resolved
             return null;
         }

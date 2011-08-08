@@ -59,7 +59,18 @@ namespace NAnt.VSNet {
 
             string managedExtentions = GetXmlAttributeValue(elem, "ManagedExtensions");
             if (managedExtentions != null) {
-                _managedExtensions = string.Compare(managedExtentions.Trim(), "true", true, CultureInfo.InvariantCulture) == 0;
+                switch(managedExtentions.ToLower()) {
+                    case "false":
+                    case "0":
+                        _managedExtensions = false;
+                        break;
+                    case "true":
+                    case "1":
+                        _managedExtensions = true;
+                        break;
+                    default:
+                        throw new BuildException(String.Format("ManagedExtensions '{0}' is not supported yet.",managedExtentions));
+                }
             }
 
             // get configuration type

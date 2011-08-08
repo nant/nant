@@ -194,12 +194,19 @@ namespace NAnt.VSNet.Tasks {
     [PluginConsumer(typeof(IProjectBuildProvider))]
     [PluginConsumer(typeof(ISolutionBuildProvider))]
     public class SolutionTask : Task, IPluginConsumer {
+
+        /// <summary>
+        /// Private var containing custom properties.
+        /// </summary>
+        ArrayList _customproperties;
+
         #region Public Instance Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SolutionTask" /> class.
         /// </summary>
         public SolutionTask() {
+            _customproperties = new ArrayList();
             _projects = new FileSet();
             _referenceProjects = new FileSet();
             _excludeProjects = new FileSet();
@@ -347,6 +354,19 @@ namespace NAnt.VSNet.Tasks {
         public bool EnableWebDav {
             get { return _enableWebDav; }
             set { _enableWebDav = value; }
+        }
+
+        /// <summary>
+        /// Set of properties set at solution level. Builders for projects in solution may or may not use them.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// TODO: some documentataion which properties could be defined here.
+        /// </para>
+        /// </remarks>
+        [BuildElementArray("property", ElementType = typeof(PropertyTask))]
+        public ArrayList CustomProperties {
+            get { return _customproperties; }
         }
 
         /// <summary>

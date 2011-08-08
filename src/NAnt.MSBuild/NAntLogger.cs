@@ -18,20 +18,79 @@
 // Martin Aliger (martin_aliger@myrealbox.com)
 
 using System;
-
-using Microsoft.Build.Framework;
-
 using NAnt.Core;
 using NAnt.Core.Util;
+using System.CodeDom;
+using System.CodeDom.Compiler;
+using System.IO;
+using System.Reflection;
 
 namespace NAnt.MSBuild {
-    internal class NAntLogger : ILogger {
+
+    /// <summary>
+    /// Enum indicating the level of verbosity for the NAnt logger.
+    /// </summary>
+    public enum NAntLoggerVerbosity {
+        /// <summary>Indicates no output</summary>
+        Quiet,
+        
+        /// <summary>Indicates little output</summary>
+        Minimal,
+        
+        /// <summary>Indicates normal output</summary>
+        Normal,
+        
+        /// <summary>Indicates detailed output</summary>
+        Detailed,
+        
+        /// <summary>Indicates all output</summary>
+        Diagnostic
+    };
+    
+    //internal interface ILogger { }
+    //internal interface IEventSource { }
+    //internal class BuildErrorEventArgs { }
+    //internal class BuildWarningEventArgs { }
+    //internal class BuildMessageEventArgs { }
+    //internal class TaskStartedEventArgs  { }
+    //internal class TaskFinishedEventArgs { }
+
+    /// <summary>
+    /// Logger classed used for MSBuild tasks in NAnt.
+    /// </summary>
+    public class NAntLogger {
+    
+        internal static NAntLogger Create(NAnt.Core.FrameworkInfo framework, Task task, NAntLoggerVerbosity verbosity, NAnt.MSBuild.BuildEngine.Engine engine) {
+            CodeDomProvider codeDomProvider = CodeDomProvider.CreateProvider("C#");
+            CompilerParameters par = new CompilerParameters();
+            AssemblyName msbuildFrameworkName = engine.Assembly.GetName();
+            msbuildFrameworkName.Name = "Microsoft.Build.Framework";
+            Assembly msbuildFramework = Assembly.Load(msbuildFrameworkName);
+
+            par.ReferencedAssemblies.Add(msbuildFramework.Location);
+            par.ReferencedAssemblies.Add(typeof(NAnt.Core.Task).Assembly.Location);
+            par.ReferencedAssemblies.Add(typeof(NAntLogger).Assembly.Location);
+            CompilerResults res = codeDomProvider.CompileAssemblyFromSource(par, _impl);
+            if (res.Errors.HasErrors) {
+                return null;
+            }
+
+            Type t = res.CompiledAssembly.GetType("NAntLoggerImpl");
+            return (NAntLogger)Activator.CreateInstance(t, task, verbosity);
+        }
+
+        private const string _impl = @"
+    using System;
+    using Microsoft.Build.Framework;
+    using NAnt.Core;
+    using NAnt.MSBuild;
+    internal class NAntLoggerImpl : NAntLogger, ILogger {
         private readonly Task _task;
         private LoggerVerbosity _verbosity;
 
-        public NAntLogger(Task task, LoggerVerbosity verbosity) {
+        public NAntLoggerImpl(Task task, NAntLoggerVerbosity verbosity) {
             _task = task;
-            _verbosity = verbosity;
+            _verbosity = (LoggerVerbosity)verbosity;
         }
 
         /// <summary>
@@ -48,19 +107,19 @@ namespace NAnt.MSBuild {
 
         private string GetLocation(string file,int lineNumber, int columnNumber) {
             if (lineNumber != 0 || columnNumber != 0)
-                return String.Format("{2}({0},{1}): ", lineNumber, columnNumber,file);
-            if (file != "")
-                return file + ": ";
-            return "";
+                return String.Format(""{2}({0},{1}): "", lineNumber, columnNumber,file);
+            if (file.Length != 0)
+                return file + "": "";
+            return string.Empty;
         }
 
         void eventSource_ErrorRaised(object sender, BuildErrorEventArgs e) {
-            string line = String.Format("{1}Error {0}: {2}", e.Code, GetLocation(e.File,e.LineNumber, e.ColumnNumber), e.Message);
+            string line = String.Format(""{1}Error {0}: {2}"", e.Code, GetLocation(e.File,e.LineNumber, e.ColumnNumber), e.Message);
             _task.Log(Level.Error, line);
         }
 
         void eventSource_WarningRaised(object sender, BuildWarningEventArgs e) {
-            string line = String.Format("{1}Warning {0}: {2}", e.Code, GetLocation(e.File,e.LineNumber, e.ColumnNumber), e.Message);
+            string line = String.Format(""{1}Warning {0}: {2}"", e.Code, GetLocation(e.File,e.LineNumber, e.ColumnNumber), e.Message);
             _task.Log(Level.Warning, line);
         }
 
@@ -77,7 +136,7 @@ namespace NAnt.MSBuild {
                     lev = Level.Verbose;
                     break;
             }
-            switch (_verbosity) {
+            switch (Verbosity) {
                 case LoggerVerbosity.Quiet:
                     lev -= 2000;
                     break;
@@ -105,33 +164,40 @@ namespace NAnt.MSBuild {
         }
 
         public string Parameters {
-            get {
-                return "";
-            }
-            set { 
-            }
+            get { return string.Empty; }
+            set {  }
         }
 
-        public void  Shutdown() {
+        public void Shutdown() {
         }
 
         public LoggerVerbosity Verbosity {
             get { return _verbosity; }
             set { _verbosity = value; }
         }
+    }
+    ";
 
-        private class DummyTask : Task {
+        /// <summary>Sample task used for testing.</summary>
+        protected class DummyTask : Task {
             string _name;
-
+            
+            /// <summary>
+            /// Sample task constructor.
+            /// </summary>
+            /// <param name="p">Project to assign task to.</param>
+            /// <param name="name">Sample name property.</param>
             public DummyTask(Project p, string name) {
                 _name = name;
                 Project = p;
             }
 
+            /// <summary>Gets sample name for task.</summary>
             public override string Name {
-                get { return _name;}
+                get { return _name; }
             }
 
+            /// <summary>Test method.</summary>
             protected override void ExecuteTask() {
             }
         }

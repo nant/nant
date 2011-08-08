@@ -53,8 +53,9 @@ namespace NAnt.VSNet {
                 string package = projectMatch.Groups["package"].Value;
 
                 // bug #1732361: skip solution folders
-                if (package == SolutionFolder_GUID)
+                if (package == SolutionFolder_GUID) {
                     continue;
+                }
 
                 // translate partial project path or URL to absolute path
                 string fullProjectPath = TranslateProjectPath(solutionTask.SolutionFile.DirectoryName,
@@ -62,8 +63,7 @@ namespace NAnt.VSNet {
 
                 if (ManagedProjectBase.IsEnterpriseTemplateProject(fullProjectPath)) {
                     RecursiveLoadTemplateProject(fullProjectPath);
-                }
-                else {
+                } else {
                     // add project entry to collection
                     ProjectEntries.Add(new ProjectEntry(guid, fullProjectPath));
                 }

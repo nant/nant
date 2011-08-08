@@ -1,5 +1,5 @@
 // NAnt - A .NET build tool
-// Copyright (C) 2001-2004 Gerry Shaw
+// Copyright (C) 2001-2011 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,26 +30,29 @@ using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-    internal class WhidbeySolutionProvider : ISolutionBuildProvider {
+    internal class RosarioSolutionProvider : ISolutionBuildProvider {
         #region Implementation of ISolutionBuildProvider
 
         public int IsSupported(string fileContents) {
             Regex reSolutionFormat = new Regex(@"^\s*Microsoft Visual Studio Solution File, Format Version\s+(?<formatVersion>[0-9]+\.[0-9]+)", RegexOptions.Singleline);
             MatchCollection matches = reSolutionFormat.Matches(fileContents);
 
-            if (matches.Count == 0)
+            if (matches.Count == 0) {
                 return 0;
+            }
 
             string formatVersion = matches[0].Groups["formatVersion"].Value;
-            if (formatVersion == "9.00")
+            if (formatVersion == "11.00") {
                 return 10;
+            }
             return 0;
         }
 
         public SolutionBase GetInstance(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
-            return new WhidbeySolution(solutionContent, solutionTask, tfc, gacCache, refResolver);
+            return new RosarioSolution(solutionContent, solutionTask, tfc, gacCache, refResolver);
         }
 
         #endregion Implementation of ISolutionBuildProvider
     }
-}
+} 
+

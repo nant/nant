@@ -20,63 +20,50 @@
 using System;
 using System.Text;
 
-using Microsoft.Build.Utilities;
-
 using NAnt.Core;
 using NAnt.Core.Tasks;
 
 namespace NAnt.MSBuild {
     internal sealed class MSBuildEngine {
-        private static Microsoft.Build.BuildEngine.Engine _msbuild;
+        private static NAnt.MSBuild.BuildEngine.Engine _msbuild;
 
-        public static Microsoft.Build.BuildEngine.Engine CreateMSEngine(NAnt.VSNet.Tasks.SolutionTask solutionTask) {
+        public static NAnt.MSBuild.BuildEngine.Engine CreateMSEngine(NAnt.VSNet.Tasks.SolutionTask solutionTask) {
             if (_msbuild!=null) {
                 return _msbuild;
             }
 
-            // map current target framework to TargetDotNetFrameworkVersion
-            TargetDotNetFrameworkVersion frameworkVersion = GetTargetDotNetFrameworkVersion(
-                solutionTask.Project.TargetFramework);
-
-            // use the framework directory as BinPath
-            string frameworkDir = ToolLocationHelper.GetPathToDotNetFramework(
-                frameworkVersion);
-
-            _msbuild = new Microsoft.Build.BuildEngine.Engine(frameworkDir);
+            try {
+                _msbuild = NAnt.MSBuild.BuildEngine.Engine.LoadEngine(solutionTask.Project.TargetFramework);
+            } catch (Exception e) {
+                throw new BuildException(
+                    String.Format(
+                        "MSBuild v{0} can't be found. It is needed for building MSBuild projects. VS2005 and later is using MSBuild projects for C# and VB",
+                        solutionTask.Project.TargetFramework.Version),
+                    Location.UnknownLocation, e);
+            }
             _msbuild.UnregisterAllLoggers();
 
-            _msbuild.RegisterLogger(
-                new NAntLogger(solutionTask,
-                solutionTask.Verbose ? Microsoft.Build.Framework.LoggerVerbosity.Normal : Microsoft.Build.Framework.LoggerVerbosity.Minimal
-                )
-                );
-
-            /*
-            foreach (PropertyTask property in solutionTask.CustomProperties) {
-                string val;
-                // expand properties in context of current project for non-dynamic properties
-                if (!property.Dynamic) {
-                    val = solutionTask.Project.ExpandProperties(property.Value, solutionTask.Location);
-                }
-                else
-                    val = property.Value;
-                _msbuild.GlobalProperties.SetProperty(property.PropertyName, val);
+            NAntLoggerVerbosity _verbosity = solutionTask.Verbose ? NAntLoggerVerbosity.Normal : NAntLoggerVerbosity.Minimal;
+            NAntLogger _logger = NAntLogger.Create(solutionTask.Project.TargetFramework, solutionTask, _verbosity, _msbuild);
+            if (_logger != null) {
+                _msbuild.RegisterLogger(_logger);
             }
-            */
+
+            solutionTask.Log(Level.Info, "Using MSBuild version {0}.", _msbuild.Assembly.GetName().Version);
 
             return _msbuild;
         }
 
-        private static TargetDotNetFrameworkVersion GetTargetDotNetFrameworkVersion (FrameworkInfo framework) {
-            switch (framework.ClrVersion.ToString (2)) {
-                case "1.1":
-                    return TargetDotNetFrameworkVersion.Version11;
-                case "2.0":
-                    return TargetDotNetFrameworkVersion.Version20;
-                default:
-                    throw new BuildException ("Current target framework is not supported.",
-                        Location.UnknownLocation);
-            }
-        }
+        //private static TargetDotNetFrameworkVersion GetTargetDotNetFrameworkVersion (FrameworkInfo framework) {
+        //    switch (framework.ClrVersion.ToString (2)) {
+        //        case "1.1":
+        //            return TargetDotNetFrameworkVersion.Version11;
+        //        case "2.0":
+        //            return TargetDotNetFrameworkVersion.Version20;
+        //        default:
+        //            throw new BuildException ("Current target framework is not supported.",
+        //                Location.UnknownLocation);
+        //    }
+        //}
     }
 }

@@ -216,6 +216,15 @@ namespace NAnt.Core {
         public void Initialize(XmlNode elementNode) {
             Initialize(elementNode, Project.Properties, Project.TargetFramework);
         }
+        
+        /// <summary>
+        /// Retrieves the location in the build file where the element is 
+        /// defined.
+        /// </summary>
+        /// <returns>The element's build file location</returns>
+        public Location GetLocation() {
+            return Location;
+        }
 
         /// <summary>
         /// Logs a message with the given priority.

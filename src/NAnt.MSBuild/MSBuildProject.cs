@@ -18,13 +18,13 @@
 // Martin Aliger (martin_aliger@myrealbox.com)
 
 using System;
+using System.Xml;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Util;
@@ -70,8 +70,8 @@ namespace NAnt.MSBuild {
         private readonly string _guid;
         private readonly DirectoryInfo _projectDirectory;
 
-        private Microsoft.Build.BuildEngine.Project _msproj;
-        private Microsoft.Build.BuildEngine.Engine _msbuild;
+        private NAnt.MSBuild.BuildEngine.Project _msproj;
+        private NAnt.MSBuild.BuildEngine.Engine _msbuild;
 
         public MSBuildProject(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir)
             : base(xmlDefinition, solutionTask, tfc, gacCache, refResolver, outputDir) {
@@ -79,22 +79,62 @@ namespace NAnt.MSBuild {
             string platform = solutionTask.Platform;
 
             _msbuild = MSBuildEngine.CreateMSEngine(solutionTask);
-            _msproj = new Microsoft.Build.BuildEngine.Project(_msbuild);
+            _msproj = new NAnt.MSBuild.BuildEngine.Project(_msbuild);
             _msproj.FullFileName = projectPath;
             _msproj.LoadXml(xmlDefinition.OuterXml);
+
             _msproj.GlobalProperties.SetProperty("Configuration", cfgname);
-            SetPlatform (platform);
+            if (platform.Length > 0) _msproj.GlobalProperties.SetProperty("Platform", platform.Replace(" ", string.Empty));
             if (outputDir != null) _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
+
+            //bool targwarnings = true;
+            foreach (NAnt.Core.Tasks.PropertyTask property in solutionTask.CustomProperties) {
+                string val;
+                // expand properties in context of current project for non-dynamic properties
+                if (!property.Dynamic) {
+                    val = solutionTask.Project.ExpandProperties(property.Value, solutionTask.GetLocation()  );
+                } else {
+                    val = property.Value;
+                }
+                _msproj.GlobalProperties.SetProperty(property.PropertyName, val);
+                //if (property.PropertyName == "TargetWarnings") targwarnings = Boolean.Parse(val);
+            }
+
+
+            //set tools version to the msbuild version we got loaded
+            _msproj.ToolsVersion = SolutionTask.Project.TargetFramework.Version.ToString();
+
+            //TODO: honoring project's TargetFrameworkVersion is not working atm. System assemblies are resolved badly
+            _msproj.GlobalProperties.SetProperty("TargetFrameworkVersion", "v" + SolutionTask.Project.TargetFramework.Version.ToString());
 
             //evaluating
             _guid = _msproj.GetEvaluatedProperty("ProjectGuid");
             _projectDirectory = new DirectoryInfo(_msproj.GetEvaluatedProperty("ProjectDir"));
             _projectPath = _msproj.GetEvaluatedProperty("ProjectPath");
 
+            //TODO: honoring project's TargetFrameworkVersion is not working atm. System assemblies are resolved badly
+            ////check if we targeting something else and throw a warning
+            //if (targwarnings)
+            //{
+            //    string verString = _msproj.GetEvaluatedProperty("TargetFrameworkVersion");
+            //    if (verString != null)
+            //    {
+            //        if (verString.StartsWith("v")) verString = verString.Substring(1);
+            //        Version ver = new Version(verString);
+            //        if (!ver.Equals(SolutionTask.Project.TargetFramework.Version))
+            //        {
+            //            Log(Level.Warning, "Project '{1}' targets framework {0}.", verString, Name);
+            //        }
+            //    }
+            //}
+
+            //project configuration
             ProjectEntry projectEntry = solution.ProjectEntries [_guid];
             if (projectEntry != null && projectEntry.BuildConfigurations != null) {
                 foreach (ConfigurationMapEntry ce in projectEntry.BuildConfigurations) {
+                    Configuration solutionConfig = ce.Key;
                     Configuration projectConfig = ce.Value;
+
                     ProjectConfigurations[projectConfig] = new MSBuildConfiguration(this, _msproj, projectConfig);
                 }
             } else {
@@ -104,19 +144,20 @@ namespace NAnt.MSBuild {
 
             //references
             _references = new ArrayList();
-            Microsoft.Build.BuildEngine.BuildItemGroup refs = _msproj.GetEvaluatedItemsByName("Reference");
-            foreach (Microsoft.Build.BuildEngine.BuildItem r in refs) {
+            NAnt.MSBuild.BuildEngine.BuildItemGroup refs = _msproj.GetEvaluatedItemsByName("Reference");
+            foreach (NAnt.MSBuild.BuildEngine.BuildItem r in refs) {
                 string rpath = r.FinalItemSpec;
                 string priv = r.GetMetadata("Private");
                 string hintpath = r.GetMetadata("HintPath");
+                string ext = r.GetMetadata("ExecutableExtension");
 
                 ReferenceBase reference = new MSBuildAssemblyReference(
                     xmlDefinition, ReferencesResolver, this, gacCache,
-                    rpath, priv, hintpath);
+                    rpath, priv, hintpath, ext);
                 _references.Add(reference);
             }
             refs = _msproj.GetEvaluatedItemsByName("ProjectReference");
-            foreach (Microsoft.Build.BuildEngine.BuildItem r in refs) {
+            foreach (NAnt.MSBuild.BuildEngine.BuildItem r in refs) {
                 string pguid = r.GetMetadata("Project");
                 string pname = r.GetMetadata("Name");
                 string rpath = r.FinalItemSpec;
@@ -125,6 +166,15 @@ namespace NAnt.MSBuild {
                     ReferencesResolver, this, solution, tfc, gacCache, outputDir,
                     pguid, pname, rpath, priv);
                 _references.Add(reference);
+            }
+        }
+
+        internal string OutputPath {
+            get {
+                if (OutputDir != null) {
+                    return this.OutputDir.FullName;
+                }
+                return _msproj.GetEvaluatedProperty("OutputPath");
             }
         }
 
@@ -139,8 +189,7 @@ namespace NAnt.MSBuild {
                     // get last segment of the uri (which should be the 
                     // project file itself)
                     projectPath = projectUri.LocalPath;
-                }
-                else {
+                } else {
                     projectPath = ProjectPath;
                 }
 
@@ -157,8 +206,7 @@ namespace NAnt.MSBuild {
             get {
                 if (IsUrl(_projectPath)) {
                     return _projectPath;
-                }
-                else {
+                } else {
                     return FileUtils.GetFullPath(_projectPath);
                 }
             }
@@ -177,10 +225,8 @@ namespace NAnt.MSBuild {
             set { throw new InvalidOperationException("It is not allowed to change the GUID of a MSBuild project"); }
         }
 
-        public override ArrayList References {
-            get {
-                return _references;
-            }
+        public override System.Collections.ArrayList References {
+            get { return _references; }
         }
 
         public override ProjectReferenceBase CreateProjectReference(ProjectBase project, bool isPrivateSpecified, bool isPrivate) {
@@ -191,65 +237,145 @@ namespace NAnt.MSBuild {
             return true;
         }
 
+        /// <summary>
+        /// Determines the version of the target msbuild file.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This method identifies the msbuild version by reviewing the following tags in order:
+        /// </para>
+        /// <list type="number">
+        /// <item>
+        /// <description>&lt;ProductVersion&gt;</description>
+        /// </item>
+        /// <item>
+        /// <description>&lt;TargetFrameworkVersion&gt;</description>
+        /// </item>
+        /// <item>
+        /// <description>ToolsVersion attribute</description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <param name="docElement">
+        /// A <see cref="System.Xml.XmlElement"/> representing the msbuild project file.
+        /// </param>
+        /// <returns>
+        /// A <see cref="NAnt.VSNet.ProductVersion"/> enum value indicating the msbuild project
+        /// file version.
+        /// </returns>
+        /// <exception cref="NAnt.Core.BuildException">
+        /// version string found in the tags listed above is not recognized.
+        /// </exception>
         protected override ProductVersion DetermineProductVersion(System.Xml.XmlElement docElement) {
-            return ProductVersion.Whidbey;
+            XmlNamespaceManager _nsMgr = new XmlNamespaceManager(new NameTable());
+            _nsMgr.AddNamespace("ms", docElement.NamespaceURI);
+
+            // <ProductVersion> element node
+            XmlNode _productVerNode = docElement.SelectSingleNode("ms:PropertyGroup/ms:ProductVersion", _nsMgr);
+            // <TargetFrameworkVersion> element node
+            XmlNode _targetNetVerNode = docElement.SelectSingleNode("ms:PropertyGroup/ms:TargetFrameworkVersion", _nsMgr);
+
+            // If the <ProductVersion> element exists and it is not empty, get the
+            // product version from it.
+            if (_productVerNode != null && !StringUtils.IsNullOrEmpty(_productVerNode.InnerText)) {
+                Version _ver = new Version(_productVerNode.InnerText);
+
+                switch (_ver.Major) {
+                    case 8:
+                        //    <ProductVersion>8.0.50727</ProductVersion>
+                        return ProductVersion.Whidbey;
+                    case 9:
+                        //    <ProductVersion>9.0.21022</ProductVersion>
+                        if (_ver.Build <= 21022) {
+                            return ProductVersion.Orcas;
+                        }
+                        return ProductVersion.Rosario;
+                }
+
+            // If the <TargetFrameworkVersion> element exists, get the product version from it.
+            } else if (_targetNetVerNode != null) {
+                string targetFrameworkVer = _targetNetVerNode.InnerText;
+
+                switch (targetFrameworkVer.ToUpper().Trim()) {
+                    case "V4.0":
+                        return ProductVersion.Rosario;
+                    case "V3.5":
+                        return ProductVersion.Orcas;
+                    case "V2.0":
+                        return ProductVersion.Whidbey;
+                }
+
+            // If neither of the above mentioned tags exist, look for the "ToolsVersion"
+            // attribute in the <Project> tag.
+            } else {
+                XmlAttribute toolsVersionAttribute = docElement.Attributes["ToolsVersion"];
+
+                // If the ToolsVersion attribute does not exist at this point,
+                // assume that the project is 2.0.
+                if (toolsVersionAttribute == null) {
+                    return ProductVersion.Whidbey;
+                }
+
+                switch (toolsVersionAttribute.Value) {
+                    case "4.0":
+                        return ProductVersion.Rosario;
+                    case "3.5":
+                        return ProductVersion.Orcas;
+                    case "2.0":
+                        return ProductVersion.Whidbey;
+                }
+            }
+
+            // Throw a buildexception if none of the version numbers above are found.
+            throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Unknown Project version '{0}'.", ProjectPath), Location.UnknownLocation);
         }       
 
         protected override void VerifyProjectXml(System.Xml.XmlElement docElement) {
-            if(!IsMSBuildProject(docElement))
+            if(!IsMSBuildProject(docElement)) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "Project '{0}' is not a valid MSBUILD project.", ProjectPath),
                     Location.UnknownLocation);
+            }
         }
 
         protected override BuildResult Build(Configuration solutionConfiguration) {
             // explicitly set the Configuration and Platform
             MSBuildConfiguration projectConfig = (MSBuildConfiguration) BuildConfigurations[solutionConfiguration];
             _msproj.GlobalProperties.SetProperty("Configuration", projectConfig.Name);
-            SetPlatform (projectConfig.PlatformName);
+            _msproj.GlobalProperties.SetProperty("PlatformTarget", projectConfig.PlatformName.Replace(" ", string.Empty));
 
-            // DONE: MSBuild'll resolve all references once again
-            // is there any way how to disable it?
-            // moreover, they could be resolved to something else!
-
-            //We should set:
-            //@(ReferencePath)
-            //@(ReferenceDependencyPaths)
-            //@(NativeReference)
-            //@(NativeReferenceFile)
-            //maybe @(WebReferenceUrl)
-            //maybe @(_ReferenceRelatedPaths)
-            //@(ReferenceSatellitePaths)
-
-            // or maybe modify original references to contain full path to whatever we resolved?
-            // that seems reasonable. Try it:
+            //modify original references to contain full path to whatever we resolved
             _msproj.RemoveItemsByName("Reference");
             _msproj.RemoveItemsByName("ProjectReference");
-            Microsoft.Build.BuildEngine.BuildItemGroup refs = _msproj.AddNewItemGroup();
+            NAnt.MSBuild.BuildEngine.BuildItemGroup refs = _msproj.AddNewItemGroup();
             foreach (ReferenceBase r in _references) {
                 string path = r.GetPrimaryOutputFile(solutionConfiguration);
                 if (path == null || !File.Exists(path)) {
+                    if (path == null) {
+                        Log(Level.Warning, "Reference \"{0}\" of project {1} failed to be found.", r.Name, this.Name);
+                    } else {
+                        Log(Level.Warning, "Reference \"{0}\" of project {1} failed to be found (resolved to {2})", r.Name, this.Name, path);
+                    }
                     continue;
                 }
-                Microsoft.Build.BuildEngine.BuildItem i = refs.AddNewItem("Reference", r.Name);
+                NAnt.MSBuild.BuildEngine.BuildItem i = refs.AddNewItem("Reference", r.Name);
                 i.SetMetadata("HintPath", path);
                 i.SetMetadata("CopyLocal", r.CopyLocal ? "True" : "False");
             }
 
-            // this should disable assembly resolution and always use hintpath (which we supply)
-            _msproj.GlobalProperties.SetProperty("AssemblySearchPaths", "{HintPathFromItem}");
+            //this should disable assembly resolution and always use hintpath (which we supply)
+            if(_msbuild.Assembly.GetName().Version.Major >= 4) {
+                //MSBuild 4 adds some system references automatically, so adding TargetFrameworkDirectory for those
+                _msproj.GlobalProperties.SetProperty("AssemblySearchPaths", "{HintPathFromItem};{TargetFrameworkDirectory}");
+            } else {
+                _msproj.GlobalProperties.SetProperty("AssemblySearchPaths", "{HintPathFromItem}");
+            }
 
-            if(_msproj.Build())
+            if(_msproj.Build()) {
                 return BuildResult.Success;
+            }
             return BuildResult.Failed;
-        }
-
-        internal void SetPlatform (string platform) {
-            if (platform.Length == 0)
-                return;
-
-            _msproj.GlobalProperties.SetProperty("Platform",
-                platform.Replace(" ", string.Empty));
         }
 
         private static bool IsUrl(string fileName) {
@@ -261,3 +387,4 @@ namespace NAnt.MSBuild {
         }
     }
 }
+

@@ -647,13 +647,32 @@ namespace NAnt.VSNet {
                 }
             }
 
+            // Since the name of the pdb file is based on the VS version, we need to see
+            // which version we are targeting to make sure the right pdb file is used.
+            string pdbTargetFileName;
+
+            switch (ProductVersion) {
+                case ProductVersion.Rosario:
+                    pdbTargetFileName = "$(IntDir)/vc100.pdb";
+                    break;
+                case ProductVersion.Orcas:
+                    pdbTargetFileName = "$(IntDir)/vc90.pdb";
+                    break;
+                case ProductVersion.Whidbey:
+                    pdbTargetFileName = "$(IntDir)/vc80.pdb";
+                    break;
+                default:
+                    pdbTargetFileName = "$(IntDir)/vc70.pdb";
+                    break;
+            }
+
             // set name of program database file
             //
             // we must set an absolute path for the program database file, 
             // otherwise <cl> assumes a location relative to the output 
             // directory - not the project directory.
             string pdbFile = fileConfig.GetToolSetting(VcConfigurationBase.CLCompilerTool,
-                "ProgramDataBaseFileName", "$(IntDir)/vc70.pdb");
+                "ProgramDataBaseFileName", pdbTargetFileName);
             if (!StringUtils.IsNullOrEmpty(pdbFile)) {
                 clTask.ProgramDatabaseFile = FileUtils.CombinePaths(ProjectDirectory.FullName, 
                     pdbFile);
@@ -709,9 +728,28 @@ namespace NAnt.VSNet {
                 }
             }
 
+            //exception handling stuff
             string exceptionHandling = fileConfig.GetToolSetting(VcConfigurationBase.CLCompilerTool, "ExceptionHandling");
-            if (exceptionHandling == null || string.Compare(exceptionHandling, "true", true, CultureInfo.InvariantCulture) == 0) {
-                clTask.Arguments.Add(new Argument("/EHsc"));
+            if (exceptionHandling == null) {
+                if (ProductVersion >= ProductVersion.Whidbey) {
+                    exceptionHandling = "2";
+                } else {
+                    exceptionHandling = "false";
+                }
+            } else {
+                exceptionHandling = exceptionHandling.ToLower();
+            }
+            switch(exceptionHandling) {
+                case "0":
+                case "false":
+                    break;
+                case "1":
+                case "true":
+                    clTask.Arguments.Add(new Argument("/EHsc"));
+                    break;
+                case "2":
+                    clTask.Arguments.Add(new Argument("/EHa"));
+                    break;
             }
 
             string browseInformation = fileConfig.GetToolSetting(VcConfigurationBase.CLCompilerTool, "BrowseInformation");
@@ -1825,14 +1863,17 @@ namespace NAnt.VSNet {
                 return false;
             }
 
-            try {
-                GetProductVersion(docElement);
-                // no need to perform version check here as this is done in 
-                // GetProductVersion
-            } catch {
-                // product version could not be determined or is not supported
-                return false;
-            }
+            //MAL 2007/12/20
+            //this is double check - really needed? In addition, when version check fails, it gives odd error.
+            //2nd check is made in DetermineProductVersion (called from ProjectBase constructor)
+            //try {
+            //    GetProductVersion(docElement);
+            //    // no need to perform version check here as this is done in 
+            //    // GetProductVersion
+            //} catch {
+            //    // product version could not be determined or is not supported
+            //    return false;
+            //}
 
             return true;
         }
@@ -1879,7 +1920,9 @@ namespace NAnt.VSNet {
             // check if we're dealing with a valid version number
             Version productVersion = null;
             try {
-                productVersion = new Version(productVersionAttribute.Value);
+                string ver = productVersionAttribute.Value;
+                ver = ver.Replace(',', '.'); //Whidbey (8,00) and Orcas (9,00) are using comma instead of point
+                productVersion = new Version(ver);
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     "The value of the \"Version\" attribute ({0}) is not a valid"
@@ -1887,17 +1930,23 @@ namespace NAnt.VSNet {
                     Location.UnknownLocation, ex);
             }
 
-            if (productVersion.Major == 7) {
-                switch (productVersion.Minor) {
-                    case 0:
-                        return ProductVersion.Rainier;
-                    case 10:
-                        return ProductVersion.Everett;
-                }
+            switch(productVersion.Major) {
+                case 7:
+                    switch (productVersion.Minor) {
+                        case 0:
+                            return ProductVersion.Rainier;
+                        case 10:
+                            return ProductVersion.Everett;
+                    }
+                    break;
+                case 8:
+                    return ProductVersion.Whidbey;
+                case 9:
+                    return ProductVersion.Orcas;
             } 
 
             throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                "Visual Studio version \"{0\" is not supported.",
+                "Visual Studio version \"{0}\" is not supported.",
                 productVersion.ToString()), Location.UnknownLocation);
         }
 
