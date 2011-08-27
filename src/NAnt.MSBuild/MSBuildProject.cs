@@ -132,7 +132,6 @@ namespace NAnt.MSBuild {
             ProjectEntry projectEntry = solution.ProjectEntries [_guid];
             if (projectEntry != null && projectEntry.BuildConfigurations != null) {
                 foreach (ConfigurationMapEntry ce in projectEntry.BuildConfigurations) {
-                    Configuration solutionConfig = ce.Key;
                     Configuration projectConfig = ce.Value;
 
                     ProjectConfigurations[projectConfig] = new MSBuildConfiguration(this, _msproj, projectConfig);
