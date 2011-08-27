@@ -84,8 +84,14 @@ namespace NAnt.MSBuild {
             _msproj.LoadXml(xmlDefinition.OuterXml);
 
             _msproj.GlobalProperties.SetProperty("Configuration", cfgname);
-            if (platform.Length > 0) _msproj.GlobalProperties.SetProperty("Platform", platform.Replace(" ", string.Empty));
-            if (outputDir != null) _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
+
+            if (platform.Length > 0) {
+                _msproj.GlobalProperties.SetProperty("Platform", platform.Replace(" ", string.Empty));
+            }
+
+            if (outputDir != null) {
+                _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
+            }
 
             //bool targwarnings = true;
             foreach (NAnt.Core.Tasks.PropertyTask property in solutionTask.CustomProperties) {
@@ -342,8 +348,11 @@ namespace NAnt.MSBuild {
             // explicitly set the Configuration and Platform
             MSBuildConfiguration projectConfig = (MSBuildConfiguration) BuildConfigurations[solutionConfiguration];
             _msproj.GlobalProperties.SetProperty("Configuration", projectConfig.Name);
-            _msproj.GlobalProperties.SetProperty("PlatformTarget", projectConfig.PlatformName.Replace(" ", string.Empty));
 
+            if (!StringUtils.IsNullOrEmpty(projectConfig.PlatformName)) {
+                _msproj.GlobalProperties.SetProperty("PlatformTarget", projectConfig.PlatformName.Replace(" ", string.Empty));
+            }
+            
             //modify original references to contain full path to whatever we resolved
             _msproj.RemoveItemsByName("Reference");
             _msproj.RemoveItemsByName("ProjectReference");
