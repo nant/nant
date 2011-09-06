@@ -1,5 +1,7 @@
 build*
 bootstrap
 NAnt.suo
+.hg
 .hgignore
+.git
 .gitignore
