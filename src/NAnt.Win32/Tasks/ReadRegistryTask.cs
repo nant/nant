@@ -184,7 +184,7 @@ namespace NAnt.Win32.Tasks {
             }
             throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                 "Registry Path Not Found! - key='{0}';hive='{1}';", key, 
-                registries.ToString()));
+                _regHiveString));
         }
 
         /// <summary>
