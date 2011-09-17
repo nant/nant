@@ -35,6 +35,7 @@ using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet.Types;
+using System.Reflection;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>
@@ -73,7 +74,6 @@ namespace NAnt.DotNet.Tasks {
     ///         <documenter name="MSDN">
     ///             <property name="OutputDirectory" value="doc\MSDN" />
     ///             <property name="HtmlHelpName" value="NAnt" />
-    ///             <property name="HtmlHelpCompilerFilename" value="hhc.exe" />
     ///             <property name="IncludeFavorites" value="False" />
     ///             <property name="Title" value="An NDoc Documented Class Library" />
     ///             <property name="SplitTOCs" value="False" />
@@ -119,7 +119,7 @@ namespace NAnt.DotNet.Tasks {
         private FileSet _summaries = new FileSet();
         private RawXml _documenters;
         private DirSet _referencePaths = new DirSet();
-
+        private string _hhcexe;
         #endregion Private Instance Fields
 
         #region Public Instance Properties
@@ -160,7 +160,7 @@ namespace NAnt.DotNet.Tasks {
             get { return _referencePaths; }
             set { _referencePaths = value; }
         }
-
+        
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -173,6 +173,8 @@ namespace NAnt.DotNet.Tasks {
             _docNodes = Documenters.Xml.Clone().SelectNodes("nant:documenter", 
                 NamespaceManager);
             ExpandPropertiesInNodes(_docNodes);
+
+            _hhcexe = ResolveHhcExe();
         }
 
         /// <summary>
@@ -330,6 +332,13 @@ namespace NAnt.DotNet.Tasks {
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>
         private void OnDocBuildingStep(object sender, ProgressArgs e) {
             Log(Level.Info, e.Status);
+            if (e.Progress == 25 && null != _hhcexe) {
+                // right before progress step 25 HtmlHelp object will be created in MSDN Documentor
+                // so we can set path to hhc.exe per reflection
+                // determined with ILSpy
+                SetHtmlHelpCompiler(sender, _hhcexe);
+            }
+
         }
 
         /// <summary>
@@ -410,6 +419,54 @@ namespace NAnt.DotNet.Tasks {
             }
         }
 
+        /// <summary>
+        /// Use Reflection to set HtmplHelp._htmlHelpCompiler private field for MSDN Documentor. 
+        /// Ndoc could not handle 64bit installations and is not actively developed anymore.
+        /// </summary>
+        /// <param name="sender">Active documentor</param>
+        /// <param name="hhcexe">Path to hhc.exe</param>
+        private void SetHtmlHelpCompiler(object sender, string hhcexe) {
+
+            Log(Level.Debug, "Setting Html Help Compiler per reflection");
+            FieldInfo fi = sender.GetType().GetField("htmlHelp", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (null == fi)
+                return;
+            Log(Level.Debug, "Found MSDNDocumenter.htmlHelp field");
+
+            object htmlHelp = fi.GetValue(sender);
+            FieldInfo hhc = fi.FieldType.GetField("_htmlHelpCompiler", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (null == hhc)
+                return;
+
+            Log(Level.Debug, "Found HtmlHelp._htmlHelpCompiler field");
+            hhc.SetValue(htmlHelp, hhcexe);
+            Log(Level.Verbose, "Set  Html Help Compiler to '{0}'", hhcexe);
+        }
+
+        /// <summary>
+        /// Searches in %ProgramFiles(x86)%\HTML Help Workshop and %ProgramFiles%\HTML Help Workshop
+        /// for hhc.exe. If not found let ndoc msdn documentor search itself
+        /// </summary>
+        /// <returns>the path to hhc.exe if found, null otherwise</returns>
+        private string ResolveHhcExe() {
+            StringCollection folders = new StringCollection();
+            
+            string hhwx86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            if (!StringUtils.IsNullOrEmpty(hhwx86)) {
+                folders.Add(Path.Combine(hhwx86, "HTML Help Workshop"));
+            }
+            string hhw = Environment.GetEnvironmentVariable("ProgramFiles");
+            if (!StringUtils.IsNullOrEmpty(hhw)) {
+                folders.Add(Path.Combine(hhw, "HTML Help Workshop"));
+            }
+
+            string[] searchFolders = new string[folders.Count];
+            for (int i = 0; i < folders.Count; i++) {
+                searchFolders[i] = folders[i];
+            }
+
+            return FileUtils.ResolveFile(searchFolders, "hhc.exe", false);
+        }
         #endregion Private Instance Methods
     }
 }
