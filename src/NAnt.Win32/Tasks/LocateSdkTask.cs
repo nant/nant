@@ -22,16 +22,12 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml;
 using System.Globalization;
-using System.Security.Permissions;
 
 using NAnt.Core;
 using NAnt.Core.Util;
 using NAnt.Core.Attributes;
 using Microsoft.Win32;
 
-#if (!NET_4_0)
-[assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum , Unrestricted=true)]
-#endif
 namespace NAnt.Win32.Tasks {
     /// <summary>
     /// Reads the most recent Windows SDK InstallationFolder key into a NAnt property
@@ -39,7 +35,7 @@ namespace NAnt.Win32.Tasks {
     /// <example>
     ///   <code>
     ///     <![CDATA[
-    /// <locatesdk prefix="dotNetFX" minsdk="v6.0" />
+    /// <locatesdk property="dotNetFX" minsdk="v6.0" />
     ///     ]]>
     ///   </code>
     /// </example>
@@ -263,7 +259,8 @@ namespace NAnt.Win32.Tasks {
                 // If the sdkVersion string ends with an alphanumeric, it is
                 // converted to a revision number for comparison purposes
                 if (!char.IsNumber(sdkVersion, sdkVersion.Length - 1)) {
-                    string sdkVerFormat = sdkVersion.Substring(0, sdkVersion.Length -1) + "." + ((int)sdkVersion.ToCharArray()[sdkVersion.Length - 1]).ToString();
+                    string sdkVerFormat = sdkVersion.Substring(0, sdkVersion.Length -1) + "." +
+                        ((int)sdkVersion.ToCharArray()[sdkVersion.Length - 1]).ToString();
                     return new Version(sdkVerFormat);
                 } else {
                     return new Version(sdkVersion);
