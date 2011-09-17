@@ -17,7 +17,7 @@
 //
 // Ian MacLean (ian_maclean@another.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
 using System.Globalization;

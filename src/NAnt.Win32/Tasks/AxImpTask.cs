@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Jayme C. Edwards (jedwards@wi.rr.com)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
 using System.Globalization;

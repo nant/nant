@@ -17,7 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Mike Krueger (mike@icsharpcode.net)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 // Ian MacLean (ian_maclean@another.com)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 

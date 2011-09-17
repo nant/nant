@@ -17,7 +17,7 @@
 //
 // Ian Maclean (imaclean@gmail.com)
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
 using System.ComponentModel;

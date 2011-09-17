@@ -19,7 +19,7 @@
 //
 // Ian MacLean (ian@maclean.ms)
 // Scott Hernandez (ScottHernandez-at-Hotmail....com)
-// Gert Driesen (gert.driesen@ardatis.com)
+// Gert Driesen (drieseng@users.sourceforge.net.com)
 -->
 
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:NAntUtil="urn:NAntUtil" exclude-result-prefixes="NAntUtil" version="1.0">

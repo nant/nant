@@ -19,7 +19,7 @@
 // Mike Krueger (mike@icsharpcode.net)
 // Ian MacLean (imaclean@gmail.com)
 // William E. Caputo (wecaputo@thoughtworks.com | logosity@yahoo.com)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
 using System.ComponentModel;

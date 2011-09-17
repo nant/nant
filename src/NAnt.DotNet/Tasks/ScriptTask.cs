@@ -19,7 +19,7 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (ian at maclean.ms)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
 using System.CodeDom;

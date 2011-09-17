@@ -416,7 +416,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         /// <summary>
         /// <para>
-        /// This test suggested by gert.driesen@pandora.be.  Tests copying subdirectories only.
+        /// This test suggested by drieseng@users.sourceforge.net.  Tests copying subdirectories only.
         /// </para>
         /// <para>
         /// Empty directories should be copied when <c>includeemptydirs</c> 
@@ -433,7 +433,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         /// <summary>
         /// <para>
-        /// This test suggested by gert.driesen@pandora.be.  Tests copying subdirectories only.
+        /// This test suggested by drieseng@users.sourceforge.net.  Tests copying subdirectories only.
         /// </para>
         /// <para>
         /// Empty directories should not be copied when <c>includeemptydirs</c> 

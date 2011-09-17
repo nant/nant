@@ -17,7 +17,7 @@
 //
 // Ian McLean (ianm@activestate.com)
 // Mitch Denny (mitch.denny@monash.net)
-// Gert Driesen (driesen@users.sourceforge.net)
+// Gert Driesen (drieseng@users.sourceforge.net)
 // Charles Chan (cchan_qa@users.sourceforge.net)
 
 using System;
