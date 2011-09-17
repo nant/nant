@@ -19,6 +19,7 @@
 
 using System;
 using System.Text;
+using System.Diagnostics;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
@@ -48,8 +49,8 @@ namespace NAnt.MSBuild {
             if (_logger != null) {
                 _msbuild.RegisterLogger(_logger);
             }
-
-            solutionTask.Log(Level.Info, "Using MSBuild version {0}.", _msbuild.Assembly.GetName().Version);
+            
+            solutionTask.Log(Level.Verbose, "Using MSBuild version {0}.", FileVersionInfo.GetVersionInfo(_msbuild.Assembly.Location).ProductVersion);
 
             return _msbuild;
         }
