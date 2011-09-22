@@ -102,86 +102,28 @@ namespace NAnt.Core.Types {
     /// tasks that use filesets. They are:
     /// </para>
     /// <list type="bullet">
-    ///     <item>
-    ///         <description>
-    ///         **/*~
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/#*#
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/.#*
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/%*%
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/CVS
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/CVS/**
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/.cvsignore
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/.svn
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/.svn/**
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/_svn
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/_svn/**
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/SCCS
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/SCCS/**
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/vssver.scc
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/vssver2.scc
-    ///         </description>
-    ///     </item>
-    ///     <item>
-    ///         <description>
-    ///         **/_vti_cnf/**
-    ///         </description>
-    ///     </item>
+    ///     <item><description>**/.svn</description></item>
+    ///     <item><description>**/.svn/**</description></item>
+    ///     <item><description>**/_svn</description></item>
+    ///     <item><description>**/_svn/**</description></item>
+    ///     <item><description>**/.git</description></item>
+    ///     <item><description>**/.git/**</description></item>
+    ///     <item><description>**/.git* (eg. .gitignore)</description></item>
+    ///     <item><description>**/.hg</description></item>
+    ///     <item><description>**/.hg/**</description></item>
+    ///     <item><description>**/.hg* (eg. .hgignore)</description></item>
+    ///     <item><description>**/SCCS</description></item>
+    ///     <item><description>**/SCCS/**</description></item>
+    ///     <item><description>**/vssver.scc</description></item>
+    ///     <item><description>**/vssver2.scc</description></item>
+    ///     <item><description>**/_vti_cnf/**</description></item>
+    ///     <item><description>**/*~</description></item>
+    ///     <item><description>**/#*#</description></item>
+    ///     <item><description>**/.#*</description></item>
+    ///     <item><description>**/%*%</description></item>
+    ///     <item><description>**/CVS</description></item>
+    ///     <item><description>**/CVS/**</description></item>
+    ///     <item><description>**/.cvsignore</description></item>
     /// </list>
     /// <para>
     /// If you do not want these default excludes applied, you may disable them 
@@ -618,22 +560,28 @@ namespace NAnt.Core.Types {
             base.Initialize();
             if (DefaultExcludes) {
                 // add default exclude patterns
+                Excludes.Add("**/.svn");
+                Excludes.Add("**/.svn/**");
+                Excludes.Add("**/_svn");
+                Excludes.Add("**/_svn/**");
+                Excludes.Add("**/.git");
+                Excludes.Add("**/.git/**");
+                Excludes.Add("**/.git*"); // eg .gitignore
+                Excludes.Add("**/.hg");
+                Excludes.Add("**/.hg/**");
+                Excludes.Add("**/.hg*"); // eg .hgignore
+                Excludes.Add("**/SCCS");
+                Excludes.Add("**/SCCS/**");
+                Excludes.Add("**/vssver.scc");
+                Excludes.Add("**/vssver2.scc");
+                Excludes.Add("**/_vti_cnf/**");
                 Excludes.Add("**/*~");
                 Excludes.Add("**/#*#");
                 Excludes.Add("**/.#*");
                 Excludes.Add("**/%*%");
                 Excludes.Add("**/CVS");
                 Excludes.Add("**/CVS/**");
-                Excludes.Add("**/.svn");
-                Excludes.Add("**/.svn/**");
-                Excludes.Add("**/_svn");
-                Excludes.Add("**/_svn/**");
                 Excludes.Add("**/.cvsignore");
-                Excludes.Add("**/SCCS");
-                Excludes.Add("**/SCCS/**");
-                Excludes.Add("**/vssver.scc");
-                Excludes.Add("**/vssver2.scc");
-                Excludes.Add("**/_vti_cnf/**");
             }
         }
 
