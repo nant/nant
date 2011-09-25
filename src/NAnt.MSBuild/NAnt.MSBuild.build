@@ -42,7 +42,14 @@
             <resources prefix="NAnt.MSBuild" dynamicprefix="true">
                 <include name="Resources/**/*" />
             </resources>
-        </csc>
+        </csc> 
+		
+		<!-- copy NAnt.MSBuild.dll to extensions/common/4.0 -->
+        <copy todir="${build.dir}/bin/extensions/common/4.0/">
+            <fileset basedir="${build.dir}/bin/extensions/common/2.0">
+                <include name="${project::get-name()}.*" />
+            </fileset>
+        </copy>
 
         <!-- restore original target framework -->
         <property name="nant.settings.currentframework" value="${original.targetframework}" />

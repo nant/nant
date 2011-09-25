@@ -12,7 +12,7 @@
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.dll" doc="${build.dir}/bin/${project::get-name()}.xml">
             <nowarn>
                 <!-- do not report compiler warnings for ambiguous crefs -->
-                <warning number="0419" />
+                <warning number="0419" if="${string::contains(framework::get-runtime-framework(), 'mono')}" />
                 <!-- do not report warnings for missing XML comments -->
                 <warning number="1591" />
                 <!-- do not report deprecation warnings -->
