@@ -53,6 +53,75 @@
                 </td>
             </tr>
         </table>
+		<h2>
+			0.91-beta1 (September 25, 2011)</h2>
+        <h3>Changes</h3>
+        <h4>Core</h4>
+		<div style="margin-left: 20px;">
+			<h5>
+                <a class="heading">App.Config</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added mono-4.0 target
+                </p>
+            </div>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added initial support for Silverlight 3 and 4
+                </p>
+            </div>
+            <h5>
+                <a class="heading" href="http://logging.apache.org/log4net/">log4net</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Upgraded to log4net 1.2.10.
+                </p>
+            </div>
+			<h5>
+                <a class="heading">MSBuild</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added initial support for 2008/2010 MSBuild/VS.NET project files.
+                </p>
+            </div>
+		</div>
+        <h3>
+            Bug fixes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">App.config</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Added WindowsBase.dll and PresentationFramework.dll to 4.0 target.
+                </p>
+            </div>
+            <h5>
+                <a class="heading">NAnt.xsd</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Changed the NAnt.Core.Tasks.DescriptionTask task to mixed.
+                    (bug <a href="https://sourceforge.net/tracker/?func=detail&aid=3058913&group_id=31650&atid=402868">#3058913</a>).
+                </p>
+            </div>
+			<h5>
+				<a class="heading">BuildException</a></h5>
+			<div style="margin-left: 20px;">
+				<p>
+					Display correct registry hives in BuildException when Registry Path not found.
+				</p>
+			</div>
+        </div>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5>
+                <a class="heading">ndoc</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed ndoc task to find hhc.exe for chm generation on 64 bit machines through reflection.
+                </p>
+            </div>
+        </div>
         <h2>
             0.91-alpha2 (August 17, 2010)</h2>
         <h3>
