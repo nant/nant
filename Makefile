@@ -33,10 +33,10 @@ TARGET_FRAMEWORK = -t:$(TARGET)
 
 ifeq ($(findstring 1.0,$(TARGET)),1.0)
 DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
-SYSCONFIGURATION = 
+SYSCONFIGURATION := 
 else ifeq ($(findstring 1.1,$(TARGET)),1.1)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
-SYSCONFIGURATION = 
+SYSCONFIGURATION := 
 else ifeq ($(findstring 2.0,$(TARGET)),2.0)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 else ifeq ($(findstring 3.5,$(TARGET)),3.5)
