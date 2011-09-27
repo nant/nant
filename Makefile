@@ -3,8 +3,6 @@ MONO=mono
 MCS=mcs
 RESGEN=resgen
 
-SYSCONFIGURATION = -r:System.Configuration.dll
-
 ifndef DIRSEP
 ifeq ($(OS),Windows_NT)
 DIRSEP = \\
@@ -30,6 +28,7 @@ endif
 
 ifdef TARGET
 TARGET_FRAMEWORK = -t:$(TARGET)
+SYSCONFIGURATION = -r:System.Configuration.dll
 
 ifeq ($(findstring 1.0,$(TARGET)),1.0)
 DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
