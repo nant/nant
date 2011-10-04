@@ -42,8 +42,12 @@
         </csc>
         <copy tofile="${target.config.file}" file="App.config" />
         <!-- If the target framework is 4.0 or greater, disable the Legacy Security Policy -->
+        <!-- This section is disabled until the documentation (NDoc) can run without the
+             NetFx40_LegacySecurityPolicy flag set or a replacement for NDoc can be found.
+
         <if test="${framework::get-version(framework::get-target-framework()) &gt;= version::parse('4.0')}">
             <xmlpoke file="${target.config.file}" xpath="/configuration/runtime/NetFx40_LegacySecurityPolicy/@enabled" value="false" />
         </if>
+        -->
     </target>
 </project>
