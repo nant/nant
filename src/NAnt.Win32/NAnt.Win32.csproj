@@ -101,6 +101,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Tasks\MonoRegistryTask.cs"
+                    SumType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Tasks\RegAsmTask.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
