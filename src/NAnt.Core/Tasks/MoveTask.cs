@@ -113,13 +113,9 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <move file="source/dir" tofile="target/dir"/>
-    ///     ]]>
-    ///   </code>
-    ///   <para>or</para>
-    ///   <code>
-    ///     <![CDATA[
-    /// <move file="source/dir" todir="target/dir"/>
+    /// <move tofile="target/dir">
+    ///   <fileset basedir="source/dir"/>
+    /// </move>
     ///     ]]>
     ///   </code>
     /// </example>
@@ -128,7 +124,7 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of CopyTask
 
         /// <summary>
-        /// The file or directory to move.
+        /// The file to move.
         /// </summary>
         [TaskAttribute("file")]
         public override FileInfo SourceFile {
@@ -232,61 +228,10 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
             }
         }
-        
-        /// <summary>
-        /// Method responsible for the actual directory movement.
-        /// </summary>
-        protected override void CopyDirectory(DirectoryInfo source, DirectoryInfo target) {
-            string sourcePath = source.FullName;
-            string targetPath = target.FullName;
-
-            try {
-
-                // If the source & target paths are different, move them over.
-                if (!sourcePath.ToUpper().Equals(targetPath.ToUpper())) {
-                    Directory.Move(sourcePath, targetPath);
-
-                // If the source & target paths are the same but difference case
-                // (ie: C:\nant to C:\NAnt), stage the directory before moving it.
-                } else if (!sourcePath.Equals(targetPath)) {
-#if NET_2_0
-                    string stagePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-#else
-                    string tempFileName = Path.GetTempFileName();
-                    File.Delete(tempFileName);
-                    string stagePath = Path.Combine(Path.GetTempPath(),
-                        Path.GetFileNameWithoutExtension(tempFileName));
-#endif
-                    Directory.Move(sourcePath, stagePath);
-                    Directory.Move(stagePath, targetPath);
-
-                // If the source & target paths are completely the same, including case,
-                // throw an exception.
-                } else {
-                    throw new ArgumentException("Source and Target paths are identical");
-                }
-            } catch (Exception ex) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot move '{0}' to '{1}'.", sourcePath, targetPath), 
-                    Location, ex);
-            }
-        }
 
         protected override BuildException CreateSourceFileNotFoundException (string sourceFile) {
             return new BuildException(string.Format(CultureInfo.InvariantCulture,
                 "Could not find file '{0}' to move.", sourceFile),
-                Location);
-        }
-        
-        protected override BuildException CreateTargetPathExistsException (string targetPath) {
-            return new BuildException(string.Format(CultureInfo.InvariantCulture,
-                "Could not move path. '{0}' already exists.", targetPath),
-                Location);
-        }
-        
-        protected override BuildException CreateTargetPathNotSpecifiedException() {
-            return new BuildException(string.Format(CultureInfo.InvariantCulture,
-                "Please specify either the \"todir\" or \"tofile\" attributes when moving directories"),
                 Location);
         }
 

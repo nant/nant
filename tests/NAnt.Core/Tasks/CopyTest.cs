@@ -142,19 +142,6 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should not have been created:" + tempDir4);
             Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should not have been created:" + tempDir5);
         }
-        
-        /// <summary>
-        /// Make sure that a directory can be copied using a simple file -> tofile method.
-        /// </summary>
-        [Test]
-        public void Test_Copy_Entire_Directory() {
-            string targetDir = Path.Combine(Path.GetTempPath(), "goo_copy");
-            
-            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempDir3, targetDir));
-            
-            Assert.IsTrue(Directory.Exists(targetDir), 
-                string.Format("Directory {0} should have been copied to {1}", tempDir3, targetDir));
-        }
 
         /// <summary>
         /// Ensure that an invalid path for destination directory causes a 
