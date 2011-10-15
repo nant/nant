@@ -34,7 +34,7 @@ using NAnt.Core.Filters;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Copies a file or set of files to a new file or directory.
+    /// Copies a file, a directory, or set of files to a new file or directory.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -119,6 +119,22 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Copy an entire directory and its contents.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <copy file="source/dir" tofile="target/dir"/>
+    ///     ]]>
+    ///   </code>
+    ///   <para>or</para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <copy file="source/dir" todir="target/dir"/>
+    ///     ]]>
+    ///   </code>
+    /// </example>
     [TaskName("copy")]
     public class CopyTask : Task {
         #region Private Instance Fields
@@ -155,7 +171,7 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// The file to copy.
+        /// The file or directory to copy.
         /// </summary>
         [TaskAttribute("file")]
         public virtual FileInfo SourceFile {
@@ -352,6 +368,32 @@ namespace NAnt.Core.Tasks {
                             File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
                         }
                     }
+                } else if (Directory.Exists(SourceFile.FullName)) {
+                    // If the source file is actually a directory, the the whole directory is copied
+                    // or moved to the set destination.
+                    DirectoryInfo sourceDir = new DirectoryInfo(SourceFile.FullName);
+                    DirectoryInfo targetDir;
+                    
+                    // This is currently set up to look for the destination directory in one of the two
+                    // property attributes of this task.  First is "tofile" then "todir".  Since Ant
+                    // uses the "tofile" property in their copy/move tasks, we search that one first.
+                    // If "tofile" is null, then "todir" is used.  If both are null, a build exception is
+                    // thrown.
+                    if (ToFile != null) {
+                        targetDir = new DirectoryInfo(ToFile.FullName);
+                        if (!File.Exists(ToFile.FullName)) {
+                            targetDir = new DirectoryInfo(ToFile.FullName);
+                        } else {
+                            throw CreateTargetPathExistsException (ToFile.FullName);
+                        }
+                    } else if (ToDirectory != null) {
+                        targetDir = ToDirectory;
+                    } else {
+                        throw CreateTargetPathNotSpecifiedException();
+                    }
+                    // Once the source and destination directories have been established, call the
+                    // CopyDirectory method to perform the directory copy.
+                    CopyDirectory(sourceDir, targetDir);
                 } else {
                     throw CreateSourceFileNotFoundException (SourceFile.FullName);
                 }
@@ -457,6 +499,33 @@ namespace NAnt.Core.Tasks {
         #endregion Override implementation of Task
 
         #region Protected Instance Methods
+        
+        /// <summary>
+        /// Performs a recursive copy for directories.
+        /// </summary>
+        protected virtual void CopyDirectory(DirectoryInfo source, DirectoryInfo target) {
+            // If the target directory already exists, throw an exception.
+            if (target.Exists) {
+                throw CreateTargetPathExistsException (target.FullName);
+            }
+
+            // Create the target directory
+            target.Create();
+
+            // Copy all of the files out of the current source (sub)directory into the
+            // target directory.
+            foreach (FileInfo currentFile in source.GetFiles()) {
+                string newFile = Path.Combine(target.FullName, currentFile.Name);
+                currentFile.CopyTo(newFile);
+            }
+            
+            // If the current source (sub)directory contains subdirectories, recursively call
+            // this method until all of the subdirectories have been copied over.
+            foreach (DirectoryInfo currentDir in source.GetDirectories()) {
+                DirectoryInfo newTarget = new DirectoryInfo(Path.Combine(target.FullName, currentDir.Name));
+                CopyDirectory(currentDir, newTarget);
+            }
+        }
 
         /// <summary>
         /// Actually does the file copies.
@@ -505,6 +574,18 @@ namespace NAnt.Core.Tasks {
         protected virtual BuildException CreateSourceFileNotFoundException (string sourceFile) {
             return new BuildException(string.Format(CultureInfo.InvariantCulture,
                 "Could not find file '{0}' to copy.", sourceFile),
+                Location);
+        }
+        
+        protected virtual BuildException CreateTargetPathExistsException (string targetPath) {
+            return new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Could not copy path. '{0}' already exists.", targetPath),
+                Location);
+        }
+        
+        protected virtual BuildException CreateTargetPathNotSpecifiedException() {
+            return new BuildException(string.Format(CultureInfo.InvariantCulture,
+                "Please specify either the \"todir\" or \"tofile\" attributes when copying directories"),
                 Location);
         }
 

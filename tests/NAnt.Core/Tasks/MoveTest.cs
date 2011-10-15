@@ -51,6 +51,11 @@ namespace Tests.NAnt.Core.Tasks {
                 + "<move file=\"{0}\" tofile=\"{1}\" overwrite=\"{2}\" />"
             + "</project>";
 
+        private const string _xmlProjectTemplate2 =
+            "<project>" 
+                + "<move file=\"{0}\" todir=\"{1}\" />"
+            + "</project>";
+        
         #endregion Private Static Fields
 
         [SetUp]
@@ -58,6 +63,22 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
             _tempDirDest = CreateTempDir("foob");
             _tempFileSrc = CreateTempFile("foo.xml", "SRC");
+        }
+        
+        [Test]
+        public void MoveDirectoryTest() {
+            string sourceDir = CreateTempDir("foobar");
+            string fileA = CreateTempFile(Path.Combine(sourceDir, "file_one.xml"));
+            string fileB = CreateTempFile(Path.Combine(sourceDir, "file_two.xml"));
+            string targetDir = Path.Combine(Path.GetTempPath(), "foobar_copy");
+            
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, sourceDir, targetDir));
+            
+            Assert.IsFalse(Directory.Exists(sourceDir), 
+                string.Format("Directory {0} should have been moved to {1}", sourceDir, targetDir));
+                
+            Assert.IsTrue(Directory.Exists(targetDir), 
+                string.Format("Directory {0} should have been moved to {1}", sourceDir, targetDir));
         }
 
         [Test]
