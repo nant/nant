@@ -109,6 +109,37 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.AreEqual("testhost.somecompany.com", p.Properties["configuration.server"]);
         }
 
+        /// <summary>
+        /// Tests to make sure that XmlPeek will output xml format when multiple nodes 
+        /// are requested.
+        /// </summary>
+        [Test]
+        public void Test_PeekValidXmlRetrieveInnerNodes() {
+            string expectedInnerText = "<pi>3.14159265</pi><c>2.99E8</c>";
+            Project p;
+
+            // write xml content to file
+            string xmlFile = CreateTempFile("validxml.xml", _validXmlWithMultipleNodes);
+
+            // set-up task attributes
+            string taskAttributes = string.Format(CultureInfo.InvariantCulture,
+                "file=\"{0}\" xpath=\"/configuration/constants\"",
+                xmlFile);
+
+            // create project
+            p = CreateFilebasedProject(string.Format(CultureInfo.InvariantCulture,
+                _projectXml, taskAttributes, "${configuration.server}"));
+
+            // execute build
+            ExecuteProject(p);
+
+            // ensure the correct node was read
+            Assert.AreEqual(expectedInnerText, 
+                p.Properties["configuration.server"], 
+                string.Format("Expected Output: {0}\nActual Output: {1}", 
+                expectedInnerText, p.Properties["configuration.server"]));
+        }
+        
         [Test]
         public void Test_PeekValidXmlRetrieveDoubleValue() {
             Project p;

@@ -246,8 +246,8 @@ namespace NAnt.Core.Tasks {
                 numNodes = xpathNodesIterator.Count;
             }
 
-            Log(Level.Verbose, "Found '{0}' nodes with the XPath expression '{1}'.",
-                numNodes, xpath);
+            Log(Level.Verbose, "Found '{0}' node{1} with the XPath expression '{2}'.",
+                numNodes, numNodes > 1 ? "s" : "", xpath);
           
             if (xpathNodesIterator != null) {
                 if (nodeIndex >= numNodes){
@@ -258,7 +258,9 @@ namespace NAnt.Core.Tasks {
                 while (xpathNodesIterator.MoveNext()) {
                     // CurrentPosition is 1-based.
                     if (xpathNodesIterator.CurrentPosition == (nodeIndex + 1)) {
-                        contents = xpathNodesIterator.Current.Value;
+                        // Get the entire node of the current xpathNodesIterator and return innerxml.
+                        XmlNode currentNode = ((IHasXmlNode)xpathNodesIterator.Current).GetNode();
+                        contents = currentNode.InnerXml;
                     }
                 }
             } else {
