@@ -1,0 +1,21 @@
+# Build and object folders
+build/
+bootstrap/
+obj/
+bin/
+
+# User specific files
+*.user
+*.suo
+
+# Resource caches
+_ReSharper.*
+*.sln.cache
+
+# Mercurial specific files
+.hg/
+.hgignore
+
+# CVS specific files
+CVS/
+.cvsignore
