@@ -112,16 +112,8 @@ namespace Tests.NAnt.Core.Tasks {
 
         private bool AssignEnvironmentVariable(string propName, string propValue) {
 
-#if (NET_2_0)
             Environment.SetEnvironmentVariable(propName, propValue);
             return true;
-#else
-            if (PlatformHelper.IsWindows) {
-                SetEnvironmentVariable(propName, propValue);
-                return true;
-            }
-            return false;
-#endif
         }
 
     }

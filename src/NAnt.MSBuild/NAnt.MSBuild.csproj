@@ -151,6 +151,15 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NAnt.Core\NAnt.Core.csproj">
+      <Project>{8F5F8375-4097-4952-B860-784EB9961ABE}</Project>
+      <Name>NAnt.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.VSNet\NAnt.VSNet.csproj">
+      <Project>{DD434690-B4DF-4BF9-91FE-F139A41E2474}</Project>
+      <Name>NAnt.VSNet</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
