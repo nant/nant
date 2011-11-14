@@ -11,6 +11,8 @@ bootstrap/
 *.suo
 *.sln.docstates
 _UpgradeReport_Files/
+/_UpgradeReport_Files/
+*/_UpgradeReport_Files/
 /UpgradeLog.XML
 
 # Resource caches
