@@ -1,189 +1,154 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.0.9466"
-        SchemaVersion = "1.0"
-        ProjectGuid = "{859696F8-F405-4018-A155-D34561498A3E}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "NAnt"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Exe"
-                RootNamespace = "NAnt.Console"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = ""
-                    DocumentationFile = "NAnt.xml"
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "..\..\build.VS.NET\NAnt.Console\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Debug Main NAnt BuildFile"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = ""
-                    DocumentationFile = "NAnt.xml"
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    Optimize = "false"
-                    OutputPath = "..\..\build.VS.NET\NAnt.Console\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Debug NAnt Tests"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = ""
-                    DocumentationFile = "NAnt.xml"
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    Optimize = "false"
-                    OutputPath = "..\..\build.VS.NET\NAnt.Console\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "mscorlib"
-                    AssemblyName = "mscorlib"
-                />
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                />
-                <Reference
-                    Name = "NAnt.Compression"
-                    Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.Core"
-                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.DotNet"
-                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.MSNet"
-                    Project = "{ED13C268-36DE-49CE-B347-C2BE03F814B9}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit"
-                    Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit1"
-                    Project = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit2"
-                    Project = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.SourceControl"
-                    Project = "{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.VisualCpp"
-                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.VSNet"
-                    Project = "{DD434690-B4DF-4BF9-91FE-F139A41E2474}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.Win32"
-                    Project = "{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NDoc.Documenter.NAnt"
-                    Project = "{841FAEBA-4527-410A-B765-E2EDA47ABDCE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "log4net"
-                    AssemblyName = "log4net"
-                    HintPath = "..\..\lib\common\neutral\log4net.dll"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "App.config"
-                    BuildAction = "Content"
-                />
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommonAssemblyInfo.cs"
-                    Link = "..\CommonAssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ConsoleStub.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Console.build"
-                    BuildAction = "None"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{859696F8-F405-4018-A155-D34561498A3E}</ProjectGuid>
+    <RootNamespace>NAnt.Console</RootNamespace>
+    <AssemblyName>NAnt.Console</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
+    <NoConfig>false</NoConfig>
+    <ProductVersion>8.0.50727</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\common\neutral\log4net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App.config" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="ConsoleStub.cs" />
+    <None Include="NAnt.Console.build" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\NAnt.Compression\NAnt.Compression.csproj">
+      <Project>{8F80C098-94A4-44DB-A25D-C9E455FC3120}</Project>
+      <Name>NAnt.Compression</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.Core\NAnt.Core.csproj">
+      <Project>{8F5F8375-4097-4952-B860-784EB9961ABE}</Project>
+      <Name>NAnt.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.DotNet\NAnt.DotNet.csproj">
+      <Project>{B50A1067-785B-4686-8FFC-5AF424BEF163}</Project>
+      <Name>NAnt.DotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.MSBuild\NAnt.MSBuild.csproj">
+      <Project>{318C04B2-D982-4243-9C6A-CA7E035E927D}</Project>
+      <Name>NAnt.MSBuild</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.MSNet\NAnt.MSNet.csproj">
+      <Project>{ED13C268-36DE-49CE-B347-C2BE03F814B9}</Project>
+      <Name>NAnt.MSNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.NUnit\NAnt.NUnit.csproj">
+      <Project>{00F5C075-9874-4BCE-909A-99C1F600E047}</Project>
+      <Name>NAnt.NUnit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.NUnit\NUnit1\NAnt.NUnit1.csproj">
+      <Project>{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}</Project>
+      <Name>NAnt.NUnit1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.NUnit\NUnit2\NAnt.NUnit2.csproj">
+      <Project>{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}</Project>
+      <Name>NAnt.NUnit2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.SourceControl\NAnt.SourceControl.csproj">
+      <Project>{6B2EC648-8D69-4096-B4F9-6EDC0B2F98EF}</Project>
+      <Name>NAnt.SourceControl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tests\NAnt.Tests.csproj">
+      <Project>{F77EA08E-9473-436A-BBA3-880139A341B1}</Project>
+      <Name>NAnt.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.VisualCpp\NAnt.VisualCpp.csproj">
+      <Project>{A154DB17-7263-44E3-838E-1E4C4946B7D8}</Project>
+      <Name>NAnt.VisualCpp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.VSNet\NAnt.VSNet.csproj">
+      <Project>{DD434690-B4DF-4BF9-91FE-F139A41E2474}</Project>
+      <Name>NAnt.VSNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NAnt.Win32\NAnt.Win32.csproj">
+      <Project>{C66545A2-6FEC-4A38-937A-5B25E61EE8A1}</Project>
+      <Name>NAnt.Win32</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NDoc.Documenter.NAnt\NDoc.Documenter.NAnt.csproj">
+      <Project>{841FAEBA-4527-410A-B765-E2EDA47ABDCE}</Project>
+      <Name>NDoc.Documenter.NAnt</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

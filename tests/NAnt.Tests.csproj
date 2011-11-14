@@ -1,609 +1,221 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.0.9466"
-        SchemaVersion = "1.0"
-        ProjectGuid = "{F77EA08E-9473-436A-BBA3-880139A341B1}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "Nant.Tests"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                RootNamespace = "Tests"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = ""
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    Optimize = "false"
-                    OutputPath = "..\build.VS.NET\NAnt.Tests\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "1"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "mscorlib"
-                    AssemblyName = "mscorlib"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\mscorlib.dll"
-                />
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.dll"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                    HintPath = "G:\WINDOWS\Microsoft.NET\Framework\v1.0.3705\System.XML.dll"
-                />
-                <Reference
-                    Name = "nunit.framework"
-                    AssemblyName = "nunit.framework"
-                    HintPath = "..\lib\net\1.0\nunit.framework.dll"
-                />
-                <Reference
-                    Name = "NAnt.Core"
-                    Project = "{8F5F8375-4097-4952-B860-784EB9961ABE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.DotNetTasks"
-                    Project = "{B50A1067-785B-4686-8FFC-5AF424BEF163}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit1Tasks"
-                    Project = "{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit2Tasks"
-                    Project = "{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.NUnit"
-                    Project = "{00F5C075-9874-4BCE-909A-99C1F600E047}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.VisualCppTasks"
-                    Project = "{A154DB17-7263-44E3-838E-1E4C4946B7D8}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
-                    Name = "NAnt.CompressionTasks"
-                    Project = "{8F80C098-94A4-44DB-A25D-C9E455FC3120}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "CommonAssemblyInfo.cs"
-                    Link = "..\src\CommonAssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Compression\NAnt.Compression.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Compression\Tasks\UnZipTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Compression\Tasks\ZipTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Console\NAnt.Console.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Console\NAntTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\BuildFilesInResourcesTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\BuildTestBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\DirectoryScannerTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\ElementTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\ExceptionTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\ExpressionEvaluatorTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\ExpressionTokenizerTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Framework.config"
-                    BuildAction = "EmbeddedResource"
-                />
-                <File
-                    RelPath = "NAnt.Core\FrameworkInfoTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\LocationTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\NAnt.Core.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core\ProjectTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\TargetTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\TaskContainerTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\TaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\TestBuildException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\TestBuildListener.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Attributes\DateTimeValidatorAttributeTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Attributes\StringValidatorAttributeTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\ExpandPropertiesTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\FilterChainTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\FilterTestBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\ReplaceStringTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\ReplaceTokensTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Filters\TabsToSpacesTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Functions\EnvironmentFunctionsTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Functions\FileFunctionsTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Functions\TargetFunctionsTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\AttribTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\AvailableTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\CallTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\CopyTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\DeleteTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\EchoTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\ExecTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\ExternalProgramBaseTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\FailTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\GetTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\IfTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\IncludeTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\LoadTasksTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\LoopTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\MailTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\MkDirTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\MoveTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\NAntTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\PropertyTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\RegexTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\SetEnvTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\SleepTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\StyleTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\SysInfoTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\TouchTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\TStampTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\XmlPeekTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Tasks\XmlPokeTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Types\FileSetTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\ConsoleCapture.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\ConsoleWriter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\FileUtilsTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\MockDateTimeProvider.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\StopWatchStackTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\TempDir.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\TempDirTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\TempFile.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\TempFileTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Core\Util\XmlLoggerTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\NAnt.DotNet.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\AssemblyInfoTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\CscTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\JscTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\LicenseTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\ScriptTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Tasks\VbcTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.DotNet\Types\ResourceFileSetTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.MSNet\NAnt.MSNet.build"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.SourceControl\NAnt.SourceControl.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.SourceControl\Tasks\CheckoutTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.SourceControl\Tasks\CvsTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.SourceControl\Tasks\UpdateTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\NAnt.VisualCpp.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\VisualCppTestBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\Tasks\ClTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\Tasks\LinkTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\Tasks\RcTaskTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VisualCpp\Util\ArgumentUtilsTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\NAnt.VSNet.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\CppSolutionTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\CSharpSolutionTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\SolutionTestBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\VbSolutionTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\VCProjectTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.VSNet\Tasks\VjsSolutionTests.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NAnt.Win32\NAnt.Win32.build"
-                    SubType = "Content"
-                    BuildAction = "None"
-                />
-                <File
-                    RelPath = "NAnt.Win32\Tasks\ReadRegistryTest.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F77EA08E-9473-436A-BBA3-880139A341B1}</ProjectGuid>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>NAnt.Tests</AssemblyName>
+    <OutputType>Library</OutputType>
+    <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
+    <NoConfig>false</NoConfig>
+    <ProductVersion>8.0.50727</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Debug</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x64' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\lib\net\1.0\nunit.framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <None Include="NAnt.Compression\NAnt.Compression.build" />
+    <Compile Include="NAnt.Compression\Tasks\UnZipTaskTest.cs" />
+    <Compile Include="NAnt.Compression\Tasks\ZipTaskTest.cs" />
+    <None Include="NAnt.Console\NAnt.Console.build" />
+    <Compile Include="NAnt.Console\NAntTest.cs" />
+    <Compile Include="NAnt.Core\BuildFilesInResourcesTest.cs" />
+    <Compile Include="NAnt.Core\BuildTestBase.cs" />
+    <Compile Include="NAnt.Core\DirectoryScannerTest.cs" />
+    <Compile Include="NAnt.Core\ElementTest.cs" />
+    <Compile Include="NAnt.Core\ExceptionTest.cs" />
+    <Compile Include="NAnt.Core\ExpressionEvaluatorTest.cs" />
+    <Compile Include="NAnt.Core\ExpressionTokenizerTest.cs" />
+    <EmbeddedResource Include="NAnt.Core\Framework.config" />
+    <Compile Include="NAnt.Core\FrameworkInfoTest.cs" />
+    <Compile Include="NAnt.Core\LocationTest.cs" />
+    <None Include="NAnt.Core\NAnt.Core.build" />
+    <Compile Include="NAnt.Core\ProjectTest.cs" />
+    <Compile Include="NAnt.Core\TargetTest.cs" />
+    <Compile Include="NAnt.Core\TaskContainerTest.cs" />
+    <Compile Include="NAnt.Core\TaskTest.cs" />
+    <Compile Include="NAnt.Core\TestBuildException.cs" />
+    <Compile Include="NAnt.Core\TestBuildListener.cs" />
+    <Compile Include="NAnt.Core\Attributes\DateTimeValidatorAttributeTest.cs" />
+    <Compile Include="NAnt.Core\Attributes\StringValidatorAttributeTest.cs" />
+    <Compile Include="NAnt.Core\Filters\ExpandPropertiesTest.cs" />
+    <Compile Include="NAnt.Core\Filters\FilterChainTest.cs" />
+    <Compile Include="NAnt.Core\Filters\FilterTestBase.cs" />
+    <Compile Include="NAnt.Core\Filters\ReplaceStringTest.cs" />
+    <Compile Include="NAnt.Core\Filters\ReplaceTokensTest.cs" />
+    <Compile Include="NAnt.Core\Filters\TabsToSpacesTest.cs" />
+    <Compile Include="NAnt.Core\Functions\EnvironmentFunctionsTest.cs" />
+    <Compile Include="NAnt.Core\Functions\FileFunctionsTest.cs" />
+    <Compile Include="NAnt.Core\Functions\TargetFunctionsTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\AttribTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\AvailableTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\CallTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\CopyTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\DeleteTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\EchoTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\ExecTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\ExternalProgramBaseTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\FailTest.cs" />
+    <None Include="NAnt.Core\Tasks\GetTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\IfTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\IncludeTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\LoadTasksTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\LoopTest.cs" />
+    <None Include="NAnt.Core\Tasks\MailTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\MkDirTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\MoveTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\NAntTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\PropertyTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\RegexTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\SetEnvTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\SleepTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\StyleTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\SysInfoTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\TouchTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\TStampTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\XmlPeekTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\XmlPokeTest.cs" />
+    <Compile Include="NAnt.Core\Types\FileSetTest.cs" />
+    <Compile Include="NAnt.Core\Util\ConsoleCapture.cs" />
+    <Compile Include="NAnt.Core\Util\ConsoleWriter.cs" />
+    <Compile Include="NAnt.Core\Util\FileUtilsTest.cs" />
+    <Compile Include="NAnt.Core\Util\MockDateTimeProvider.cs" />
+    <Compile Include="NAnt.Core\Util\StopWatchStackTest.cs" />
+    <Compile Include="NAnt.Core\Util\TempDir.cs" />
+    <Compile Include="NAnt.Core\Util\TempDirTest.cs" />
+    <Compile Include="NAnt.Core\Util\TempFile.cs" />
+    <Compile Include="NAnt.Core\Util\TempFileTest.cs" />
+    <Compile Include="NAnt.Core\Util\XmlLoggerTest.cs" />
+    <None Include="NAnt.DotNet\NAnt.DotNet.build" />
+    <Compile Include="NAnt.DotNet\Tasks\AssemblyInfoTaskTest.cs" />
+    <Compile Include="NAnt.DotNet\Tasks\CscTaskTest.cs" />
+    <Compile Include="NAnt.DotNet\Tasks\JscTaskTest.cs" />
+    <Compile Include="NAnt.DotNet\Tasks\LicenseTaskTest.cs" />
+    <Compile Include="NAnt.DotNet\Tasks\ScriptTest.cs" />
+    <Compile Include="NAnt.DotNet\Tasks\VbcTaskTest.cs" />
+    <Compile Include="NAnt.DotNet\Types\ResourceFileSetTest.cs" />
+    <None Include="NAnt.MSNet\NAnt.MSNet.build" />
+    <None Include="NAnt.SourceControl\NAnt.SourceControl.build" />
+    <Compile Include="NAnt.SourceControl\Tasks\CheckoutTaskTest.cs" />
+    <Compile Include="NAnt.SourceControl\Tasks\CvsTaskTest.cs" />
+    <Compile Include="NAnt.SourceControl\Tasks\UpdateTaskTest.cs" />
+    <None Include="NAnt.VisualCpp\NAnt.VisualCpp.build" />
+    <Compile Include="NAnt.VisualCpp\VisualCppTestBase.cs" />
+    <Compile Include="NAnt.VisualCpp\Tasks\ClTaskTest.cs" />
+    <Compile Include="NAnt.VisualCpp\Tasks\LinkTaskTest.cs" />
+    <Compile Include="NAnt.VisualCpp\Tasks\RcTaskTest.cs" />
+    <Compile Include="NAnt.VisualCpp\Util\ArgumentUtilsTest.cs" />
+    <None Include="NAnt.VSNet\NAnt.VSNet.build" />
+    <Compile Include="NAnt.VSNet\Tasks\CppSolutionTests.cs" />
+    <Compile Include="NAnt.VSNet\Tasks\CSharpSolutionTests.cs" />
+    <Compile Include="NAnt.VSNet\Tasks\SolutionTestBase.cs" />
+    <Compile Include="NAnt.VSNet\Tasks\VbSolutionTests.cs" />
+    <Compile Include="NAnt.VSNet\Tasks\VCProjectTest.cs" />
+    <Compile Include="NAnt.VSNet\Tasks\VjsSolutionTests.cs" />
+    <None Include="NAnt.Win32\NAnt.Win32.build" />
+    <Compile Include="NAnt.Win32\Tasks\ReadRegistryTest.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\src\NAnt.Compression\NAnt.Compression.csproj">
+      <Project>{8F80C098-94A4-44DB-A25D-C9E455FC3120}</Project>
+      <Name>NAnt.Compression</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.Core\NAnt.Core.csproj">
+      <Project>{8F5F8375-4097-4952-B860-784EB9961ABE}</Project>
+      <Name>NAnt.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.DotNet\NAnt.DotNet.csproj">
+      <Project>{B50A1067-785B-4686-8FFC-5AF424BEF163}</Project>
+      <Name>NAnt.DotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.NUnit\NAnt.NUnit.csproj">
+      <Project>{00F5C075-9874-4BCE-909A-99C1F600E047}</Project>
+      <Name>NAnt.NUnit</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.NUnit\NUnit1\NAnt.NUnit1.csproj">
+      <Project>{0F3EA7A9-C5F6-4254-820C-B5E0409B5B9D}</Project>
+      <Name>NAnt.NUnit1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.NUnit\NUnit2\NAnt.NUnit2.csproj">
+      <Project>{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}</Project>
+      <Name>NAnt.NUnit2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NAnt.VisualCpp\NAnt.VisualCpp.csproj">
+      <Project>{A154DB17-7263-44E3-838E-1E4C4946B7D8}</Project>
+      <Name>NAnt.VisualCpp</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
