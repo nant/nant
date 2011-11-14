@@ -6,10 +6,12 @@ bootstrap/
 [Dd]ebug/
 [Rr]elease/
 
-# User specific files
+# VS.NET specific files
 *.user
 *.suo
 *.sln.docstates
+_UpgradeReport_Files/
+/UpgradeLog.XML
 
 # Resource caches
 _ReSharper.*
@@ -42,7 +44,7 @@ test-results/
 .hgignore
 
 # SVN specific files
-.svn/
+/.svn/
 
 # CVS specific files
 /CVS/*
