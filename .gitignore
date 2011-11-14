@@ -1,21 +1,58 @@
 # Build and object folders
 build/
 bootstrap/
-obj/
-bin/
+[Oo]bj/
+[Bb]in/
+[Dd]ebug/
+[Rr]elease/
 
 # User specific files
 *.user
 *.suo
+*.sln.docstates
 
 # Resource caches
 _ReSharper.*
 *.sln.cache
 
+# OSX specific files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows specific files
+Thumbs.db
+Desktop.ini
+
+# Linux specific files
+*~
+.directory
+
+# Monodevelop specific files
+*.userprefs
+*.usertasks
+*.pidb
+*.resources
+test-results/
+
 # Mercurial specific files
-.hg/
+/.hg/
+*/.hg/*
 .hgignore
 
+# SVN specific files
+.svn/
+
 # CVS specific files
-CVS/
+/CVS/*
+*/CVS/*
 .cvsignore
+*/.cvsignore
+
+# Other misc files
+.#*
+*.xsx
+*.dat
+*.orig
+*.rej
