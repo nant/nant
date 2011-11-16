@@ -35,18 +35,20 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>  
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
-    <Optimize>true</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DebugType>none</DebugType>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>  
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <WarningLevel>4</WarningLevel>
     <OutputPath>bin\Release</OutputPath>
-    <DebugType>none</DebugType>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
