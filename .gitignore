@@ -6,7 +6,7 @@ bootstrap/
 [Dd]ebug/
 [Rr]elease/
 
-# User specific files
+# VS.NET specific files
 *.user
 *.suo
 *.sln.docstates
@@ -42,7 +42,7 @@ test-results/
 .hgignore
 
 # SVN specific files
-.svn/
+/.svn/
 
 # CVS specific files
 /CVS/*
