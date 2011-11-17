@@ -491,7 +491,7 @@ namespace NAnt.Core {
             //
             // do not remove trailing directory separator if search directory is
             // root of drive (eg. d:\)
-            if (StringUtils.EndsWith(searchDirectory, Path.DirectorySeparatorChar) && (searchDirectory.Length != 3 || searchDirectory[1] != Path.VolumeSeparatorChar)) {
+            if (searchDirectory.EndsWith(Path.DirectorySeparatorChar.ToString()) && (searchDirectory.Length != 3 || searchDirectory[1] != Path.VolumeSeparatorChar)) {
                 searchDirectory = searchDirectory.Substring(0, searchDirectory.Length - 1);
             }
 
@@ -576,7 +576,7 @@ namespace NAnt.Core {
                     }
 
                     // make sure basedirectory ends with directory separator
-                    if (!StringUtils.EndsWith(baseDirectory, Path.DirectorySeparatorChar)) {
+                    if (!baseDirectory.EndsWith(Path.DirectorySeparatorChar.ToString())) {
                         baseDirectory += Path.DirectorySeparatorChar;
                     }
 
@@ -601,7 +601,7 @@ namespace NAnt.Core {
                     }
 
                     // make sure basedirectory ends with directory separator
-                    if (!StringUtils.EndsWith(baseDirectory, Path.DirectorySeparatorChar)) {
+                    if (!baseDirectory.EndsWith(Path.DirectorySeparatorChar.ToString())) {
                         baseDirectory += Path.DirectorySeparatorChar;
                     }
 
@@ -662,7 +662,7 @@ namespace NAnt.Core {
                 return r.IsMatch(String.Empty);
             }
 
-            bool endsWithSlash = StringUtils.EndsWith(entry.BaseDirectory, Path.DirectorySeparatorChar);
+            bool endsWithSlash = entry.BaseDirectory.EndsWith(Path.DirectorySeparatorChar.ToString());
 #if DEBUG_REGEXES
             Console.WriteLine("{0} ({1}) [basedir={2}]", entry.Pattern, path.Substring(entry.BaseDirectory.Length + ((endsWithSlash) ? 0 : 1)), entry.BaseDirectory);
 #endif

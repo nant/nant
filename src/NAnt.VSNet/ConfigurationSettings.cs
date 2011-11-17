@@ -52,7 +52,7 @@ namespace NAnt.VSNet {
             _name = elemConfig.GetAttribute("Name");
 
             string documentationFile = elemConfig.GetAttribute("DocumentationFile");
-            if (!StringUtils.IsNullOrEmpty(documentationFile)) {
+            if (!string.IsNullOrEmpty(documentationFile)) {
                 // to match VS.NET, the XML Documentation file will be output 
                 // in the project directory, and only later copied to the output
                 // directory
@@ -116,7 +116,7 @@ namespace NAnt.VSNet {
             foreach (DictionaryEntry de in htStringSettings) {
                 string name = de.Key.ToString();
                 string value = elemConfig.GetAttribute(de.Key.ToString());
-                if (!StringUtils.IsNullOrEmpty(value)) {
+                if (!string.IsNullOrEmpty(value)) {
                     switch (name) {
                         case "BaseAddress":
                             // vbc and vjs expect the base address to be specified

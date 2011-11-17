@@ -183,7 +183,7 @@ namespace NAnt.DotNet.Tasks {
         [Obsolete("Use the <imports> element instead.", false)]
         public string ImportsString {
             set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
+                if (!string.IsNullOrEmpty(value)) {
                     string[] imports = value.Split(',');
                     foreach (string import in imports) {
                         Imports.Add(new NamespaceImport(import));
@@ -388,7 +388,7 @@ namespace NAnt.DotNet.Tasks {
             // check if resource linkage could be determined at all
             if (resourceLinkage != null) {
                 // for VB.NET, the root namespace always needs to be used
-                if (!StringUtils.IsNullOrEmpty(RootNamespace)) {
+                if (!string.IsNullOrEmpty(RootNamespace)) {
                     if (resourceLinkage.HasNamespaceName) {
                         resourceLinkage.NamespaceName = RootNamespace + "." + resourceLinkage.NamespaceName;
                     } else {
@@ -478,7 +478,7 @@ namespace NAnt.DotNet.Tasks {
             }
 
             string imports = Imports.ToString();
-            if (!StringUtils.IsNullOrEmpty(imports)) {
+            if (!string.IsNullOrEmpty(imports)) {
                 WriteOption(writer, "imports", imports);
             }
 

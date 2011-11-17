@@ -271,11 +271,11 @@ namespace NAnt.Core.Tasks {
             try {
                 switch (ItemType) {
                     case LoopItem.File:
-                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
+                        if (string.IsNullOrEmpty(Source) && InElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
-                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                        if (!string.IsNullOrEmpty(Source)) {
                             // resolve to full path
                             Source = Project.GetFullPath(Source);
                             // ensure directory exists
@@ -307,7 +307,7 @@ namespace NAnt.Core.Tasks {
                         }
                         break;
                     case LoopItem.Folder:
-                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
+                        if (string.IsNullOrEmpty(Source) && InElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
@@ -315,7 +315,7 @@ namespace NAnt.Core.Tasks {
                             throw new BuildException(@"Only one property is valid for item=""Folder""", Location);
                         }
 
-                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                        if (!string.IsNullOrEmpty(Source)) {
                             // resolve to full path
                             Source = Project.GetFullPath(Source);
                             // ensure directory exists
@@ -342,7 +342,7 @@ namespace NAnt.Core.Tasks {
                         }
                         break;
                     case LoopItem.Line:
-                        if (StringUtils.IsNullOrEmpty(Source) && InElement == null) {
+                        if (string.IsNullOrEmpty(Source) && InElement == null) {
                             throw new BuildException("Invalid foreach", Location, new ArgumentException("Nothing to work with...!", "in"));
                         }
 
@@ -350,7 +350,7 @@ namespace NAnt.Core.Tasks {
                             throw new BuildException("Delimiter(s) must be specified if multiple properties are specified", Location);
                         }
 
-                        if (!StringUtils.IsNullOrEmpty(Source)) {
+                        if (!string.IsNullOrEmpty(Source)) {
                             // resolve to full path
                             Source = Project.GetFullPath(Source);
                             // ensure file exists
@@ -373,7 +373,7 @@ namespace NAnt.Core.Tasks {
                         }
                         break;
                     case LoopItem.String:
-                        if (StringUtils.IsNullOrEmpty(Source)) {
+                        if (string.IsNullOrEmpty(Source)) {
                             return;
                         }
 

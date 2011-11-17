@@ -328,7 +328,7 @@ using NAnt.Core.Util;
         }
 
         private static bool IsNullValue (string value) {
-            return (StringUtils.IsNullOrEmpty (value) || value [0] == '\0');
+            return (string.IsNullOrEmpty (value) || value [0] == '\0');
         }
 #endif
 

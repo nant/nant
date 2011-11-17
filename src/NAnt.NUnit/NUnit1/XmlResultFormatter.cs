@@ -75,7 +75,7 @@ namespace NAnt.NUnit1.Types {
             // if this is a testsuite, use it's name
             //
             string suiteName = suite.Suite.ToString();
-            if (StringUtils.IsNullOrEmpty(suiteName)) {
+            if (string.IsNullOrEmpty(suiteName)) {
                 suiteName = "test"; 
             }
             _suiteElement.SetAttribute(AttributeName, suiteName );

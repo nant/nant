@@ -82,8 +82,8 @@ namespace NAnt.Core.Tasks {
         public string Message {
             get { return _message; }
             set {
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (!StringUtils.IsNullOrEmpty(Contents)) {
+                if (!string.IsNullOrEmpty(value)) {
+                    if (!string.IsNullOrEmpty(Contents)) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <fail> task.", Location);
                     } else {
                         _message = value;
@@ -107,8 +107,8 @@ namespace NAnt.Core.Tasks {
         public string Contents {
             get { return _contents; }
             set { 
-                if (!StringUtils.IsNullOrEmpty(value)) {
-                    if (!StringUtils.IsNullOrEmpty(Message)) {
+                if (!string.IsNullOrEmpty(value)) {
+                    if (!string.IsNullOrEmpty(Message)) {
                         throw new ValidationException("Inline content and the message attribute are mutually exclusive in the <fail> task.", Location);
                     } else {
                         _contents = value;
@@ -127,9 +127,9 @@ namespace NAnt.Core.Tasks {
             const string defaultMessage = "No message.";
             string message;
 
-            if (!StringUtils.IsNullOrEmpty(Message)) {
+            if (!string.IsNullOrEmpty(Message)) {
                 message = Message;
-            } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+            } else if (!string.IsNullOrEmpty(Contents)) {
                 message = Contents;
             } else {
                 message = defaultMessage;

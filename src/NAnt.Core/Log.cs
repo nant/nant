@@ -517,7 +517,7 @@ namespace NAnt.Core {
                         Exception nestedException = error.InnerException;
                         int exceptionIndentationLevel = indentationLevel;
                         int indentShift = 4; //e.Project.IndentationSize;
-                        while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
+                        while (nestedException != null && !string.IsNullOrEmpty(nestedException.Message)) {
                             exceptionIndentationLevel += indentShift;
                             OutputMessage(Level.Error, nestedException.Message, exceptionIndentationLevel);
                             nestedException = nestedException.InnerException;
@@ -1062,7 +1062,7 @@ namespace NAnt.Core {
         }
 
         private void AttachFiles(MailMessage mail, Project project, string filesetID) {
-            if (StringUtils.IsNullOrEmpty(filesetID)) {
+            if (string.IsNullOrEmpty(filesetID)) {
                 return;
             }
 

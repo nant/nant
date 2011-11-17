@@ -69,7 +69,7 @@ namespace NAnt.NUnit2.Types {
             foreach (Category category in base.List) {
                 if (category.IfDefined && !category.UnlessDefined) {
                     // add comma delimited if its not the first category
-                    if (!StringUtils.IsNullOrEmpty(categories)) {
+                    if (!string.IsNullOrEmpty(categories)) {
                         categories += ",";
                     }
 

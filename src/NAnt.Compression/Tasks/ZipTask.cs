@@ -192,7 +192,7 @@ namespace NAnt.Compression.Tasks {
                 zOutstream.SetLevel(ZipLevel);
 
                 // set comment
-                if (!StringUtils.IsNullOrEmpty(Comment)) {
+                if (!string.IsNullOrEmpty(Comment)) {
                     zOutstream.SetComment(Comment);
                 }
 

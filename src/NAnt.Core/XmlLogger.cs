@@ -414,7 +414,7 @@ namespace NAnt.Core {
                     }
 
                     if (buildException.Location != null) {
-                        if (!StringUtils.IsNullOrEmpty(buildException.Location.ToString())) {
+                        if (!string.IsNullOrEmpty(buildException.Location.ToString())) {
                             _xmlWriter.WriteStartElement("location");
                             _xmlWriter.WriteElementString("filename", buildException.Location.FileName);
                             _xmlWriter.WriteElementString("linenumber",

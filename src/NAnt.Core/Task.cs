@@ -195,7 +195,7 @@ namespace NAnt.Core {
                             // set initial indentation level for the nested exceptions
                             int exceptionIndentationLevel = 0;
                             // output message of nested exceptions
-                            while (nestedException != null && !StringUtils.IsNullOrEmpty(nestedException.Message)) {
+                            while (nestedException != null && !string.IsNullOrEmpty(nestedException.Message)) {
                                 // indent exception message with 4 extra spaces 
                                 // (for each nesting level)
                                 exceptionIndentationLevel += 4;

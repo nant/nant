@@ -452,11 +452,11 @@ namespace NAnt.DotNet.Tasks {
             StringCollection folders = new StringCollection();
             
             string hhwx86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            if (!StringUtils.IsNullOrEmpty(hhwx86)) {
+            if (!string.IsNullOrEmpty(hhwx86)) {
                 folders.Add(Path.Combine(hhwx86, "HTML Help Workshop"));
             }
             string hhw = Environment.GetEnvironmentVariable("ProgramFiles");
-            if (!StringUtils.IsNullOrEmpty(hhw)) {
+            if (!string.IsNullOrEmpty(hhw)) {
                 folders.Add(Path.Combine(hhw, "HTML Help Workshop"));
             }
 

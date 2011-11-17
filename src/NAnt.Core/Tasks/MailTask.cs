@@ -192,7 +192,7 @@ namespace NAnt.Core.Tasks {
         /// Initializes task and ensures the supplied attributes are valid.
         /// </summary>
         protected override void Initialize() {
-            if (StringUtils.IsNullOrEmpty(ToList) && StringUtils.IsNullOrEmpty(CcList) && StringUtils.IsNullOrEmpty(BccList)) {
+            if (string.IsNullOrEmpty(ToList) && string.IsNullOrEmpty(CcList) && string.IsNullOrEmpty(BccList)) {
                 throw new BuildException("There must be at least one name in" 
                     + " the \"tolist\", \"cclist\" or \"bcclist\" attributes"
                     + " of the <mail> task.", Location);
@@ -224,7 +224,7 @@ namespace NAnt.Core.Tasks {
             // begin build message body
             StringWriter bodyWriter = new StringWriter(CultureInfo.InvariantCulture);
             
-            if (!StringUtils.IsNullOrEmpty(Message)) {
+            if (!string.IsNullOrEmpty(Message)) {
                 bodyWriter.WriteLine(Message);
                 bodyWriter.WriteLine();
             }
@@ -233,7 +233,7 @@ namespace NAnt.Core.Tasks {
             foreach (string fileName in Files.FileNames) {
                 try {
                     string content = ReadFile(fileName);
-                    if (!StringUtils.IsNullOrEmpty(content)) {
+                    if (!string.IsNullOrEmpty(content)) {
                         bodyWriter.Write(content);
                         bodyWriter.WriteLine(string.Empty);
                     }

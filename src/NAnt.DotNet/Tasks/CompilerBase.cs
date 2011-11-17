@@ -1039,7 +1039,7 @@ namespace NAnt.DotNet.Tasks {
             if (warnings.Count > 0) {
                 if (SupportsWarnAsErrorList) {
                     // write list of warnings to the TextWriter
-                    writer.WriteLine("/warnaserror+:" + StringUtils.Join(",", 
+                    writer.WriteLine("/warnaserror+:" + StringUtils.Join(",",
                         warnings));
                 } else {
                     Log(Level.Warning, ResourceUtils.GetString("String_CompilerDoesNotSupportWarningsAsErrors"),
@@ -1555,7 +1555,7 @@ namespace NAnt.DotNet.Tasks {
             /// instance contains valid data; otherwise, <see langword="false" />.
             /// </value>
             public bool IsValid {
-                get { return !StringUtils.IsNullOrEmpty(_namespaceName) || !StringUtils.IsNullOrEmpty(_className); }
+                get { return !string.IsNullOrEmpty(_namespaceName) || !string.IsNullOrEmpty(_className); }
             }
   
             /// <summary>
@@ -1568,7 +1568,7 @@ namespace NAnt.DotNet.Tasks {
             /// <see langword="false" />.
             /// </value>
             public bool HasNamespaceName {
-                get { return !StringUtils.IsNullOrEmpty(_namespaceName); }
+                get { return !string.IsNullOrEmpty(_namespaceName); }
             }
   
             /// <summary>
@@ -1581,7 +1581,7 @@ namespace NAnt.DotNet.Tasks {
             /// <see langword="false" />.
             /// </value>
             public bool HasClassName {
-                get { return !StringUtils.IsNullOrEmpty(_className); }
+                get { return !string.IsNullOrEmpty(_className); }
             }
   
             /// <summary>

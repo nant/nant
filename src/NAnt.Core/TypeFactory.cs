@@ -199,7 +199,7 @@ namespace NAnt.Core {
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public static void ScanDir(string path, Task task, bool failOnError) {
             // don't do anything if we don't have a valid directory path
-            if (StringUtils.IsNullOrEmpty(path)) {
+            if (string.IsNullOrEmpty(path)) {
                 return;
             }
 
@@ -244,7 +244,7 @@ namespace NAnt.Core {
         /// <param name="project">The project to work from.</param>
         /// <param name="scan">Specified whether to scan the <see cref="Project.BaseDirectory" /> for extension assemblies.</param>
         internal static void AddProject(Project project, bool scan) {
-            if (!scan || StringUtils.IsNullOrEmpty(project.BaseDirectory))
+            if (!scan || string.IsNullOrEmpty(project.BaseDirectory))
                 return;
 
             LoadTasksTask loadTasks = new LoadTasksTask();

@@ -193,11 +193,11 @@ namespace NAnt.NUnit2.Tasks {
 
                 // include or exclude specific categories
                 string categories = testElement.Categories.Includes.ToString();
-                if (!StringUtils.IsNullOrEmpty(categories)) {
+                if (!string.IsNullOrEmpty(categories)) {
                     categoryFilter = new CategoryFilter(categories.Split(','), false);
                 } else {
                     categories = testElement.Categories.Excludes.ToString();
-                    if (!StringUtils.IsNullOrEmpty(categories)) {
+                    if (!string.IsNullOrEmpty(categories)) {
                         categoryFilter = new CategoryFilter(categories.Split(','), true);
                     }
                 }

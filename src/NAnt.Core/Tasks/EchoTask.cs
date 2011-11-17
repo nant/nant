@@ -239,9 +239,9 @@ namespace NAnt.Core.Tasks {
 
                     // write the message to the file
                     using (StreamWriter writer = new StreamWriter(File.FullName, Append, Encoding)) {
-                        if (!StringUtils.IsNullOrEmpty(Message)) {
+                        if (!string.IsNullOrEmpty(Message)) {
                             writer.Write(Message);
-                        } else if (!StringUtils.IsNullOrEmpty(Contents)) {
+                        } else if (!string.IsNullOrEmpty(Contents)) {
                             writer.Write(Contents);
                         }
                     }

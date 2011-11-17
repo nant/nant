@@ -421,7 +421,7 @@ namespace NAnt.Core {
         public Uri BuildFileUri {
             get {
                 //TODO: Need to remove this.
-                if (Document == null || StringUtils.IsNullOrEmpty(Document.BaseURI)) {
+                if (Document == null || string.IsNullOrEmpty(Document.BaseURI)) {
                     return null; //new Uri("http://localhost");
                 } else {
                     // manually escape '#' in URI (why doesn't .NET do this?) to allow
@@ -950,7 +950,7 @@ namespace NAnt.Core {
         /// will be passed onto the caller.
         /// </remarks>
         public virtual void Execute() {
-            if (BuildTargets.Count == 0 && !StringUtils.IsNullOrEmpty(DefaultTargetName)) {
+            if (BuildTargets.Count == 0 && !string.IsNullOrEmpty(DefaultTargetName)) {
                 BuildTargets.Add(DefaultTargetName);
             }
 
@@ -1098,7 +1098,7 @@ namespace NAnt.Core {
                     endTarget = Properties[NAntPropertyOnFailure];
                 }
 
-                if (!StringUtils.IsNullOrEmpty(endTarget)) {
+                if (!string.IsNullOrEmpty(endTarget)) {
                     // executing the target identified by the 'nant.onsuccess' 
                     // or 'nant.onfailure' properties should not affect the 
                     // build outcome
@@ -1176,7 +1176,7 @@ namespace NAnt.Core {
         /// if the <paramref name="path" /> parameter is a null reference.
         /// </returns>
         public string GetFullPath(string path) {
-            if (StringUtils.IsNullOrEmpty(path)) {
+            if (string.IsNullOrEmpty(path)) {
                 return BaseDirectory;
             }
 
@@ -1340,7 +1340,7 @@ namespace NAnt.Core {
 
             // fill the namespace manager up, so we can make qualified xpath 
             // expressions
-            if (StringUtils.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
+            if (string.IsNullOrEmpty(doc.DocumentElement.NamespaceURI)) {
                 string defURI;
 
                 XmlAttribute nantNS = doc.DocumentElement.Attributes["xmlns", "nant"];
@@ -1377,8 +1377,8 @@ namespace NAnt.Core {
             }
 
             // give the project a meaningful base directory
-            if (StringUtils.IsNullOrEmpty(newBaseDir)) {
-                if (!StringUtils.IsNullOrEmpty(BuildFileLocalName)) {
+            if (string.IsNullOrEmpty(newBaseDir)) {
+                if (!string.IsNullOrEmpty(BuildFileLocalName)) {
                     newBaseDir = Path.GetDirectoryName(BuildFileLocalName);
                 } else {
                     newBaseDir = Environment.CurrentDirectory;
@@ -1386,7 +1386,7 @@ namespace NAnt.Core {
             } else {
                 // if basedir attribute is set to a relative path, then resolve 
                 // it relative to the build file path
-                if (!StringUtils.IsNullOrEmpty(BuildFileLocalName) && !Path.IsPathRooted(newBaseDir)) {
+                if (!string.IsNullOrEmpty(BuildFileLocalName) && !Path.IsPathRooted(newBaseDir)) {
                     newBaseDir = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(BuildFileLocalName), newBaseDir));
                 }
             }

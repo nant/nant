@@ -74,7 +74,7 @@ namespace NAnt.Core {
         /// </remarks>
         public void Add(XmlDocument doc) {
             // check for non-backed documents
-            if (StringUtils.IsNullOrEmpty(doc.BaseURI)) {
+            if (string.IsNullOrEmpty(doc.BaseURI)) {
                 return;
             }
 
@@ -184,7 +184,7 @@ namespace NAnt.Core {
         /// </remarks>
         public Location GetLocation(XmlNode node) {
             // check for non-backed documents
-            if (StringUtils.IsNullOrEmpty(node.BaseURI))
+            if (string.IsNullOrEmpty(node.BaseURI))
                 return Location.UnknownLocation; // return empty location because we have a fileless node.
 
             // convert URI to absolute URI
