@@ -35,22 +35,24 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\build\Debug\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>..\..\build\Debug\NAnt.MSBuild.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\build\Release\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\build\Release\NAnt.MSBuild.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -6,7 +6,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{859696F8-F405-4018-A155-D34561498A3E}</ProjectGuid>
     <RootNamespace>NAnt.Console</RootNamespace>
-    <AssemblyName>NAnt.Console</AssemblyName>
+    <AssemblyName>NAnt</AssemblyName>
     <OutputType>Exe</OutputType>
     <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
     <PreBuildEvent />
@@ -35,26 +35,29 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\build\Debug\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>..\..\build\Debug\NAnt.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\build\Release\</OutputPath>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\build\Release\NAnt.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
     <Reference Include="log4net">
       <HintPath>..\..\lib\common\neutral\log4net.dll</HintPath>
