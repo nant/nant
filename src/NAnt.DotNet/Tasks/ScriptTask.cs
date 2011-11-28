@@ -366,7 +366,7 @@ namespace NAnt.DotNet.Tasks {
                     Log(Level.Verbose, "Adding assembly {0}", asm.GetName().Name);
 
                     // add the location of the loaded assembly
-                    if (!string.IsNullOrEmpty(asm.Location)) {
+                    if (!String.IsNullOrEmpty(asm.Location)) {
                         options.ReferencedAssemblies.Add(asm.Location);
                     }
                 } catch (Exception ex) {
@@ -413,7 +413,7 @@ namespace NAnt.DotNet.Tasks {
             bool extensionAssembly = TypeFactory.ScanAssembly(compiled, this);
             
             string mainClass = _rootClassName;
-            if (!string.IsNullOrEmpty(MainClass)) {
+            if (!String.IsNullOrEmpty(MainClass)) {
                 mainClass += "+" + MainClass;
             }
 

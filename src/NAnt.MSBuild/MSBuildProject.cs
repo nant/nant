@@ -282,7 +282,7 @@ namespace NAnt.MSBuild {
 
             // If the <ProductVersion> element exists and it is not empty, get the
             // product version from it.
-            if (_productVerNode != null && !string.IsNullOrEmpty(_productVerNode.InnerText)) {
+            if (_productVerNode != null && !String.IsNullOrEmpty(_productVerNode.InnerText)) {
                 Version _ver = new Version(_productVerNode.InnerText);
 
                 switch (_ver.Major) {
@@ -349,7 +349,7 @@ namespace NAnt.MSBuild {
             MSBuildConfiguration projectConfig = (MSBuildConfiguration) BuildConfigurations[solutionConfiguration];
             _msproj.GlobalProperties.SetProperty("Configuration", projectConfig.Name);
 
-            if (!string.IsNullOrEmpty(projectConfig.PlatformName)) {
+            if (!String.IsNullOrEmpty(projectConfig.PlatformName)) {
                 _msproj.GlobalProperties.SetProperty("PlatformTarget", projectConfig.PlatformName.Replace(" ", string.Empty));
             }
             

@@ -109,7 +109,7 @@ namespace NAnt.Core.Tasks {
             if (Parent != null && !(Parent is Project)) {
                 throw new BuildException(ResourceUtils.GetString("NA1180"), Location);
             }
-            if (string.IsNullOrEmpty(_currentBasedir) || _nestinglevel == 0) {
+            if (String.IsNullOrEmpty(_currentBasedir) || _nestinglevel == 0) {
                 _currentBasedir = Project.BaseDirectory;
             }
 
@@ -216,13 +216,13 @@ namespace NAnt.Core.Tasks {
                 
                 // Assigns the main build file's namespace to the
                 // local string variable if it is not blank.
-                if (!string.IsNullOrEmpty(projectNamespaceURI)) {
+                if (!String.IsNullOrEmpty(projectNamespaceURI)) {
                     projectURI = projectNamespaceURI;
                 }
                 
                 // If the projectURI is not empty at this point, add
                 // the Namespace attribute to the doc XmlDocument.
-                if (!string.IsNullOrEmpty(projectURI)) {
+                if (!String.IsNullOrEmpty(projectURI)) {
                     XmlAttribute projAttr = doc.CreateAttribute("xmlns");
                     projAttr.Value = projectURI;
                     doc.DocumentElement.Attributes.Append(projAttr);

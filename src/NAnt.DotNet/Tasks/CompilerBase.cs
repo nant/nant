@@ -1555,7 +1555,7 @@ namespace NAnt.DotNet.Tasks {
             /// instance contains valid data; otherwise, <see langword="false" />.
             /// </value>
             public bool IsValid {
-                get { return !string.IsNullOrEmpty(_namespaceName) || !string.IsNullOrEmpty(_className); }
+                get { return !String.IsNullOrEmpty(_namespaceName) || !String.IsNullOrEmpty(_className); }
             }
   
             /// <summary>
@@ -1568,7 +1568,7 @@ namespace NAnt.DotNet.Tasks {
             /// <see langword="false" />.
             /// </value>
             public bool HasNamespaceName {
-                get { return !string.IsNullOrEmpty(_namespaceName); }
+                get { return !String.IsNullOrEmpty(_namespaceName); }
             }
   
             /// <summary>
@@ -1581,7 +1581,7 @@ namespace NAnt.DotNet.Tasks {
             /// <see langword="false" />.
             /// </value>
             public bool HasClassName {
-                get { return !string.IsNullOrEmpty(_className); }
+                get { return !String.IsNullOrEmpty(_className); }
             }
   
             /// <summary>

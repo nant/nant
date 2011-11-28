@@ -143,7 +143,7 @@ namespace NAnt.VSNet {
 
             foreach (DictionaryEntry de in htStringSettings) {
                 string value = elemSettings.GetAttribute(de.Key.ToString());
-                if (string.IsNullOrEmpty(value)) {
+                if (String.IsNullOrEmpty(value)) {
                     // skip empty values
                     continue;
                 }

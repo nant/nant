@@ -50,7 +50,7 @@ namespace NAnt.Core.Util {
         /// string ("") or <see langword="null" />; otherwise, <paramref name="value" />.
         /// </returns>
         public static string ConvertEmptyToNull(string value) {
-            if (!string.IsNullOrEmpty(value))
+            if (!String.IsNullOrEmpty(value))
                 return value;
             return null;
         }

@@ -451,7 +451,7 @@ namespace NAnt.Core {
             if (dataType != null && dataType.CanBeReferenced && childNode.Attributes["refid"] != null ) {
                 dataType.RefID = childNode.Attributes["refid"].Value;
 
-                if (!string.IsNullOrEmpty(dataType.ID)) {
+                if (!String.IsNullOrEmpty(dataType.ID)) {
                     // throw exception because of id and ref
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1183")),

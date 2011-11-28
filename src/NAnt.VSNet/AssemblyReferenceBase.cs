@@ -271,7 +271,7 @@ namespace NAnt.VSNet {
         /// empty <see cref="string" />.
         /// </returns>
         protected string ResolveFromRelativePath(string relativePath) {
-            if (!string.IsNullOrEmpty(relativePath)) {
+            if (!String.IsNullOrEmpty(relativePath)) {
                 // TODO: VS.NET seems to be able to handle a project dir / hint 
                 // path combination that is more than 260 characters long
                 //

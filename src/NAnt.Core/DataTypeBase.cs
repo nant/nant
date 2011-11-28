@@ -101,18 +101,18 @@ namespace NAnt.Core {
             }
 
             if (Parent.GetType() == typeof(Project) || Parent.GetType() == typeof(Target)) {
-                if (string.IsNullOrEmpty(ID)) {
+                if (String.IsNullOrEmpty(ID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1010"), 
                         Name), Location);
                 }
-                if (!string.IsNullOrEmpty(RefID)) {
+                if (!String.IsNullOrEmpty(RefID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1009"), 
                         Name), Location);
                 }
             } else {
-                  if (!string.IsNullOrEmpty(ID)) {
+                  if (!String.IsNullOrEmpty(ID)) {
                     throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1008") 
                         + " can only be declared at Project or Target level.", 

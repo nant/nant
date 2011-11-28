@@ -140,7 +140,7 @@ namespace NAnt.Core {
 
                     // search pattern might include directory part (eg. foo\bar.txt)
                     string scanPath = path;
-                    if (!string.IsNullOrEmpty(directoryName)) {
+                    if (!String.IsNullOrEmpty(directoryName)) {
                         scanPath = FileUtils.CombinePaths(path, directoryName);
                         //do not scan inaccessible directories.
                         if (!Directory.Exists(scanPath)) {

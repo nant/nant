@@ -264,7 +264,7 @@ namespace NAnt.Core.Tasks {
                     destFile = OutputFile.FullName;
                 }
 
-                if (string.IsNullOrEmpty(destFile)) {
+                if (String.IsNullOrEmpty(destFile)) {
                     // TODO: use System.IO.Path (gs)
                     // append extension if necessary
                     string ext = Extension.IndexOf(".") > -1 ? Extension : "." + Extension;
@@ -420,7 +420,7 @@ namespace NAnt.Core.Tasks {
 
         protected virtual TextWriter CreateWriter(string filepath) {
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(filepath));
-            if (!string.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
+            if (!String.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
                 Directory.CreateDirectory(targetDir);
             }
             return new StreamWriter(filepath);

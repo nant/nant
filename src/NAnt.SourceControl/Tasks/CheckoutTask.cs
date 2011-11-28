@@ -113,7 +113,7 @@ namespace NAnt.SourceControl.Tasks {
                 return null;
             }
             set { 
-                if (string.IsNullOrEmpty(value)) {
+                if (String.IsNullOrEmpty(value)) {
                     CommandOptions.Remove("revision");
                 } else {
                     SetCommandOption("revision", string.Format(CultureInfo.InvariantCulture,

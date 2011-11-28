@@ -167,7 +167,7 @@ namespace NAnt.Core {
                     locationString = _location.ToString();
                 }
                 
-                if (!string.IsNullOrEmpty(locationString)) {
+                if (!String.IsNullOrEmpty(locationString)) {
                     message = locationString + Environment.NewLine + message;
                 }
                 return message; 

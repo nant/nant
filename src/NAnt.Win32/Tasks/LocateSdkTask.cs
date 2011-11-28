@@ -246,7 +246,7 @@ namespace NAnt.Win32.Tasks {
         /// A <see cref="Version"/> object representing the version string.
         /// </returns>
         private Version StringToVersion(string sdkVersion) {
-            if (!string.IsNullOrEmpty(sdkVersion)) {
+            if (!String.IsNullOrEmpty(sdkVersion)) {
                 // Make any non-numeric characters uppercase
                 sdkVersion = sdkVersion.Trim().ToUpper();
                 
