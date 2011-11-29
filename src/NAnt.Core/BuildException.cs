@@ -162,12 +162,12 @@ namespace NAnt.Core {
             get {
                 string message = base.Message;
                 // only include location string if not empty
-                string locationString = String.Empty;
+                string locationString = string.Empty;
                 if (_location != null) {
                     locationString = _location.ToString();
                 }
                 
-                if (!StringUtils.IsNullOrEmpty(locationString)) {
+                if (!String.IsNullOrEmpty(locationString)) {
                     message = locationString + Environment.NewLine + message;
                 }
                 return message; 

@@ -106,7 +106,7 @@ namespace NAnt.Core {
                 string expandedCondition = Project.Properties.ExpandProperties(IfCondition, Location);
 
                 // if a condition is supplied, it should evaluate to a bool
-                if (!StringUtils.IsNullOrEmpty(expandedCondition)) {
+                if (!String.IsNullOrEmpty(expandedCondition)) {
                     try {
                         return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
                     } catch (FormatException) {
@@ -144,7 +144,7 @@ namespace NAnt.Core {
                 string expandedCondition = Project.Properties.ExpandProperties(UnlessCondition, Location);
 
                 // if a condition is supplied, it should evaluate to a bool
-                if (!StringUtils.IsNullOrEmpty(expandedCondition)) {
+                if (!String.IsNullOrEmpty(expandedCondition)) {
                     try {
                         return Convert.ToBoolean(expandedCondition, CultureInfo.InvariantCulture);
                     } catch (FormatException) {

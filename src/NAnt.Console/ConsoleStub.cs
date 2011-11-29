@@ -73,13 +73,9 @@ namespace NAnt.Console {
             AppDomain cd = AppDomain.CurrentDomain;
             AppDomain executionAD = cd;
 
-#if NET_2_0
             string nantShadowCopyFilesSetting = ConfigurationManager.AppSettings.Get("nant.shadowfiles");
             string nantCleanupShadowCopyFilesSetting = ConfigurationManager.AppSettings.Get("nant.shadowfiles.cleanup");
-#else
-            string nantShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles");
-            string nantCleanupShadowCopyFilesSetting = ConfigurationSettings.AppSettings.Get("nant.shadowfiles.cleanup");
-#endif
+
 
             Framework runtimeFramework = Framework.GetRuntimeFramework();
             if (runtimeFramework == null) {
@@ -500,11 +496,8 @@ namespace NAnt.Console {
             }
 
             public static Framework GetRuntimeFramework () {
-#if NET_2_0
+
                 XmlNode nantNode = (XmlNode) ConfigurationManager.GetSection("nant");
-#else
-                XmlNode nantNode = (XmlNode) ConfigurationSettings.GetConfig("nant");
-#endif
                 if (nantNode == null) { 
                     System.Console.WriteLine("The \"nant\" section in the NAnt"
                         + " configuration file ({0}) is not available.",

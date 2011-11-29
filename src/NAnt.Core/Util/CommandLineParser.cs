@@ -145,13 +145,13 @@ namespace NAnt.Core.Util {
                     configurationInformation, releaseDate.ToShortDateString()); 
 
                 // output copyright information
-                if (!StringUtils.IsNullOrEmpty(copyrightInformation)) {
+                if (!String.IsNullOrEmpty(copyrightInformation)) {
                     logoBanner.Append(Environment.NewLine);
                     logoBanner.Append(copyrightInformation);
                 }
 
                 // output company information
-                if (!StringUtils.IsNullOrEmpty(companyInformation)) {
+                if (!String.IsNullOrEmpty(companyInformation)) {
                     logoBanner.Append(Environment.NewLine);
                     logoBanner.Append(companyInformation);
                 }

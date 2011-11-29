@@ -1,7 +1,11 @@
-#NAnt make makefile for *nix
+# NAnt make makefile for *nix
 MONO=mono
 MCS=mcs
 RESGEN=resgen
+TARGET=mono-2.0
+
+# Contains a list of acceptable targets used to build NAnt
+VALID_TARGETS := mono-2.0 mono-3.5 mono-4.0 net-2.0 net-3.5 net-4.0
 
 ifndef DIRSEP
 ifeq ($(OS),Windows_NT)
@@ -23,38 +27,42 @@ FRAMEWORK_DIR = mono
 DEFINE = MONO
 else
 FRAMEWORK_DIR = net
-DEFINE= NET
+DEFINE = NET
 endif
 
-ifdef TARGET
-TARGET_FRAMEWORK = -t:$(TARGET)
-SYSCONFIGURATION = -r:System.Configuration.dll
+# Validates TARGET var. If the value of TARGET exists
+# in VALID_TARGETS array, SELECTED_TARGET will contain
+# the value of TARGET; otherwise SELECTED_TARGET var
+# will be empty
+SELECTED_TARGET := $(filter $(TARGET),$(VALID_TARGETS))
 
-ifeq ($(findstring 1.0,$(TARGET)),1.0)
-DEFINE := $(DEFINE),NET_1_0,ONLY_1_0
-SYSCONFIGURATION := 
-endif
+# If TARGET var is valid, load the DEFINE var
+# based on value of TARGET
+ifneq ($(SELECTED_TARGET),)
 
-ifeq ($(findstring 1.1,$(TARGET)),1.1)
-DEFINE := $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
-SYSCONFIGURATION := 
-endif
-
-ifeq ($(findstring 2.0,$(TARGET)),2.0)
+# Loads (net,mono)-2.0 DEFINE vars
+ifeq ($(findstring 2.0,$(SELECTED_TARGET)),2.0)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 endif
 
-ifeq ($(findstring 3.5,$(TARGET)),3.5)
+# Loads (net,mono)-3.5 DEFINE vars
+ifeq ($(findstring 3.5,$(SELECTED_TARGET)),3.5)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
 endif
 
-ifeq ($(findstring 4.0,$(TARGET)),4.0)
+# Loads (net,mono)-4.0 DEFINE vars
+ifeq ($(findstring 4.0,$(SELECTED_TARGET)),4.0)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
 endif
 
+# If TARGET var is invalid, throw an error
+else
+$(error Specified target "$(TARGET)" is not valid)
 endif
 
-NANT=$(MONO) bootstrap/NAnt.exe
+# Assign remaining vars
+TARGET_FRAMEWORK = -t:$(TARGET)
+NANT = $(MONO) bootstrap/NAnt.exe
 
 
 all: bootstrap build-nant
@@ -73,8 +81,8 @@ run-test: bootstrap
 	
 bootstrap/NAnt.exe:
 	$(MCS) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
-		$(SYSCONFIGURATION) -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
-	
+		-r:System.Configuration.dll -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
+
 
 bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
 	

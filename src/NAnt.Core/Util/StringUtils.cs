@@ -42,41 +42,6 @@ namespace NAnt.Core.Util {
         #region Public Static Methods
 
         /// <summary>
-        /// Determines whether the last character of the given <see cref="string" />
-        /// matches the specified character.
-        /// </summary>
-        /// <param name="value">The string.</param>
-        /// <param name="c">The character.</param>
-        /// <returns>
-        /// <see langword="true" /> if the last character of <paramref name="value" />
-        /// matches <paramref name="c" />; otherwise, <see langword="false" />.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value" /> is <see langword="null" />.</exception>
-        public static bool EndsWith(string value, char c) {
-            if (value == null)
-                throw new ArgumentNullException("value");
-
-            int stringLength = value.Length;
-            if ((stringLength != 0) && (value[stringLength - 1] == c)) {
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Indicates whether or not the specified <see cref="string" /> is 
-        /// <see langword="null" /> or an <see cref="string.Empty" /> string.
-        /// </summary>
-        /// <param name="value">The value to check.</param>
-        /// <returns>
-        /// <see langword="true" /> if <paramref name="value" /> is <see langword="null" />
-        /// or an empty string (""); otherwise, <see langword="false" />.
-        /// </returns>
-        public static bool IsNullOrEmpty(string value) {
-            return (value == null || value.Length == 0);
-        }
-
-        /// <summary>
         /// Converts an empty string ("") to <see langword="null" />.
         /// </summary>
         /// <param name="value">The value to convert.</param>
@@ -85,7 +50,7 @@ namespace NAnt.Core.Util {
         /// string ("") or <see langword="null" />; otherwise, <paramref name="value" />.
         /// </returns>
         public static string ConvertEmptyToNull(string value) {
-            if (!IsNullOrEmpty(value))
+            if (!String.IsNullOrEmpty(value))
                 return value;
             return null;
         }

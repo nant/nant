@@ -559,8 +559,8 @@ namespace NAnt.Core {
         /// <param name="cause">The <see cref="Exception" /> to write to <see cref="Console.Error" />.</param>
         private static void WriteException(Exception cause) {
             int indentLevel = 0;
-            while (cause != null && !StringUtils.IsNullOrEmpty(cause.Message)) {
-                if (!StringUtils.IsNullOrEmpty(cause.Message)) {
+            while (cause != null && !String.IsNullOrEmpty(cause.Message)) {
+                if (!String.IsNullOrEmpty(cause.Message)) {
                     if (indentLevel > 0) {
                         // insert empty line
                         Console.Error.WriteLine();

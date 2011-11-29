@@ -324,7 +324,7 @@ namespace NAnt.DotNet.Tasks {
                 string targetDir = Path.GetDirectoryName(Path.Combine(
                     BaseDirectory.FullName, Target));
                 // ensure target directory exists
-                if (!StringUtils.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
+                if (!String.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
                     Directory.CreateDirectory(targetDir);
                 }
             } else {

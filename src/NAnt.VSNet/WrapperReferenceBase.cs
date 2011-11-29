@@ -324,7 +324,7 @@ namespace NAnt.VSNet {
                 }
 
                 string typeLibValue = (string) registryKey.GetValue(null);
-                if (StringUtils.IsNullOrEmpty(typeLibValue)) {
+                if (String.IsNullOrEmpty(typeLibValue)) {
                     throw CreateInvalidTypeLibraryRegistrationException();
                 }
 
@@ -443,7 +443,7 @@ namespace NAnt.VSNet {
         private BuildException CreateTypeLibraryNotRegisteredException() {
             string msg = null;
 
-            if (StringUtils.IsNullOrEmpty(Name)) {
+            if (String.IsNullOrEmpty(Name)) {
                 msg = string.Format(CultureInfo.InvariantCulture, "Couldn't" +
                     " find type library \"{0}\" with version {1}, referenced" +
                     " by project \"{2}\".", TypeLibGuid, TypeLibVersion, 
@@ -461,7 +461,7 @@ namespace NAnt.VSNet {
         private BuildException CreateInvalidTypeLibraryRegistrationException() {
             string msg = null;
 
-            if (StringUtils.IsNullOrEmpty(Name)) {
+            if (String.IsNullOrEmpty(Name)) {
                 msg = string.Format(CultureInfo.InvariantCulture, "Couldn't" +
                     " find path of type library \"{0}\" with version {1}, referenced" +
                     " by project \"{2}\". Ensure the type library is registered" +
@@ -479,7 +479,7 @@ namespace NAnt.VSNet {
         private BuildException CreateTypeLibraryPathDoesNotExistException(string typeLibraryPath) {
             string msg = null;
 
-            if (StringUtils.IsNullOrEmpty(Name)) {
+            if (String.IsNullOrEmpty(Name)) {
                 msg = string.Format(CultureInfo.InvariantCulture, "Type library" +
                     " \"{0}\" with version {1}, referenced by project \"{2}\"," +
                     " no longer exists at registered path \"{3}\".", TypeLibGuid, 
