@@ -49,7 +49,7 @@ namespace NAnt.MSBuild {
             //Its caller responsibility to set it back to original values, if needed
             msproj.GlobalProperties.SetProperty("Configuration", _name);
 
-            if (!StringUtils.IsNullOrEmpty(_platform)) {
+            if (!String.IsNullOrEmpty(_platform)) {
                 msproj.GlobalProperties.SetProperty("Platform", _platform.Replace(" ", string.Empty));
             }
 

@@ -255,28 +255,28 @@ namespace NAnt.VSNet {
                 switch (Type) {
                     case ConfigurationType.Application:
                         string applicationOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(applicationOutput)) {
+                        if (String.IsNullOrEmpty(applicationOutput)) {
                             applicationOutput = ExpandMacros("$(OutDir)/$(ProjectName).exe");
                         }
                         targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, applicationOutput);
                         break;
                     case ConfigurationType.DynamicLibrary:
                         string libraryOutput = GetToolSetting(VcConfigurationBase.LinkerTool, "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(libraryOutput)) {
+                        if (String.IsNullOrEmpty(libraryOutput)) {
                             libraryOutput = ExpandMacros("$(OutDir)/$(ProjectName).dll");
                         }
                         targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, libraryOutput);
                         break;
                     case ConfigurationType.StaticLibrary:
                         string librarianOutput = GetToolSetting(VcConfigurationBase.LibTool, "OutputFile");
-                        if (StringUtils.IsNullOrEmpty(librarianOutput)) {
+                        if (String.IsNullOrEmpty(librarianOutput)) {
                             librarianOutput = ExpandMacros("$(OutDir)/$(ProjectName).lib");
                         }
                         targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, librarianOutput);
                         break;
                     case ConfigurationType.Makefile:
                         string nmakeOutput = GetToolSetting(VcConfigurationBase.NMakeTool, "Output");
-                        if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
+                        if (!String.IsNullOrEmpty(nmakeOutput)) {
                             targetPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
                         }
                         break;
@@ -549,7 +549,7 @@ namespace NAnt.VSNet {
                     break;
                 case ConfigurationType.Makefile:
                     string nmakeOutput = GetToolSetting(VcConfigurationBase.NMakeTool, "Output");
-                    if (!StringUtils.IsNullOrEmpty(nmakeOutput)) {
+                    if (!String.IsNullOrEmpty(nmakeOutput)) {
                         _outputPath = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, nmakeOutput);
                     }
                     break;
@@ -568,7 +568,7 @@ namespace NAnt.VSNet {
                 "OutputFile", "$(OutDir)/$(ProjectName).lib");
             // if OutputFile is explicitly set to an empty string, VS.NET
             // uses file name of first obj file (in intermediate directory)
-            if (StringUtils.IsNullOrEmpty(outFile)) {
+            if (String.IsNullOrEmpty(outFile)) {
                 outFile = FileUtils.CombinePaths(intermediateDir,
                     Path.GetFileNameWithoutExtension((string) _objFiles[0]) 
                     + ".lib");
@@ -583,7 +583,7 @@ namespace NAnt.VSNet {
             const string noinherit = "$(noinherit)";
 
             string addDeps = GetToolSetting(VcConfigurationBase.LinkerTool, "AdditionalDependencies");
-            if (!StringUtils.IsNullOrEmpty(addDeps)) {
+            if (!String.IsNullOrEmpty(addDeps)) {
                 // remove noherit macro from addDeps
                 if (addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit) != -1) {
                     addDeps = addDeps.Remove(addDeps.ToLower(CultureInfo.InvariantCulture).IndexOf(noinherit), noinherit.Length);
@@ -619,7 +619,7 @@ namespace NAnt.VSNet {
             // if OutputFile is explicitly set to an empty string, VS.NET
             // uses file name of first obj file (in the current directory) and 
             // extention based on configuration type 
-            if (StringUtils.IsNullOrEmpty(outFile)) {
+            if (String.IsNullOrEmpty(outFile)) {
                 outFile = FileUtils.CombinePaths(Project.ProjectDirectory.FullName, 
                     Path.GetFileNameWithoutExtension((string) _objFiles[0]) +
                     extension);

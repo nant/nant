@@ -534,7 +534,7 @@ namespace NAnt.VSNet {
             #region Override implementation of VcArgument
 
             internal override string MapValue(string propValue) {
-                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(propValue)) {
+                if (IgnoreEmptyValue && String.IsNullOrEmpty(propValue)) {
                     return null;
                 }
 
@@ -562,7 +562,7 @@ namespace NAnt.VSNet {
             #region Override implementation of VcArgument
 
             internal override string MapValue(string value) {
-                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(value)) {
+                if (IgnoreEmptyValue && String.IsNullOrEmpty(value)) {
                     return null;
                 }
 
@@ -594,7 +594,7 @@ namespace NAnt.VSNet {
             #region Override implementation of VcArgument
 
             internal override string MapValue(string value) {
-                if (IgnoreEmptyValue && StringUtils.IsNullOrEmpty(value)) {
+                if (IgnoreEmptyValue && String.IsNullOrEmpty(value)) {
                     return null;
                 }
 

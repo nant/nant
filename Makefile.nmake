@@ -1,7 +1,7 @@
 #NAnt nmake makefile for building on windows
 CSC=csc
 RESGEN=resgen
-NANT=$(MONO) bootstrap\NAnt.exe
+TARGET=net-2.0
 
 !ifdef MONO
 DEFINE = MONO
@@ -11,26 +11,19 @@ DEFINE = NET
 FRAMEWORK_DIR = net
 !endif
 
-SYSCONFIGURATION = -r:System.Configuration.dll
 
-!ifdef TARGET
-TARGET_FRAMEWORK = -t:$(TARGET)
-
-!if "$(TARGET)" == "net-1.0" || "$(TARGET)" == "mono-1.0"
-DEFINE = $(DEFINE),NET_1_0,ONLY_1_0
-SYSCONFIGURATION =
-!else if "$(TARGET)" == "net-1.1"
-DEFINE = $(DEFINE),NET_1_0,NET_1_1,ONLY_1_1
-SYSCONFIGURATION = 
-!else if "$(TARGET)" == "net-2.0" || "$(TARGET)" == "mono-2.0"
+!if "$(TARGET)" == "net-2.0" || "$(TARGET)" == "mono-2.0"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 !else if "$(TARGET)" == "net-3.5" || "$(TARGET)" == "mono-3.5"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
 !else if "$(TARGET)" == "net-4.0" || "$(TARGET)" == "mono-4.0"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
+!else
+!error Specified target "$(TARGET)" is not valid
 !endif
 
-!endif
+TARGET_FRAMEWORK = -t:$(TARGET)
+NANT = $(MONO) bootstrap\NAnt.exe
 
 all:  bootstrap build-nant
 
@@ -58,7 +51,7 @@ setup:
 
 bootstrap\NAnt.exe:
 	$(CSC) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap\NAnt.exe -r:bootstrap\log4net.dll \
-   $(SYSCONFIGURATION) -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
+		-r:System.Configuration.dll  -recurse:src\NAnt.Console\*.cs src\CommonAssemblyInfo.cs
 
 bootstrap\NAnt.Core.dll:
 	$(RESGEN)  src\NAnt.Core\Resources\Strings.resx bootstrap\NAnt.Core.Resources.Strings.resources

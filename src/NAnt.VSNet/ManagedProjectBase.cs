@@ -97,7 +97,7 @@ namespace NAnt.VSNet {
                 string buildAction = StringUtils.ConvertEmptyToNull(elemFile.GetAttribute("BuildAction"));
                 string sourceFile;
 
-                if (!StringUtils.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
+                if (!String.IsNullOrEmpty(elemFile.GetAttribute("Link"))) {
                     sourceFile = FileUtils.GetFullPath(FileUtils.CombinePaths(
                         ProjectDirectory.FullName, elemFile.GetAttribute("Link")));
                 } else {

@@ -6,7 +6,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{47503BEE-27D9-4D1C-B8E1-6C9CCC19AEAA}</ProjectGuid>
     <RootNamespace>NAnt.NUnit2</RootNamespace>
-    <AssemblyName>NAnt.NUnit2</AssemblyName>
+    <AssemblyName>NAnt.NUnit2Tasks</AssemblyName>
     <OutputType>Library</OutputType>
     <RunPostBuildEvent>OnSuccessfulBuild</RunPostBuildEvent>
     <PreBuildEvent />
@@ -35,22 +35,24 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\build\Debug\</OutputPath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>..\..\build\Debug\NAnt.NUnit2Tasks.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>  
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\build\Release\</OutputPath>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\build\Release\NAnt.NUnit2Tasks.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Xml" />
