@@ -53,7 +53,7 @@ namespace NAnt.Core.Util {
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="value" /> is <see langword="null" />.</exception>
         [Obsolete ("StringUtils.EndsWith method is depreciated. Use string.EndsWith(string) instead.")]
-		public static bool EndsWith(string value, char c) {
+        public static bool EndsWith(string value, char c) {
             if (value == null)
                 throw new ArgumentNullException("value");
 
@@ -73,7 +73,7 @@ namespace NAnt.Core.Util {
         /// <see langword="true" /> if <paramref name="value" /> is <see langword="null" />
         /// or an empty string (""); otherwise, <see langword="false" />.
         /// </returns>
-		[Obsolete ("StringUtils.IsNullOrEmpty method is depreciated. Use System.String.IsNullOrEmpty(string) instead.")]
+        [Obsolete ("StringUtils.IsNullOrEmpty method is depreciated. Use System.String.IsNullOrEmpty(string) instead.")]
         public static bool IsNullOrEmpty(string value) {
             return (value == null || value.Length == 0);
         }
