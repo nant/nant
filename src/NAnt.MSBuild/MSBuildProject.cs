@@ -93,6 +93,7 @@ namespace NAnt.MSBuild {
                 _msproj.GlobalProperties.SetProperty("OutputPath", outputDir.FullName);
             }
 
+            bool generateDoc = false;
             //bool targwarnings = true;
             foreach (NAnt.Core.Tasks.PropertyTask property in solutionTask.CustomProperties) {
                 string val;
@@ -102,8 +103,17 @@ namespace NAnt.MSBuild {
                 } else {
                     val = property.Value;
                 }
-                _msproj.GlobalProperties.SetProperty(property.PropertyName, val);
-                //if (property.PropertyName == "TargetWarnings") targwarnings = Boolean.Parse(val);
+                switch (property.PropertyName)
+                {
+                    //if (property.PropertyName == "TargetWarnings") targwarnings = Boolean.Parse(val);
+                    case "GenerateDocumentation":
+                        generateDoc = Boolean.Parse(val);
+                        break;
+                    default:
+                        _msproj.GlobalProperties.SetProperty(property.PropertyName, val);
+                        break;
+                }
+
             }
 
 
@@ -171,6 +181,20 @@ namespace NAnt.MSBuild {
                     ReferencesResolver, this, solution, tfc, gacCache, outputDir,
                     pguid, pname, rpath, priv);
                 _references.Add(reference);
+            }
+
+            if(generateDoc) {
+                string xmlDocBuildFile = FileUtils.CombinePaths(OutputPath, this.Name + ".xml");
+
+                //// make sure the output directory for the doc file exists
+                //if (!Directory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
+                //    Directory.CreateDirectory(Path.GetDirectoryName(xmlDocBuildFile));
+                //}
+
+                // add built documentation file as extra output file
+                ExtraOutputFiles[xmlDocBuildFile] = Path.GetFileName(xmlDocBuildFile);
+
+                _msproj.GlobalProperties.SetProperty("DocumentationFile", xmlDocBuildFile);
             }
         }
 
