@@ -81,6 +81,18 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Pauses before program ends.
+        /// </summary>
+        /// <value>
+        /// Pauses before program ends.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "pause", Description = "Pauses before program ends")]
+        public bool Pause {
+            get { return _verbose; }
+            set { _verbose = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether more information should be
         /// displayed during the build process.
         /// </summary>
