@@ -254,6 +254,24 @@ namespace NAnt.Core.Functions {
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="DateTime" /> to its equivalent
+        /// string representation.
+        /// </summary>
+        /// <param name="value">A <see cref="DateTime" /> to convert.</param>
+        /// <param name="format">A format string.</param>
+        /// <returns>
+        /// A string representation of <paramref name="value" /> formatted
+        ///	using the specified format
+        /// </returns>
+        /// <remarks>
+        /// <paramref name="value" /> is formatted with the 
+        /// <see cref="DateTimeFormatInfo" /> for the invariant culture.
+        /// </remarks>
+        [Function("format-to-string")]
+        public static string ToString(DateTime value, string format) {
+            return value.ToString(format, CultureInfo.InvariantCulture);
+        }
         #endregion Public Static Methods
     }
 }
