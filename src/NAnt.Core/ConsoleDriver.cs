@@ -60,8 +60,8 @@ namespace NAnt.Core {
             // attach assembly resolver to the current domain
             assemblyResolver.Attach();
 
-            try {
-                CommandLineOptions cmdlineOptions = new CommandLineOptions();
+            CommandLineOptions cmdlineOptions = new CommandLineOptions();
+            try {                
                 commandLineParser = new CommandLineParser(typeof(CommandLineOptions), true);
                 commandLineParser.Parse(args, cmdlineOptions);
 
@@ -290,6 +290,8 @@ namespace NAnt.Core {
                 }
                 // detach assembly resolver from the current domain
                 assemblyResolver.Detach();
+                if (cmdlineOptions.Pause)
+                    Console.ReadKey();
             }
         }
 
