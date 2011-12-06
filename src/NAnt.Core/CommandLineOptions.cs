@@ -81,6 +81,19 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Pauses before program ends.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> for pausing on program end; 
+        /// otherwise, <see langword="false" />. The default is <see langword="false" />.
+        /// </value>
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "pause", Description = "Pauses before program ends")]
+        public bool Pause {
+            get { return _pause; }
+            set { _pause = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether more information should be
         /// displayed during the build process.
         /// </summary>
@@ -305,6 +318,7 @@ namespace NAnt.Core {
         private StringCollection _extensionAssemblies = new StringCollection();
         private StringCollection _targets = new StringCollection();
         private bool _showProjectHelp;
+        private bool _pause;
 
         #endregion Private Instance Fields
     }

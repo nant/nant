@@ -70,6 +70,7 @@ namespace NAnt.MSBuild {
             par.ReferencedAssemblies.Add(msbuildFramework.Location);
             par.ReferencedAssemblies.Add(typeof(NAnt.Core.Task).Assembly.Location);
             par.ReferencedAssemblies.Add(typeof(NAntLogger).Assembly.Location);
+            par.GenerateInMemory = true;
             CompilerResults res = codeDomProvider.CompileAssemblyFromSource(par, _impl);
             if (res.Errors.HasErrors) {
                 return null;
