@@ -430,22 +430,27 @@ namespace NAnt.Core.Tasks {
             // returned by this method.
             MailAddressCollection results = new MailAddressCollection();
 
-            // If the addresses parameter contains a semicolon, that means
-            // that more than one email address is present and needs to be parsed.
-            if (addresses.Contains(";")) {
-                string[] parsedAddresses = addresses.Split(new char[] { ';' });
-
-                foreach (string item in parsedAddresses)
-                {
-                    results.Add(new MailAddress(item));
-                }
-            }
-
-            // Otherwise, pass the addresses param string to the new
-            // MailAddressCollection if it is not null or empty.
-            else if (!String.IsNullOrEmpty(addresses))
+            // Make sure the addresses string is not null before attempting
+            // to parse.
+            if (!String.IsNullOrEmpty(addresses))
             {
-                results.Add(new MailAddress(addresses));
+                // If the addresses parameter contains a semicolon, that means
+                // that more than one email address is present and needs to be parsed.
+                if (addresses.Contains(";")) {
+                    string[] parsedAddresses = addresses.Split(new char[] { ';' });
+    
+                    foreach (string item in parsedAddresses)
+                    {
+                        results.Add(new MailAddress(item));
+                    }
+                }
+    
+                // Otherwise, pass the addresses param string to the new
+                // MailAddressCollection if it is not null or empty.
+                else
+                {
+                    results.Add(new MailAddress(addresses));
+                }
             }
 
             return results;
