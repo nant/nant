@@ -83,6 +83,7 @@ namespace NAnt.Core.Tasks {
         private string _userName = "";
         private string _passWord = "";
         private bool _isBodyHtml = false;
+        private bool _enableSsl = false;
         private int _portNumber = 25;
         private FileSet _files = new FileSet();
         private FileSet _attachments = new FileSet();
@@ -147,6 +148,18 @@ namespace NAnt.Core.Tasks {
         {
             get { return _portNumber; }
             set { _portNumber = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether or not ssl should be used to
+        /// connect to the smtp host.
+        /// </summary>
+        [TaskAttribute("ssl")]
+        [BooleanValidator]
+        public bool EnableSsl
+        {
+            get { return _enableSsl; }
+            set { _enableSsl = value; }
         }
   
         /// <summary>
@@ -366,6 +379,7 @@ namespace NAnt.Core.Tasks {
                     smtp.UseDefaultCredentials = true;
                 }
 
+                smtp.EnableSsl = this.EnableSsl;
                 smtp.Port = this.Port;
                 smtp.Send(mailMessage);
 
