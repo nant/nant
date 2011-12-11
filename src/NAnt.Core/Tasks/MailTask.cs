@@ -23,7 +23,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Web.Mail;
+using System.Net;
+using System.Net.Mail;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -79,9 +80,12 @@ namespace NAnt.Core.Tasks {
         private string _mailHost = "localhost";
         private string _subject = "";
         private string _message = "";
+        private string _userName = "";
+        private string _passWord = "";
+        private bool _isBodyHtml = false;
+        private int _portNumber = 25;
         private FileSet _files = new FileSet();
         private FileSet _attachments = new FileSet();
-        private MailFormat _mailFormat = MailFormat.Text;
 
         #endregion Private Instance Fields
 
@@ -132,6 +136,18 @@ namespace NAnt.Core.Tasks {
             get { return _mailHost; }
             set { _mailHost = StringUtils.ConvertEmptyToNull(value); }
         }
+
+        /// <summary>
+        /// The port number used to connect to the mail server.
+        /// The default is <c>25</c>.
+        /// </summary>
+        [TaskAttribute("port")]
+        [Int32Validator]
+        public int Port
+        {
+            get { return _portNumber; }
+            set { _portNumber = value; }
+        }
   
         /// <summary>
         /// Text to send in body of email message.
@@ -152,16 +168,69 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Indicates whether or not the body of the email is in
+        /// html format. The default value is false.
+        /// </summary>
+        [TaskAttribute("isbodyhtml")]
+        [BooleanValidator]
+        public bool IsBodyHtml
+        {
+            get { return _isBodyHtml; }
+            set { _isBodyHtml = value; }
+        }
+
+        /// <summary>
+        /// The username to use when connecting the smtp host.
+        /// </summary>
+        [TaskAttribute("username")]
+        public string UserName
+        {
+            get { return _userName; }
+            set { _userName = value; }
+        }
+
+        /// <summary>
+        /// The password to use when connecting the smtp host.
+        /// </summary>
+        [TaskAttribute("password")]
+        public string Password
+        {
+            get { return _passWord; }
+            set { _passWord = value; }
+        }
+
+        /// <summary>
         /// Format of the message. The default is <see cref="MailFormat.Text" />.
         /// </summary>
         [TaskAttribute("format")]
-        public MailFormat Format {
-           get { return _mailFormat; }
-           set {
-               if (!Enum.IsDefined(typeof(MailFormat), value)) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid format {0} was specified.", value)); 
-                } else {
-                    this._mailFormat = value;
+        [Obsolete("The format attribute is depreciated. Please use isbodyhtml instead", false)]
+        public MailFormat Format
+        {
+            get
+            {
+                if (IsBodyHtml)
+                {
+                    return MailFormat.Html;
+                }
+                return MailFormat.Text;
+            }
+            set
+            {
+                if (!Enum.IsDefined(typeof(MailFormat), value))
+                {
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "An invalid format {0} was specified.", value));
+                }
+                else
+                {
+                    if (value.Equals(MailFormat.Html)) {
+                        IsBodyHtml = true;
+                    }
+                    else
+                    {
+                        IsBodyHtml = false;
+                    }
                 }
             } 
         }
@@ -204,13 +273,32 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             MailMessage mailMessage = new MailMessage();
-            
-            mailMessage.From = this.From;
-            mailMessage.To = this.ToList;
-            mailMessage.Bcc = this.BccList;
-            mailMessage.Cc = this.CcList;
+            MailAddressCollection toAddrs = ParseAddresses(ToList);
+            MailAddressCollection ccAddrs = ParseAddresses(CcList);
+            MailAddressCollection bccAddrs = ParseAddresses(BccList);
+
+            if (toAddrs.Count > 0)
+            {
+                foreach (MailAddress toAddr in toAddrs) {
+                    mailMessage.To.Add(toAddr);
+                }
+            }
+
+            if (ccAddrs.Count > 0) {
+                foreach (MailAddress ccAddr in ccAddrs) {
+                    mailMessage.CC.Add(ccAddr);
+                }
+            }
+
+            if (bccAddrs.Count > 0) {
+                foreach (MailAddress bccAddr in bccAddrs) {
+                    mailMessage.Bcc.Add(bccAddr);
+                }
+            }
+
+            mailMessage.From = new MailAddress(this.From);
             mailMessage.Subject = this.Subject;
-            mailMessage.BodyFormat = this.Format;
+            mailMessage.IsBodyHtml = this.IsBodyHtml;
 
             // ensure base directory is set, even if fileset was not initialized
             // from XML
@@ -253,7 +341,7 @@ namespace NAnt.Core.Tasks {
             // add attachments to message
             foreach (string fileName in Attachments.FileNames) {
                 try {
-                    MailAttachment attachment = new MailAttachment(fileName);
+                    Attachment attachment = new Attachment(fileName);
                     mailMessage.Attachments.Add(attachment);
                 } catch (Exception ex) {
                     Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
@@ -265,8 +353,22 @@ namespace NAnt.Core.Tasks {
             // send message
             try {
                 Log(Level.Info, "Sending mail to {0}.", mailMessage.To);
-                SmtpMail.SmtpServer = this.Mailhost;
-                SmtpMail.Send(mailMessage);
+                SmtpClient smtp = new SmtpClient(this.Mailhost);
+
+                if (!String.IsNullOrEmpty(this.UserName) &&
+                    !String.IsNullOrEmpty(this.Password))
+                {
+                    smtp.Credentials =
+                        new NetworkCredential(this.UserName, this.Password);
+                }
+                else
+                {
+                    smtp.UseDefaultCredentials = true;
+                }
+
+                smtp.Port = this.Port;
+                smtp.Send(mailMessage);
+
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
                 msg.Append("Error enountered while sending mail message." 
@@ -296,6 +398,62 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Converts an email address or a series of email addresses from
+        /// a <see cref="System.String"/> object to a new
+        /// <see cref="System.Net.Mail.MailAddressCollection"/> object.
+        /// </summary>
+        /// <param name='addresses'>
+        /// A list of email addresses separated by a semicolon.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="System.Net.Mail.MailAddressCollection"/> object
+        /// containing the addresses from <paramref name="addresses"/>.
+        /// </returns>
+        private MailAddressCollection ParseAddresses(string addresses)
+        {
+            // Initialize the MailAddressCollection object that will be
+            // returned by this method.
+            MailAddressCollection results = new MailAddressCollection();
+
+            // If the addresses parameter contains a semicolon, that means
+            // that more than one email address is present and needs to be parsed.
+            if (addresses.Contains(";")) {
+                string[] parsedAddresses = addresses.Split(new char[] { ';' });
+
+                foreach (string item in parsedAddresses)
+                {
+                    results.Add(new MailAddress(item));
+                }
+            }
+
+            // Otherwise, pass the addresses param string to the new
+            // MailAddressCollection if it is not null or empty.
+            else if (!String.IsNullOrEmpty(addresses))
+            {
+                results.Add(new MailAddress(addresses));
+            }
+
+            return results;
+        }
+
         #endregion Private Instance Methods
+
+        /// <summary>
+        /// Temporary enum replacement of <see cref="System.Web.Mail.MailFormat"/>
+        /// to ease transition to newer property flags.
+        /// </summary>
+        public enum MailFormat
+        {
+            /// <summary>
+            /// Indicates the body of the email is formatted in plain text.
+            /// </summary>
+            Text = 0,
+
+            /// <summary>
+            /// Indicates the body of the email is formatted in html.
+            /// </summary>
+            Html = 1
+        }
     }
 }
