@@ -18,11 +18,13 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (drieseng@users.sourceforge.net)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Net;
 using System.Net.Mail;
 
@@ -74,6 +76,7 @@ namespace NAnt.Core.Tasks {
         #region Private Instance Fields
 
         private string _from;
+        private string _replyTo;
         private string _toList;
         private string _ccList;
         private string _bccList;
@@ -110,6 +113,16 @@ namespace NAnt.Core.Tasks {
             get { return _toList; }
             set { _toList = value; }
         }
+        
+        /// <summary>
+        /// Reply to email address.
+        /// </summary>
+        [TaskAttribute("replyto")]
+        public string ReplyTo 
+        {
+        	get { return _replyTo; }
+        	set { _replyTo = value; }
+        }
 
         /// <summary>
         /// Semicolon-separated list of CC: recipient email addresses.
@@ -142,7 +155,7 @@ namespace NAnt.Core.Tasks {
         /// The port number used to connect to the mail server.
         /// The default is <c>25</c>.
         /// </summary>
-        [TaskAttribute("port")]
+        [TaskAttribute("mailport")]
         [Int32Validator]
         public int Port
         {
@@ -193,9 +206,9 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The username to use when connecting the smtp host.
+        /// The username to use when connecting to the smtp host.
         /// </summary>
-        [TaskAttribute("username")]
+        [TaskAttribute("user")]
         public string UserName
         {
             get { return _userName; }
@@ -203,7 +216,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The password to use when connecting the smtp host.
+        /// The password to use when connecting to the smtp host.
         /// </summary>
         [TaskAttribute("password")]
         public string Password
@@ -308,6 +321,21 @@ namespace NAnt.Core.Tasks {
                     mailMessage.Bcc.Add(bccAddr);
                 }
             }
+            
+            if (!String.IsNullOrEmpty(ReplyTo))
+            {
+#if NET_4_0
+				MailAddressCollection replyAddrs = ParseAddresses(ReplyTo);
+				
+				if (replyAddrs.Count > 0) {
+					foreach (MailAddress replyAddr in replyAddrs) {
+						mailMessage.ReplyToList.Add(replyAddr);
+					}
+				}
+#else
+				mailMessage.ReplyTo = ConvertStringToMailAddress(ReplyTo);
+#endif
+            }
 
             mailMessage.From = new MailAddress(this.From);
             mailMessage.Subject = this.Subject;
@@ -365,7 +393,10 @@ namespace NAnt.Core.Tasks {
 
             // send message
             try {
-                Log(Level.Info, "Sending mail to {0}.", mailMessage.To);
+                Log(Level.Info, "Sending mail...");
+                Log(Level.Info, "To: {0}", mailMessage.To);
+                Log(Level.Info, "Cc: {0}", mailMessage.CC);
+                Log(Level.Info, "Bcc: {0}", mailMessage.Bcc);
                 SmtpClient smtp = new SmtpClient(this.Mailhost);
 
                 if (!String.IsNullOrEmpty(this.UserName) &&
@@ -441,7 +472,7 @@ namespace NAnt.Core.Tasks {
     
                     foreach (string item in parsedAddresses)
                     {
-                        results.Add(new MailAddress(item));
+                        results.Add(ConvertStringToMailAddress(item));
                     }
                 }
     
@@ -449,11 +480,112 @@ namespace NAnt.Core.Tasks {
                 // MailAddressCollection if it is not null or empty.
                 else
                 {
-                    results.Add(new MailAddress(addresses));
+                    results.Add(ConvertStringToMailAddress(addresses));
                 }
             }
 
             return results;
+        }
+        
+        /// <summary>
+        /// Converts a <see cref="System.String"/> object containing
+        /// email address information to a 
+        /// <see cref="System.Net.Mail.MailAddress" /> object.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Email address information passed to this method should be in
+        /// one of five formats.
+        /// </para>
+        /// <list type="bullet">
+        /// <item>
+        /// <description>Full Name &lt;address@abcxyz.com&gt;</description>
+        /// </item>
+        /// <item>
+        /// <description>&lt;address@abcxyz.com&gt; Full Name</description>
+        /// </item>
+        /// <item>
+        /// <description>(Full Name) address@abcxyz.com</description>
+        /// </item>
+        /// <item>
+        /// <description>address@abcxyz.com (Full Name)</description>
+        /// </item>
+        /// <item>
+        /// <description>address@abcxyz.com</description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// If the full name of the intended recipient (or sender) is provided,
+        /// that information is included in the resulting 
+        /// <see cref="System.Net.Mail.MailAddress" /> object.
+        /// </para>
+        /// </remarks>
+        /// <param name="address">
+        /// The string that contains the address to parse.
+        /// </param>
+        /// <returns>
+        /// A new MailAddress object containing the information from
+        /// <paramref name="address"/>.
+        /// </returns>
+        private MailAddress ConvertStringToMailAddress(string address)
+        {
+            // Convert the email address parameter from html encoded to 
+            // normal string.  Makes validation easier.
+            string escAddress = StringUtils.HtmlDecode(address);
+            
+            // String array containing all of the regex strings used to
+            // locate the email address in the parameter string.
+        	string[] validators = new string[]
+        	{
+        	    // Format: Full Name <address@abcxyz.com>
+        		@"^(?<fullname>.+)\s<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)>$",
+        		
+        		// Format: <address@abcxyz.com> Full Name
+        		@"^<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)>\s(?<fullname>.+)$",
+        		
+        		// Format: (Full Name) address@abcxyz.com
+        		@"^\((?<fullname>.+)\)\s(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)$",
+        		
+        		// Format: address@abcxyz.com (Full Name)
+        		@"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$",
+        		
+        		// Format: address@abcxyz.com
+        		@"(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)"
+        	};
+        	
+        	// Loop through each regex string to find the one that the
+        	// email address matches.
+        	foreach (string reg in validators) 
+        	{
+        	    // Create the regex object and try to match
+        	    // the email address with the current regex
+        	    // string.
+        	    Regex currentRegex = new Regex(reg);
+        	    Match email = currentRegex.Match(escAddress);
+        	    
+        	    // If the match is considered successful, return
+        	    // a new MailAddress object.  If a name was 
+        	    // paired with an email address in the parameter,
+        	    // add it to the MailAddress object that is returned.
+        	    if (email.Success)
+        	    {
+        	        if (email.Groups["fullname"].Success)
+        	        {
+        	            return new MailAddress(
+        	                email.Groups["email"].Value.Trim(),
+        	                email.Groups["fullname"].Value.Trim());
+        	        }
+        	        
+        	        return new MailAddress(email.Groups["email"].Value.Trim());
+        	    }
+        	}
+        	
+        	// If none of the regex strings matches the address parameter,
+        	// throw a build exception.
+        	throw new BuildException(
+        	    String.Format(CultureInfo.InvariantCulture,
+        	                  "{0} is not a recognized email address",
+        	                  address));
         }
 
         #endregion Private Instance Methods

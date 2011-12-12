@@ -161,6 +161,24 @@ namespace NAnt.Core.Util {
             return clone;
         }
 
+        /// <summary>
+        /// Simple method that converts an html encoded string back to its decoded format.
+        /// </summary>
+        /// <param name="value">
+        /// An html encoded string.
+        /// </param>
+        /// <returns>
+        /// The decoded format of the html encoded string.
+        /// </returns>
+        public static string HtmlDecode(string value)
+        {
+        	return value.Replace("&quot;", "\"")
+        		.Replace("&amp;", "&")
+        		.Replace("&apos;", "'")
+        		.Replace("&lt;", "<")
+        		.Replace("&gt;", ">");
+        }
+        
         #endregion Public Static Methods
     }
 }
