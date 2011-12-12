@@ -611,7 +611,7 @@ namespace NAnt.Core.Tasks {
         {
             // Convert the email address parameter from html encoded to 
             // normal string.  Makes validation easier.
-            string escAddress = UnescapeXmlCodes(address);
+            string plainAddress = UnescapeXmlCodes(address);
             
             // String array containing all of the regex strings used to
             // locate the email address in the parameter string.
@@ -641,7 +641,7 @@ namespace NAnt.Core.Tasks {
                 // the email address with the current regex
                 // string.
                 Regex currentRegex = new Regex(reg);
-                Match email = currentRegex.Match(escAddress);
+                Match email = currentRegex.Match(plainAddress);
                 
                 // If the match is considered successful, return
                 // a new MailAddress object.  If a name was 
