@@ -71,6 +71,50 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Sends an email from a gmail account to multiple recipients. This example
+    ///   illustrates how to add a recipient's name to an email address.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mail
+    ///     from="+xxxx+@gmail.com"
+    ///     tolist="(Rep A) recipient1@sourceforge.net;(Rep B) recipient2@sourceforge.net"
+    ///     subject="Sample Email"
+    ///     mailhost="smtp.gmail.com"
+    ///     mailport="465"
+    ///     ssl="true"
+    ///     user="+xxxx+@gmail.com"
+    ///     password="p@ssw0rd!"
+    ///     message="Email from NAnt" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Email addresses in any of the lists (to, cc, bcc, from) can be in one of
+    ///   the five listed formats below.
+    ///   </para>
+    ///   <list type="bullet">
+    ///   <item>
+    ///   <description>Full Name &lt;address@abcxyz.com&gt;</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>&lt;address@abcxyz.com&gt; Full Name</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>(Full Name) address@abcxyz.com</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>address@abcxyz.com (Full Name)</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>address@abcxyz.com</description>
+    ///   </item>
+    ///   </list>
+    ///   <para>
+    ///   Remember to use &amp;gt; and &amp;lt; XML entities for the angle brackets.
+    ///   </para>
+    /// </example>
     [TaskName("mail")]
     public class MailTask : Task {
         #region Private Instance Fields
@@ -195,7 +239,7 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Indicates whether or not the body of the email is in
-        /// html format. The default value is false.
+        /// html format. The default value is <c>false</c>.
         /// </summary>
         [TaskAttribute("isbodyhtml")]
         [BooleanValidator]
@@ -413,6 +457,11 @@ namespace NAnt.Core.Tasks {
                 // through.
                 SmtpClient smtp = new SmtpClient(this.Mailhost);
 
+#if NET_4_0
+                try
+                {
+#endif
+
                 // If username and password attributes are provided,
                 // use the information as the network credentials.
                 // Otherwise, use the default credentials (the information
@@ -435,12 +484,41 @@ namespace NAnt.Core.Tasks {
                 // Send the email.
                 smtp.Send(mailMessage);
 
+#if NET_4_0
+                }
+                catch
+                {
+                    throw;
+                }
+
+                // SmtpClient implements IDisposable starting
+                // with .NET 4.0.  So once the email is sent,
+                // the SmtpClient is disposed of.
+                finally
+                {
+                    smtp.Dispose();
+                }
+#endif
+
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
                 msg.Append("Error enountered while sending mail message." 
                     + Environment.NewLine);
-                msg.Append("Make sure that mailhost=" + this.Mailhost 
-                    + " is valid" + Environment.NewLine);
+                msg.Append("Make sure that the following information is valid:" +
+                           Environment.NewLine);
+                msg.Append("Mailhost: " + this.Mailhost + Environment.NewLine);
+                msg.Append("Mailport: " + this.Port.ToString() + Environment.NewLine);
+                msg.Append("Use SSL: " + this.EnableSsl.ToString() + Environment.NewLine);
+                
+                if (!String.IsNullOrEmpty(this.UserName) &&
+                    !String.IsNullOrEmpty(this.Password))
+                {
+                    msg.Append("Username: " + this.UserName + Environment.NewLine);
+                }
+                else
+                {
+                    msg.Append("Using default credentials" + Environment.NewLine);
+                }
                 throw new BuildException("Error sending mail:" + Environment.NewLine 
                     + msg.ToString(), Location, ex);
             }
