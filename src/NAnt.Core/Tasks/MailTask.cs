@@ -120,8 +120,8 @@ namespace NAnt.Core.Tasks {
         [TaskAttribute("replyto")]
         public string ReplyTo 
         {
-        	get { return _replyTo; }
-        	set { _replyTo = value; }
+            get { return _replyTo; }
+            set { _replyTo = value; }
         }
 
         /// <summary>
@@ -325,15 +325,15 @@ namespace NAnt.Core.Tasks {
             if (!String.IsNullOrEmpty(ReplyTo))
             {
 #if NET_4_0
-				MailAddressCollection replyAddrs = ParseAddresses(ReplyTo);
-				
-				if (replyAddrs.Count > 0) {
-					foreach (MailAddress replyAddr in replyAddrs) {
-						mailMessage.ReplyToList.Add(replyAddr);
-					}
-				}
+                MailAddressCollection replyAddrs = ParseAddresses(ReplyTo);
+                
+                if (replyAddrs.Count > 0) {
+                    foreach (MailAddress replyAddr in replyAddrs) {
+                        mailMessage.ReplyToList.Add(replyAddr);
+                    }
+                }
 #else
-				mailMessage.ReplyTo = ConvertStringToMailAddress(ReplyTo);
+                mailMessage.ReplyTo = ConvertStringToMailAddress(ReplyTo);
 #endif
             }
 
@@ -535,57 +535,57 @@ namespace NAnt.Core.Tasks {
             
             // String array containing all of the regex strings used to
             // locate the email address in the parameter string.
-        	string[] validators = new string[]
-        	{
-        	    // Format: Full Name <address@abcxyz.com>
-        		@"^(?<fullname>.+)\s<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)>$",
-        		
-        		// Format: <address@abcxyz.com> Full Name
-        		@"^<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)>\s(?<fullname>.+)$",
-        		
-        		// Format: (Full Name) address@abcxyz.com
-        		@"^\((?<fullname>.+)\)\s(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)$",
-        		
-        		// Format: address@abcxyz.com (Full Name)
-        		@"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$",
-        		
-        		// Format: address@abcxyz.com
-        		@"(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)"
-        	};
-        	
-        	// Loop through each regex string to find the one that the
-        	// email address matches.
-        	foreach (string reg in validators) 
-        	{
-        	    // Create the regex object and try to match
-        	    // the email address with the current regex
-        	    // string.
-        	    Regex currentRegex = new Regex(reg);
-        	    Match email = currentRegex.Match(escAddress);
-        	    
-        	    // If the match is considered successful, return
-        	    // a new MailAddress object.  If a name was 
-        	    // paired with an email address in the parameter,
-        	    // add it to the MailAddress object that is returned.
-        	    if (email.Success)
-        	    {
-        	        if (email.Groups["fullname"].Success)
-        	        {
-        	            return new MailAddress(
-        	                email.Groups["email"].Value.Trim(),
-        	                email.Groups["fullname"].Value.Trim());
-        	        }
-        	        
-        	        return new MailAddress(email.Groups["email"].Value.Trim());
-        	    }
-        	}
-        	
-        	// If none of the regex strings matches the address parameter,
-        	// throw a build exception.
-        	throw new BuildException(
-        	    String.Format(CultureInfo.InvariantCulture,
-        	                  "{0} is not a recognized email address",
-        	                  address));
+            string[] validators = new string[]
+            {
+                // Format: Full Name <address@abcxyz.com>
+                @"^(?<fullname>.+)\s<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)>$",
+                
+                // Format: <address@abcxyz.com> Full Name
+                @"^<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)>\s(?<fullname>.+)$",
+                
+                // Format: (Full Name) address@abcxyz.com
+                @"^\((?<fullname>.+)\)\s(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)$",
+                
+                // Format: address@abcxyz.com (Full Name)
+                @"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$",
+                
+                // Format: address@abcxyz.com
+                @"(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)"
+            };
+            
+            // Loop through each regex string to find the one that the
+            // email address matches.
+            foreach (string reg in validators) 
+            {
+                // Create the regex object and try to match
+                // the email address with the current regex
+                // string.
+                Regex currentRegex = new Regex(reg);
+                Match email = currentRegex.Match(escAddress);
+                
+                // If the match is considered successful, return
+                // a new MailAddress object.  If a name was 
+                // paired with an email address in the parameter,
+                // add it to the MailAddress object that is returned.
+                if (email.Success)
+                {
+                    if (email.Groups["fullname"].Success)
+                    {
+                        return new MailAddress(
+                            email.Groups["email"].Value.Trim(),
+                            email.Groups["fullname"].Value.Trim());
+                    }
+                    
+                    return new MailAddress(email.Groups["email"].Value.Trim());
+                }
+            }
+            
+            // If none of the regex strings matches the address parameter,
+            // throw a build exception.
+            throw new BuildException(
+                String.Format(CultureInfo.InvariantCulture,
+                              "{0} is not a recognized email address",
+                              address));
         }
 
         #endregion Private Instance Methods

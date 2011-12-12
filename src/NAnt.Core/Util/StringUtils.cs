@@ -172,11 +172,11 @@ namespace NAnt.Core.Util {
         /// </returns>
         public static string HtmlDecode(string value)
         {
-        	return value.Replace("&quot;", "\"")
-        		.Replace("&amp;", "&")
-        		.Replace("&apos;", "'")
-        		.Replace("&lt;", "<")
-        		.Replace("&gt;", ">");
+            return value.Replace("&quot;", "\"")
+                .Replace("&amp;", "&")
+                .Replace("&apos;", "'")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">");
         }
         
         #endregion Public Static Methods
