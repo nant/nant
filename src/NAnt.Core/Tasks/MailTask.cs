@@ -273,7 +273,7 @@ namespace NAnt.Core.Tasks {
         /// Format of the message. The default is <see cref="MailFormat.Text" />.
         /// </summary>
         [TaskAttribute("format")]
-        [Obsolete("The format attribute is depreciated. Please use isbodyhtml instead", false)]
+        [Obsolete("The format attribute is deprecated. Please use isbodyhtml instead", false)]
         public MailFormat Format
         {
             get
@@ -351,28 +351,21 @@ namespace NAnt.Core.Tasks {
 
             // If any addresses were specified in the to, cc, and/or bcc
             // list, add them to the mailMessage object.
-            if (toAddrs.Count > 0)
-            {
-                foreach (MailAddress toAddr in toAddrs) {
-                    mailMessage.To.Add(toAddr);
-                }
+            foreach (MailAddress toAddr in toAddrs) {
+                mailMessage.To.Add(toAddr);
             }
-
-            if (ccAddrs.Count > 0) {
-                foreach (MailAddress ccAddr in ccAddrs) {
-                    mailMessage.CC.Add(ccAddr);
-                }
+            
+            foreach (MailAddress ccAddr in ccAddrs) {
+                mailMessage.CC.Add(ccAddr);
             }
-
-            if (bccAddrs.Count > 0) {
-                foreach (MailAddress bccAddr in bccAddrs) {
-                    mailMessage.Bcc.Add(bccAddr);
-                }
+            
+            foreach (MailAddress bccAddr in bccAddrs) {
+                mailMessage.Bcc.Add(bccAddr);
             }
 
             // If a reply to address was specified, add it to the
             // mailMessage object.  Starting with .NET 4.0, the
-            // ReplyTo property was depreciated in favor of
+            // ReplyTo property was deprecated in favor of
             // ReplyToList.
             if (!String.IsNullOrEmpty(ReplyTo))
             {
@@ -446,21 +439,22 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            Log(Level.Info, "Sending mail...");
+            Log(Level.Verbose, "To: {0}", mailMessage.To);
+            Log(Level.Verbose, "Cc: {0}", mailMessage.CC);
+            Log(Level.Verbose, "Bcc: {0}", mailMessage.Bcc);
+            Log(Level.Verbose, "Subject: {0}", mailMessage.Subject);
+
+            // Initialize a new SmtpClient object to sent email through.
+#if NET_4_0
+            // Starting with .NET 4.0, SmtpClient implements IDisposable.
+            using (SmtpClient smtp = new SmtpClient(this.Mailhost)) {
+#else
+            SmtpClient smtp = new SmtpClient(this.Mailhost);
+#endif
+
             // send message
             try {
-                Log(Level.Info, "Sending mail...");
-                Log(Level.Info, "To: {0}", mailMessage.To);
-                Log(Level.Info, "Cc: {0}", mailMessage.CC);
-                Log(Level.Info, "Bcc: {0}", mailMessage.Bcc);
-
-                // Initialize a new SmtpClient object to sent email
-                // through.
-                SmtpClient smtp = new SmtpClient(this.Mailhost);
-
-#if NET_4_0
-                try
-                {
-#endif
 
                 // If username and password attributes are provided,
                 // use the information as the network credentials.
@@ -484,22 +478,6 @@ namespace NAnt.Core.Tasks {
                 // Send the email.
                 smtp.Send(mailMessage);
 
-#if NET_4_0
-                }
-                catch
-                {
-                    throw;
-                }
-
-                // SmtpClient implements IDisposable starting
-                // with .NET 4.0.  So once the email is sent,
-                // the SmtpClient is disposed of.
-                finally
-                {
-                    smtp.Dispose();
-                }
-#endif
-
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
                 msg.Append("Error enountered while sending mail message." 
@@ -509,7 +487,7 @@ namespace NAnt.Core.Tasks {
                 msg.Append("Mailhost: " + this.Mailhost + Environment.NewLine);
                 msg.Append("Mailport: " + this.Port.ToString() + Environment.NewLine);
                 msg.Append("Use SSL: " + this.EnableSsl.ToString() + Environment.NewLine);
-                
+
                 if (!String.IsNullOrEmpty(this.UserName) &&
                     !String.IsNullOrEmpty(this.Password))
                 {
@@ -522,6 +500,9 @@ namespace NAnt.Core.Tasks {
                 throw new BuildException("Error sending mail:" + Environment.NewLine 
                     + msg.ToString(), Location, ex);
             }
+#if NET_4_0
+            }
+#endif
         }
 
         #endregion Override implementation of Task
@@ -630,7 +611,7 @@ namespace NAnt.Core.Tasks {
         {
             // Convert the email address parameter from html encoded to 
             // normal string.  Makes validation easier.
-            string escAddress = StringUtils.HtmlDecode(address);
+            string escAddress = UnescapeXmlCodes(address);
             
             // String array containing all of the regex strings used to
             // locate the email address in the parameter string.
@@ -685,6 +666,25 @@ namespace NAnt.Core.Tasks {
                 String.Format(CultureInfo.InvariantCulture,
                               "{0} is not a recognized email address",
                               address));
+        }
+
+        /// <summary>
+        /// Simple method that converts an XML escaped string back to its unescaped
+        /// format.
+        /// </summary>
+        /// <param name="value">
+        /// An html encoded string.
+        /// </param>
+        /// <returns>
+        /// The decoded format of the html encoded string.
+        /// </returns>
+        private string UnescapeXmlCodes(string value)
+        {
+            return value.Replace("&quot;", "\"")
+                .Replace("&amp;", "&")
+                .Replace("&apos;", "'")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">");
         }
 
         #endregion Private Instance Methods
