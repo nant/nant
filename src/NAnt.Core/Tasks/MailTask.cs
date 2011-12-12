@@ -299,10 +299,14 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             MailMessage mailMessage = new MailMessage();
+
+            // Gather any email addresses provided by the task.
             MailAddressCollection toAddrs = ParseAddresses(ToList);
             MailAddressCollection ccAddrs = ParseAddresses(CcList);
             MailAddressCollection bccAddrs = ParseAddresses(BccList);
 
+            // If any addresses were specified in the to, cc, and/or bcc
+            // list, add them to the mailMessage object.
             if (toAddrs.Count > 0)
             {
                 foreach (MailAddress toAddr in toAddrs) {
@@ -321,7 +325,11 @@ namespace NAnt.Core.Tasks {
                     mailMessage.Bcc.Add(bccAddr);
                 }
             }
-            
+
+            // If a reply to address was specified, add it to the
+            // mailMessage object.  Starting with .NET 4.0, the
+            // ReplyTo property was depreciated in favor of
+            // ReplyToList.
             if (!String.IsNullOrEmpty(ReplyTo))
             {
 #if NET_4_0
@@ -337,8 +345,11 @@ namespace NAnt.Core.Tasks {
 #endif
             }
 
-            mailMessage.From = new MailAddress(this.From);
+            // Add the From and Subject lines to the mailMessage object.
+            mailMessage.From = ConvertStringToMailAddress(this.From);
             mailMessage.Subject = this.Subject;
+
+            // Indicate whether or not the body of the email is in html format.
             mailMessage.IsBodyHtml = this.IsBodyHtml;
 
             // ensure base directory is set, even if fileset was not initialized
@@ -397,8 +408,15 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Info, "To: {0}", mailMessage.To);
                 Log(Level.Info, "Cc: {0}", mailMessage.CC);
                 Log(Level.Info, "Bcc: {0}", mailMessage.Bcc);
+
+                // Initialize a new SmtpClient object to sent email
+                // through.
                 SmtpClient smtp = new SmtpClient(this.Mailhost);
 
+                // If username and password attributes are provided,
+                // use the information as the network credentials.
+                // Otherwise, use the default credentials (the information
+                // used by the user to login to the machine.
                 if (!String.IsNullOrEmpty(this.UserName) &&
                     !String.IsNullOrEmpty(this.Password))
                 {
@@ -410,8 +428,11 @@ namespace NAnt.Core.Tasks {
                     smtp.UseDefaultCredentials = true;
                 }
 
+                // Set the ssl and the port information.
                 smtp.EnableSsl = this.EnableSsl;
                 smtp.Port = this.Port;
+
+                // Send the email.
                 smtp.Send(mailMessage);
 
             } catch (Exception ex) {
