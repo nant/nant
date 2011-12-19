@@ -186,7 +186,7 @@ namespace NAnt.NUnit2.Tasks {
             }
 
             LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-            EventListener listener = new EventCollector(logWriter, logWriter);
+            EventListener listener = GetListener(logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
                 IFilter categoryFilter = null;
@@ -230,17 +230,22 @@ namespace NAnt.NUnit2.Tasks {
                         }
 
                         // run test
-                        TestResult result = runner.Run(listener);
+                        TestResult[] results = RunTests(listener, runner, test);
 
                         // flush test output to log
                         logWriter.Flush();
 
                         // format test results using specified formatters
-                        FormatResult(testElement, result);
+                        foreach (var result in results)
+                        {
+                            FormatResult(testElement, result);
 
-                        if (result.IsFailure && (testElement.HaltOnFailure || HaltOnFailure)) {
-                            throw new BuildException("Tests Failed.", Location);
+                            if (result.IsFailure && (testElement.HaltOnFailure || HaltOnFailure))
+                            {
+                                throw new BuildException("Tests Failed.", Location);
+                            }    
                         }
+                        
                     } catch (BuildException) {
                         // re-throw build exceptions
                         throw;
@@ -267,9 +272,21 @@ namespace NAnt.NUnit2.Tasks {
                 }
             }
         }
-        
+
         #endregion Override implementation of Task
 
+        #region Protected Instance Methods
+        protected virtual EventListener GetListener(LogWriter logWriter)
+        {
+            return new EventCollector(logWriter, logWriter);
+        }
+
+        protected virtual TestResult[] RunTests(EventListener listener, TestRunner runner, Test test)
+        {
+            return new TestResult[] { runner.Run(listener) };
+        }
+
+        #endregion Protected Instance Methods
         #region Private Instance Methods
 
         private void FormatResult(NUnit2Test testElement, TestResult result) {
