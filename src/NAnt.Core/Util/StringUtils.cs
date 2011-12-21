@@ -160,7 +160,7 @@ namespace NAnt.Core.Util {
             clone.AddRange(strings);
             return clone;
         }
-
+        
         #endregion Public Static Methods
     }
 }
