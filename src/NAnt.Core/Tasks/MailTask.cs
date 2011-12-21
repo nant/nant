@@ -480,22 +480,24 @@ namespace NAnt.Core.Tasks {
 
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
-                msg.Append("Error enountered while sending mail message." 
-                    + Environment.NewLine);
-                msg.Append("Make sure that the following information is valid:" +
-                           Environment.NewLine);
-                msg.Append("Mailhost: " + this.Mailhost + Environment.NewLine);
-                msg.Append("Mailport: " + this.Port.ToString() + Environment.NewLine);
-                msg.Append("Use SSL: " + this.EnableSsl.ToString() + Environment.NewLine);
+                msg.AppendLine("Error enountered while sending mail message.");
+                msg.AppendLine("Make sure that the following information is valid:");
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Mailhost: {0}", this.Mailhost).AppendLine();
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Mailport: {0}", this.Port.ToString()).AppendLine();
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Use SSL: {0}", this.EnableSsl.ToString()).AppendLine();
 
                 if (!String.IsNullOrEmpty(this.UserName) &&
                     !String.IsNullOrEmpty(this.Password))
                 {
-                    msg.Append("Username: " + this.UserName + Environment.NewLine);
+                    msg.AppendFormat(CultureInfo.InvariantCulture,
+                        "Username: {0}", this.UserName).AppendLine();
                 }
                 else
                 {
-                    msg.Append("Using default credentials" + Environment.NewLine);
+                    msg.AppendLine("Using default credentials");
                 }
                 throw new BuildException("Error sending mail:" + Environment.NewLine 
                     + msg.ToString(), Location, ex);
