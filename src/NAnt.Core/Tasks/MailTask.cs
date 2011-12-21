@@ -18,12 +18,15 @@
 // Jay Turpin (jayturpin@hotmail.com)
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Gert Driesen (drieseng@users.sourceforge.net)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Web.Mail;
+using System.Text.RegularExpressions;
+using System.Net;
+using System.Net.Mail;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -68,20 +71,69 @@ namespace NAnt.Core.Tasks {
     ///     ]]>
     ///   </code>
     /// </example>
+    /// <example>
+    ///   <para>
+    ///   Sends an email from a gmail account to multiple recipients. This example
+    ///   illustrates how to add a recipient's name to an email address.
+    ///   </para>
+    ///   <code>
+    ///     <![CDATA[
+    /// <mail
+    ///     from="+xxxx+@gmail.com"
+    ///     tolist="(Rep A) recipient1@sourceforge.net;(Rep B) recipient2@sourceforge.net"
+    ///     subject="Sample Email"
+    ///     mailhost="smtp.gmail.com"
+    ///     mailport="465"
+    ///     ssl="true"
+    ///     user="+xxxx+@gmail.com"
+    ///     password="p@ssw0rd!"
+    ///     message="Email from NAnt" />
+    ///     ]]>
+    ///   </code>
+    ///   <para>
+    ///   Email addresses in any of the lists (to, cc, bcc, from) can be in one of
+    ///   the five listed formats below.
+    ///   </para>
+    ///   <list type="bullet">
+    ///   <item>
+    ///   <description>Full Name &lt;address@abcxyz.com&gt;</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>&lt;address@abcxyz.com&gt; Full Name</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>(Full Name) address@abcxyz.com</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>address@abcxyz.com (Full Name)</description>
+    ///   </item>
+    ///   <item>
+    ///   <description>address@abcxyz.com</description>
+    ///   </item>
+    ///   </list>
+    ///   <para>
+    ///   Remember to use &amp;gt; and &amp;lt; XML entities for the angle brackets.
+    ///   </para>
+    /// </example>
     [TaskName("mail")]
     public class MailTask : Task {
         #region Private Instance Fields
 
         private string _from;
+        private string _replyTo;
         private string _toList;
         private string _ccList;
         private string _bccList;
         private string _mailHost = "localhost";
         private string _subject = "";
         private string _message = "";
+        private string _userName = "";
+        private string _passWord = "";
+        private bool _isBodyHtml = false;
+        private bool _enableSsl = false;
+        private int _portNumber = 25;
         private FileSet _files = new FileSet();
         private FileSet _attachments = new FileSet();
-        private MailFormat _mailFormat = MailFormat.Text;
 
         #endregion Private Instance Fields
 
@@ -104,6 +156,16 @@ namespace NAnt.Core.Tasks {
         public string ToList {
             get { return _toList; }
             set { _toList = value; }
+        }
+        
+        /// <summary>
+        /// Reply to email address.
+        /// </summary>
+        [TaskAttribute("replyto")]
+        public string ReplyTo 
+        {
+            get { return _replyTo; }
+            set { _replyTo = value; }
         }
 
         /// <summary>
@@ -132,6 +194,30 @@ namespace NAnt.Core.Tasks {
             get { return _mailHost; }
             set { _mailHost = StringUtils.ConvertEmptyToNull(value); }
         }
+
+        /// <summary>
+        /// The port number used to connect to the mail server.
+        /// The default is <c>25</c>.
+        /// </summary>
+        [TaskAttribute("mailport")]
+        [Int32Validator]
+        public int Port
+        {
+            get { return _portNumber; }
+            set { _portNumber = value; }
+        }
+
+        /// <summary>
+        /// Indicates whether or not ssl should be used to
+        /// connect to the smtp host.
+        /// </summary>
+        [TaskAttribute("ssl")]
+        [BooleanValidator]
+        public bool EnableSsl
+        {
+            get { return _enableSsl; }
+            set { _enableSsl = value; }
+        }
   
         /// <summary>
         /// Text to send in body of email message.
@@ -152,16 +238,69 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Indicates whether or not the body of the email is in
+        /// html format. The default value is <c>false</c>.
+        /// </summary>
+        [TaskAttribute("isbodyhtml")]
+        [BooleanValidator]
+        public bool IsBodyHtml
+        {
+            get { return _isBodyHtml; }
+            set { _isBodyHtml = value; }
+        }
+
+        /// <summary>
+        /// The username to use when connecting to the smtp host.
+        /// </summary>
+        [TaskAttribute("user")]
+        public string UserName
+        {
+            get { return _userName; }
+            set { _userName = value; }
+        }
+
+        /// <summary>
+        /// The password to use when connecting to the smtp host.
+        /// </summary>
+        [TaskAttribute("password")]
+        public string Password
+        {
+            get { return _passWord; }
+            set { _passWord = value; }
+        }
+
+        /// <summary>
         /// Format of the message. The default is <see cref="MailFormat.Text" />.
         /// </summary>
         [TaskAttribute("format")]
-        public MailFormat Format {
-           get { return _mailFormat; }
-           set {
-               if (!Enum.IsDefined(typeof(MailFormat), value)) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "An invalid format {0} was specified.", value)); 
-                } else {
-                    this._mailFormat = value;
+        [Obsolete("The format attribute is deprecated. Please use isbodyhtml instead", false)]
+        public MailFormat Format
+        {
+            get
+            {
+                if (IsBodyHtml)
+                {
+                    return MailFormat.Html;
+                }
+                return MailFormat.Text;
+            }
+            set
+            {
+                if (!Enum.IsDefined(typeof(MailFormat), value))
+                {
+                    throw new ArgumentException(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "An invalid format {0} was specified.", value));
+                }
+                else
+                {
+                    if (value.Equals(MailFormat.Html)) {
+                        IsBodyHtml = true;
+                    }
+                    else
+                    {
+                        IsBodyHtml = false;
+                    }
                 }
             } 
         }
@@ -204,13 +343,51 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             MailMessage mailMessage = new MailMessage();
+
+            // Gather any email addresses provided by the task.
+            MailAddressCollection toAddrs = ParseAddresses(ToList);
+            MailAddressCollection ccAddrs = ParseAddresses(CcList);
+            MailAddressCollection bccAddrs = ParseAddresses(BccList);
+
+            // If any addresses were specified in the to, cc, and/or bcc
+            // list, add them to the mailMessage object.
+            foreach (MailAddress toAddr in toAddrs) {
+                mailMessage.To.Add(toAddr);
+            }
             
-            mailMessage.From = this.From;
-            mailMessage.To = this.ToList;
-            mailMessage.Bcc = this.BccList;
-            mailMessage.Cc = this.CcList;
+            foreach (MailAddress ccAddr in ccAddrs) {
+                mailMessage.CC.Add(ccAddr);
+            }
+            
+            foreach (MailAddress bccAddr in bccAddrs) {
+                mailMessage.Bcc.Add(bccAddr);
+            }
+
+            // If a reply to address was specified, add it to the
+            // mailMessage object.  Starting with .NET 4.0, the
+            // ReplyTo property was deprecated in favor of
+            // ReplyToList.
+            if (!String.IsNullOrEmpty(ReplyTo))
+            {
+#if NET_4_0
+                MailAddressCollection replyAddrs = ParseAddresses(ReplyTo);
+                
+                if (replyAddrs.Count > 0) {
+                    foreach (MailAddress replyAddr in replyAddrs) {
+                        mailMessage.ReplyToList.Add(replyAddr);
+                    }
+                }
+#else
+                mailMessage.ReplyTo = ConvertStringToMailAddress(ReplyTo);
+#endif
+            }
+
+            // Add the From and Subject lines to the mailMessage object.
+            mailMessage.From = ConvertStringToMailAddress(this.From);
             mailMessage.Subject = this.Subject;
-            mailMessage.BodyFormat = this.Format;
+
+            // Indicate whether or not the body of the email is in html format.
+            mailMessage.IsBodyHtml = this.IsBodyHtml;
 
             // ensure base directory is set, even if fileset was not initialized
             // from XML
@@ -253,7 +430,7 @@ namespace NAnt.Core.Tasks {
             // add attachments to message
             foreach (string fileName in Attachments.FileNames) {
                 try {
-                    MailAttachment attachment = new MailAttachment(fileName);
+                    Attachment attachment = new Attachment(fileName);
                     mailMessage.Attachments.Add(attachment);
                 } catch (Exception ex) {
                     Log(Level.Warning, string.Format(CultureInfo.InvariantCulture,
@@ -262,20 +439,72 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            Log(Level.Info, "Sending mail...");
+            Log(Level.Verbose, "To: {0}", mailMessage.To);
+            Log(Level.Verbose, "Cc: {0}", mailMessage.CC);
+            Log(Level.Verbose, "Bcc: {0}", mailMessage.Bcc);
+            Log(Level.Verbose, "Subject: {0}", mailMessage.Subject);
+
+            // Initialize a new SmtpClient object to sent email through.
+#if NET_4_0
+            // Starting with .NET 4.0, SmtpClient implements IDisposable.
+            using (SmtpClient smtp = new SmtpClient(this.Mailhost)) {
+#else
+            SmtpClient smtp = new SmtpClient(this.Mailhost);
+#endif
+
             // send message
             try {
-                Log(Level.Info, "Sending mail to {0}.", mailMessage.To);
-                SmtpMail.SmtpServer = this.Mailhost;
-                SmtpMail.Send(mailMessage);
+
+                // If username and password attributes are provided,
+                // use the information as the network credentials.
+                // Otherwise, use the default credentials (the information
+                // used by the user to login to the machine.
+                if (!String.IsNullOrEmpty(this.UserName) &&
+                    !String.IsNullOrEmpty(this.Password))
+                {
+                    smtp.Credentials =
+                        new NetworkCredential(this.UserName, this.Password);
+                }
+                else
+                {
+                    smtp.UseDefaultCredentials = true;
+                }
+
+                // Set the ssl and the port information.
+                smtp.EnableSsl = this.EnableSsl;
+                smtp.Port = this.Port;
+
+                // Send the email.
+                smtp.Send(mailMessage);
+
             } catch (Exception ex) {
                 StringBuilder msg = new StringBuilder();
-                msg.Append("Error enountered while sending mail message." 
-                    + Environment.NewLine);
-                msg.Append("Make sure that mailhost=" + this.Mailhost 
-                    + " is valid" + Environment.NewLine);
+                msg.AppendLine("Error enountered while sending mail message.");
+                msg.AppendLine("Make sure that the following information is valid:");
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Mailhost: {0}", this.Mailhost).AppendLine();
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Mailport: {0}", this.Port.ToString()).AppendLine();
+                msg.AppendFormat(CultureInfo.InvariantCulture,
+                    "Use SSL: {0}", this.EnableSsl.ToString()).AppendLine();
+
+                if (!String.IsNullOrEmpty(this.UserName) &&
+                    !String.IsNullOrEmpty(this.Password))
+                {
+                    msg.AppendFormat(CultureInfo.InvariantCulture,
+                        "Username: {0}", this.UserName).AppendLine();
+                }
+                else
+                {
+                    msg.AppendLine("Using default credentials");
+                }
                 throw new BuildException("Error sending mail:" + Environment.NewLine 
                     + msg.ToString(), Location, ex);
             }
+#if NET_4_0
+            }
+#endif
         }
 
         #endregion Override implementation of Task
@@ -296,6 +525,187 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Converts an email address or a series of email addresses from
+        /// a <see cref="System.String"/> object to a new
+        /// <see cref="System.Net.Mail.MailAddressCollection"/> object.
+        /// </summary>
+        /// <param name='addresses'>
+        /// A list of email addresses separated by a semicolon.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="System.Net.Mail.MailAddressCollection"/> object
+        /// containing the addresses from <paramref name="addresses"/>.
+        /// </returns>
+        private MailAddressCollection ParseAddresses(string addresses)
+        {
+            // Initialize the MailAddressCollection object that will be
+            // returned by this method.
+            MailAddressCollection results = new MailAddressCollection();
+
+            // Make sure the addresses string is not null before attempting
+            // to parse.
+            if (!String.IsNullOrEmpty(addresses))
+            {
+                // If the addresses parameter contains a semicolon, that means
+                // that more than one email address is present and needs to be parsed.
+                if (addresses.Contains(";")) {
+                    string[] parsedAddresses = addresses.Split(new char[] { ';' });
+    
+                    foreach (string item in parsedAddresses)
+                    {
+                        results.Add(ConvertStringToMailAddress(item));
+                    }
+                }
+    
+                // Otherwise, pass the addresses param string to the new
+                // MailAddressCollection if it is not null or empty.
+                else
+                {
+                    results.Add(ConvertStringToMailAddress(addresses));
+                }
+            }
+
+            return results;
+        }
+        
+        /// <summary>
+        /// Converts a <see cref="System.String"/> object containing
+        /// email address information to a 
+        /// <see cref="System.Net.Mail.MailAddress" /> object.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Email address information passed to this method should be in
+        /// one of five formats.
+        /// </para>
+        /// <list type="bullet">
+        /// <item>
+        /// <description>Full Name &lt;address@abcxyz.com&gt;</description>
+        /// </item>
+        /// <item>
+        /// <description>&lt;address@abcxyz.com&gt; Full Name</description>
+        /// </item>
+        /// <item>
+        /// <description>(Full Name) address@abcxyz.com</description>
+        /// </item>
+        /// <item>
+        /// <description>address@abcxyz.com (Full Name)</description>
+        /// </item>
+        /// <item>
+        /// <description>address@abcxyz.com</description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// If the full name of the intended recipient (or sender) is provided,
+        /// that information is included in the resulting 
+        /// <see cref="System.Net.Mail.MailAddress" /> object.
+        /// </para>
+        /// </remarks>
+        /// <param name="address">
+        /// The string that contains the address to parse.
+        /// </param>
+        /// <returns>
+        /// A new MailAddress object containing the information from
+        /// <paramref name="address"/>.
+        /// </returns>
+        private MailAddress ConvertStringToMailAddress(string address)
+        {
+            // Convert the email address parameter from html encoded to 
+            // normal string.  Makes validation easier.
+            string plainAddress = UnescapeXmlCodes(address);
+            
+            // String array containing all of the regex strings used to
+            // locate the email address in the parameter string.
+            string[] validators = new string[]
+            {
+                // Format: Full Name <address@abcxyz.com>
+                @"^(?<fullname>.+)\s<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)>$",
+                
+                // Format: <address@abcxyz.com> Full Name
+                @"^<(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)>\s(?<fullname>.+)$",
+                
+                // Format: (Full Name) address@abcxyz.com
+                @"^\((?<fullname>.+)\)\s(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)$",
+                
+                // Format: address@abcxyz.com (Full Name)
+                @"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$",
+                
+                // Format: address@abcxyz.com
+                @"(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)"
+            };
+            
+            // Loop through each regex string to find the one that the
+            // email address matches.
+            foreach (string reg in validators) 
+            {
+                // Create the regex object and try to match
+                // the email address with the current regex
+                // string.
+                Regex currentRegex = new Regex(reg);
+                Match email = currentRegex.Match(plainAddress);
+                
+                // If the match is considered successful, return
+                // a new MailAddress object.  If a name was 
+                // paired with an email address in the parameter,
+                // add it to the MailAddress object that is returned.
+                if (email.Success)
+                {
+                    if (email.Groups["fullname"].Success)
+                    {
+                        return new MailAddress(
+                            email.Groups["email"].Value.Trim(),
+                            email.Groups["fullname"].Value.Trim());
+                    }
+                    
+                    return new MailAddress(email.Groups["email"].Value.Trim());
+                }
+            }
+            
+            // If none of the regex strings matches the address parameter,
+            // throw a build exception.
+            throw new BuildException(
+                String.Format(CultureInfo.InvariantCulture,
+                              "{0} is not a recognized email address",
+                              address));
+        }
+
+        /// <summary>
+        /// Simple method that converts an XML escaped string back to its unescaped
+        /// format.
+        /// </summary>
+        /// <param name="value">
+        /// An html encoded string.
+        /// </param>
+        /// <returns>
+        /// The decoded format of the html encoded string.
+        /// </returns>
+        private string UnescapeXmlCodes(string value)
+        {
+            return value.Replace("&quot;", "\"")
+                .Replace("&amp;", "&")
+                .Replace("&apos;", "'")
+                .Replace("&lt;", "<")
+                .Replace("&gt;", ">");
+        }
+
         #endregion Private Instance Methods
+
+        /// <summary>
+        /// Temporary enum replacement of <see cref="System.Web.Mail.MailFormat"/>
+        /// to ease transition to newer property flags.
+        /// </summary>
+        public enum MailFormat
+        {
+            /// <summary>
+            /// Indicates the body of the email is formatted in plain text.
+            /// </summary>
+            Text = 0,
+
+            /// <summary>
+            /// Indicates the body of the email is formatted in html.
+            /// </summary>
+            Html = 1
+        }
     }
 }
