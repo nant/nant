@@ -20,6 +20,165 @@
 
 // this test or task is broken
 
+using System;
+using NUnit.Framework;
+using NAnt.Core.Tasks;
+
+using netDumbster.smtp;
+
+namespace Tests.NAnt.Core.Tasks {
+
+    [TestFixture]
+    public class MailTaskTest {
+
+        private static SimpleSmtpServer _smtpServer;
+        private Random _portRand = new Random();
+
+        string _from = "";
+        string _tolist = "";
+        string _cclist = "";
+        string _bcclist = "";
+        string _subject = "";
+        string _message = "";
+        string _mailhost = "";
+
+        int _port = _portRand.Next(50000, 60000);
+
+        [TestFixtureSetUp]
+        public void Init()
+        {
+            _smtpServer = SimpleSmtpServer.Start(_port);
+            _from = "nAnt@sourceforge.net";
+            _mailhost="localhost";
+        }
+
+        public void Shutdown()
+        {
+            _smtpServer.Stop();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            _smtpServer.ClearReceivedEmail();
+            _tolist = "";
+            _cclist = "";
+            _bcclist = "";
+            _subject = "";
+            _message = "";
+
+        }
+
+        /// <summary>
+        /// Simple message
+        /// </summary>
+        /// <remarks>
+        /// <mail 
+        ///     from="nAnt@sourceforge.net" 
+        ///     tolist="recipient1@sourceforge.net"
+        ///     subject="Msg 1: Simple Test" 
+        ///     message="Test message" 
+        ///     mailhost="smtpserver.anywhere.com"/>
+        ///     
+        /// </remarks>
+        [Test]
+        public void SimpleTest()
+        {
+            MailTask mailTask = new MailTask();
+            mailTask.Project = new Project();
+
+            _subject="Msg 1: Simple Test";
+            _message="Test message";
+            _tolist = "recipient1@sourceforge.net";
+
+            mailTask.Mailhost = _mailhost;
+            mailTask.Port = _port;
+            mailTask.From = _from;
+            mailTask.ToList = _tolist;
+            mailTask.Subject = _subject;
+            mailTask.Message = _message;
+            mailTask.CcList = _cclist;
+            mailTask.BccList = _bcclist;
+
+            mailTask.Execute();
+
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+        }
+
+        /// <summary>
+        /// Multiple recipients in toList
+        /// </summary>
+        /// <remarks>
+        /// <mail
+        ///     from="nAnt@sourceforge.net"
+        ///     tolist="recipient1@sourceforge.net;recipient2@sourceforge.net"
+        ///     subject="Msg 2: Test to 2 email addresses"
+        ///     message="Test message"
+        ///     mailhost="smtpserver.anywhere.com"/>
+        ///
+        /// </remarks>
+        [Test]
+        public void MultipleToEmailAddresses()
+        {
+            MailTask mailTask = new MailTask();
+            mailTask.Project = new Project();
+
+            _subject="Msg 1: Simple Test";
+            _message="Test message";
+            _tolist = "recipient1@sourceforge.net;recipient2@sourceforge.net";
+
+            mailTask.Mailhost = _mailhost;
+            mailTask.Port = _port;
+            mailTask.From = _from;
+            mailTask.ToList = _tolist;
+            mailTask.Subject = _subject;
+            mailTask.Message = _message;
+            mailTask.CcList = _cclist;
+            mailTask.BccList = _bcclist;
+
+            mailTask.Execute();
+
+            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+        }
+
+        /// <summary>
+        /// Multiple recipients in toList
+        /// </summary>
+        /// <remarks>
+        /// <mail
+        ///     from="nAnt@sourceforge.net"
+        ///     tolist="(Recipient one) recipient1@sourceforge.net;recipient2@sourceforge.net (Recipient two)"
+        ///     subject="Msg 2: Test to 2 email addresses"
+        ///     message="Test message"
+        ///     mailhost="smtpserver.anywhere.com"/>
+        ///
+        /// </remarks>
+        [Test]
+        public void MultipleToEmailAddressesWithNames()
+        {
+            MailTask mailTask = new MailTask();
+            mailTask.Project = new Project();
+
+            _subject="Msg 1: Simple Test";
+            _message="Test message";
+            _tolist = "(Recipient one) recipient1@sourceforge.net;recipient2@sourceforge.net (Recipient two)";
+
+            mailTask.Mailhost = _mailhost;
+            mailTask.Port = _port;
+            mailTask.From = _from;
+            mailTask.ToList = _tolist;
+            mailTask.Subject = _subject;
+            mailTask.Message = _message;
+            mailTask.CcList = _cclist;
+            mailTask.BccList = _bcclist;
+
+            mailTask.Execute();
+
+            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+        }
+    }
+}
+
 #if false
 using System;
 using System.Collections.Specialized;
