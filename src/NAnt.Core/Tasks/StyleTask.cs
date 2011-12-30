@@ -107,6 +107,7 @@ namespace NAnt.Core.Tasks {
         private Uri _xsltFile;
         private FileInfo _srcFile;
         private FileInfo _outputFile;
+        private bool _newEngine;
         private FileSet _inFiles = new FileSet();
         private XsltParameterCollection _xsltParameters = new XsltParameterCollection();
         private XsltExtensionObjectCollection _xsltExtensions = new XsltExtensionObjectCollection();
@@ -169,6 +170,18 @@ namespace NAnt.Core.Tasks {
         public FileInfo OutputFile {
             get { return _outputFile; }
             set { _outputFile = value; }
+        }
+
+        /// <summary>
+        /// Specifies the transform class in the .NET Framework to be used.
+		/// The older engine has slightly different semantics
+		/// (see http://stackoverflow.com/questions/5032347/xslt-stylesheet-replaces-self-closing-tags-with-empty-paired-tags)
+		/// If FALSE (default), use System.Xml.XslTransform.  If TRUE, use System.Xml.XslCompiledTransform.
+        /// </summary>
+        [TaskAttribute("newengine", Required=false)]
+        public bool UseNewTransformEngine {
+            get { return _newEngine; }
+            set { _newEngine = value;  }
         }
 
         /// <summary>
@@ -343,9 +356,6 @@ namespace NAnt.Core.Tasks {
                             }
                         }
 
-                        // initialize XSLT transform
-                        XslTransform xslt = new XslTransform();
-
                         try {
                             if (XsltFile.IsFile) {
                                 // change current directory to directory containing
@@ -358,7 +368,6 @@ namespace NAnt.Core.Tasks {
                             // load the stylesheet
                             Log(Level.Verbose, "Loading stylesheet '{0}'.", XsltFile);
                             xslReader = CreateXmlReader(XsltFile);
-                            xslt.Load(xslReader);
 
                             // create writer for the destination xml
                             writer = CreateWriter(destInfo.FullName);
@@ -366,7 +375,27 @@ namespace NAnt.Core.Tasks {
                             // do the actual transformation 
                             Log(Level.Info, "Processing '{0}' to '{1}'.", 
                                 srcInfo.FullName, destInfo.FullName);
-                            xslt.Transform(xml, xsltArgs, writer);
+                            if (UseNewTransformEngine) {
+                                XslCompiledTransform xslt = new XslCompiledTransform();
+                                
+                                Log(Level.Verbose, "Using XslCompiledTransform to load '{0}'.",
+                                    XsltFile);
+                                xslt.Load(xslReader);
+                                
+                                Log(Level.Verbose, "Using XslCompiledTransform to process '{0}' to '{1}'.",
+                                    srcInfo.FullName, destInfo.FullName);
+                                xslt.Transform(xml, xsltArgs, writer);
+                            } else {
+                                XslTransform xslt = new XslTransform();
+                                
+                                Log(Level.Verbose, "Using XslTransform to load '{0}'.",
+                                    XsltFile);
+                                xslt.Load(xslReader);
+
+                                Log(Level.Verbose, "Using XslTransform to process '{0}' to '{1}'.",
+                                    srcInfo.FullName, destInfo.FullName);
+                                xslt.Transform(xml, xsltArgs, writer);
+                            }
                         } finally {
                             // restore original current directory
                             Directory.SetCurrentDirectory(originalCurrentDirectory);
