@@ -128,7 +128,20 @@ namespace NAnt.Core {
             ExtensionAssembly extensionAssembly = new ExtensionAssembly (
                 assembly);
 
-            foreach (Type type in assembly.GetTypes()) {
+            Type[] types;
+
+            try {
+                types = assembly.GetTypes();
+            }
+            catch(ReflectionTypeLoadException ex) {
+                if(ex.LoaderExceptions != null && ex.LoaderExceptions.Length > 0) {
+                    throw ex.LoaderExceptions[0];
+                }
+
+                throw;
+            }
+
+            foreach (Type type in types) {
                 //
                 // each extension type is exclusive, meaning a given type 
                 // cannot be both a task and data type
