@@ -36,7 +36,7 @@ namespace Tests.NAnt.Core.Tasks
 {
 
     [TestFixture]
-    public class MailTaskTest
+    public class MailTaskTest : BuildTestBase
     {
 
         #region Private Static Fields
@@ -168,7 +168,7 @@ namespace Tests.NAnt.Core.Tasks
         /// <summary>
         /// Contains the Port number for the fake smtp server to listen on.
         /// </summary>
-        int _port = _portRand.Next(50000, 60000);
+        int _port;
 
         /// <summary>
         /// Contains the complete paths of the files used during testing.
@@ -291,12 +291,15 @@ namespace Tests.NAnt.Core.Tasks
         [TestFixtureSetUp]
         public void Init()
         {
+            // Assign the fake smtp port
+            _port = _portRand.Next(50000, 60000);
+            
             // Starts up the fake smtp server.
             _smtpServer = SimpleSmtpServer.Start(_port);
 
             // Gets the current executing version of NAnt to use for some
             // of the test emails.
-            NAntVersion = Assembly.GetExecutingAssembly().GetName().Version();
+            _nantVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
             // Setup the temp directory
             _tempPath = Path.Combine(Path.GetTempPath(), "NAntEmailTesting");
@@ -337,9 +340,9 @@ namespace Tests.NAnt.Core.Tasks
             }
         }
 
-        [SetUp]
-        public void SetUp()
+        protected override void SetUp()
         {
+            base.SetUp();
             // Clears out any existing emails in the fake smtp server
             // before running the next test.
             _smtpServer.ClearReceivedEmail();
@@ -358,7 +361,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "SimpleEmailTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -382,7 +385,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "SimpleNameEmailWithParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -406,7 +409,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "SimpleEmailNameWithParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -430,7 +433,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "SimpleNameEmailWithAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -454,7 +457,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "SimpleEmailNameWithAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -482,7 +485,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoToEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -493,7 +496,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -506,7 +509,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyToEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -517,7 +520,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -530,7 +533,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoToNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -541,7 +544,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -554,7 +557,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyToNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -565,7 +568,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -578,7 +581,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoToNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -589,7 +592,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -602,7 +605,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyToNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -613,7 +616,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -625,7 +628,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoToEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -636,7 +639,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -648,7 +651,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyToEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -659,7 +662,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -672,7 +675,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoToEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -683,7 +686,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -696,7 +699,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyToEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -707,7 +710,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         #endregion Mulitple To Email Test Methods
@@ -724,7 +727,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoCcEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -735,7 +738,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -748,7 +751,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyCcEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -759,7 +762,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -772,7 +775,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoCcNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -783,7 +786,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -796,7 +799,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyCcNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -807,7 +810,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -820,7 +823,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoCcNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -831,7 +834,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -844,7 +847,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyCcNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -855,7 +858,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -868,7 +871,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoCcEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -879,7 +882,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -892,7 +895,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyCcEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -903,7 +906,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -916,7 +919,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoCcEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -927,7 +930,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -940,7 +943,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyCcEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -951,7 +954,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         #endregion Mulitple CC Email Test Methods
@@ -968,7 +971,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoBccEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -979,7 +982,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -992,7 +995,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyBccEmailAddressesTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1003,7 +1006,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1016,7 +1019,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoBccNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1027,7 +1030,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1040,7 +1043,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyBccNamesAndEmailAddressesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1051,7 +1054,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1064,7 +1067,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoBccNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1075,7 +1078,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1088,7 +1091,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyBccNamesAndEmailAddressesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1099,7 +1102,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1112,7 +1115,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoBccEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1123,7 +1126,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1136,7 +1139,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyBccEmailAddressesAndNamesInParenthesisTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1147,7 +1150,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1160,7 +1163,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "TwoBccEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1171,7 +1174,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1184,7 +1187,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "ManyBccEmailAddressesAndNamesInAngleBracketsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1195,7 +1198,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         #endregion Mulitple BCC Email Test Methods
@@ -1212,7 +1215,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "AllRecipientListsTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1225,7 +1228,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(6, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1236,26 +1239,28 @@ namespace Tests.NAnt.Core.Tasks
         public void MixedEmailFormatTest()
         {
             string methodName = "MixedEmailFormatTest()";
-
-            MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
-
-            mailTask.Mailhost = _mailHost;
-            mailTask.Port = _port;
-            mailTask.From = _fromEmail;
-            mailTask.ToList =
-                CreateEmailListString(
+            string[] toEmails = new string[]
+            {
                 CreateEmailListString(_twoEmails),
                 CreateEmailListString(_twoAngleBracketsNameEmails),
                 CreateEmailListString(_twoParenthesisEmailNames),
                 CreateEmailListString(_twoAngleBracketsEmailNames),
-                CreateEmailListString(_twoParenthesisNameEmails));
+                CreateEmailListString(_twoParenthesisNameEmails)
+            };
+
+            MailTask mailTask = new MailTask();
+            mailTask.Project = CreateEmptyProject();
+
+            mailTask.Mailhost = _mailHost;
+            mailTask.Port = _port;
+            mailTask.From = _fromEmail;
+            mailTask.ToList = CreateEmailListString(toEmails);
             mailTask.Subject = String.Format(_subjectText, methodName);
             mailTask.Message = CreateSampleEmailMessage(methodName);
 
             mailTask.Execute();
 
-            Assert.AreEqual(10, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         #endregion Misc Email Test Methods
@@ -1274,7 +1279,7 @@ namespace Tests.NAnt.Core.Tasks
             fileSet.FileNames.AddRange(_files.ToArray());
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1285,7 +1290,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1300,7 +1305,7 @@ namespace Tests.NAnt.Core.Tasks
             fileSet.FileNames.AddRange(_files.ToArray());
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1312,7 +1317,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         /// <summary>
@@ -1326,7 +1331,7 @@ namespace Tests.NAnt.Core.Tasks
             fileSet.FileNames.AddRange(_files.ToArray());
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1338,7 +1343,7 @@ namespace Tests.NAnt.Core.Tasks
 
             mailTask.Execute();
 
-            Assert.AreEqual(2, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
         }
 
         #endregion Email With External Files Test Methods
@@ -1355,7 +1360,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "BadEmailTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1378,7 +1383,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "BadAngleBracketNameEmailTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1401,7 +1406,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "BadAngleBracketEmailNameTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1424,7 +1429,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "BadParenthesisNameEmailTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1447,7 +1452,7 @@ namespace Tests.NAnt.Core.Tasks
             string methodName = "BadParenthesisEmailNameTest()";
 
             MailTask mailTask = new MailTask();
-            mailTask.Project = new Project();
+            mailTask.Project = CreateEmptyProject();
 
             mailTask.Mailhost = _mailHost;
             mailTask.Port = _port;
@@ -1547,22 +1552,6 @@ namespace Tests.NAnt.Core.Tasks
         private string CreateEmailListString(string[] emails)
         {
             return String.Join(";", emails);
-        }
-
-        /// <summary>
-        /// Joins two or more email list strings that have already been formatted
-        /// to use to send test emails.
-        /// </summary>
-        /// <param name='emailLists'>
-        /// Two or more email list strings.  These strings should contain email
-        /// addresses that have been separated by semicolons.
-        /// </param>
-        /// <returns>
-        /// A new list of email addresses separated by a semicolon.
-        /// </returns>
-        private string CreateEmailListString(params string[] emails)
-        {
-            return CreateEmailListString(emails);
         }
 
         #endregion Private Instance Methods
