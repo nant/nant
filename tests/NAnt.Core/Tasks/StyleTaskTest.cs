@@ -40,7 +40,9 @@ namespace Tests.NAnt.Core.Tasks {
 
         private string _xmlSrcFileName = "source";
         private string _xmlSrcFile2Name = "source2";
+        private string _xmlSingletonFileName = "singleton";
         private string _xslSrcFileName = "transform";
+        private string _xslPassthroughSrcFileName = "passthrough";
 
         private string _xmlSrcFileExtension = "xml";
         private string _xslSrcFileExtension = "xsl";
@@ -48,7 +50,9 @@ namespace Tests.NAnt.Core.Tasks {
 
         private string _xmlSrcFileNameFull;
         private string _xmlSrcFile2NameFull;
+        private string _xmlSingletonSrcFileNameFull;
         private string _xslSrcFileNameFull;
+        private string _xslPassthroughSrcFileNameFull;
 
         #endregion Private Instance Fields
 
@@ -66,7 +70,8 @@ namespace Tests.NAnt.Core.Tasks {
                 </cd>
             </catalog>";
 
-        private const string _xslSrcFile = @"<?xml version=""1.0"" encoding=""ISO-8859-1""?>
+        private const string _xslSrcFile = 
+        @"<?xml version=""1.0"" encoding=""ISO-8859-1""?>
             <xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">
             
             <xsl:template match=""/"">
@@ -88,9 +93,36 @@ namespace Tests.NAnt.Core.Tasks {
                 </body>
                 </html>
             </xsl:template>
-        
-            </xsl:stylesheet>";
+        </xsl:stylesheet>";
 
+        /// <summary>
+        /// A simple xml input file that includes a singleton tag for passthrough testing (see XSL below)
+        /// </summary>
+        private const string _xmlSingletonSrcFile = 
+        @"<roleManager defaultProvider=""sampleprovider"">
+            <providers>
+                <clear />
+                <add name=""samplename"" type=""sampletype"" />
+            </providers>
+        </roleManager>";
+
+        /// <summary>
+        /// A passthrough transform, similar to those used for config file transforms (e.g., XDT)
+        /// This is to make sure that MS-sensitive singleton elements are properly maintained during passthrough
+        /// </summary>
+        private const string _xslPassthroughSrcFile = @"
+        <xsl:stylesheet version=""1.0"" xmlns:xsl=""http://www.w3.org/1999/XSL/Transform"">
+            <xsl:output method=""xml"" indent=""yes"" encoding=""UTF-8""/>
+            <!-- copy entire source -->
+            <xsl:template match=""@* | node()"">
+                <xsl:copy>
+                    <xsl:apply-templates select=""@* | node()""/>
+                </xsl:copy> 
+            </xsl:template>
+            <xsl:template match=""roleManager/providers/add[@name='samplename']/@type"">
+                <xsl:attribute name=""type"">xslttype</xsl:attribute>
+            </xsl:template>
+        </xsl:stylesheet>";
         #endregion Private Static Fields
 
         #region Override implementation of BuildTestBase
@@ -102,8 +134,12 @@ namespace Tests.NAnt.Core.Tasks {
             TempFile.CreateWithContents(_xmlSrcFile, _xmlSrcFileNameFull);
             _xmlSrcFile2NameFull = Path.Combine(TempDirName, _xmlSrcFile2Name + "." + _xmlSrcFileExtension);
             TempFile.CreateWithContents(_xmlSrcFile, _xmlSrcFile2NameFull);
-            _xslSrcFileNameFull = Path.Combine(TempDirName,  _xslSrcFileName + "." + _xslSrcFileExtension);
+            _xmlSingletonSrcFileNameFull = Path.Combine(TempDirName, _xmlSingletonFileName + "." + _xmlSrcFileExtension);
+            TempFile.CreateWithContents(_xmlSingletonSrcFile, _xmlSingletonSrcFileNameFull);
+            _xslSrcFileNameFull = Path.Combine(TempDirName, _xslSrcFileName + "." + _xslSrcFileExtension);
             TempFile.CreateWithContents(_xslSrcFile, _xslSrcFileNameFull);
+            _xslPassthroughSrcFileNameFull = Path.Combine(TempDirName, _xslPassthroughSrcFileName + "." + _xslSrcFileExtension);
+            TempFile.CreateWithContents(_xslPassthroughSrcFile, _xslPassthroughSrcFileNameFull);
         }
 
         #endregion Override implementation of BuildTestBase
@@ -398,6 +434,33 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
+        [Test]
+        public void TransformEngineTests() {
+            // With old engine (XslTransform), singleton tag is written as begin/end tag pair
+            TransformEngineTest(false, @"</clear>");
+
+            // With new engine (XslCompiledTransform), singleton tag is preserved
+            TransformEngineTest(true, @"<clear />");
+        }
+
+        private void TransformEngineTest(bool newEngine, string outputContains) {
+            string _xml = @"
+                <project>
+                    <style style='{0}' in='{1}' out='{2}' newengine='{3}' />
+                </project>";
+
+            string outputFile = Path.Combine(TempDirName, string.Format(@"{0}-{1}.{2}", _xmlSingletonFileName, newEngine.ToString(), _outputFileExtension));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslPassthroughSrcFileNameFull, _xmlSingletonSrcFileNameFull, outputFile, newEngine ? "true" : "false"));
+
+            // ensure output file contains expected content
+            using (StreamReader sr = new StreamReader(File.OpenRead(outputFile))) {
+                string result = sr.ReadToEnd();
+                string msg = string.Format(@"Output file {0} must contain '{1}', contents: {2}", outputFile, outputContains, result);
+                Assert.IsTrue(result.Contains(outputContains), msg);
+            }
+        }
+
         #endregion Public Instance Methods
+
     }
 }

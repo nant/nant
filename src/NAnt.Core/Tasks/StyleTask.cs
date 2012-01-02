@@ -174,9 +174,9 @@ namespace NAnt.Core.Tasks {
 
         /// <summary>
         /// Specifies the transform class in the .NET Framework to be used.
-		/// The older engine has slightly different semantics
-		/// (see http://stackoverflow.com/questions/5032347/xslt-stylesheet-replaces-self-closing-tags-with-empty-paired-tags)
-		/// If FALSE (default), use System.Xml.XslTransform.  If TRUE, use System.Xml.XslCompiledTransform.
+        /// The older engine has slightly different semantics
+        /// (see http://stackoverflow.com/questions/5032347/xslt-stylesheet-replaces-self-closing-tags-with-empty-paired-tags)
+        /// If FALSE (default), use System.Xml.XslTransform.  If TRUE, use System.Xml.XslCompiledTransform.
         /// </summary>
         [TaskAttribute("newengine", Required=false)]
         public bool UseNewTransformEngine {
