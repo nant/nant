@@ -20,6 +20,7 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -106,10 +107,10 @@ namespace Tests.NAnt.Core.Tasks
         /// Invalid (name) Email address pair to use for single email scenario testing.
         /// </summary>
         /// <remarks>
-        /// There is no space between the name and email address.
+        /// The email address is surrounded by brackets.
         /// </remarks>
         private const string _badParenthesisNameEmail =
-            "(Jake Example)jake@example.com";
+            "(Jake Example) [jake@example.com]";
 
         /// <summary>
         /// Invalid name &lt;Email address&gt; pair to use for single email
@@ -497,6 +498,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -521,6 +523,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -545,6 +548,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -569,6 +573,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -593,6 +598,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -617,6 +623,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -640,6 +647,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -663,6 +671,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -687,6 +696,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -711,6 +721,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         #endregion Mulitple To Email Test Methods
@@ -739,6 +750,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(2, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -763,6 +785,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(6, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -787,6 +820,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(2, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -811,6 +855,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(6, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -835,6 +890,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(2, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -859,6 +925,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(6, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -883,6 +960,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(2, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -907,6 +995,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(6, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -931,6 +1030,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(2, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         /// <summary>
@@ -955,6 +1065,17 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            
+            if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+            {
+                string[] ccEmails = GetCcAddressesFromSentMail();
+                
+                Assert.AreEqual(6, ccEmails.Length);
+            }
+            else
+            {
+                Assert.Fail("Test email did not contain addresses in the CC line");
+            }
         }
 
         #endregion Mulitple CC Email Test Methods
@@ -983,6 +1104,8 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
+            
         }
 
         /// <summary>
@@ -1007,6 +1130,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1031,6 +1155,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1055,6 +1180,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1079,6 +1205,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1103,6 +1230,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1127,6 +1255,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1151,6 +1280,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1175,6 +1305,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(2, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         /// <summary>
@@ -1199,6 +1330,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         #endregion Mulitple BCC Email Test Methods
@@ -1229,6 +1361,8 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(6, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
+            Assert.AreEqual(2, GetCcAddressesFromSentMail().Length);
         }
 
         /// <summary>
@@ -1261,6 +1395,7 @@ namespace Tests.NAnt.Core.Tasks
             mailTask.Execute();
 
             Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(10, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
         }
 
         #endregion Misc Email Test Methods
@@ -1493,7 +1628,7 @@ namespace Tests.NAnt.Core.Tasks
                 .AppendLine();
             msg.AppendLine();
             msg.AppendFormat(CultureInfo.InvariantCulture,
-                "This test was conducted on {0} using NAnt version: {0}.",
+                "This test was conducted on {0} using NAnt version: {1}.",
                 DateTime.Now, _nantVersion)
                 .AppendLine();
 
@@ -1525,7 +1660,7 @@ namespace Tests.NAnt.Core.Tasks
                 "It is ok to delete this file after NAnt's test suite finishes its run.");
             msg.AppendLine();
             msg.AppendFormat(CultureInfo.InvariantCulture,
-                "This file was conducted on {0} using NAnt version: {0}.",
+                "This file was conducted on {0} using NAnt version: {1}.",
                 DateTime.Now, _nantVersion)
                 .AppendLine();
 
@@ -1552,6 +1687,34 @@ namespace Tests.NAnt.Core.Tasks
         private string CreateEmailListString(string[] emails)
         {
             return String.Join(";", emails);
+        }
+        
+        /// <summary>
+        /// Retrieves the CC addresses from the first email that was
+        /// received by the fake smtp server.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> array of email addresses that
+        /// were in the CC line of the first email received by the fake
+        /// smtp server.  If the email did not contain email addresses in
+        /// the CC line, an empty <see cref="System.String" /> array is 
+        /// returned.
+        /// </returns>
+        private string[] GetCcAddressesFromSentMail()
+        {
+            if (_smtpServer.ReceivedEmailCount > 0)
+            {
+                if (_smtpServer.ReceivedEmail[0].Headers.ContainsKey("Cc"))
+                {
+                    string ccEmails = 
+                        _smtpServer.ReceivedEmail[0].Headers["Cc"].ToString();
+                    
+                    return ccEmails.Split(',',';');
+                }
+                return new string[0];
+            }
+            // This should not be reached...
+            throw new ArgumentNullException("Test smtp server has not yet received emails");
         }
 
         #endregion Private Instance Methods
