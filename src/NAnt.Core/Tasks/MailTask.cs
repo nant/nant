@@ -468,7 +468,14 @@ namespace NAnt.Core.Tasks {
                 }
                 else
                 {
-                    smtp.UseDefaultCredentials = true;
+                    if (PlatformHelper.IsMono)
+                    {
+                        smtp.Credentials = new NetworkCredential();
+                    }
+                    else
+                    {
+                        smtp.UseDefaultCredentials = true;
+                    }
                 }
 
                 // Set the ssl and the port information.
