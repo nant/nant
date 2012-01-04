@@ -468,6 +468,11 @@ namespace NAnt.Core.Tasks {
                 }
                 else
                 {
+                    // Mono does not implement the UseDefaultCredentials
+                    // property in the SmtpClient class.  So only set the
+                    // property when NAnt is run on .NET.  Otherwise,
+                    // use an emtpy NetworkCredential object as the
+                    // SmtpClient credentials.
                     if (PlatformHelper.IsMono)
                     {
                         smtp.Credentials = new NetworkCredential();
