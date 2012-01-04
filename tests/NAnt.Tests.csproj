@@ -58,6 +58,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\lib\net\1.0\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="netDumbster">
+      <HintPath>..\lib\common\neutral\netDumbster.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\src\CommonAssemblyInfo.cs">
@@ -110,7 +113,7 @@
     <Compile Include="NAnt.Core\Tasks\IncludeTaskTest.cs" />
     <Compile Include="NAnt.Core\Tasks\LoadTasksTest.cs" />
     <Compile Include="NAnt.Core\Tasks\LoopTest.cs" />
-    <None Include="NAnt.Core\Tasks\MailTaskTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\MailTaskTest.cs" />
     <Compile Include="NAnt.Core\Tasks\MkDirTest.cs" />
     <Compile Include="NAnt.Core\Tasks\MoveTest.cs" />
     <Compile Include="NAnt.Core\Tasks\NAntTaskTest.cs" />
