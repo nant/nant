@@ -436,27 +436,20 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void TransformEngineTests() {
-            // With old engine (XslTransform), singleton tag is written as begin/end tag pair
-            TransformEngineTest(false, @"</clear>");
-
+            // Old engine (XslTransform) would inappropriately convert singleton tags to start/end pairs.
+            // This would cause errors with sensitive readers like ConfigurationManager.AppSettings
             // With new engine (XslCompiledTransform), singleton tag is preserved
-            TransformEngineTest(true, @"<clear />");
-        }
+            // See Github Issue 17 for details (https://github.com/nant/nant/issues/17)
+            string expected = @"<clear />";
 
-        private void TransformEngineTest(bool newEngine, string outputContains) {
-            string _xml = @"
-                <project>
-                    <style style='{0}' in='{1}' out='{2}' newengine='{3}' />
-                </project>";
-
-            string outputFile = Path.Combine(TempDirName, string.Format(@"{0}-{1}.{2}", _xmlSingletonFileName, newEngine.ToString(), _outputFileExtension));
-            RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslPassthroughSrcFileNameFull, _xmlSingletonSrcFileNameFull, outputFile, newEngine ? "true" : "false"));
+            string outputFile = Path.Combine(TempDirName, string.Format(@"{0}.{1}", _xmlSingletonFileName, _outputFileExtension));
+            RunBuild(String.Format(CultureInfo.InvariantCulture, _projectXml, _xmlSingletonSrcFileNameFull, outputFile, _xslPassthroughSrcFileNameFull));
 
             // ensure output file contains expected content
             using (StreamReader sr = new StreamReader(File.OpenRead(outputFile))) {
                 string result = sr.ReadToEnd();
-                string msg = string.Format(@"Output file {0} must contain '{1}', contents: {2}", outputFile, outputContains, result);
-                Assert.IsTrue(result.Contains(outputContains), msg);
+                string msg = string.Format(@"Output file {0} must contain '{1}', contents: {2}", outputFile, expected, result);
+                Assert.IsTrue(result.Contains(expected), msg);
             }
         }
 
