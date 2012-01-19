@@ -468,7 +468,19 @@ namespace NAnt.Core.Tasks {
                 }
                 else
                 {
-                    smtp.UseDefaultCredentials = true;
+                    // Mono does not implement the UseDefaultCredentials
+                    // property in the SmtpClient class.  So only set the
+                    // property when NAnt is run on .NET.  Otherwise,
+                    // use an emtpy NetworkCredential object as the
+                    // SmtpClient credentials.
+                    if (PlatformHelper.IsMono)
+                    {
+                        smtp.Credentials = new NetworkCredential();
+                    }
+                    else
+                    {
+                        smtp.UseDefaultCredentials = true;
+                    }
                 }
 
                 // Set the ssl and the port information.
@@ -520,8 +532,11 @@ namespace NAnt.Core.Tasks {
         /// The content of the specified file.
         /// </returns>
         private string ReadFile(string filename) {
-            using (StreamReader reader = new StreamReader(File.OpenRead(filename))) {
-                return reader.ReadToEnd();
+            using (StreamReader reader = new StreamReader(File.OpenRead(filename))) 
+            {
+                string result = reader.ReadToEnd();
+                reader.Close();
+                return result;
             }
         }
 
@@ -615,6 +630,10 @@ namespace NAnt.Core.Tasks {
             // normal string.  Makes validation easier.
             string plainAddress = UnescapeXmlCodes(address);
             
+            // Local vars to temporarily hold names and email addresses
+            string resultingName = null;
+            string resultingEmail = null;
+            
             // String array containing all of the regex strings used to
             // locate the email address in the parameter string.
             string[] validators = new string[]
@@ -629,10 +648,7 @@ namespace NAnt.Core.Tasks {
                 @"^\((?<fullname>.+)\)\s(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)$",
                 
                 // Format: address@abcxyz.com (Full Name)
-                @"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$",
-                
-                // Format: address@abcxyz.com
-                @"(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^<>\(\)\s]+)"
+                @"^(?<email>[^<>\(\)\s]+@[^<>\(\)\s]+\.[^\s]+)\s\((?<fullname>.+)\)$"
             };
             
             // Loop through each regex string to find the one that the
@@ -645,29 +661,58 @@ namespace NAnt.Core.Tasks {
                 Regex currentRegex = new Regex(reg);
                 Match email = currentRegex.Match(plainAddress);
                 
-                // If the match is considered successful, return
-                // a new MailAddress object.  If a name was 
-                // paired with an email address in the parameter,
-                // add it to the MailAddress object that is returned.
+                // If the match is considered successful, load
+                // the temp string vars with the found email/fullname 
+                // information to use when creating a new MailAddress
+                // object.  Then break from the loop.
                 if (email.Success)
                 {
-                    if (email.Groups["fullname"].Success)
-                    {
-                        return new MailAddress(
-                            email.Groups["email"].Value.Trim(),
-                            email.Groups["fullname"].Value.Trim());
-                    }
-                    
-                    return new MailAddress(email.Groups["email"].Value.Trim());
+                    resultingEmail = email.Groups["email"].Value.Trim();
+                    resultingName = email.Groups["fullname"].Value.Trim();
+                    break;
                 }
             }
             
-            // If none of the regex strings matches the address parameter,
+            try 
+            {
+                // Setup a new MailAddress to return.
+                MailAddress result;
+                
+                // If both the temp name and email string vars contain values, initialize
+                // the result MailAddress var with both values.
+                if (!String.IsNullOrEmpty(resultingName) && !String.IsNullOrEmpty(resultingEmail))
+                {
+                    result = new MailAddress(resultingEmail, resultingName);
+                }
+                // If only the temp email string var contains a value, initialize
+                // the result MailAddress var with just that value
+                else if (!String.IsNullOrEmpty(resultingEmail))
+                {
+                    result = new MailAddress(resultingEmail);
+                }
+                // Otherwise, try initializing the result MailAddress var with the original
+                // address that was passed to the method.
+                else
+                {
+                    result = new MailAddress(plainAddress);
+                }
+                // Return the result.
+                return result;
+            }
+            // If the MailAddress var throws a Format exception because of a bad email address,
             // throw a build exception.
-            throw new BuildException(
-                String.Format(CultureInfo.InvariantCulture,
-                              "{0} is not a recognized email address",
-                              address));
+            catch (FormatException)
+            {
+                throw new BuildException(
+                    String.Format(CultureInfo.InvariantCulture,
+                    "{0} is not a recognized email address",
+                    plainAddress));
+            }
+            // Rethrow any other exceptions.
+            catch (Exception) 
+            {
+                throw;
+            }
         }
 
         /// <summary>
