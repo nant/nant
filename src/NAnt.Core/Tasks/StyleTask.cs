@@ -343,9 +343,6 @@ namespace NAnt.Core.Tasks {
                             }
                         }
 
-                        // initialize XSLT transform
-                        XslTransform xslt = new XslTransform();
-
                         try {
                             if (XsltFile.IsFile) {
                                 // change current directory to directory containing
@@ -358,7 +355,6 @@ namespace NAnt.Core.Tasks {
                             // load the stylesheet
                             Log(Level.Verbose, "Loading stylesheet '{0}'.", XsltFile);
                             xslReader = CreateXmlReader(XsltFile);
-                            xslt.Load(xslReader);
 
                             // create writer for the destination xml
                             writer = CreateWriter(destInfo.FullName);
@@ -366,6 +362,16 @@ namespace NAnt.Core.Tasks {
                             // do the actual transformation 
                             Log(Level.Info, "Processing '{0}' to '{1}'.", 
                                 srcInfo.FullName, destInfo.FullName);
+
+                            XslCompiledTransform xslt = new XslCompiledTransform();
+                            string xslEngineName = xslt.GetType().Name;
+                                
+                            Log(Level.Verbose, "Using {0} to load '{1}'.",
+                                xslEngineName, XsltFile);
+                            xslt.Load(xslReader, new XsltSettings { EnableDocumentFunction = true, EnableScript = true }, new XmlUrlResolver() );
+                                
+                            Log(Level.Verbose, "Using {0} to process '{1}' to '{2}'.",
+                                xslEngineName, srcInfo.FullName, destInfo.FullName);
                             xslt.Transform(xml, xsltArgs, writer);
                         } finally {
                             // restore original current directory
