@@ -17,9 +17,11 @@
 //
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
 // Tomas Restrepo (tomasr@mvps.org)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -31,7 +33,7 @@ using System.Xml.Xsl;
 using System.Xml.XPath;
 
 using NUnit.Core;
-using TestCase = NUnit.Core.TestCase;
+using NUnit.Core.Filters;
 using TestOutput = NUnit.Core.TestOutput;
 using NUnit.Framework;
 using NUnit.Util;
@@ -45,7 +47,7 @@ using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
-    /// Runs tests using the NUnit V2.2 framework.
+    /// Runs tests using the NUnit V2.6 framework.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -127,8 +129,10 @@ namespace NAnt.NUnit2.Tasks {
         #region Private Instance Fields
 
         private bool _haltOnFailure = false;
-        private NUnit2TestCollection _tests = new NUnit2TestCollection();
-        private FormatterElementCollection _formatterElements = new FormatterElementCollection();
+        private List<NUnit2Test> _tests = new List<NUnit2Test>();
+        private List<FormatterElement> _formatterElements = new List<FormatterElement>();
+        //private NUnit2TestCollection _tests = new NUnit2TestCollection();
+        //private FormatterElementCollection _formatterElements = new FormatterElementCollection();
 
         #endregion Private Instance Fields
 
@@ -148,7 +152,7 @@ namespace NAnt.NUnit2.Tasks {
         /// Tests to run.
         /// </summary>
         [BuildElementArray("test")]
-        public NUnit2TestCollection Tests {
+        public List<NUnit2Test> Tests {
             get { return _tests; }
         }
 
@@ -156,7 +160,7 @@ namespace NAnt.NUnit2.Tasks {
         /// Formatters to output results of unit tests.
         /// </summary>
         [BuildElementArray("formatter")]
-        public FormatterElementCollection FormatterElements {
+        public List<FormatterElement> FormatterElements {
             get { return _formatterElements; }
         }
 
@@ -189,57 +193,73 @@ namespace NAnt.NUnit2.Tasks {
             EventListener listener = new EventCollector(logWriter, logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
-                IFilter categoryFilter = null;
+                ITestFilter testFilter = null;
 
                 // include or exclude specific categories
-                string categories = testElement.Categories.Includes.ToString();
-                if (!String.IsNullOrEmpty(categories)) {
-                    categoryFilter = new CategoryFilter(categories.Split(','), false);
-                } else {
-                    categories = testElement.Categories.Excludes.ToString();
-                    if (!String.IsNullOrEmpty(categories)) {
-                        categoryFilter = new CategoryFilter(categories.Split(','), true);
+                string includes = testElement.Categories.Includes.ToString();
+                if (!String.IsNullOrEmpty(includes))
+                {
+                    testFilter = new CategoryFilter(includes.Split(','));
+                }
+                else
+                {
+                    string excludes = testElement.Categories.Excludes.ToString();
+                    if (!String.IsNullOrEmpty(excludes))
+                    {
+                        ITestFilter excludeFilter = new CategoryFilter(excludes.Split(','));
+                        testFilter = new NotFilter(excludeFilter);
+                    }
+                    else
+                    {
+                        testFilter = TestFilter.Empty;
                     }
                 }
 
                 foreach (string testAssembly in testElement.TestAssemblies) {
                     NUnit2TestDomain domain = new NUnit2TestDomain();
+                    TestPackage package = new TestPackage(testAssembly);
 
                     try {
+                        bool successfulLoad;
                         TestRunner runner = domain.CreateRunner(
                             new FileInfo(testAssembly),
                             testElement.AppConfigFile,
                             testElement.References.FileNames);
 
-                        Test test = null;
-                        if (testElement.TestName != null) {
-                            test = runner.Load(testAssembly, testElement.TestName);
-                        } else {
-                            test = runner.Load(testAssembly);
+                        if (!String.IsNullOrEmpty(testElement.TestName))
+                        {
+                            package.TestName = testElement.TestName;
                         }
 
-                        if (test == null) {
-                            Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
-                                testAssembly);
-                            continue;
+                        successfulLoad = runner.Load(package);
+
+                        if (successfulLoad)
+                        {
+                            if (runner.Test == null) {
+                                Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
+                                    testAssembly);
+                                continue;
+                            }
+
+                            // Setup and run tests
+                            TestResult result =
+                                runner.Run(listener, testFilter,
+                                    true, GetLoggingThreshold());
+    
+                            // flush test output to log
+                            logWriter.Flush();
+    
+                            // format test results using specified formatters
+                            FormatResult(testElement, result);
+    
+                            if (result.IsFailure &&
+                                (testElement.HaltOnFailure || HaltOnFailure)) {
+                                throw new BuildException("Tests Failed.", Location);
+                            }
                         }
-
-                        // set category filter
-                        if (categoryFilter != null) {
-                            runner.Filter = categoryFilter;
-                        }
-
-                        // run test
-                        TestResult result = runner.Run(listener);
-
-                        // flush test output to log
-                        logWriter.Flush();
-
-                        // format test results using specified formatters
-                        FormatResult(testElement, result);
-
-                        if (result.IsFailure && (testElement.HaltOnFailure || HaltOnFailure)) {
-                            throw new BuildException("Tests Failed.", Location);
+                        else
+                        {
+                            throw new BuildException("Test Package Load Failed.", Location);
                         }
                     } catch (BuildException) {
                         // re-throw build exceptions
@@ -247,7 +267,12 @@ namespace NAnt.NUnit2.Tasks {
                     } catch (Exception ex) {
                         if (!FailOnError) {
                             // just log error and continue with next test
-                            Log(Level.Error, LogPrefix + "NUnit Error: " + ex.ToString());
+
+                            // TODO: (RMB) Need to make sure that this is the correct way to proceed with displaying NUnit errors.
+                            string logMessage =
+                                String.Concat("[", Name, "] NUnit Error: ", ex.ToString());
+
+                            Log(Level.Error, logMessage.PadLeft(Project.IndentationSize));
                             continue;
                         }
 
@@ -272,6 +297,44 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Methods
 
+        /// <summary>
+        /// Gets the logging threshold to use for a test runner based on
+        /// the current threshold of this task.
+        /// </summary>
+        /// <returns>
+        /// The logging threshold to use when running a test runner.
+        /// </returns>
+        private LoggingThreshold GetLoggingThreshold()
+        {
+            LoggingThreshold result;
+
+            // TODO: (RMB) May need to re-evaluate these mappings
+            switch (Threshold) {
+                case Level.None:
+                    result = LoggingThreshold.Fatal;
+                    break;
+                case Level.Info:
+                    result = LoggingThreshold.Info;
+                    break;
+                case Level.Verbose:
+                    result = LoggingThreshold.All;
+                    break;
+                case Level.Debug:
+                    result = LoggingThreshold.Debug;
+                    break;
+                case Level.Warning:
+                    result = LoggingThreshold.Warn;
+                    break;
+                case Level.Error:
+                    result = LoggingThreshold.Error;
+                    break;
+                default:
+                    result = LoggingThreshold.Off;
+                    break;
+            }
+            return result;
+        }
+
         private void FormatResult(NUnit2Test testElement, TestResult result) {
             // temp file for storing test results
             string xmlResultFile = Path.GetTempFileName();
@@ -280,9 +343,8 @@ namespace NAnt.NUnit2.Tasks {
             string outputFile = null;
 
             try {
-                XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
-                result.Accept(resultVisitor);
-                resultVisitor.Write();
+                XmlResultWriter resultWriter = new XmlResultWriter(xmlResultFile);
+                resultWriter.SaveTestResult(result);
 
                 foreach (FormatterElement formatter in FormatterElements) {
                     if (formatter.Type == FormatterType.Xml) {
@@ -351,7 +413,7 @@ namespace NAnt.NUnit2.Tasks {
 
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument(resultFile);
-            XslTransform summaryXslTransform = new XslTransform();
+            XslCompiledTransform summaryXslTransform = new XslCompiledTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
             summaryXslTransform.Transform(originalXPathDocument, null, writer);
@@ -360,7 +422,7 @@ namespace NAnt.NUnit2.Tasks {
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
             if (test.XsltFile == null) {
-                Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
+                Assembly assembly = Assembly.GetAssembly(typeof(XmlResultWriter));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Util.Transform", assembly);
                 string xmlData = (string) resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
@@ -378,7 +440,7 @@ namespace NAnt.NUnit2.Tasks {
         
         #endregion Private Instance Methods
 
-        private class EventCollector : LongLivingMarshalByRefObject, EventListener {
+        private class EventCollector : MarshalByRefObject, EventListener {
             private TextWriter outWriter;
             private TextWriter errorWriter;
             private string currentTestName;
@@ -389,27 +451,27 @@ namespace NAnt.NUnit2.Tasks {
                 this.currentTestName = string.Empty;
              }
 
-            public void RunStarted(Test[] tests) {
+            public void RunStarted( string name, int testCount ) {
             }
 
-            public void RunFinished(TestResult[] results) {
+            public void RunFinished(TestResult results) {
             }
 
             public void RunFinished(Exception exception) {
             }
 
-            public void TestFinished(TestCaseResult testResult) {
+            public void TestFinished(TestResult result) {
                 currentTestName = string.Empty;
             }
 
-            public void TestStarted(TestCase testCase) {
-                currentTestName = testCase.FullName;
+            public void TestStarted(TestName testName) {
+                currentTestName = testName.FullName;
             }
 
-            public void SuiteStarted(TestSuite suite) {
+            public void SuiteStarted(TestName testName) {
             }
 
-            public void SuiteFinished(TestSuiteResult suiteResult) {
+            public void SuiteFinished(TestResult result) {
             }
 
             public void UnhandledException( Exception exception ) {
@@ -427,6 +489,10 @@ namespace NAnt.NUnit2.Tasks {
                         errorWriter.Write(output.Text);
                         break;
                 }
+            }
+
+            public override object InitializeLifetimeService() {
+                return null;
             }
         }
     }

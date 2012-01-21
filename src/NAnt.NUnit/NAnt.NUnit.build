@@ -17,7 +17,6 @@
             </sources>
             <references>
                 <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths('nunit.framework.dll')}" />
             </references>
         </csc>
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NAnt.NUnit1Tasks.dll" doc="${build.dir}/bin/NAnt.NUnit1Tasks.xml">
@@ -58,6 +57,7 @@
                 <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.framework.dll')}" />
                 <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.core.dll')}" />
                 <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.util.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir + '/bin','nunit.core.interfaces.dll')}" />
             </references>
         </csc>
     </target>
