@@ -1,4 +1,4 @@
-<circles xmlns:myObj='urn:myObj'>
+<circles xmlns:Calculate='urn:Calculate'>
 <circle>
 <radius>12</radius>
 <circumference>75.398223686155</circumference>
