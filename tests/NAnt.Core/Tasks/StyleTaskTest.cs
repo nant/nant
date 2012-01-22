@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using NAnt.Core;
 using NUnit.Framework;
 
 using Tests.NAnt.Core.Util;
@@ -436,6 +436,13 @@ namespace Tests.NAnt.Core.Tasks {
 
         [Test]
         public void TransformEngineTests() {
+            // Mono apparently still outputs "<clear></clear> regardless if
+            // XslCompiledTransform is used or not.
+            if (PlatformHelper.IsMono) 
+            {
+                Assert.Ignore("Mono's XslCompiledTransform behaves the same way as XslTransform when handling start/end xml pairs");
+            }
+            
             // Old engine (XslTransform) would inappropriately convert singleton tags to start/end pairs.
             // This would cause errors with sensitive readers like ConfigurationManager.AppSettings
             // With new engine (XslCompiledTransform), singleton tag is preserved

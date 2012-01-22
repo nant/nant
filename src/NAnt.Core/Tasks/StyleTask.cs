@@ -368,7 +368,7 @@ namespace NAnt.Core.Tasks {
                                 
                             Log(Level.Verbose, "Using {0} to load '{1}'.",
                                 xslEngineName, XsltFile);
-                            xslt.Load(xslReader, new XsltSettings { EnableDocumentFunction = true, EnableScript = true }, new XmlUrlResolver() );
+                            xslt.Load(xslReader, new XsltSettings(true, true), new XmlUrlResolver() );
                                 
                             Log(Level.Verbose, "Using {0} to process '{1}' to '{2}'.",
                                 xslEngineName, srcInfo.FullName, destInfo.FullName);
