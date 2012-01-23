@@ -193,9 +193,11 @@ namespace NAnt.NUnit2.Tasks {
             EventListener listener = new EventCollector(logWriter, logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
+                // Setup the test filter var to setup include/exclude filters.
                 ITestFilter testFilter = null;
 
-                // include or exclude specific categories
+                // If the include categories contains values, setup the category
+                // filter with the include categories.
                 string includes = testElement.Categories.Includes.ToString();
                 if (!String.IsNullOrEmpty(includes))
                 {
@@ -203,6 +205,9 @@ namespace NAnt.NUnit2.Tasks {
                 }
                 else
                 {
+                    // If the include categories does not have includes but
+                    // contains excludes, setup the category filter with the excludes
+                    // and use the Not filter to tag the categories for exclude.
                     string excludes = testElement.Categories.Excludes.ToString();
                     if (!String.IsNullOrEmpty(excludes))
                     {
@@ -211,30 +216,42 @@ namespace NAnt.NUnit2.Tasks {
                     }
                     else
                     {
+                        // If the categories do not contain includes or excludes,
+                        // assign the testFilter var with an empty filter.
                         testFilter = TestFilter.Empty;
                     }
                 }
 
                 foreach (string testAssembly in testElement.TestAssemblies) {
+                    // Setup the NUnit2TestDomain var.
                     NUnit2TestDomain domain = new NUnit2TestDomain();
+                    // Setup the TestPackage var to use with the testrunner var
                     TestPackage package = new TestPackage(testAssembly);
 
                     try {
-                        bool successfulLoad;
+                        // Create the TestRunner var
                         TestRunner runner = domain.CreateRunner(
                             new FileInfo(testAssembly),
                             testElement.AppConfigFile,
                             testElement.References.FileNames);
 
+                        // If the name of the current test element is not null,
+                        // use it for the package test name.
                         if (!String.IsNullOrEmpty(testElement.TestName))
                         {
                             package.TestName = testElement.TestName;
                         }
 
-                        successfulLoad = runner.Load(package);
+                        // Bool var containing the result of loading the test package
+                        // in the TestRunner var.
+                        bool successfulLoad = runner.Load(package);
 
+                        // If the test package load was successful, proceed with the
+                        // testing.
                         if (successfulLoad)
                         {
+                            // If the runner does not contain any tests, proceed
+                            // to the next assembly.
                             if (runner.Test == null) {
                                 Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
                                     testAssembly);
@@ -264,6 +281,7 @@ namespace NAnt.NUnit2.Tasks {
                         }
                         else
                         {
+                            // If the package load failed, throw a build exception.
                             throw new BuildException("Test Package Load Failed.", Location);
                         }
                     } catch (BuildException) {
