@@ -365,18 +365,16 @@ namespace NAnt.NUnit2.Tasks {
             // temp file for storing test results
             string xmlResultFile = Path.GetTempFileName();
 
-            // permanent file for storing test results
-            string outputFile = null;
-
             try {
                 XmlResultWriter resultWriter = new XmlResultWriter(xmlResultFile);
                 resultWriter.SaveTestResult(result);
 
                 foreach (FormatterElement formatter in FormatterElements) {
+                    // permanent file for storing test results
+                    string outputFile = result.Name + "-results" + formatter.Extension;
+
                     if (formatter.Type == FormatterType.Xml) {
                         if (formatter.UseFile) {
-                            // determine file name for output file
-                            outputFile = result.Name + "-results" + formatter.Extension;
                                         
                             if (formatter.OutputDirectory != null) {
                                 // ensure output directory exists
@@ -406,8 +404,6 @@ namespace NAnt.NUnit2.Tasks {
                     } else if (formatter.Type == FormatterType.Plain) {
                         TextWriter writer;
                         if (formatter.UseFile) {
-                            // determine file name for output file
-                            outputFile = result.Name + "-results" + formatter.Extension;
 
                             if (formatter.OutputDirectory != null) {
                                 // ensure output directory exists
@@ -429,8 +425,8 @@ namespace NAnt.NUnit2.Tasks {
                     }
                 }
             } catch (Exception ex) {
-                throw new BuildException("Test results could not be" 
-                    + " formatted.", Location, ex);
+                throw new BuildException("Test results could not be formatted.", 
+                    Location, ex);
             } finally {
                 // make sure temp file with test results is removed
                 File.Delete(xmlResultFile);
