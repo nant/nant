@@ -435,16 +435,17 @@ namespace NAnt.NUnit2.Tasks {
 
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument(resultFile);
-            XslCompiledTransform summaryXslTransform = new XslCompiledTransform();
+            // Using XslTransform instead of XslCompiledTransform because the later
+            // display nunit output for unknown reasons.
+            XslTransform summaryXslTransform = new XslTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
             summaryXslTransform.Transform(originalXPathDocument, null, writer);
         }
-        
+
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
             if (test.XsltFile == null) {
-                // TODO: Re-evaluate this process as NUnit will probably not contain the "NUnit.Util.Transform" resource after 2.5.
                 Assembly assembly = Assembly.GetAssembly(typeof(XmlResultWriter));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Util.Transform", assembly);
                 string xmlData = (string) resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
