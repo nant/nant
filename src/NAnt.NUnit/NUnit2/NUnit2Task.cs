@@ -190,7 +190,7 @@ namespace NAnt.NUnit2.Tasks {
             }
 
             LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-            EventListener listener = new EventCollector(logWriter, logWriter);
+            EventListener listener = GetListener(logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
                 // Setup the test filter var to setup include/exclude filters.
@@ -317,6 +317,25 @@ namespace NAnt.NUnit2.Tasks {
         }
         
         #endregion Override implementation of Task
+
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Gets a new EventListener to use for the unit tests.
+        /// </summary>
+        /// <returns>
+        /// A new EventListener created with a new EventCollector that
+        /// is initialized with <paramref name="logWriter"/>.
+        /// </returns>
+        /// <param name='logWriter'>
+        /// Log writer to send test output to.
+        /// </param>
+        protected virtual EventListener GetListener(LogWriter logWriter)
+        {
+            return new EventCollector(logWriter, logWriter);
+        }
+
+        #endregion Protected Instance Methods
 
         #region Private Instance Methods
 
