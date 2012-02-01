@@ -76,12 +76,12 @@
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
-        <property name="build.dir" value="${project::get-base-directory()}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.version}-${project.config}" />
+        <property name="build.dir" value="${project::get-base-directory()}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.config}" />
     </target>
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
-        <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}-${project.version.full}" />
+        <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}" />
     </target>
 
     <!-- build tasks -->
