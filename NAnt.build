@@ -163,6 +163,8 @@
         </nant>
         <!-- build NAnt.MSBuild assembly -->
         <nant buildfile="src/NAnt.MSBuild/NAnt.MSBuild.build" target="build" />
+        <!-- build NDoc.Documenter.NAnt assembly -->
+        <nant buildfile="src/NDoc.Documenter.NAnt/NDoc.Documenter.NAnt.build" target="build" />
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
         <!-- build NAnt.Console.Tests assembly -->
@@ -307,30 +309,6 @@
 
     <!-- generate user documentation -->
     <target name="userdoc" depends="build" description="Builds user documentation">
-        <!-- build the documenter -->
-        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/NDoc.Documenter.NAnt.dll">
-            <nowarn>
-                <!-- do not report deprecation warnings -->
-                <warning number="0618" />
-            </nowarn>
-            <sources failonempty="true">
-                <include name="src/NDoc.Documenter.NAnt/*.cs" />
-                <!-- common assembly-level attributes -->
-                <include name="src/CommonAssemblyInfo.cs" />
-            </sources>
-            <references failonempty="true">
-                <include name="${build.dir}/bin/NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths('NDoc.ExtendedUI.dll')}" />
-                <include name="${nant::scan-probing-paths('NDoc.Core.dll')}" />
-                <include name="System.Web.dll" />
-            </references>
-            <resources basedir="src/NDoc.Documenter.NAnt/Resources" prefix="Documenter.xslt.">
-                <include name="**/*.xslt" />
-            </resources>
-            <resources>
-                <include name="*.resx"/>
-            </resources>
-        </csc>
         <echo message="Creating task and type documentation from ${build.dir}/bin" />
         <exec program="${build.dir}/bin/${nant.console.name}.exe" managed="true">
             <arg value="-indent:1" />
