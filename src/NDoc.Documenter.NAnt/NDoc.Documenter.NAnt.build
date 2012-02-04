@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="NDoc.Documenter.NAnt" default="build">
+    <!--
+        Required properties:
+            * build.dir             - (path) root level to build to, assemblies will go in ${build.dir}/bin
+            * build.debug           - (true|false) debug build?
+            * build.warnaserror     - (true|false) treat warnings as errors
+            * current.build.defines - framework-specific build defines
+    -->
+    <target name="build">
+        <!-- build main assembly -->
+        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.dll" doc="${build.dir}/bin/${project::get-name()}.xml">
+            <nowarn>
+                <warning number="0618" />
+                <warning number="1591" />
+                <warning number="1572" />
+                <warning number="1573" />
+                <warning number="1574" />
+            </nowarn>
+            <sources failonempty="true">
+                <include name="*.cs" />
+                <include name="../CommonAssemblyInfo.cs" />
+            </sources>
+            <references basedir="${build.dir}/bin" failonempty="true">
+                <include name="NAnt.Core.dll" />
+                <include name="${nant::scan-probing-paths('NDoc.ExtendedUI.dll')}" />
+                <include name="${nant::scan-probing-paths('NDoc.Core.dll')}" />
+                <include name="System.Web.dll" />
+            </references>
+            <resources basedir="Resources" prefix="Documenter.xslt.">
+                <include name="**/*.xslt" />
+            </resources>
+            <resources>
+                <include name="*.resx"/>
+            </resources>
+        </csc>
+    </target>
+</project>
