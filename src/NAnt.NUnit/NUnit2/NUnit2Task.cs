@@ -260,8 +260,8 @@ namespace NAnt.NUnit2.Tasks {
 
                             // Setup and run tests
                             TestResult result =
-// TODO: Uncomment this section once NUnit is upgraded to version 2.6
-/*
+
+/* TODO: Uncomment this section once NUnit is upgraded to version 2.6
                                 runner.Run(listener, testFilter,
                                     true, GetLoggingThreshold());
 */
@@ -454,8 +454,8 @@ namespace NAnt.NUnit2.Tasks {
 
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument(resultFile);
-            // Using XslTransform instead of XslCompiledTransform because the later
-            // display nunit output for unknown reasons.
+            // Using XslTransform instead of XslCompiledTransform because the latter
+            // does not display nunit output for unknown reasons.
             XslTransform summaryXslTransform = new XslTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
