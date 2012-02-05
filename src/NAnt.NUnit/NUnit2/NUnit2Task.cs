@@ -261,12 +261,12 @@ namespace NAnt.NUnit2.Tasks {
                             // Setup and run tests
                             TestResult result =
 
-/* TODO: Uncomment this section once NUnit is upgraded to version 2.6
+//* TODO: Uncomment this section once NUnit is upgraded to version 2.6
                                 runner.Run(listener, testFilter,
                                     true, GetLoggingThreshold());
-*/
+//*/
 // TODO: Comment/remove this line once NUnit is upgraded to version 2.6
-                                runner.Run(listener, testFilter);
+//                                runner.Run(listener, testFilter);
 
                             // flush test output to log
                             logWriter.Flush();
@@ -339,8 +339,7 @@ namespace NAnt.NUnit2.Tasks {
 
         #region Private Instance Methods
 
-// TODO: Uncomment this section once NUnit is upgraded to version 2.6
-/*
+///* TODO: Uncomment this section once NUnit is upgraded to version 2.6
         /// <summary>
         /// Gets the logging threshold to use for a test runner based on
         /// the current threshold of this task.
@@ -378,7 +377,7 @@ namespace NAnt.NUnit2.Tasks {
             }
             return result;
         }
-*/
+//*/
 
         private void FormatResult(NUnit2Test testElement, TestResult result) {
             // temp file for storing test results
