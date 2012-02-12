@@ -144,7 +144,9 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Namespace definitions to resolve prefixes in the XPath expression.
+        /// If <see langword="true" /> then the whitespace in the resulting
+        /// document will be preserved; otherwise the whitespace will be removed.
+        /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("preserveWhitespace", Required = false)]
         [StringValidator(AllowEmpty = false)]
