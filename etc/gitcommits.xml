@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<project name="gitcommits" basedir=".." default="cleanup">
+    <description>
+    Script used to email commit diff information to commit mailing list
+    </description>
+    
+    <!-- Make sure this is running on a Linux/Unix platform before proceeding -->
+    <if test="${platform::is-windows()}">
+        <fail>This build file is designed to run on *nix systems only</fail>
+    </if>
+    
+    <!-- Address that the emails should be sent from -->
+    <property name="from.address" value="nant-commits@nant-project.org"/>
+    <!-- Address that the emails should be sent to -->
+    <property name="to.address" value="nant-commits@lists.sourceforge.net"/>
+    
+    <!-- Git details -->
+    <!-- Name of the local branch to diff against -->
+    <property name="git.local.branch" value="master"/>
+    <!-- Name of git remote to retrieve the branch from to diff against -->
+    <property name="git.remote.name" value="origin"/>
+    <!-- Name of git remote branch to diff against -->
+    <property name="git.remote.branch" value="master"/>
+    <!-- Complete remote branch patch concatenated from git.remote.* properties above -->
+    <property name="git.remote.path" value="${git.remote.name + '/' + git.remote.branch}"/>
+    <!-- Additional line options for the git send-mail command -->
+    <property name="git.sendmail.options" value="--no-binary --confirm=never --suppress-cc=all"/>
+    <!-- The branch range used to generate the diffs to email -->
+    <property name="git.rev.range" value="${git.local.branch + '..' + git.remote.path}"/>
+    
+    <!-- Temp file needed to collect the results of the git rev-list command -->
+    <!-- Needed to check to make sure there are commits that need sending before attempting email -->
+    <property name="rev.list.output.file" value="${path::get-temp-file-name()}"/>
+
+    <target name="fetch.remote">
+        <!-- Fetches all of the recent commits in the listed remote -->
+        <exec program="git">
+            <arg value="fetch"/>
+            <arg value="${git.remote.name}"/>
+        </exec>
+    </target>
+    
+    <target name="rev.list" depends="fetch.remote">
+        <!-- 
+        Checks to see if are any new commits from the remote that are missing in the local repo
+        The results are stored in the temp file listed in rev.list.output.file 
+        -->
+        <exec program="git" output="${rev.list.output.file}">
+            <arg value="rev-list"/>
+            <arg value="${git.rev.range}"/>
+        </exec>
+    </target>
+    
+    <target name="email.diff" depends="rev.list">
+        <!-- Get the size of the rev.list.output.file property -->
+        <property name="rev.list.size" value="${file::get-length(rev.list.output.file)}"/>
+        <!-- 
+        If the size of the temp file is greater than zero, then there are commits since
+        the last time the remote branch was fetched. So an email needs to be sent
+        to the commit mailing list
+        -->
+        <if test="${int::parse(rev.list.size) &gt; 0}">
+            <exec program="git">
+                <arg value="send-email"/>
+                <arg value="${git.rev.range}"/>
+                <arg value="--from=${from.address}"/>
+                <arg value="--to=${to.address}"/>
+                <arg line="${git.sendmail.options}"/>
+            </exec>
+            <!-- 
+            After the email is sent, merge the remote branch with the local. This will ensure
+            that the same diffs do not keep getting sent to the mailing list.
+            -->
+            <exec program="git">
+                <arg value="merge"/>
+                <arg value="${git.remote.path}"/>
+            </exec>
+        </if>
+        
+    </target>
+    
+    <target name="cleanup" depends="email.diff">
+        <!-- Clean up the temp file used for the git rev-list output -->
+        <if test="${file::exists(rev.list.output.file)}">
+            <delete file="${rev.list.output.file}"/>
+        </if>
+    </target>
+</project>
