@@ -1,0 +1,191 @@
+<?xml version="1.0" ?>
+<project name="teamcityfeed" basedir="." default="upload.nightlys">
+    <description>
+    Build file responsible for tranferring nightly generated files from teamcity site to Sourceforge.net (SF.NET).
+    </description>
+
+    <!-- Make sure this is running on a Linux/Unix platform before proceeding -->
+    <if test="${platform::is-windows()}">
+        <fail>This build file is designed to run on *nix systems only</fail>
+    </if>
+    
+    <!-- Make sure that a private key is specified that has access to the SF.NET site -->
+    <if test="${not property::exists('private.key')}">
+        <fail>Please specify the private.key property for this build file</fail>
+    </if>
+    
+    <!-- Space delimited project name list property -->
+    <property name="available.projects" value="nant nantcontrib"/>
+    
+    <!-- Setup SF.NET ssh specific vars -->
+    <property name="sf.net.ssh.server" value="shell.sourceforge.net" />
+    <property name="sf.net.ssh.user" value="${environment::get-user-name()}" unless="${property::exists('sf.net.ssh.user')}" />
+    
+    <!-- Setup teamcity path specific vars -->
+    <property name="build.type.id" value="bt465"/>
+    <property name="build.id" value=".lastSuccessful"/>
+    <property name="download.path" value="downloadAll"/>
+    <property name="nightly.website" value="http://teamcity.codebetter.com"/>
+    <property name="auth.prefix" value="guestAuth"/>
+    <property name="nightly.url.suffix" value="repository/${download.path + '/' + build.type.id + '/' + build.id}"/>
+
+    <!-- Setup the complete teamcity path -->
+    <if test="${string::get-length(auth.prefix) &gt; 0}">
+        <property name="nightly.url" value="${nightly.website + '/' + auth.prefix + '/' + nightly.url.suffix}"/>
+    </if>
+    <if test="${string::get-length(auth.prefix) &lt;= 0}">
+        <property name="nightly.url" value="${nightly.website + '/' + nightly.url.suffix}"/>
+    </if>
+
+    <!-- Setup temp file location vars -->    
+    <property name="temp.dir" value="${path::get-temp-path()}"/>
+    <property name="work.dir" value="${path::combine(temp.dir, 'nightlies')}"/>
+    <property name="nightly.temp.filename" value="${path::combine(temp.dir, 'teamcity.nightly.zip')}"/>
+    <!--<property name="nightly.temp.filename" value="${path::get-temp-file-name()}"/>-->
+
+    <!-- Setup the project specific file list vars.  Used during the SF.NET nightly upload process-->    
+    <foreach item="String" delim=" " in="${available.projects}" property="project.setup.name">
+        <property name="${project.setup.name}.filelist" value="${path::combine(temp.dir, project.setup.name + '.files')}"/>
+    </foreach>
+    <!--
+    <property name="nant.filelist" value="${path::combine(temp.dir, 'nant.files')}"/>
+    <property name="nantcontrib.filelist" value="${path::combine(temp.dir, 'nantcontrib.files')}"/>
+    -->
+    
+    <target name="download.nightly" description="Stages the nightly zipfile from the teamcity site for processing">
+        <!-- If the work.dir directory does not exist on the target system, create it before proceeding -->
+        <if test="${not directory::exists(work.dir)}">
+            <mkdir dir="${work.dir}"/>
+        </if>
+        <!-- Retrieve the nightly zipfile from the teamcity site -->
+        <get src="${nightly.url}" dest="${nightly.temp.filename}"/>
+        <!-- Unzip the nightly zipfile in the specified temporary directory -->
+        <unzip zipfile="${nightly.temp.filename}" todir="${temp.dir}"/>
+    </target>
+    
+    <target name="upload.nightlys" depends="download.nightly" description="Uploads the nightly files to the appropriate SF.NET project locations">
+    
+        <!-- Loop through all of the files extracted from the nightly zipfile and categorize them by project -->
+        <foreach item="File" in="${work.dir}" property="nightly.arc">
+            <!-- Locate the date that the nightly zipfile was created and store it in the nightly.date property -->
+            <if test="${not property::exists('nightly.date')}">
+                <if test="${string::to-lower(path::get-extension(nightly.arc)) == '.zip' and string::starts-with(path::get-file-name(nightly.arc), 'nant-')}">
+                    <property name="nightly.date" value="${string::substring(nightly.arc, string::index-of(nightly.arc, '-nightly-') + string::get-length('-nightly-'), 10)}"/>
+                </if>
+            </if>
+            <if test="${string::starts-with(path::get-file-name(nightly.arc), 'nant-')}">
+                <echo message="${nightly.arc} " file="${nant.filelist}" append="true"/>
+            </if>
+            <if test="${string::starts-with(path::get-file-name(nightly.arc), 'nantcontrib-')}">
+                <echo message="${nightly.arc} " file="${nantcontrib.filelist}" append="true"/>
+            </if>
+        </foreach>
+
+        <!-- Create a shell to SF.NET via ssh command -->
+        <exec program="ssh">
+            <arg line="${sf.net.ssh.user},nant@${sf.net.ssh.server}" />
+            <arg line="-i ${private.key}"/>
+            <arg value="create" />
+        </exec>
+        
+        <!-- Loop through the projects listed in the available.projects property -->
+        <foreach item="String" delim=" " in="${available.projects}" property="project.name">
+            <!-- Setup the necessary project specific properties -->
+            <property name="date.list" value="${temp.dir}/${project.name}_nightly_dates.txt"/>                    
+            <property name="sf.net.release.path" value="/home/frs/project/n/na/${project.name}/${project.name}" />
+            <property name="sf.net.nightly.path" value="${sf.net.release.path}/nightly" />
+            <property name="sf.connection" value="${sf.net.ssh.user},${project.name}@${sf.net.ssh.server}" />
+            <loadfile file="${property::get-value(project.name + '.filelist')}" property="project.files"/>
+            
+            <!-- Get the list of date directories from current project for reviewing -->
+            <exec program="ssh" output="${date.list}">
+                <arg line="${sf.connection}" />
+                <arg line="-i ${private.key}"/>
+                <arg line="ls ${sf.net.nightly.path}" />
+            </exec>
+            
+            <!-- Load the date directory names stored in the temp file into the date.list local property -->
+            <loadfile file="${date.list}" property="nightly.dates"/>
+
+            <!-- Display the name of the current project that is being worked on -->
+            <echo message="${project.name} files"/>
+            
+            <!-- 
+            If the date directory wasn't located in the SF.NET project site then the files downloaded
+            from the teamcity site need to be uploaded to the project sites
+            -->
+            <if test="${not string::contains(nightly.dates, nightly.date)}">
+                <!-- Setup the path to the new nightly directory to load the files to -->
+                <property name="target.path" value="${path::combine(sf.net.nightly.path, nightly.date)}"/>
+                
+                <!-- Create the directory in the SF.NET project space -->
+                <exec program="ssh">
+                    <arg line="${sf.connection}" />
+                    <arg line="-i ${private.key}"/>
+                    <arg line="mkdir ${target.path}" />
+                </exec>
+                
+                <!-- 
+                Loop through the nightly files for the current project from the teamcity
+                zip file to the appropriate project locations in SF.NET
+                -->
+                <foreach item="String" delim=" " in="${project.files}" property="project.file">
+                    <!-- Only work on non-empty filename strings -->
+                    <if test="${string::get-length(project.file) &gt; 0}">
+                        <!-- Get the file name (without the path) to help set the target filename -->
+                        <property name="current.file" value="${path::get-file-name(project.file)}"/>
+                        
+                        <!-- Set the name that the file will be displayed as in SF.NET -->
+                        <if test="${string::ends-with(current.file, '.zip')}">
+                            <property name="target.file" value="${project.name}-${string::substring(current.file, string::index-of(current.file, '-nightly-') + string::get-length('-nightly-') + 11, 7)}"/>
+                        </if>
+                        <if test="${string::ends-with(current.file, '.tar.gz')}">
+                            <property name="target.file" value="${project.name}-${string::substring(current.file, string::index-of(current.file, '-nightly-') + string::get-length('-nightly-') + 11, 10)}"/>
+                        </if>
+
+                        <!-- Echo the file name currently being uploaded to SF.NET -->
+                        <echo message="Uploading ${current.file} as ${target.file}"/>
+                        <!-- Perform the upload to SF.NET -->
+                        <exec program="scp">
+                            <arg line="-i ${private.key}" />
+                            <arg value="${project.file}" />
+                            <arg value="${sf.connection}:${target.path}/${target.file}" />
+                        </exec>
+                    </if>
+                </foreach>
+            </if>
+
+        </foreach>
+        <!-- Shutdown the sourceforge.net connection -->
+        <exec program="ssh">
+            <arg line="${sf.net.ssh.user},nant@${sf.net.ssh.server}" />
+            <arg line="-i ${private.key}"/>
+            <arg value="shutdown" />
+        </exec>
+        <!-- Clean up temp files -->
+        <call target="clean"/>
+    </target>
+    
+    <target name="clean" description="Cleans up the temp files used during the staging process.">
+        <!-- Remove the downloaded nightly zipfile and work directory -->
+        <if test="${file::exists(nightly.temp.filename)}">
+            <delete file="${nightly.temp.filename}"/>
+        </if>
+        <if test="${directory::exists(work.dir)}">
+            <delete dir="${work.dir}"/>
+        </if>
+        
+        <!-- Remove the project specific files and directories if applicable -->
+        <foreach item="String" delim=" " in="${available.projects}" property="project.clean.name">
+            <property name="nightly.dates.file" value="${temp.dir}/${project.clean.name}_nightly_dates.txt"/>
+            <if test="${file::exists(nightly.dates.file)}">
+                <delete file="${nightly.dates.file}"/>
+            </if>
+            <if test="${file::exists(property::get-value(project.clean.name + '.filelist'))}">
+                <delete file="${property::get-value(project.clean.name + '.filelist')}"/>
+            </if>
+        </foreach>
+
+    </target>
+    
+</project>
