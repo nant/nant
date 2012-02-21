@@ -47,7 +47,7 @@ using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
-    /// Runs tests using the NUnit V2.5 framework.
+    /// Runs tests using the NUnit V2.6 framework.
     /// </summary>
     /// <remarks>
     ///   <para>
