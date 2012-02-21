@@ -159,7 +159,6 @@ namespace Tests.NAnt.Core.Tasks {
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
             Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
-            //Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
         }
 
         [Test]
@@ -179,7 +178,6 @@ namespace Tests.NAnt.Core.Tasks {
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
             Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
-            //Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
         }
 
         [Test]
@@ -194,8 +192,6 @@ namespace Tests.NAnt.Core.Tasks {
 
             Assert.IsTrue(File.Exists(Path.Combine(TempDirName, _xmlSrcFileName + "." +
                 _outputFileExtension)), "Output file not created.");
-            //Assertion.Assert("Output file not created.",File.Exists(Path.Combine(TempDirName, _xmlSrcFileName + "." +
-            //    _outputFileExtension)));
         }
 
         [Test]
@@ -216,7 +212,6 @@ namespace Tests.NAnt.Core.Tasks {
 
             string outputFN = Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension);
             Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
-            //Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
         }
 
         [Test]
