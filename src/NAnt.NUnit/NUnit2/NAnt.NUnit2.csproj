@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -57,14 +57,17 @@
   <ItemGroup>
     <Reference Include="System.Xml" />
     <Reference Include="System" />
-    <Reference Include="nunit.util">
-      <HintPath>..\..\..\lib\net\1.0\nunit.util.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.core">
-      <HintPath>..\..\..\lib\net\1.0\nunit.core.dll</HintPath>
+      <HintPath>..\..\..\lib\common\2.0\nunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.core.interfaces">
+      <HintPath>..\..\..\lib\common\2.0\nunit.core.interfaces.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\lib\net\1.0\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\lib\common\2.0\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.util">
+      <HintPath>..\..\..\lib\common\2.0\nunit.util.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

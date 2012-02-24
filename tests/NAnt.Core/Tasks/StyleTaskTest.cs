@@ -158,7 +158,7 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
-            Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
+            Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, outputFN));
 
-            Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
+            Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
         }
 
         [Test]
@@ -190,8 +190,8 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(String.Format(CultureInfo.InvariantCulture,
                 _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, _outputFileExtension));
 
-            Assertion.Assert("Output file not created.",File.Exists(Path.Combine(TempDirName, _xmlSrcFileName + "." +
-                _outputFileExtension)));
+            Assert.IsTrue(File.Exists(Path.Combine(TempDirName, _xmlSrcFileName + "." +
+                _outputFileExtension)), "Output file not created.");
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Tests.NAnt.Core.Tasks {
                 _xmlSrcFile2NameFull ));
 
             string outputFN = Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension);
-            Assertion.Assert("Output file not created.",File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0);
+            Assert.IsTrue(File.Exists(outputFN) && (new FileInfo(outputFN)).Length > 0, "Output file not created.");
         }
 
         [Test]

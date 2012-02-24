@@ -32,7 +32,8 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='${lastword}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Regex did not match properly.\n" + result, result.IndexOf("sentence") != -1);
+            Assert.AreNotEqual(-1, result.IndexOf("sentence"),
+                String.Concat("Regex did not match properly.\n", result));
         }
 
         [Test]
@@ -44,8 +45,10 @@ namespace Tests.NAnt.Core.Tasks {
                         <echo message='file=${file}'/>
                     </project>";
             string result = RunBuild(_xml);
-            Assertion.Assert("Regex did not set first property correcty.\n" + result, result.IndexOf(@"path=d:\Temp\SomeDir\SomeDir\") != -1);
-            Assertion.Assert("Regex did not set second property correcty.\n" + result, result.IndexOf(@"file=bla.xml") != -1);
+            Assert.AreNotEqual(-1, result.IndexOf(@"path=d:\Temp\SomeDir\SomeDir\"),
+                String.Concat("Regex did not set first property correcty.\n", result));
+            Assert.AreNotEqual(-1, result.IndexOf(@"file=bla.xml"),
+                String.Concat("Regex did not set second property correcty.\n", result));
         }
 
         [Test]
