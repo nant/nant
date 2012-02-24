@@ -128,6 +128,7 @@ namespace NAnt.NUnit2.Tasks {
     public class NUnit2Task : Task {
         #region Private Instance Fields
 
+        private bool _labels = false;
         private bool _haltOnFailure = false;
         private List<NUnit2Test> _tests = new List<NUnit2Test>();
         private List<FormatterElement> _formatterElements = new List<FormatterElement>();
@@ -146,6 +147,16 @@ namespace NAnt.NUnit2.Tasks {
         public bool HaltOnFailure {
             get { return _haltOnFailure; }
             set { _haltOnFailure = value; }
+        }
+
+        /// <summary>
+        /// Indicate whether or not to label the text output as the tests run.
+        /// </summary>
+        [TaskAttribute("labels")]
+        [BooleanValidator()]
+        public bool Labels {
+            get { return _labels; }
+            set { _labels = value; }
         }
 
         /// <summary>
@@ -326,7 +337,7 @@ namespace NAnt.NUnit2.Tasks {
         /// </param>
         protected virtual EventListener GetListener(LogWriter logWriter)
         {
-            return new EventCollector(logWriter, logWriter);
+            return new EventCollector(logWriter, logWriter, _labels);
         }
 
         #endregion Protected Instance Methods
@@ -478,12 +489,17 @@ namespace NAnt.NUnit2.Tasks {
             private TextWriter outWriter;
             private TextWriter errorWriter;
             private string currentTestName;
+            private bool _printLabel;
 
-            public EventCollector(TextWriter outWriter, TextWriter errorWriter) {
+            public EventCollector(TextWriter outWriter, TextWriter errorWriter)
+                : this(outWriter, errorWriter, false) {}
+
+            public EventCollector(TextWriter outWriter, TextWriter errorWriter, bool labels) {
                 this.outWriter = outWriter;
                 this.errorWriter = errorWriter;
                 this.currentTestName = string.Empty;
-             }
+                this._printLabel = labels;
+            }
 
             public void RunStarted( string name, int testCount ) {
             }
@@ -500,6 +516,10 @@ namespace NAnt.NUnit2.Tasks {
 
             public void TestStarted(TestName testName) {
                 currentTestName = testName.FullName;
+
+                if (this._printLabel) {
+                    outWriter.WriteLine("***** {0}", currentTestName );
+                }
             }
 
             public void SuiteStarted(TestName testName) {
