@@ -50,6 +50,13 @@ namespace Tests.NAnt.Core.Tasks {
             "<project>" 
                 + "<move file=\"{0}\" tofile=\"{1}\" overwrite=\"{2}\" />"
             + "</project>";
+
+        private const string _xmlFileSetProjectTemplate =
+            "<project>"
+                + "<move tofile=\"{0}\" verbose=\"true\" includeemptydirs=\"true\">"
+                    + "<fileset basedir=\"{1}\" />"
+                + "</move>"
+            + "</project>";
         
         #endregion Private Static Fields
 
@@ -58,6 +65,29 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
             _tempDirDest = CreateTempDir("foob");
             _tempFileSrc = CreateTempFile("foo.xml", "SRC");
+        }
+
+        [Test]
+        public void MoveDirectoryTest() {
+            string tempDirA = CreateTempDir("a");
+            string targetDir = Path.Combine(Path.GetTempPath(), "b");
+            string tempSubDirA = Path.Combine(tempDirA, "test");
+            string targetSubDirB = Path.Combine(targetDir, "test");
+
+            TempDir.Delete(targetDir);
+            TempDir.Delete(tempSubDirA);
+
+            Directory.CreateDirectory(tempSubDirA);
+
+            string tempStampFile = CreateTempFile(Path.Combine(tempSubDirA, "stamp"));
+            string targetStampFile = Path.Combine(targetSubDirB, "stamp");
+
+            RunBuild(string.Format(_xmlFileSetProjectTemplate, targetDir, tempDirA));
+
+            Assert.IsTrue(Directory.Exists(targetDir), string.Format("'{0}' directory does not exist", targetDir));
+            Assert.IsTrue(File.Exists(targetStampFile), string.Format("'{0}' file does not exist", targetStampFile));
+            Assert.IsFalse(Directory.Exists(tempDirA), string.Format("'{0}' directory still exist", tempDirA));
+            Assert.IsFalse(File.Exists(tempStampFile), string.Format("'{0}' file still exists", tempStampFile));
         }
 
         [Test]

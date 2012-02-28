@@ -25,44 +25,77 @@ using System.Text;
 using NAnt.Core.Filters;
 using NAnt.Core.Types;
 
-namespace NAnt.Core.Util {
+namespace NAnt.Core.Util
+{
     /// <summary>
     /// Provides modified version for Copy and Move from the File class that 
     /// allow for filter chain processing.
     /// </summary>
-    public sealed class FileUtils {
-        private FileUtils() {
-        }
+    public static class FileUtils {
+
+        #region Private Static Fields
+
+        /// <summary>
+        /// Constant buffer size for copy/move functions.
+        /// </summary>
+        /// <remarks>Default value is 8k</remarks>
+        private const int _bufferSize = 8192;
+
+        #endregion Private Static Fields
 
         #region Public Static Methods
 
         /// <summary>
         /// Copies a file filtering its content through the filter chain.
         /// </summary>
-        /// <param name="sourceFileName">The file to copy</param>
-        /// <param name="destFileName">The file to copy to</param>
-        /// <param name="filterChain">Chain of filters to apply when copying, or <see langword="null" /> is no filters should be applied.</param>
-        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
-        /// <param name="outputEncoding">The encoding used to write the destination file.</param>
-        public static void CopyFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
+        /// <param name="sourceFileName">
+        /// The file to copy
+        /// </param>
+        /// <param name="destFileName">
+        /// The file to copy to
+        /// </param>
+        /// <param name="filterChain">
+        /// Chain of filters to apply when copying, or <see langword="null" /> is no
+        /// filters should be applied.
+        /// </param>
+        /// <param name="inputEncoding">
+        /// The encoding used to read the soure file.
+        /// </param>
+        /// <param name="outputEncoding">
+        /// The encoding used to write the destination file.
+        /// </param>
+        public static void CopyFile(
+            string sourceFileName,
+            string destFileName,
+            FilterChain filterChain,
+            Encoding inputEncoding,
+            Encoding outputEncoding)
+        {
             // determine if filters are available
-            bool filtersAvailable = filterChain != null && filterChain.Filters.Count > 0;
+            bool filtersAvailable = !FilterChain.IsNullOrEmpty(filterChain);
 
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Copy method
-            if (!filtersAvailable && inputEncoding == null && outputEncoding == null) {
+            if (!filtersAvailable && inputEncoding == null && outputEncoding == null)
+            {
                 File.Copy(sourceFileName, destFileName, true);
-            } else {
+            }
+            else
+            {
                 // determine actual input encoding to use. if no explicit input
                 // encoding is specified, we'll use the system's current ANSI
                 // code page
                 Encoding actualInputEncoding = (inputEncoding != null) ?
                     inputEncoding : Encoding.Default;
 
-                // get base filter built on the file's reader. Use a 8k buffer.
-                using (StreamReader sourceFileReader = new StreamReader(sourceFileName, actualInputEncoding, true, 8192)) {
+                // get base filter built on the file's reader.
+                // Use the value of _bufferSize as the buffer size.
+                using (StreamReader sourceFileReader =
+                    new StreamReader(sourceFileName, actualInputEncoding, true, _bufferSize))
+                {
                     Encoding actualOutputEncoding = outputEncoding;
-                    if (actualOutputEncoding == null) {
+                    if (actualOutputEncoding == null)
+                    {
                         // if no explicit output encoding is specified, we'll
                         // just use the encoding of the input file as determined
                         // by the runtime
@@ -77,26 +110,38 @@ namespace NAnt.Core.Util {
                     }
 
                     // writer for destination file
-                    using (StreamWriter destFileWriter = new StreamWriter(destFileName, false, actualOutputEncoding, 8192)) {
-                        if (filtersAvailable) {
-                            Filter baseFilter = filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
+                    using (StreamWriter destFileWriter =
+                        new StreamWriter(destFileName, false, actualOutputEncoding, _bufferSize))
+                    {
+                        if (filtersAvailable)
+                        {
+                            Filter baseFilter =
+                                filterChain.GetBaseFilter(new PhysicalTextReader(sourceFileReader));
 
                             bool atEnd = false;
                             int character;
-                            while (!atEnd) {
+                            while (!atEnd)
+                            {
                                 character = baseFilter.Read();
-                                if (character > -1) {
+                                if (character > -1)
+                                {
                                     destFileWriter.Write((char)character);
-                                } else {
+                                }
+                                else
+                                {
                                     atEnd = true;
                                 }
                             }
-                        } else {
-                            char[] buffer = new char[8192];
+                        }
+                        else
+                        {
+                            char[] buffer = new char[_bufferSize];
 
-                            while (true) {
+                            while (true)
+                            {
                                 int charsRead = sourceFileReader.Read(buffer, 0, buffer.Length);
-                                if (charsRead == 0) {
+                                if (charsRead == 0)
+                                {
                                     break;
                                 }
                                 destFileWriter.Write(buffer, 0, charsRead);
@@ -110,19 +155,160 @@ namespace NAnt.Core.Util {
         /// <summary>
         /// Moves a file filtering its content through the filter chain.
         /// </summary>
-        /// <param name="sourceFileName">The file to move.</param>
-        /// <param name="destFileName">The file to move move to.</param>
-        /// <param name="filterChain">Chain of filters to apply when moving, or <see langword="null" /> is no filters should be applied.</param>
-        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
-        /// <param name="outputEncoding">The encoding used to write the destination file.</param>
-        public static void MoveFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
+        /// <param name="sourceFileName">
+        /// The file to move.
+        /// </param>
+        /// <param name="destFileName">
+        /// The file to move move to.
+        /// </param>
+        /// <param name="filterChain">
+        /// Chain of filters to apply when moving, or <see langword="null" /> is no
+        /// filters should be applied.
+        /// </param>
+        /// <param name="inputEncoding">
+        /// The encoding used to read the soure file.
+        /// </param>
+        /// <param name="outputEncoding">
+        /// The encoding used to write the destination file.
+        /// </param>
+        public static void MoveFile(
+            string sourceFileName,
+            string destFileName,
+            FilterChain filterChain,
+            Encoding inputEncoding,
+            Encoding outputEncoding)
+        {
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
-            if ((filterChain == null || filterChain.Filters.Count == 0) && inputEncoding == null && outputEncoding == null) {
+            if (FilterChain.IsNullOrEmpty(filterChain) &&
+                inputEncoding == null && outputEncoding == null)
+            {
                 File.Move(sourceFileName, destFileName);
-            } else {
+            }
+            else
+            {
                 CopyFile(sourceFileName, destFileName, filterChain, inputEncoding, outputEncoding);
                 File.Delete(sourceFileName);
+            }
+        }
+
+        /// <summary>
+        /// Copies a directory while filtering its file content through the filter chain.
+        /// </summary>
+        /// <param name="sourceDirectory">
+        /// Source directory to copy from.
+        /// </param>
+        /// <param name="destDirectory">
+        /// Destination directory to copy to.
+        /// </param>
+        /// <param name="filterChain">
+        /// Chain of filters to apply when copying, or <see langword="null" /> is no
+        /// filters should be applied.
+        /// </param>
+        /// <param name="inputEncoding">
+        /// The encoding used to read the soure file.
+        /// </param>
+        /// <param name="outputEncoding">
+        /// The encoding used to write the destination file.
+        /// </param>
+        public static void CopyDirectory(
+            string sourceDirectory,
+            string destDirectory,
+            FilterChain filterChain,
+            Encoding inputEncoding,
+            Encoding outputEncoding)
+        {
+            // If the source directory does not exist, throw an exception.
+            if (!Directory.Exists(sourceDirectory))
+            {
+                throw new DirectoryNotFoundException(
+                    String.Format("Source Directory {0} does not exist", sourceDirectory)
+                    );
+            }
+
+            // Create the destination directory if it does not exist.
+            if (!Directory.Exists(destDirectory))
+            {
+                Directory.CreateDirectory(destDirectory);
+            }
+
+            // Copy all of the files to the destination directory using
+            // the CopyFile static method.
+            foreach (string file in Directory.GetFiles(sourceDirectory))
+            {
+                string targetFile = CombinePaths(destDirectory, Path.GetFileName(file));
+                CopyFile(file, targetFile, filterChain, inputEncoding, outputEncoding);
+            }
+
+            // Copy all of the subdirectory information by calling this method again.
+            foreach (string dir in Directory.GetDirectories(sourceDirectory))
+            {
+                string targetDir = CombinePaths(destDirectory, Path.GetFileName(dir));
+                CopyDirectory(dir, targetDir, filterChain, inputEncoding, outputEncoding);
+            }
+        }
+
+        /// <summary>
+        /// Moves a directory while filtering its file content through the filter chain.
+        /// </summary>
+        /// <param name="sourceDirectory">
+        /// Source directory to move from.
+        /// </param>
+        /// <param name="destDirectory">
+        /// Destination directory to move to.
+        /// </param>
+        /// <param name="filterChain">
+        /// Chain of filters to apply when copying, or <see langword="null" /> is no
+        /// filters should be applied.
+        /// </param>
+        /// <param name="inputEncoding">
+        /// The encoding used to read the soure file.
+        /// </param>
+        /// <param name="outputEncoding">
+        /// The encoding used to write the destination file.
+        /// </param>
+        public static void MoveDirectory(
+            string sourceDirectory,
+            string destDirectory,
+            FilterChain filterChain,
+            Encoding inputEncoding,
+            Encoding outputEncoding)
+        {
+            // if no filters have been defined, and no input or output encoding
+            // is set, we can just use the File.Move method
+            if (FilterChain.IsNullOrEmpty(filterChain) &&
+                inputEncoding == null &&
+                outputEncoding == null)
+            {
+
+                // If the source & target paths are different or the paths are the same
+                // naming with different casing and on a *nix platform, move them over.
+                if (!sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase) ||
+                    (!sourceDirectory.Equals(destDirectory) && PlatformHelper.IsUnix))
+                {
+                    Directory.Move(sourceDirectory, destDirectory);
+                }
+                else if (!sourceDirectory.Equals(destDirectory))
+                {
+                    // If the source & target paths are the same but difference case
+                    // (ie: C:\nant to C:\NAnt), stage the directory before moving it.
+                    string stagePath = GetTempDirectoryName();
+
+                    Directory.Move(sourceDirectory, stagePath);
+                    Directory.Move(stagePath, destDirectory);
+                }
+                else
+                {
+                    // If the source & target paths are completely the same, including
+                    // case, throw an exception.
+                    throw new BuildException("Source and Target paths are identical");
+                }
+            }
+            else
+            {
+                CopyDirectory(sourceDirectory, destDirectory, filterChain,
+                    inputEncoding, outputEncoding);
+                Directory.Delete(sourceDirectory, true);
             }
         }
 
