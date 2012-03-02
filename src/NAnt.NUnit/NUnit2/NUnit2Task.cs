@@ -17,9 +17,11 @@
 //
 // Mike Two (2@thoughtworks.com or mike2@nunit.org)
 // Tomas Restrepo (tomasr@mvps.org)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -31,7 +33,7 @@ using System.Xml.Xsl;
 using System.Xml.XPath;
 
 using NUnit.Core;
-using TestCase = NUnit.Core.TestCase;
+using NUnit.Core.Filters;
 using TestOutput = NUnit.Core.TestOutput;
 using NUnit.Framework;
 using NUnit.Util;
@@ -45,7 +47,7 @@ using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
-    /// Runs tests using the NUnit V2.2 framework.
+    /// Runs tests using the NUnit V2.6 framework.
     /// </summary>
     /// <remarks>
     ///   <para>
@@ -126,9 +128,12 @@ namespace NAnt.NUnit2.Tasks {
     public class NUnit2Task : Task {
         #region Private Instance Fields
 
+        private bool _labels = false;
         private bool _haltOnFailure = false;
-        private NUnit2TestCollection _tests = new NUnit2TestCollection();
-        private FormatterElementCollection _formatterElements = new FormatterElementCollection();
+        private List<NUnit2Test> _tests = new List<NUnit2Test>();
+        private List<FormatterElement> _formatterElements = new List<FormatterElement>();
+        //private NUnit2TestCollection _tests = new NUnit2TestCollection();
+        //private FormatterElementCollection _formatterElements = new FormatterElementCollection();
 
         #endregion Private Instance Fields
 
@@ -145,10 +150,20 @@ namespace NAnt.NUnit2.Tasks {
         }
 
         /// <summary>
+        /// Indicate whether or not to label the text output as the tests run.
+        /// </summary>
+        [TaskAttribute("labels")]
+        [BooleanValidator()]
+        public bool Labels {
+            get { return _labels; }
+            set { _labels = value; }
+        }
+
+        /// <summary>
         /// Tests to run.
         /// </summary>
         [BuildElementArray("test")]
-        public NUnit2TestCollection Tests {
+        public List<NUnit2Test> Tests {
             get { return _tests; }
         }
 
@@ -156,7 +171,7 @@ namespace NAnt.NUnit2.Tasks {
         /// Formatters to output results of unit tests.
         /// </summary>
         [BuildElementArray("formatter")]
-        public FormatterElementCollection FormatterElements {
+        public List<FormatterElement> FormatterElements {
             get { return _formatterElements; }
         }
 
@@ -186,60 +201,93 @@ namespace NAnt.NUnit2.Tasks {
             }
 
             LogWriter logWriter = new LogWriter(this, Level.Info, CultureInfo.InvariantCulture);
-            EventListener listener = new EventCollector(logWriter, logWriter);
+            EventListener listener = GetListener(logWriter);
 
             foreach (NUnit2Test testElement in Tests) {
-                IFilter categoryFilter = null;
+                // Setup the test filter var to setup include/exclude filters.
+                ITestFilter testFilter = null;
 
-                // include or exclude specific categories
-                string categories = testElement.Categories.Includes.ToString();
-                if (!String.IsNullOrEmpty(categories)) {
-                    categoryFilter = new CategoryFilter(categories.Split(','), false);
-                } else {
-                    categories = testElement.Categories.Excludes.ToString();
-                    if (!String.IsNullOrEmpty(categories)) {
-                        categoryFilter = new CategoryFilter(categories.Split(','), true);
+                // If the include categories contains values, setup the category
+                // filter with the include categories.
+                string includes = testElement.Categories.Includes.ToString();
+                if (!String.IsNullOrEmpty(includes))
+                {
+                    testFilter = new CategoryFilter(includes.Split(','));
+                }
+                else
+                {
+                    // If the include categories does not have includes but
+                    // contains excludes, setup the category filter with the excludes
+                    // and use the Not filter to tag the categories for exclude.
+                    string excludes = testElement.Categories.Excludes.ToString();
+                    if (!String.IsNullOrEmpty(excludes))
+                    {
+                        ITestFilter excludeFilter = new CategoryFilter(excludes.Split(','));
+                        testFilter = new NotFilter(excludeFilter);
+                    }
+                    else
+                    {
+                        // If the categories do not contain includes or excludes,
+                        // assign the testFilter var with an empty filter.
+                        testFilter = TestFilter.Empty;
                     }
                 }
 
                 foreach (string testAssembly in testElement.TestAssemblies) {
+                    // Setup the NUnit2TestDomain var.
                     NUnit2TestDomain domain = new NUnit2TestDomain();
+                    // Setup the TestPackage var to use with the testrunner var
+                    TestPackage package = new TestPackage(testAssembly);
 
                     try {
+                        // Create the TestRunner var
                         TestRunner runner = domain.CreateRunner(
                             new FileInfo(testAssembly),
                             testElement.AppConfigFile,
                             testElement.References.FileNames);
 
-                        Test test = null;
-                        if (testElement.TestName != null) {
-                            test = runner.Load(testAssembly, testElement.TestName);
-                        } else {
-                            test = runner.Load(testAssembly);
+                        // If the name of the current test element is not null,
+                        // use it for the package test name.
+                        if (!String.IsNullOrEmpty(testElement.TestName))
+                        {
+                            package.TestName = testElement.TestName;
                         }
 
-                        if (test == null) {
-                            Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
-                                testAssembly);
-                            continue;
+                        // Bool var containing the result of loading the test package
+                        // in the TestRunner var.
+                        bool successfulLoad = runner.Load(package);
+
+                        // If the test package load was successful, proceed with the
+                        // testing.
+                        if (successfulLoad)
+                        {
+                            // If the runner does not contain any tests, proceed
+                            // to the next assembly.
+                            if (runner.Test == null) {
+                                Log(Level.Warning, "Assembly \"{0}\" contains no tests.",
+                                    testAssembly);
+                                continue;
+                            }
+
+                            // Setup and run tests
+                            TestResult result = runner.Run(listener, testFilter,
+                                    true, GetLoggingThreshold());
+
+                            // flush test output to log
+                            logWriter.Flush();
+    
+                            // format test results using specified formatters
+                            FormatResult(testElement, result);
+    
+                            if (result.IsFailure &&
+                                (testElement.HaltOnFailure || HaltOnFailure)) {
+                                throw new BuildException("Tests Failed.", Location);
+                            }
                         }
-
-                        // set category filter
-                        if (categoryFilter != null) {
-                            runner.Filter = categoryFilter;
-                        }
-
-                        // run test
-                        TestResult result = runner.Run(listener);
-
-                        // flush test output to log
-                        logWriter.Flush();
-
-                        // format test results using specified formatters
-                        FormatResult(testElement, result);
-
-                        if (result.IsFailure && (testElement.HaltOnFailure || HaltOnFailure)) {
-                            throw new BuildException("Tests Failed.", Location);
+                        else
+                        {
+                            // If the package load failed, throw a build exception.
+                            throw new BuildException("Test Package Load Failed.", Location);
                         }
                     } catch (BuildException) {
                         // re-throw build exceptions
@@ -247,7 +295,12 @@ namespace NAnt.NUnit2.Tasks {
                     } catch (Exception ex) {
                         if (!FailOnError) {
                             // just log error and continue with next test
-                            Log(Level.Error, LogPrefix + "NUnit Error: " + ex.ToString());
+
+                            // TODO: (RMB) Need to make sure that this is the correct way to proceed with displaying NUnit errors.
+                            string logMessage =
+                                String.Concat("[", Name, "] NUnit Error: ", ex.ToString());
+
+                            Log(Level.Error, logMessage.PadLeft(Project.IndentationSize));
                             continue;
                         }
 
@@ -270,25 +323,79 @@ namespace NAnt.NUnit2.Tasks {
         
         #endregion Override implementation of Task
 
+        #region Protected Instance Methods
+
+        /// <summary>
+        /// Gets a new EventListener to use for the unit tests.
+        /// </summary>
+        /// <returns>
+        /// A new EventListener created with a new EventCollector that
+        /// is initialized with <paramref name="logWriter"/>.
+        /// </returns>
+        /// <param name='logWriter'>
+        /// Log writer to send test output to.
+        /// </param>
+        protected virtual EventListener GetListener(LogWriter logWriter)
+        {
+            return new EventCollector(logWriter, logWriter, _labels);
+        }
+
+        #endregion Protected Instance Methods
+
         #region Private Instance Methods
+
+        /// <summary>
+        /// Gets the logging threshold to use for a test runner based on
+        /// the current threshold of this task.
+        /// </summary>
+        /// <returns>
+        /// The logging threshold to use when running a test runner.
+        /// </returns>
+        private LoggingThreshold GetLoggingThreshold()
+        {
+            LoggingThreshold result;
+
+            // TODO: (RMB) May need to re-evaluate these mappings
+            switch (Threshold) {
+                case Level.None:
+                    result = LoggingThreshold.Fatal;
+                    break;
+                case Level.Info:
+                    result = LoggingThreshold.Info;
+                    break;
+                case Level.Verbose:
+                    result = LoggingThreshold.All;
+                    break;
+                case Level.Debug:
+                    result = LoggingThreshold.Debug;
+                    break;
+                case Level.Warning:
+                    result = LoggingThreshold.Warn;
+                    break;
+                case Level.Error:
+                    result = LoggingThreshold.Error;
+                    break;
+                default:
+                    result = LoggingThreshold.Off;
+                    break;
+            }
+            return result;
+        }
 
         private void FormatResult(NUnit2Test testElement, TestResult result) {
             // temp file for storing test results
             string xmlResultFile = Path.GetTempFileName();
 
-            // permanent file for storing test results
-            string outputFile = null;
-
             try {
-                XmlResultVisitor resultVisitor = new XmlResultVisitor(xmlResultFile, result);
-                result.Accept(resultVisitor);
-                resultVisitor.Write();
+                XmlResultWriter resultWriter = new XmlResultWriter(xmlResultFile);
+                resultWriter.SaveTestResult(result);
 
                 foreach (FormatterElement formatter in FormatterElements) {
+                    // permanent file for storing test results
+                    string outputFile = result.Name + "-results" + formatter.Extension;
+
                     if (formatter.Type == FormatterType.Xml) {
                         if (formatter.UseFile) {
-                            // determine file name for output file
-                            outputFile = result.Name + "-results" + formatter.Extension;
                                         
                             if (formatter.OutputDirectory != null) {
                                 // ensure output directory exists
@@ -318,8 +425,6 @@ namespace NAnt.NUnit2.Tasks {
                     } else if (formatter.Type == FormatterType.Plain) {
                         TextWriter writer;
                         if (formatter.UseFile) {
-                            // determine file name for output file
-                            outputFile = result.Name + "-results" + formatter.Extension;
 
                             if (formatter.OutputDirectory != null) {
                                 // ensure output directory exists
@@ -341,8 +446,8 @@ namespace NAnt.NUnit2.Tasks {
                     }
                 }
             } catch (Exception ex) {
-                throw new BuildException("Test results could not be" 
-                    + " formatted.", Location, ex);
+                throw new BuildException("Test results could not be formatted.", 
+                    Location, ex);
             } finally {
                 // make sure temp file with test results is removed
                 File.Delete(xmlResultFile);
@@ -351,16 +456,18 @@ namespace NAnt.NUnit2.Tasks {
 
         private void CreateSummaryDocument(string resultFile, TextWriter writer, NUnit2Test test) {
             XPathDocument originalXPathDocument = new XPathDocument(resultFile);
+            // Using XslTransform instead of XslCompiledTransform because the latter
+            // does not display nunit output for unknown reasons.
             XslTransform summaryXslTransform = new XslTransform();
             XmlTextReader transformReader = GetTransformReader(test);
             summaryXslTransform.Load(transformReader);
             summaryXslTransform.Transform(originalXPathDocument, null, writer);
         }
-        
+
         private XmlTextReader GetTransformReader(NUnit2Test test) {
             XmlTextReader transformReader;
             if (test.XsltFile == null) {
-                Assembly assembly = Assembly.GetAssembly(typeof(XmlResultVisitor));
+                Assembly assembly = Assembly.GetAssembly(typeof(XmlResultWriter));
                 ResourceManager resourceManager = new ResourceManager("NUnit.Util.Transform", assembly);
                 string xmlData = (string) resourceManager.GetObject("Summary.xslt", CultureInfo.InvariantCulture);
                 transformReader = new XmlTextReader(new StringReader(xmlData));
@@ -378,38 +485,47 @@ namespace NAnt.NUnit2.Tasks {
         
         #endregion Private Instance Methods
 
-        private class EventCollector : LongLivingMarshalByRefObject, EventListener {
+        private class EventCollector : MarshalByRefObject, EventListener {
             private TextWriter outWriter;
             private TextWriter errorWriter;
             private string currentTestName;
+            private bool _printLabel;
 
-            public EventCollector(TextWriter outWriter, TextWriter errorWriter) {
+            public EventCollector(TextWriter outWriter, TextWriter errorWriter)
+                : this(outWriter, errorWriter, false) {}
+
+            public EventCollector(TextWriter outWriter, TextWriter errorWriter, bool labels) {
                 this.outWriter = outWriter;
                 this.errorWriter = errorWriter;
                 this.currentTestName = string.Empty;
-             }
-
-            public void RunStarted(Test[] tests) {
+                this._printLabel = labels;
             }
 
-            public void RunFinished(TestResult[] results) {
+            public void RunStarted( string name, int testCount ) {
+            }
+
+            public void RunFinished(TestResult results) {
             }
 
             public void RunFinished(Exception exception) {
             }
 
-            public void TestFinished(TestCaseResult testResult) {
+            public void TestFinished(TestResult result) {
                 currentTestName = string.Empty;
             }
 
-            public void TestStarted(TestCase testCase) {
-                currentTestName = testCase.FullName;
+            public void TestStarted(TestName testName) {
+                currentTestName = testName.FullName;
+
+                if (this._printLabel) {
+                    outWriter.WriteLine("***** {0}", currentTestName );
+                }
             }
 
-            public void SuiteStarted(TestSuite suite) {
+            public void SuiteStarted(TestName testName) {
             }
 
-            public void SuiteFinished(TestSuiteResult suiteResult) {
+            public void SuiteFinished(TestResult result) {
             }
 
             public void UnhandledException( Exception exception ) {
@@ -427,6 +543,10 @@ namespace NAnt.NUnit2.Tasks {
                         errorWriter.Write(output.Text);
                         break;
                 }
+            }
+
+            public override object InitializeLifetimeService() {
+                return null;
             }
         }
     }

@@ -20,8 +20,6 @@
 using System;
 using System.IO;
 
-using NUnit.Framework;
-
 namespace NAnt.NUnit.Types {
     /// <summary>
     /// Carries data specified through the formatter element.
