@@ -221,9 +221,10 @@ namespace NAnt.Core.Util
             // If the source directory does not exist, throw an exception.
             if (!Directory.Exists(sourceDirectory))
             {
-                throw new DirectoryNotFoundException(
-                    String.Format("Source Directory {0} does not exist", sourceDirectory)
-                    );
+                throw new BuildException(
+                    String.Format("Cannot copy directory: Source Directory {0} does not exist",
+                        sourceDirectory)
+                        );
             }
 
             // Create the destination directory if it does not exist.
@@ -274,6 +275,15 @@ namespace NAnt.Core.Util
             Encoding inputEncoding,
             Encoding outputEncoding)
         {
+
+            // If the source directory does not exist, throw an exception.
+            if (!Directory.Exists(sourceDirectory))
+            {
+                throw new BuildException(
+                    String.Format("Cannot move directory: Source Directory {0} does not exist",
+                        sourceDirectory));
+            }
+
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
             if (FilterChain.IsNullOrEmpty(filterChain) &&
@@ -310,6 +320,18 @@ namespace NAnt.Core.Util
                     inputEncoding, outputEncoding);
                 Directory.Delete(sourceDirectory, true);
             }
+        }
+
+        /// <summary>
+        /// Generates a new temporary directory name based on the system's
+        /// temporary path.
+        /// </summary>
+        /// <returns>
+        /// The temp directory name.
+        /// </returns>
+        public static string GetTempDirectoryName()
+        {
+            return CombinePaths(Path.GetTempPath(), Path.GetRandomFileName());
         }
 
         /// <summary>

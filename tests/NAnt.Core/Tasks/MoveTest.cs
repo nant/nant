@@ -53,7 +53,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         private const string _xmlFileSetProjectTemplate =
             "<project>"
-                + "<move tofile=\"{0}\" verbose=\"true\" includeemptydirs=\"true\">"
+                + "<move todir=\"{0}\" verbose=\"true\" includeemptydirs=\"true\">"
                     + "<fileset basedir=\"{1}\" />"
                 + "</move>"
             + "</project>";

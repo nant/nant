@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -186,11 +187,10 @@ namespace NAnt.Core.Tasks {
         protected override void DoFileOperations() {
             if (FileCopyMap.Count > 0) {
                 // loop thru our file list
-                foreach (DictionaryEntry fileEntry in FileCopyMap) {
-                    string destinationPath = (string) fileEntry.Key;
-                    string sourcePath = ((FileDateInfo) fileEntry.Value).Path;
+                foreach (KeyValuePair<string,FileDateInfo> fileEntry in FileCopyMap) {
+                    string sourcePath = fileEntry.Value.Path;
 
-                    if (sourcePath == destinationPath) {
+                    if (sourcePath == fileEntry.Key) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
                     }
@@ -198,30 +198,30 @@ namespace NAnt.Core.Tasks {
                     try {
                         // check if directory exists
                         if (Directory.Exists(sourcePath)) {
-                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
-                            Directory.Move(sourcePath, destinationPath);
+                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, fileEntry.Key);
+                            Directory.Move(sourcePath, fileEntry.Key);
                         } else {
-                            DirectoryInfo todir = new DirectoryInfo(destinationPath);
+                            DirectoryInfo todir = new DirectoryInfo(fileEntry.Key);
                             if (!todir.Exists) {
-                                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                                Directory.CreateDirectory(Path.GetDirectoryName(fileEntry.Key));
                             }
 
-                            Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
+                            Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, fileEntry.Key);
 
                             // if destination file exists, remove it first if
                             // in overwrite mode
-                            if (File.Exists(destinationPath)) {
-                                Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
-                                File.Delete(destinationPath);
+                            if (File.Exists(fileEntry.Key)) {
+                                Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", fileEntry.Key, sourcePath);
+                                File.Delete(fileEntry.Key);
                             }
 
                             // move the file and apply filters
-                            FileUtils.MoveFile(sourcePath, destinationPath, Filters, 
+                            FileUtils.MoveFile(sourcePath, fileEntry.Key, Filters,
                                 InputEncoding, OutputEncoding);
                         }
                     } catch (IOException ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Failed to move {0} to {1}.", sourcePath, destinationPath),
+                            "Failed to move {0} to {1}.", sourcePath, fileEntry.Key),
                             Location, ex);
                     }
                 }

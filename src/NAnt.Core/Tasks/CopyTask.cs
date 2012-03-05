@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -141,7 +142,7 @@ namespace NAnt.Core.Tasks {
         private bool _overwrite;
         private bool _flatten;
         private FileSet _fileset = new FileSet();
-        private Hashtable _fileCopyMap;
+        private Dictionary<string, FileDateInfo> _fileCopyMap;
         private bool _includeEmptyDirs = true;
         private FilterChain _filters;
         private Encoding _inputEncoding;
@@ -156,9 +157,10 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         public CopyTask() {
             if (PlatformHelper.IsUnix) {
-                _fileCopyMap = new Hashtable();
+                _fileCopyMap = new Dictionary<string, FileDateInfo>();
             } else {
-                _fileCopyMap = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                _fileCopyMap = new Dictionary<string, FileDateInfo>
+                    (StringComparer.InvariantCultureIgnoreCase);
             }
         }
 
@@ -275,17 +277,17 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <remarks>
         ///   <para>
-        ///   The key of the <see cref="Hashtable" /> is the absolute path of 
+        ///   The key of the Dictionary is the absolute path of
         ///   the destination file and the value is a <see cref="FileDateInfo" />
         ///   holding the path and last write time of the most recently updated
         ///   source file that is selected to be copied or moved to the 
         ///   destination file.
         ///   </para>
         ///   <para>
-        ///   On Windows, the <see cref="Hashtable" /> is case-insensitive.
+        ///   On Windows, the Dictionary is case-insensitive.
         ///   </para>
         /// </remarks>
-        protected Hashtable FileCopyMap {
+        protected Dictionary<string, FileDateInfo> FileCopyMap {
             get { return _fileCopyMap; }
         }
 
@@ -340,7 +342,7 @@ namespace NAnt.Core.Tasks {
             }
 
             // Clear previous copied files
-            _fileCopyMap = new Hashtable();
+            _fileCopyMap.Clear();
 
             // copy a single file.
             if (SourceFile != null) {
@@ -359,18 +361,25 @@ namespace NAnt.Core.Tasks {
 
                     if (Overwrite || outdated) {
                         // add to a copy map of absolute verified paths
-                        FileCopyMap.Add(dstInfo.FullName, new FileDateInfo(SourceFile.FullName, SourceFile.LastWriteTime));
+                        FileCopyMap.Add(dstInfo.FullName, new FileDateInfo(SourceFile));
                         if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
                             File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
                         }
                     }
                 } else {
-                    throw CreateSourceFileNotFoundException (SourceFile.FullName);
+                    throw CreateSourceFileNotFoundException(SourceFile.FullName);
                 }
             } else { // copy file set contents.
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = CopyFileSet.BaseDirectory;
-                
+
+                // If no includes were specified, add all files and subdirectories
+                // from the fileset's base directory to the fileset.
+                if (CopyFileSet.Includes.Count == 0)
+                {
+                    CopyFileSet.Includes.Add("**/*");
+                }
+
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
                     FileInfo srcInfo = new FileInfo(pathname);
@@ -409,20 +418,20 @@ namespace NAnt.Core.Tasks {
 
                         if (Overwrite || outdated) {
                             // construct FileDateInfo for current file
-                            FileDateInfo newFile = new FileDateInfo(srcInfo.FullName, 
-                                srcInfo.LastWriteTime);
+                            FileDateInfo newFile = new FileDateInfo(srcInfo);
+
                             // if multiple source files are selected to be copied 
                             // to the same destination file, then only the last
                             // updated source should actually be copied
-                            FileDateInfo oldFile = (FileDateInfo) FileCopyMap[dstInfo.FullName];
-                            if (oldFile != null) {
+                            FileDateInfo oldFile;
+                            if (_fileCopyMap.TryGetValue(dstInfo.FullName, out oldFile)) {
                                 // if current file was updated after scheduled file,
                                 // then replace it
                                 if (newFile.LastWriteTime > oldFile.LastWriteTime) {
-                                    FileCopyMap[dstInfo.FullName] = newFile;
+                                    _fileCopyMap[dstInfo.FullName] = newFile;
                                 }
                             } else {
-                                FileCopyMap.Add(dstInfo.FullName, newFile);
+                                _fileCopyMap.Add(dstInfo.FullName, newFile);
                                 if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
                                     File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
                                 }
@@ -453,7 +462,7 @@ namespace NAnt.Core.Tasks {
                                 Directory.CreateDirectory(destinationDirectory);
                             } catch (Exception ex) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                "Failed to create directory '{0}'.", destinationDirectory ), 
+                                "Failed to create directory '{0}'.", destinationDirectory),
                                  Location, ex);
                             }
                             Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
@@ -483,31 +492,30 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // loop thru our file list
-                foreach (DictionaryEntry fileEntry in FileCopyMap) {
-                    string destinationFile = (string) fileEntry.Key;
-                    string sourceFile = ((FileDateInfo) fileEntry.Value).Path;
+                foreach (KeyValuePair<string,FileDateInfo> fileEntry in FileCopyMap) {
+                    string sourceFile = fileEntry.Value.Path;
 
-                    if (sourceFile == destinationFile) {
+                    if (sourceFile == fileEntry.Key) {
                         Log(Level.Verbose, "Skipping self-copy of '{0}'.", sourceFile);
                         continue;
                     }
 
                     try {
-                        Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
+                        Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, fileEntry.Key);
                         
                         // create directory if not present
-                        string destinationDirectory = Path.GetDirectoryName(destinationFile);
+                        string destinationDirectory = Path.GetDirectoryName(fileEntry.Key);
                         if (!Directory.Exists(destinationDirectory)) {
                             Directory.CreateDirectory(destinationDirectory);
                             Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
                         }
 
                         // copy the file with filters
-                        FileUtils.CopyFile(sourceFile, destinationFile, Filters, 
+                        FileUtils.CopyFile(sourceFile, fileEntry.Key, Filters,
                             InputEncoding, OutputEncoding);
                     } catch (Exception ex) {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot copy '{0}' to '{1}'.", sourceFile, destinationFile), 
+                            "Cannot copy '{0}' to '{1}'.", sourceFile, fileEntry.Key),
                             Location, ex);
                     }
                 }
@@ -527,6 +535,18 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         protected class FileDateInfo {
             #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileDateInfo"/> class
+            /// for <paramref name="file"/>.
+            /// </summary>
+            /// <param name='file'>
+            /// A <see cref="System.IO.FileSystemInfo"/> object containing
+            /// the absolute path and last write time of a file.
+            /// </param>
+            public FileDateInfo(FileSystemInfo file)
+                : this(file.FullName, file.LastWriteTime) {}
 
             /// <summary>
             /// Initializes a new instance of the <see cref="FileDateInfo" />
