@@ -298,7 +298,7 @@ namespace NAnt.Core.Util
                 {
                     Directory.Move(sourceDirectory, destDirectory);
                 }
-                else if (!sourceDirectory.Equals(destDirectory))
+                else if (sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase))
                 {
                     // If the source & target paths are the same but difference case
                     // (ie: C:\nant to C:\NAnt), stage the directory before moving it.
@@ -587,6 +587,25 @@ namespace NAnt.Core.Util
             return resolvedFile;
         }
 
+        public static bool DirectoryIsEmpty(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                throw new BuildException(String.Format("{0} does not exist.", path));
+            }
+            string[] allFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+
+            if (allFiles.Length > 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        #endregion Public Static Methods
+
+        #region Private Static Methods
+
         private static string ScanDirectory(string directory, string fileName, bool recursive) {
             string absolutePath = Path.Combine(directory, fileName);
             if (File.Exists(absolutePath))
@@ -606,6 +625,7 @@ namespace NAnt.Core.Util
             return null;
         }
 
-        #endregion Public Static Methods
+        #endregion Private Static Methods
+
     }
 }

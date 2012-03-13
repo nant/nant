@@ -21,6 +21,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
@@ -142,7 +143,7 @@ namespace NAnt.Core.Tasks {
         private bool _overwrite;
         private bool _flatten;
         private FileSet _fileset = new FileSet();
-        private Dictionary<string, FileDateInfo> _fileCopyMap;
+        private FileOperationMap _operationMap;
         private bool _includeEmptyDirs = true;
         private FilterChain _filters;
         private Encoding _inputEncoding;
@@ -157,10 +158,9 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         public CopyTask() {
             if (PlatformHelper.IsUnix) {
-                _fileCopyMap = new Dictionary<string, FileDateInfo>();
+                _operationMap = new FileOperationMap();
             } else {
-                _fileCopyMap = new Dictionary<string, FileDateInfo>
-                    (StringComparer.InvariantCultureIgnoreCase);
+                _operationMap = new FileOperationMap(StringComparer.InvariantCultureIgnoreCase);
             }
         }
 
@@ -278,7 +278,7 @@ namespace NAnt.Core.Tasks {
         /// <remarks>
         ///   <para>
         ///   The key of the Dictionary is the absolute path of
-        ///   the destination file and the value is a <see cref="FileDateInfo" />
+        ///   the destination file and the value is a FileDateInfo
         ///   holding the path and last write time of the most recently updated
         ///   source file that is selected to be copied or moved to the 
         ///   destination file.
@@ -287,8 +287,13 @@ namespace NAnt.Core.Tasks {
         ///   On Windows, the Dictionary is case-insensitive.
         ///   </para>
         /// </remarks>
-        protected Dictionary<string, FileDateInfo> FileCopyMap {
-            get { return _fileCopyMap; }
+        //protected Dictionary<string, FileDateInfo> FileCopyMap {
+        //    get { return _fileCopyMap; }
+        //}
+
+        protected FileOperationMap OperationMap
+        {
+            get { return _operationMap; }
         }
 
         #endregion Protected Instance Properties
@@ -342,34 +347,46 @@ namespace NAnt.Core.Tasks {
             }
 
             // Clear previous copied files
-            _fileCopyMap.Clear();
+            _operationMap.Clear();
 
             // copy a single file.
-            if (SourceFile != null) {
-                if (SourceFile.Exists) {
-                    FileInfo dstInfo = null;
-                    if (ToFile != null) {
-                        dstInfo = ToFile;
-                    } else {
-                        string dstFilePath = Path.Combine(ToDirectory.FullName, 
-                            SourceFile.Name);
-                        dstInfo = new FileInfo(dstFilePath);
-                    }
-
-                    // do the outdated check
-                    bool outdated = (!dstInfo.Exists) || (SourceFile.LastWriteTime > dstInfo.LastWriteTime);
-
-                    if (Overwrite || outdated) {
-                        // add to a copy map of absolute verified paths
-                        FileCopyMap.Add(dstInfo.FullName, new FileDateInfo(SourceFile));
-                        if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
-                            File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
-                        }
-                    }
-                } else {
+            if (SourceFile != null)
+            {
+                FileOperation operation;
+                FileSystemInfo srcInfo;
+                FileSystemInfo dstInfo;
+                if (SourceFile.Exists)
+                {
+                    srcInfo = SourceFile;
+                }
+                else if (Directory.Exists(SourceFile.FullName))
+                {
+                    srcInfo = new DirectoryInfo(SourceFile.FullName);
+                }
+                else
+                {
                     throw CreateSourceFileNotFoundException(SourceFile.FullName);
                 }
-            } else { // copy file set contents.
+
+                if (ToFile != null)
+                {
+                    dstInfo = ToFile;
+                }
+                else
+                {
+                    dstInfo = ToDirectory;
+                }
+
+                operation = new FileOperation(srcInfo, dstInfo);
+
+                if (Overwrite || operation.Outdated)
+                {
+                    // add to a copy map of absolute verified paths
+                    operation.NormalizeTargetAttributes();
+                    _operationMap.Add(operation);
+                }
+            } else {
+                // copy file set contents.
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = CopyFileSet.BaseDirectory;
 
@@ -414,27 +431,23 @@ namespace NAnt.Core.Tasks {
                         
                         // do the outdated check
                         FileInfo dstInfo = new FileInfo(dstFilePath);
-                        bool outdated = (!dstInfo.Exists) || (srcInfo.LastWriteTime > dstInfo.LastWriteTime);
+                        FileOperation operation = new FileOperation(srcInfo, dstInfo);
 
-                        if (Overwrite || outdated) {
+                        if (Overwrite || operation.Outdated) {
                             // construct FileDateInfo for current file
-                            FileDateInfo newFile = new FileDateInfo(srcInfo);
+                            //FileDateInfo newFile = new FileDateInfo(srcInfo);
 
                             // if multiple source files are selected to be copied 
                             // to the same destination file, then only the last
                             // updated source should actually be copied
-                            FileDateInfo oldFile;
-                            if (_fileCopyMap.TryGetValue(dstInfo.FullName, out oldFile)) {
-                                // if current file was updated after scheduled file,
-                                // then replace it
-                                if (newFile.LastWriteTime > oldFile.LastWriteTime) {
-                                    _fileCopyMap[dstInfo.FullName] = newFile;
-                                }
-                            } else {
-                                _fileCopyMap.Add(dstInfo.FullName, newFile);
-                                if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
-                                    File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
-                                }
+                            if (_operationMap.ContainsKey(dstInfo.FullName))
+                            {
+                                _operationMap[dstInfo.FullName].UpdateSource(srcInfo);
+                            }
+                            else
+                            {
+                                operation.NormalizeTargetAttributes();
+                                _operationMap.Add(operation);
                             }
                         }
                     } else {
@@ -483,39 +496,93 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file copies.
         /// </summary>
         protected virtual void DoFileOperations() {
-            int fileCount = FileCopyMap.Count;
+            int fileCount = OperationMap.Count;
             if (fileCount > 0 || Verbose) {
                 if (ToFile != null) {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                        fileCount, (fileCount != 1) ? "s" : "", ToFile);
                 } else {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                        fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
                 }
 
                 // loop thru our file list
-                foreach (KeyValuePair<string,FileDateInfo> fileEntry in FileCopyMap) {
-                    string sourceFile = fileEntry.Value.Path;
-
-                    if (sourceFile == fileEntry.Key) {
-                        Log(Level.Verbose, "Skipping self-copy of '{0}'.", sourceFile);
+                for (int i = 0; i < OperationMap.Count; i++)
+                {
+                    FileOperation currentOperation = OperationMap[i];
+                    if (currentOperation.SourceEqualsTarget())
+                    {
+                        Log(Level.Verbose, "Skipping self-copy of '{0}'.",
+                            currentOperation.Source);
                         continue;
                     }
 
-                    try {
-                        Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, fileEntry.Key);
-                        
-                        // create directory if not present
-                        string destinationDirectory = Path.GetDirectoryName(fileEntry.Key);
-                        if (!Directory.Exists(destinationDirectory)) {
-                            Directory.CreateDirectory(destinationDirectory);
-                            Log(Level.Verbose, "Created directory '{0}'.", destinationDirectory);
-                        }
+                    try
+                    {
+                        Log(Level.Verbose, "Copying {0}.", currentOperation.ToString());
 
-                        // copy the file with filters
-                        FileUtils.CopyFile(sourceFile, fileEntry.Key, Filters,
-                            InputEncoding, OutputEncoding);
-                    } catch (Exception ex) {
+                        switch (currentOperation.OperationType)
+                        {
+                            case OperationType.FileToFile:
+                                // create directory if not present
+                                string destinationDirectory =
+                                    Path.GetDirectoryName(currentOperation.Target);
+                                if (!Directory.Exists(destinationDirectory))
+                                {
+                                    Directory.CreateDirectory(destinationDirectory);
+                                    Log(Level.Verbose, "Created directory '{0}'.",
+                                        destinationDirectory);
+                                }
+
+                                if (File.Exists(currentOperation.Target))
+                                {
+                                    File.Delete(currentOperation.Target);
+                                }
+        
+                                // copy the file with filters
+                                FileUtils.CopyFile(currentOperation.Source,
+                                    currentOperation.Target, Filters,
+                                    InputEncoding, OutputEncoding);
+                                break;
+                            case OperationType.FileToDirectory:
+                                string targetFile = Path.Combine(currentOperation.Target,
+                                    Path.GetFileName(currentOperation.Source));
+                                // create directory if not present
+                                if (!Directory.Exists(currentOperation.Target))
+                                {
+                                    Directory.CreateDirectory(currentOperation.Target);
+                                    Log(Level.Verbose, "Created directory '{0}'.",
+                                        currentOperation.Target);
+                                }
+
+                                if (File.Exists(targetFile))
+                                {
+                                    File.Delete(targetFile);
+                                }
+        
+                                // copy the file with filters
+                                FileUtils.CopyFile(currentOperation.Source,
+                                    targetFile, Filters, InputEncoding, OutputEncoding);
+                                break;
+                            case OperationType.DirectoryToDirectory:
+                                if (Directory.Exists(currentOperation.Target))
+                                {
+                                    throw new BuildException(
+                                        string.Format(CultureInfo.InvariantCulture,
+                                        "Failed to copy {0}.  Directory '{1}' already exists.",
+                                        currentOperation.ToString(),
+                                        currentOperation.Target));
+                                }
+                                FileUtils.CopyDirectory(currentOperation.Source,
+                                    currentOperation.Target, Filters, InputEncoding,
+                                    OutputEncoding);
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot copy '{0}' to '{1}'.", sourceFile, fileEntry.Key),
+                            "Cannot copy {0}.", currentOperation.ToString()),
                             Location, ex);
                     }
                 }
@@ -530,67 +597,222 @@ namespace NAnt.Core.Tasks {
 
         #endregion Protected Instance Methods
 
-        /// <summary>
-        /// Holds the absolute paths and last write time of a given file.
-        /// </summary>
-        protected class FileDateInfo {
-            #region Public Instance Constructors
+        protected class FileOperation
+        {
+            #region Private Instance Fields
 
-            /// <summary>
-            /// Initializes a new instance of the
-            /// <see cref="NAnt.Core.Tasks.CopyTask.FileDateInfo"/> class
-            /// for <paramref name="file"/>.
-            /// </summary>
-            /// <param name='file'>
-            /// A <see cref="System.IO.FileSystemInfo"/> object containing
-            /// the absolute path and last write time of a file.
-            /// </param>
-            public FileDateInfo(FileSystemInfo file)
-                : this(file.FullName, file.LastWriteTime) {}
+            private FileSystemInfo _source;
+            private FileSystemInfo _target;
+            private StringComparer _comparer;
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="FileDateInfo" />
-            /// class for the specified file and last write time.
-            /// </summary>
-            /// <param name="path">The absolute path of the file.</param>
-            /// <param name="lastWriteTime">The last write time of the file.</param>
-            public FileDateInfo(string path, DateTime lastWriteTime) {
-                _path = path;
-                _lastWriteTime = lastWriteTime;
+            #endregion Private Instance Fields
+
+            #region Public Constructors
+
+            public FileOperation(FileSystemInfo source, FileSystemInfo target)
+            {
+                if (source == null)
+                {
+                    throw new ArgumentNullException("source");
+                }
+                if (target == null)
+                {
+                    throw new ArgumentNullException("target");
+                }
+                if (IsFileSystemType<DirectoryInfo>(source) &&
+                    IsFileSystemType<FileInfo>(target))
+                {
+                    throw new BuildException("Cannot transfer directory to file");
+                }
+                _source = source;
+                _target = target;
             }
 
-            #endregion Public Instance Constructors
+            #endregion Public Constructors
 
             #region Public Instance Properties
 
-            /// <summary>
-            /// Gets the absolute path of the current file.
-            /// </summary>
-            /// <value>
-            /// The absolute path of the current file.
-            /// </value>
-            public string Path {
-                get { return _path; }
+            public StringComparer Comparer
+            {
+                get { return _comparer; }
+                set { _comparer = value; }
             }
 
-            /// <summary>
-            /// Gets the time when the current file was last written to.
-            /// </summary>
-            /// <value>
-            /// The time when the current file was last written to.
-            /// </value>
-            public DateTime LastWriteTime {
-                get { return _lastWriteTime; }
+            public string Source
+            {
+                get { return _source.FullName; }
+            }
+
+            public FileSystemInfo SourceInfo
+            {
+                get { return _source; }
+            }
+
+            public Type SourceType
+            {
+                get { return _source.GetType(); }
+            }
+
+            public OperationType OperationType
+            {
+                get
+                {
+                    if (SourceType == typeof(FileInfo) &&
+                        TargetType == typeof(FileInfo))
+                    {
+                        return OperationType.FileToFile;
+                    }
+                    if (SourceType == typeof(FileInfo) &&
+                        TargetType == typeof(DirectoryInfo))
+                    {
+                        return OperationType.FileToDirectory;
+                    }
+                    return OperationType.DirectoryToDirectory;
+                }
+            }
+
+            public bool Outdated
+            {
+                get
+                {
+                    return IsFileSystemType<DirectoryInfo>(_target) ||
+                        (IsFileSystemType<FileInfo>(_target) &&
+                        TargetIsOutdated(_source, _target));
+                }
+            }
+
+            public string Target
+            {
+                get { return _target.FullName; }
+            }
+
+            public FileSystemInfo TargetInfo
+            {
+                get { return _target; }
+            }
+
+            public Type TargetType
+            {
+                get { return _target.GetType(); }
             }
 
             #endregion Public Instance Properties
 
+            #region Public Instance Methods
+
+            public void NormalizeTargetAttributes()
+            {
+                if (IsFileSystemType<FileInfo>(_target) &&
+                    _target.Exists &&
+                    _target.Attributes != FileAttributes.Normal)
+                {
+                    File.SetAttributes(_target.FullName, FileAttributes.Normal);
+                }
+            }
+
+            public bool SourceEqualsTarget()
+            {
+
+                return _comparer.Compare(_source.FullName, _target.FullName) == 0;
+            }
+
+            public void UpdateSource(FileSystemInfo newSource)
+            {
+                if (_source.LastWriteTime < newSource.LastWriteTime)
+                {
+                    _source = newSource;
+                }
+            }
+
+            public override string ToString()
+            {
+                return String.Format("'{0}' to '{1}'", Source, Target);
+            }
+
+            #endregion Public Instance Methods
+
+            #region Public Static Methods
+
+            public static bool TargetIsOutdated(FileSystemInfo source, FileSystemInfo target)
+            {
+                return (!target.Exists) || (source.LastWriteTime > target.LastWriteTime);
+            }
+
+            #endregion Public Static Methods
+
+            #region Private Instance Methods
+
+            private bool IsFileSystemType<TFileSystemInfo>(FileSystemInfo item)
+                where TFileSystemInfo : FileSystemInfo
+            {
+                return item.GetType() == typeof(TFileSystemInfo);
+            }
+
+            #endregion Private Instance Methods
+        }
+
+        protected class FileOperationMap : KeyedCollection<string, FileOperation>
+        {
             #region Private Instance Fields
-            
-            private DateTime _lastWriteTime;
-            private string _path;
+
+            private StringComparer _stringComparer;
 
             #endregion Private Instance Fields
+
+            #region Public Constructors
+
+            public FileOperationMap() : base(StringComparer.InvariantCulture)
+            {
+                _stringComparer = StringComparer.InvariantCulture;
+            }
+
+            public FileOperationMap(StringComparer comparer) : base(comparer)
+            {
+                _stringComparer = comparer;
+            }
+
+            #endregion Public Constructors
+
+            #region Public Instance Methods
+
+            public bool ContainsKey(string key)
+            {
+                if (Dictionary != null)
+                {
+                    return Dictionary.ContainsKey(key);
+                }
+                return false;
+            }
+
+            #endregion Public Instance Methods
+
+            #region Protected Instance Methods
+
+            protected override string GetKeyForItem(FileOperation item)
+            {
+                return item.Target;
+            }
+
+            protected override void InsertItem(int index, FileOperation item)
+            {
+                item.Comparer = _stringComparer;
+                base.InsertItem(index, item);
+            }
+
+            protected override void SetItem(int index, FileOperation item)
+            {
+                item.Comparer = _stringComparer;
+                base.SetItem(index, item);
+            }
+
+            #endregion Protected Instance Methods
+        }
+
+        protected enum OperationType
+        {
+            FileToFile = 0,
+            FileToDirectory = 1,
+            DirectoryToDirectory = 2
         }
     }
 }

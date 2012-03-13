@@ -185,47 +185,113 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file moves.
         /// </summary>
         protected override void DoFileOperations() {
-            if (FileCopyMap.Count > 0) {
-                // loop thru our file list
-                foreach (KeyValuePair<string,FileDateInfo> fileEntry in FileCopyMap) {
-                    string sourcePath = fileEntry.Value.Path;
-
-                    if (sourcePath == fileEntry.Key) {
-                        Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
+            if (OperationMap.Count > 0)
+            {
+                for (int i = 0; i < OperationMap.Count; i++)
+                {
+                    FileOperation currentOperation = OperationMap[i];
+                    if (currentOperation.SourceEqualsTarget())
+                    {
+                        Log(Level.Warning, String.Format("Skipping self-move of {0}.",
+                            currentOperation.Source));
                         continue;
                     }
 
-                    try {
-                        // check if directory exists
-                        if (Directory.Exists(sourcePath)) {
-                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, fileEntry.Key);
-                            Directory.Move(sourcePath, fileEntry.Key);
-                        } else {
-                            DirectoryInfo todir = new DirectoryInfo(fileEntry.Key);
-                            if (!todir.Exists) {
-                                Directory.CreateDirectory(Path.GetDirectoryName(fileEntry.Key));
-                            }
+                    try
+                    {
+                        Log(Level.Verbose, "Moving {0}.", currentOperation.ToString());
 
-                            Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, fileEntry.Key);
+                        string sourceDirectory = null;
+                        string destinationDirectory = null;
 
-                            // if destination file exists, remove it first if
-                            // in overwrite mode
-                            if (File.Exists(fileEntry.Key)) {
-                                Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", fileEntry.Key, sourcePath);
-                                File.Delete(fileEntry.Key);
-                            }
+                        switch (currentOperation.OperationType)
+                        {
+                            case OperationType.FileToFile:
+                                sourceDirectory =
+                                    Path.GetDirectoryName(currentOperation.Source);
+                                destinationDirectory =
+                                    Path.GetDirectoryName(currentOperation.Target);
 
-                            // move the file and apply filters
-                            FileUtils.MoveFile(sourcePath, fileEntry.Key, Filters,
-                                InputEncoding, OutputEncoding);
+                                // create directory if not present
+                                if (!Directory.Exists(destinationDirectory))
+                                {
+                                    Directory.CreateDirectory(destinationDirectory);
+                                    Log(Level.Verbose, "Created directory '{0}'.",
+                                        destinationDirectory);
+                                }
+
+                                if (File.Exists(currentOperation.Target))
+                                {
+                                    File.Delete(currentOperation.Target);
+                                }
+
+                                // move the file with filters
+                                FileUtils.MoveFile(currentOperation.Source,
+                                    currentOperation.Target, Filters,
+                                    InputEncoding, OutputEncoding);
+
+                                if (FileUtils.DirectoryIsEmpty(sourceDirectory))
+                                {
+                                    Directory.Delete(sourceDirectory, true);
+                                }
+                                break;
+                            case OperationType.FileToDirectory:
+                                sourceDirectory =
+                                    Path.GetDirectoryName(currentOperation.Source);
+                                destinationDirectory = currentOperation.Target;
+
+                                string targetFile = Path.Combine(destinationDirectory,
+                                    Path.GetFileName(currentOperation.Source));
+                                // create directory if not present
+                                if (!Directory.Exists(destinationDirectory))
+                                {
+                                    Directory.CreateDirectory(destinationDirectory);
+                                    Log(Level.Verbose, "Created directory '{0}'.",
+                                        destinationDirectory);
+                                }
+
+                                // move the file with filters
+                                FileUtils.MoveFile(currentOperation.Source,
+                                    targetFile, Filters, InputEncoding, OutputEncoding);
+
+                                if (FileUtils.DirectoryIsEmpty(sourceDirectory))
+                                {
+                                    Directory.Delete(sourceDirectory, true);
+                                }
+                                break;
+                            case OperationType.DirectoryToDirectory:
+                                if (Directory.Exists(currentOperation.Target))
+                                {
+                                    throw new BuildException(
+                                        string.Format(CultureInfo.InvariantCulture,
+                                        "Failed to move directory {0}." +
+                                        "Directory '{1}' already exists.",
+                                        currentOperation.ToString(),
+                                        currentOperation.Target));
+                                }
+                                FileUtils.MoveDirectory(currentOperation.Source,
+                                    currentOperation.Target, Filters, InputEncoding,
+                                    OutputEncoding);
+                                break;
                         }
-                    } catch (IOException ex) {
+                    }
+                    catch (IOException ex)
+                    {
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                            "Failed to move {0} to {1}.", sourcePath, fileEntry.Key),
+                            "Failed to move {0}.", currentOperation.ToString()),
                             Location, ex);
                     }
                 }
-                Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
+                if (CopyFileSet.BaseDirectory.FullName != Project.BaseDirectory)
+                {
+                    if (FileUtils.DirectoryIsEmpty(CopyFileSet.BaseDirectory.FullName))
+                    {
+                        Directory.Delete(
+                            CopyFileSet.BaseDirectory.FullName, true);
+                    }
+                }
+                Log(Level.Info, "{0} file{1} moved.", OperationMap.Count,
+                    OperationMap.Count > 1 ? "s" : "");
             }
         }
 
