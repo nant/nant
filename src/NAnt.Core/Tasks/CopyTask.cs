@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (imaclean@gmail.com)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Collections;
@@ -273,24 +274,23 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Properties
 
         /// <summary>
-        /// The set of files to perform a file operation on.
+        /// Gets the operation map containing all the files/directories to
+        /// perform file operations on.
         /// </summary>
         /// <remarks>
         ///   <para>
-        ///   The key of the Dictionary is the absolute path of
-        ///   the destination file and the value is a FileDateInfo
-        ///   holding the path and last write time of the most recently updated
-        ///   source file that is selected to be copied or moved to the 
-        ///   destination file.
+        ///   The type of class for this object inherits from
+        ///   <see cref="System.Collections.ObjectModel.KeyedCollection"/> and
+        ///   is structured so that the key of this collection contains the
+        ///   full path of the target file/location while the value contains
+        ///   the <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> object
+        ///   with the operation details.
         ///   </para>
         ///   <para>
-        ///   On Windows, the Dictionary is case-insensitive.
+        ///   On Windows, the <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>
+        ///   is case-insensitive.
         ///   </para>
         /// </remarks>
-        //protected Dictionary<string, FileDateInfo> FileCopyMap {
-        //    get { return _fileCopyMap; }
-        //}
-
         protected FileOperationMap OperationMap
         {
             get { return _operationMap; }
@@ -349,25 +349,34 @@ namespace NAnt.Core.Tasks {
             // Clear previous copied files
             _operationMap.Clear();
 
-            // copy a single file.
+            // copy a single file object.
             if (SourceFile != null)
             {
+                // Setup the necessary local vars
                 FileOperation operation;
                 FileSystemInfo srcInfo;
                 FileSystemInfo dstInfo;
+
+                // If the full path in the SourceFile is an actual file,
+                // assign the SourceFile object as is to srcInfo.
                 if (SourceFile.Exists)
                 {
                     srcInfo = SourceFile;
                 }
+                // If the full path in the SoureFile is a directory,
+                // assign the SourceFile object as a DirectoryInfo object to srcInfo.
                 else if (Directory.Exists(SourceFile.FullName))
                 {
                     srcInfo = new DirectoryInfo(SourceFile.FullName);
                 }
+                // Otherwise, throw an error.
                 else
                 {
                     throw CreateSourceFileNotFoundException(SourceFile.FullName);
                 }
 
+                // If the ToFile object is not null, assign it to dstInfo;
+                // otherwise, assign the ToDirectory object to dstInfo.
                 if (ToFile != null)
                 {
                     dstInfo = ToFile;
@@ -377,11 +386,15 @@ namespace NAnt.Core.Tasks {
                     dstInfo = ToDirectory;
                 }
 
+                // Initialize the operation var with the srcInfo and dstInfo
+                // objects that were assigned above.
                 operation = new FileOperation(srcInfo, dstInfo);
 
+                // If the user specified "Overwrite" or the target file/path
+                // is considered outdated, ensure that the target file/path is
+                // normalized before adding to the operation map.
                 if (Overwrite || operation.Outdated)
                 {
-                    // add to a copy map of absolute verified paths
                     operation.NormalizeTargetAttributes();
                     _operationMap.Add(operation);
                 }
@@ -429,13 +442,14 @@ namespace NAnt.Core.Tasks {
                                 dstRelFilePath);
                         }
                         
-                        // do the outdated check
+                        // Setup both the destination info and file operation vars.
                         FileInfo dstInfo = new FileInfo(dstFilePath);
                         FileOperation operation = new FileOperation(srcInfo, dstInfo);
 
-                        if (Overwrite || operation.Outdated) {
-                            // construct FileDateInfo for current file
-                            //FileDateInfo newFile = new FileDateInfo(srcInfo);
+                        // If the user specified "Overwrite" or the target file/path
+                        // is considered outdated, proceed to add to operation map.
+                        if (Overwrite || operation.Outdated)
+                        {
 
                             // if multiple source files are selected to be copied 
                             // to the same destination file, then only the last
@@ -446,6 +460,8 @@ namespace NAnt.Core.Tasks {
                             }
                             else
                             {
+                                // ensure that the target file/path is normalized
+                                // before adding to the operation map.
                                 operation.NormalizeTargetAttributes();
                                 _operationMap.Add(operation);
                             }
@@ -509,6 +525,8 @@ namespace NAnt.Core.Tasks {
                 // loop thru our file list
                 for (int i = 0; i < OperationMap.Count; i++)
                 {
+                    // Setup a temporary var to hold the current file operation
+                    // details.
                     FileOperation currentOperation = OperationMap[i];
                     if (currentOperation.SourceEqualsTarget())
                     {
@@ -534,6 +552,8 @@ namespace NAnt.Core.Tasks {
                                         destinationDirectory);
                                 }
 
+                                // Ensure the target file is removed before
+                                // attempting to copy.
                                 if (File.Exists(currentOperation.Target))
                                 {
                                     File.Delete(currentOperation.Target);
@@ -545,6 +565,8 @@ namespace NAnt.Core.Tasks {
                                     InputEncoding, OutputEncoding);
                                 break;
                             case OperationType.FileToDirectory:
+                                // Setup a local var that combines the directory
+                                // of the target path with the source file name.
                                 string targetFile = Path.Combine(currentOperation.Target,
                                     Path.GetFileName(currentOperation.Source));
                                 // create directory if not present
@@ -555,6 +577,8 @@ namespace NAnt.Core.Tasks {
                                         currentOperation.Target);
                                 }
 
+                                // Ensure the target file is removed before
+                                // attempting to copy.
                                 if (File.Exists(targetFile))
                                 {
                                     File.Delete(targetFile);
@@ -565,6 +589,8 @@ namespace NAnt.Core.Tasks {
                                     targetFile, Filters, InputEncoding, OutputEncoding);
                                 break;
                             case OperationType.DirectoryToDirectory:
+                                // Throw a build exception if the target directory
+                                // already exists.
                                 if (Directory.Exists(currentOperation.Target))
                                 {
                                     throw new BuildException(
@@ -573,6 +599,8 @@ namespace NAnt.Core.Tasks {
                                         currentOperation.ToString(),
                                         currentOperation.Target));
                                 }
+                                
+                                // Copy over the entire directory with filters
                                 FileUtils.CopyDirectory(currentOperation.Source,
                                     currentOperation.Target, Filters, InputEncoding,
                                     OutputEncoding);
@@ -597,6 +625,10 @@ namespace NAnt.Core.Tasks {
 
         #endregion Protected Instance Methods
 
+        /// <summary>
+        /// Provides methods and properties to properly manage file operations for
+        /// NAnt file system based tasks (such as CopyTask and MoveTask).
+        /// </summary>
         protected class FileOperation
         {
             #region Private Instance Fields
@@ -609,6 +641,19 @@ namespace NAnt.Core.Tasks {
 
             #region Public Constructors
 
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> class with the
+            /// source and target locations specified.
+            /// </summary>
+            /// <param name="source">
+            /// A <see cref="FileSystemInfo"/> object representing the file/location
+            /// where the file operation will start.
+            /// </param>
+            /// <param name="target">
+            /// A <see cref="FileSystemInfo"/> object representing the file/location
+            /// where the file operation will end.
+            /// </param>
             public FileOperation(FileSystemInfo source, FileSystemInfo target)
             {
                 if (source == null)
@@ -632,38 +677,57 @@ namespace NAnt.Core.Tasks {
 
             #region Public Instance Properties
 
+            /// <summary>
+            /// Gets or sets the string comparer to use when comparing
+            /// the source path to the target path.
+            /// </summary>
             public StringComparer Comparer
             {
                 get { return _comparer; }
                 set { _comparer = value; }
             }
 
+            /// <summary>
+            /// Gets the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>.
+            /// </summary>
             public string Source
             {
                 get { return _source.FullName; }
             }
 
+            /// <summary>
+            /// Gets the details of the source path.
+            /// </summary>
             public FileSystemInfo SourceInfo
             {
                 get { return _source; }
             }
 
+            /// <summary>
+            /// Gets the type of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>.
+            /// </summary>
             public Type SourceType
             {
                 get { return _source.GetType(); }
             }
 
+            /// <summary>
+            /// Gets the type of the file operation an instance of
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> represents.
+            /// </summary>
             public OperationType OperationType
             {
                 get
                 {
-                    if (SourceType == typeof(FileInfo) &&
-                        TargetType == typeof(FileInfo))
+                    if (IsFileSystemType<FileInfo>(SourceType) &&
+                        IsFileSystemType<FileInfo>(TargetType))
                     {
                         return OperationType.FileToFile;
                     }
-                    if (SourceType == typeof(FileInfo) &&
-                        TargetType == typeof(DirectoryInfo))
+                    if (IsFileSystemType<FileInfo>(SourceType) &&
+                        IsFileSystemType<DirectoryInfo>(TargetType))
                     {
                         return OperationType.FileToDirectory;
                     }
@@ -671,6 +735,16 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            /// <summary>
+            /// Gets a value indicating whether
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/> is
+            /// outdated.
+            /// </summary>
+            /// <value>
+            /// <c>true</c> if
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/> is
+            /// outdated (or simply a directory); otherwise, <c>false</c>.
+            /// </value>
             public bool Outdated
             {
                 get
@@ -681,16 +755,27 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            /// <summary>
+            /// Gets the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/>.
+            /// </summary>
             public string Target
             {
                 get { return _target.FullName; }
             }
 
+            /// <summary>
+            /// Gets the details of the target path.
+            /// </summary>
             public FileSystemInfo TargetInfo
             {
                 get { return _target; }
             }
 
+            /// <summary>
+            /// Gets the type of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/>.
+            /// </summary>
             public Type TargetType
             {
                 get { return _target.GetType(); }
@@ -700,6 +785,10 @@ namespace NAnt.Core.Tasks {
 
             #region Public Instance Methods
 
+            /// <summary>
+            /// Normalizes the attributes of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/>.
+            /// </summary>
             public void NormalizeTargetAttributes()
             {
                 if (IsFileSystemType<FileInfo>(_target) &&
@@ -710,12 +799,40 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            /// <summary>
+            /// Checks to see whether or not the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>
+            /// matches the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/>.
+            /// </summary>
+            /// <remarks>
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.Comparer"/> is
+            /// used to check path equality.
+            /// </remarks>
+            /// <returns>
+            /// <b>true</b> if both paths match; otherwise <b>false</b>.
+            /// </returns>
             public bool SourceEqualsTarget()
             {
-
                 return _comparer.Compare(_source.FullName, _target.FullName) == 0;
             }
 
+            /// <summary>
+            /// Updates the source of a given instance based on the
+            /// <see cref="P:System.IO.FileSystemInfo.LastWriteTime"/>.
+            /// <remarks>
+            /// If the LastWriteTime property of the <paramref name="newSource"/>
+            /// is greater than the LastWriteTime property of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>, then
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/> is
+            /// replaced with <paramref name="newSource"/>.
+            /// </remarks>
+            /// </summary>
+            /// <param name='newSource'>
+            /// The new <see cref="System.IO.FileSystemInfo"/> to replace
+            /// the current <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>
+            /// object.
+            /// </param>
             public void UpdateSource(FileSystemInfo newSource)
             {
                 if (_source.LastWriteTime < newSource.LastWriteTime)
@@ -724,6 +841,14 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
+            /// <summary>
+            /// Returns a <see cref="System.String"/> that represents the current
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/>.
+            /// </summary>
+            /// <returns>
+            /// A <see cref="System.String"/> that represents the current
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/>.
+            /// </returns>
             public override string ToString()
             {
                 return String.Format("'{0}' to '{1}'", Source, Target);
@@ -733,6 +858,21 @@ namespace NAnt.Core.Tasks {
 
             #region Public Static Methods
 
+            /// <summary>
+            /// Checks to see if a given <see cref="System.IO.FileSystemInfo"/>
+            /// target is considered outdated.
+            /// </summary>
+            /// <param name='source'>
+            /// A <see cref="System.IO.FileSystemInfo"/> used for comparison purposes
+            /// against <paramref name="target"/>.
+            /// </param>
+            /// <param name='target'>
+            /// The <see cref="System.IO.FileSystemInfo"/> to check.
+            /// </param>
+            /// <returns>
+            /// <b>true</b> if the target file is considered out of date; otherwise
+            /// <b>false</b>
+            /// </returns>
             public static bool TargetIsOutdated(FileSystemInfo source, FileSystemInfo target)
             {
                 return (!target.Exists) || (source.LastWriteTime > target.LastWriteTime);
@@ -742,6 +882,20 @@ namespace NAnt.Core.Tasks {
 
             #region Private Instance Methods
 
+            /// <summary>
+            /// Checks to see whether <paramref name="item"/> is a file type or
+            /// a directory type.
+            /// </summary>
+            /// <typeparam name="TFileSystemInfo">
+            /// The FileSystemInfo type used to compare <paramref name="item"/> with.
+            /// </typeparam>
+            /// <param name="item">
+            /// The object to check.
+            /// </param>
+            /// <returns>
+            /// <b>true</b> if <paramref name="item"/> is the same type as
+            /// <typeparamref name="TFileSystemInfo"/>; otherwise, <b>false</b>.
+            /// </returns>
             private bool IsFileSystemType<TFileSystemInfo>(FileSystemInfo item)
                 where TFileSystemInfo : FileSystemInfo
             {
@@ -751,21 +905,43 @@ namespace NAnt.Core.Tasks {
             #endregion Private Instance Methods
         }
 
+        /// <summary>
+        /// A collection class used to track all of the 
+        /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> objects for 
+        /// a given file operation task (such as the CopyTask or MoveTask).
+        /// </summary>
         protected class FileOperationMap : KeyedCollection<string, FileOperation>
         {
             #region Private Instance Fields
 
+            /// <summary>
+            /// The StringComparer used when comparing file paths.
+            /// </summary>
             private StringComparer _stringComparer;
 
             #endregion Private Instance Fields
 
             #region Public Constructors
 
+            /// <summary>
+            /// Initializes a new instance of the 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>
+            /// class that uses the default string comparer.
+            /// </summary>
             public FileOperationMap() : base(StringComparer.InvariantCulture)
             {
                 _stringComparer = StringComparer.InvariantCulture;
             }
 
+            /// <summary>
+            /// Initializes a new instance of the 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>
+            /// class that uses the specified string comparer.
+            /// </summary>
+            /// <param name="comparer">
+            /// The string comparer to use when comparing keys in the
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>.
+            /// </param>
             public FileOperationMap(StringComparer comparer) : base(comparer)
             {
                 _stringComparer = comparer;
@@ -775,6 +951,19 @@ namespace NAnt.Core.Tasks {
 
             #region Public Instance Methods
 
+            /// <summary>
+            /// Determines whether the 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> contains the 
+            /// specified key.
+            /// </summary>
+            /// <param name="key">
+            /// The key to locate in the 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>.
+            /// </param>
+            /// <returns>
+            /// <b>true</b> if the <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> 
+            /// contains an element with the specified key; otherwise, <b>false</b>.
+            /// </returns>
             public bool ContainsKey(string key)
             {
                 if (Dictionary != null)
@@ -788,19 +977,55 @@ namespace NAnt.Core.Tasks {
 
             #region Protected Instance Methods
 
+            /// <summary>
+            /// Extracts the key from the specified 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> element.
+            /// </summary>
+            /// <param name="item">
+            /// The <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> from which to 
+            /// extract the key.
+            /// </param>
+            /// <returns>
+            /// The key for the specified 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/>.
+            /// </returns>
             protected override string GetKeyForItem(FileOperation item)
             {
                 return item.Target;
             }
 
+            /// <summary>
+            /// Inserts an element into the 
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> at the 
+            /// specified index.
+            /// </summary>
+            /// <param name="index">
+            /// The zero-based index at which item should be inserted.
+            /// </param>
+            /// <param name="item">
+            /// The <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> to insert.
+            /// </param>
             protected override void InsertItem(int index, FileOperation item)
             {
+                // Assigns the string comparer to the item before calling
+                // the base method.
                 item.Comparer = _stringComparer;
                 base.InsertItem(index, item);
             }
 
+            /// <summary>
+            /// Replaces the item at the specified index with the specified item.
+            /// </summary>
+            /// <param name="index">
+            /// The zero-based index of the item to be replaced.
+            /// </param>
+            /// <param name="item">
+            /// The new item.
+            /// </param>
             protected override void SetItem(int index, FileOperation item)
             {
+                // Assigns the string comparer to the item before calling
+                // the base method.
                 item.Comparer = _stringComparer;
                 base.SetItem(index, item);
             }
@@ -808,10 +1033,25 @@ namespace NAnt.Core.Tasks {
             #endregion Protected Instance Methods
         }
 
+        /// <summary>
+        /// Used to identify the type of operation a given
+        /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> represent.
+        /// </summary>
         protected enum OperationType
         {
+            /// <summary>
+            /// Indicates that the operation is from file to file.
+            /// </summary>
             FileToFile = 0,
+
+            /// <summary>
+            /// Indicates that the operation is from file to directory.
+            /// </summary>
             FileToDirectory = 1,
+
+            /// <summary>
+            /// Indicates that the operation is from directory to directory.
+            /// </summary>
             DirectoryToDirectory = 2
         }
     }

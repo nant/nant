@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (imaclean@gmail.com)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Collections;
@@ -187,8 +188,12 @@ namespace NAnt.Core.Tasks {
         protected override void DoFileOperations() {
             if (OperationMap.Count > 0)
             {
+
+                // loop thru our file list
                 for (int i = 0; i < OperationMap.Count; i++)
                 {
+                    // Setup a temporary var to hold the current file operation
+                    // details.
                     FileOperation currentOperation = OperationMap[i];
                     if (currentOperation.SourceEqualsTarget())
                     {
@@ -207,6 +212,7 @@ namespace NAnt.Core.Tasks {
                         switch (currentOperation.OperationType)
                         {
                             case OperationType.FileToFile:
+                                // Setup the source and dest directory vars
                                 sourceDirectory =
                                     Path.GetDirectoryName(currentOperation.Source);
                                 destinationDirectory =
@@ -220,6 +226,8 @@ namespace NAnt.Core.Tasks {
                                         destinationDirectory);
                                 }
 
+                                // Ensure the target file is removed before
+                                // attempting to move.
                                 if (File.Exists(currentOperation.Target))
                                 {
                                     File.Delete(currentOperation.Target);
@@ -230,18 +238,25 @@ namespace NAnt.Core.Tasks {
                                     currentOperation.Target, Filters,
                                     InputEncoding, OutputEncoding);
 
+                                // If there are no more files in the current directory
+                                // and any subdirectories, then delete the current
+                                // directory.
                                 if (FileUtils.DirectoryIsEmpty(sourceDirectory))
                                 {
                                     Directory.Delete(sourceDirectory, true);
                                 }
                                 break;
                             case OperationType.FileToDirectory:
+                                // Setup the source and dest directory vars
                                 sourceDirectory =
                                     Path.GetDirectoryName(currentOperation.Source);
                                 destinationDirectory = currentOperation.Target;
 
+                                // Setup a local var that combines the directory
+                                // of the target path with the source file name.
                                 string targetFile = Path.Combine(destinationDirectory,
                                     Path.GetFileName(currentOperation.Source));
+
                                 // create directory if not present
                                 if (!Directory.Exists(destinationDirectory))
                                 {
@@ -250,16 +265,28 @@ namespace NAnt.Core.Tasks {
                                         destinationDirectory);
                                 }
 
+                                // Ensure the target file is removed before
+                                // attempting to move.
+                                if (File.Exists(targetFile))
+                                {
+                                    File.Delete(targetFile);
+                                }
+
                                 // move the file with filters
                                 FileUtils.MoveFile(currentOperation.Source,
                                     targetFile, Filters, InputEncoding, OutputEncoding);
 
+                                // If there are no more files in the current directory
+                                // and any subdirectories, then delete the current
+                                // directory.
                                 if (FileUtils.DirectoryIsEmpty(sourceDirectory))
                                 {
                                     Directory.Delete(sourceDirectory, true);
                                 }
                                 break;
                             case OperationType.DirectoryToDirectory:
+                                // Throw a build exception if the target directory
+                                // already exists.
                                 if (Directory.Exists(currentOperation.Target))
                                 {
                                     throw new BuildException(
@@ -269,6 +296,8 @@ namespace NAnt.Core.Tasks {
                                         currentOperation.ToString(),
                                         currentOperation.Target));
                                 }
+
+                                // Move over the entire directory with filters
                                 FileUtils.MoveDirectory(currentOperation.Source,
                                     currentOperation.Target, Filters, InputEncoding,
                                     OutputEncoding);
