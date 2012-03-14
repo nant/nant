@@ -279,9 +279,8 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <remarks>
         ///   <para>
-        ///   The type of class for this object inherits from
-        ///   <see cref="System.Collections.ObjectModel.KeyedCollection"/> and
-        ///   is structured so that the key of this collection contains the
+        ///   The type of class for this object inherits from KeyedCollection
+        ///   and is structured so that the key of this collection contains the
         ///   full path of the target file/location while the value contains
         ///   the <see cref="NAnt.Core.Tasks.CopyTask.FileOperation"/> object
         ///   with the operation details.
@@ -744,13 +743,13 @@ namespace NAnt.Core.Tasks {
             {
                 get
                 {
-                    if (IsFileSystemType<FileInfo>(SourceType) &&
-                        IsFileSystemType<FileInfo>(TargetType))
+                    if (IsFileSystemType<FileInfo>(SourceInfo) &&
+                        IsFileSystemType<FileInfo>(TargetInfo))
                     {
                         return OperationType.FileToFile;
                     }
-                    if (IsFileSystemType<FileInfo>(SourceType) &&
-                        IsFileSystemType<DirectoryInfo>(TargetType))
+                    if (IsFileSystemType<FileInfo>(SourceInfo) &&
+                        IsFileSystemType<DirectoryInfo>(TargetInfo))
                     {
                         return OperationType.FileToDirectory;
                     }
