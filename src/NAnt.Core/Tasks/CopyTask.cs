@@ -512,14 +512,37 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file copies.
         /// </summary>
         protected virtual void DoFileOperations() {
-            int fileCount = OperationMap.Count;
-            if (fileCount > 0 || Verbose) {
-                if (ToFile != null) {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
-                        fileCount, (fileCount != 1) ? "s" : "", ToFile);
-                } else {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
-                        fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+            if (OperationMap.Count > 0)
+            {
+                // Get the number of file and directory copies to display to
+                // the user.
+                int fileMovements = OperationMap.CountFileOperations();
+                int dirMovements = OperationMap.CountDirectoryOperations();
+
+                // Output the number of file copies
+                if (fileMovements > 0)
+                {
+                    if (ToFile != null) {
+                        Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                            fileMovements, (fileMovements != 1) ? "s" : "", ToFile);
+                    } else {
+                        Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                            fileMovements, (fileMovements != 1) ? "s" : "", ToDirectory);
+                    }
+                }
+
+                // Output the number of directory copies
+                if (dirMovements > 0)
+                {
+                    if (ToFile != null) {
+                        Log(Level.Info, "Copying {0} {1} to '{2}'.",
+                            dirMovements, (dirMovements != 1) ? "directories" : "directory",
+                            ToFile);
+                    } else {
+                        Log(Level.Info, "Copying {0} {1} to '{2}'.",
+                            dirMovements, (dirMovements != 1) ? "directories" : "directory",
+                            ToDirectory);
+                    }
                 }
 
                 // loop thru our file list
@@ -971,6 +994,44 @@ namespace NAnt.Core.Tasks {
                     return Dictionary.ContainsKey(key);
                 }
                 return false;
+            }
+
+            /// <summary>
+            /// Counts the number of directory operations in a collection.
+            /// </summary>
+            /// <returns>
+            /// The number of directory operations performed by this collection.
+            /// </returns>
+            public int CountDirectoryOperations()
+            {
+                int result = 0;
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (this[i].SourceType == typeof(DirectoryInfo))
+                    {
+                        result++;
+                    }
+                }
+                return result;
+            }
+
+            /// <summary>
+            /// Counts the number of file operations in a collection.
+            /// </summary>
+            /// <returns>
+            /// The number of file operations performed by this collection.
+            /// </returns>
+            public int CountFileOperations()
+            {
+                int result = 0;
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (this[i].SourceType == typeof(FileInfo))
+                    {
+                        result++;
+                    }
+                }
+                return result;
             }
 
             #endregion Public Instance Methods

@@ -311,6 +311,10 @@ namespace NAnt.Core.Tasks {
                             Location, ex);
                     }
                 }
+
+                // If the CopyFileSet base directory is not the project base directory
+                // and the CopyFileSet base directory does not contain files (including
+                // in any subdirectories), remove the CopyFileSet base directory.
                 if (CopyFileSet.BaseDirectory.FullName != Project.BaseDirectory)
                 {
                     if (FileUtils.DirectoryIsEmpty(CopyFileSet.BaseDirectory.FullName))
@@ -319,8 +323,20 @@ namespace NAnt.Core.Tasks {
                             CopyFileSet.BaseDirectory.FullName, true);
                     }
                 }
-                Log(Level.Info, "{0} file{1} moved.", OperationMap.Count,
-                    OperationMap.Count > 1 ? "s" : "");
+
+                int fileMovements = OperationMap.CountFileOperations();
+                int dirMovements = OperationMap.CountDirectoryOperations();
+
+                if (fileMovements > 0)
+                {
+                    Log(Level.Info, "{0} file{1} moved.", fileMovements,
+                        fileMovements != 1 ? "s" : "");
+                }
+                if (dirMovements > 0)
+                {
+                    Log(Level.Info, "{0} {1} moved.", dirMovements,
+                        dirMovements != 1 ? "directories" : "directory");
+                }
             }
         }
 
