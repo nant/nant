@@ -587,18 +587,67 @@ namespace NAnt.Core.Util
             return resolvedFile;
         }
 
+        /// <summary>
+        /// Checks a given path to see if it contains any files within the
+        /// path or any subdirectories.
+        /// </summary>
+        /// <param name='path'>
+        /// The path to check.
+        /// </param>
+        /// <returns>
+        /// <b>true</b> if <paramref name="path"/> does not contain any
+        /// files (including subdirectories); otherwise <b>false</b>.
+        /// </returns>
         public static bool DirectoryIsEmpty(string path)
         {
+            return DirectoryIsEmpty(path, true);
+        }
+
+        /// <summary>
+        /// Checks a given path to see if it contains any files within the
+        /// path or any subdirectories.
+        /// </summary>
+        /// <param name="path">
+        /// The path to check.
+        /// </param>
+        /// <param name="ignoreSubDirs">
+        /// Indicates whether or not subdirectories should be considered when
+        /// checking the contents of <paramref name="path"/>.
+        /// </param>
+        /// <exception cref="BuildException">
+        /// Is thrown when the <paramref name="path"/> does not exist.
+        /// </exception>
+        /// <returns>
+        /// <b>true</b> if <paramref name="path"/> does not contain any
+        /// files (including subdirectories); otherwise <b>false</b>.
+        /// </returns>
+        public static bool DirectoryIsEmpty(string path, bool ignoreSubDirs)
+        {
+            // If the path doesn't exist, throw a build error.
             if (!Directory.Exists(path))
             {
                 throw new BuildException(String.Format("{0} does not exist.", path));
             }
+            // Retrieve all files from the current path and any subdirectories.
             string[] allFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
 
+            // If any files still exist in the current path, return false.
             if (allFiles.Length > 0)
             {
                 return false;
             }
+
+            // If empty directories are not included, check the path to see
+            // if any subdirectories exist in the path.  If yes, return false.
+            if (!ignoreSubDirs)
+            {
+                string[] allDirs = Directory.GetDirectories(path);
+                if (allDirs.Length > 0)
+                {
+                    return false;
+                }
+            }
+            // If the above tests pass, return true.
             return true;
         }
 

@@ -241,7 +241,8 @@ namespace NAnt.Core.Tasks {
                                 // If there are no more files in the current directory
                                 // and any subdirectories, then delete the current
                                 // directory.
-                                if (FileUtils.DirectoryIsEmpty(sourceDirectory))
+                                if (FileUtils.DirectoryIsEmpty(sourceDirectory,
+                                    IncludeEmptyDirs))
                                 {
                                     Directory.Delete(sourceDirectory, true);
                                 }
@@ -279,7 +280,8 @@ namespace NAnt.Core.Tasks {
                                 // If there are no more files in the current directory
                                 // and any subdirectories, then delete the current
                                 // directory.
-                                if (FileUtils.DirectoryIsEmpty(sourceDirectory))
+                                if (FileUtils.DirectoryIsEmpty(sourceDirectory,
+                                    IncludeEmptyDirs))
                                 {
                                     Directory.Delete(sourceDirectory, true);
                                 }
@@ -317,7 +319,8 @@ namespace NAnt.Core.Tasks {
                 // in any subdirectories), remove the CopyFileSet base directory.
                 if (CopyFileSet.BaseDirectory.FullName != Project.BaseDirectory)
                 {
-                    if (FileUtils.DirectoryIsEmpty(CopyFileSet.BaseDirectory.FullName))
+                    if (FileUtils.DirectoryIsEmpty(CopyFileSet.BaseDirectory.FullName,
+                        IncludeEmptyDirs))
                     {
                         Directory.Delete(
                             CopyFileSet.BaseDirectory.FullName, true);
