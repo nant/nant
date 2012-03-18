@@ -72,7 +72,7 @@ namespace NAnt.Core.Util
             Encoding outputEncoding)
         {
             // determine if filters are available
-            bool filtersAvailable = !FilterChain.IsNullOrEmpty(filterChain);
+            bool filtersAvailable = !FilterChainIsNullOrEmpty(filterChain);
 
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Copy method
@@ -180,7 +180,7 @@ namespace NAnt.Core.Util
         {
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
-            if (FilterChain.IsNullOrEmpty(filterChain) &&
+            if (FilterChainIsNullOrEmpty(filterChain) &&
                 inputEncoding == null && outputEncoding == null)
             {
                 File.Move(sourceFileName, destFileName);
@@ -286,7 +286,7 @@ namespace NAnt.Core.Util
 
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
-            if (FilterChain.IsNullOrEmpty(filterChain) &&
+            if (FilterChainIsNullOrEmpty(filterChain) &&
                 inputEncoding == null &&
                 outputEncoding == null)
             {
@@ -587,70 +587,6 @@ namespace NAnt.Core.Util
             return resolvedFile;
         }
 
-        /// <summary>
-        /// Checks a given path to see if it contains any files within the
-        /// path or any subdirectories.
-        /// </summary>
-        /// <param name='path'>
-        /// The path to check.
-        /// </param>
-        /// <returns>
-        /// <b>true</b> if <paramref name="path"/> does not contain any
-        /// files (including subdirectories); otherwise <b>false</b>.
-        /// </returns>
-        public static bool DirectoryIsEmpty(string path)
-        {
-            return DirectoryIsEmpty(path, true);
-        }
-
-        /// <summary>
-        /// Checks a given path to see if it contains any files within the
-        /// path or any subdirectories.
-        /// </summary>
-        /// <param name="path">
-        /// The path to check.
-        /// </param>
-        /// <param name="ignoreSubDirs">
-        /// Indicates whether or not subdirectories should be considered when
-        /// checking the contents of <paramref name="path"/>.
-        /// </param>
-        /// <exception cref="BuildException">
-        /// Is thrown when the <paramref name="path"/> does not exist.
-        /// </exception>
-        /// <returns>
-        /// <b>true</b> if <paramref name="path"/> does not contain any
-        /// files (including subdirectories); otherwise <b>false</b>.
-        /// </returns>
-        public static bool DirectoryIsEmpty(string path, bool ignoreSubDirs)
-        {
-            // If the path doesn't exist, throw a build error.
-            if (!Directory.Exists(path))
-            {
-                throw new BuildException(String.Format("{0} does not exist.", path));
-            }
-            // Retrieve all files from the current path and any subdirectories.
-            string[] allFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-
-            // If any files still exist in the current path, return false.
-            if (allFiles.Length > 0)
-            {
-                return false;
-            }
-
-            // If empty directories are not included, check the path to see
-            // if any subdirectories exist in the path.  If yes, return false.
-            if (!ignoreSubDirs)
-            {
-                string[] allDirs = Directory.GetDirectories(path);
-                if (allDirs.Length > 0)
-                {
-                    return false;
-                }
-            }
-            // If the above tests pass, return true.
-            return true;
-        }
-
         #endregion Public Static Methods
 
         #region Private Static Methods
@@ -672,6 +608,28 @@ namespace NAnt.Core.Util
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines whether a given FilterChain is null or empty.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if <paramref name="filterChain"/> is null or empty;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        /// <param name='filterChain'>
+        /// The FilterChain to check.
+        /// </param>
+        private static bool FilterChainIsNullOrEmpty(FilterChain filterChain)
+        {
+            if (filterChain == null)
+            {
+                return true;
+            }
+            else
+            {
+                return filterChain.Filters.Count <= 0;
+            }
         }
 
         #endregion Private Static Methods

@@ -274,6 +274,27 @@ namespace NAnt.Core.Tasks {
         #region Protected Instance Properties
 
         /// <summary>
+        /// The set of files to perform a file operation on.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///   The key of the <see cref="Hashtable" /> is the absolute path of
+        ///   the destination file and the value is a <see cref="FileDateInfo" />
+        ///   holding the path and last write time of the most recently updated
+        ///   source file that is selected to be copied or moved to the
+        ///   destination file.
+        ///   </para>
+        ///   <para>
+        ///   On Windows, the <see cref="Hashtable" /> is case-insensitive.
+        ///   </para>
+        /// </remarks>
+        [ObsoleteAttribute("Use OperationMap instead of FileCopyMap.")]
+        protected Hashtable FileCopyMap
+        {
+            get { return _operationMap.ConvertToHashtable(); }
+        }
+
+        /// <summary>
         /// Gets the operation map containing all the files/directories to
         /// perform file operations on.
         /// </summary>
@@ -397,17 +418,13 @@ namespace NAnt.Core.Tasks {
                     operation.NormalizeTargetAttributes();
                     _operationMap.Add(operation);
                 }
-            } else {
+            }
+            else if (CopyFileSet.Includes.Count != 0)
+            {
                 // copy file set contents.
-                // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
+                // get the complete path of the base directory of the fileset,
+                // ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = CopyFileSet.BaseDirectory;
-
-                // If no includes were specified, add all files and subdirectories
-                // from the fileset's base directory to the fileset.
-                if (CopyFileSet.Includes.Count == 0)
-                {
-                    CopyFileSet.Includes.Add("**/*");
-                }
 
                 // if source file not specified use fileset
                 foreach (string pathname in CopyFileSet.FileNames) {
@@ -466,7 +483,7 @@ namespace NAnt.Core.Tasks {
                             }
                         }
                     } else {
-                        throw CreateSourceFileNotFoundException (srcInfo.FullName);
+                        throw CreateSourceFileNotFoundException(srcInfo.FullName);
                     }
                 }
                 
@@ -497,6 +514,10 @@ namespace NAnt.Core.Tasks {
                         }
                     }
                 }
+            }
+            else
+            {
+                OperationMap.Add(new FileOperation(CopyFileSet.BaseDirectory, ToDirectory));
             }
 
             // do all the actual copy operations now
@@ -646,6 +667,73 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Protected Instance Methods
+
+        /// <summary>
+        /// Holds the absolute paths and last write time of a given file.
+        /// </summary>
+        protected class FileDateInfo
+        {
+            #region Public Instance Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileDateInfo"/> class
+            /// for the specified <paramref name="file"/>.
+            /// </summary>
+            /// <param name="file">
+            /// A <see cref="System.IO.FileSystemInfo"/> object containing
+            /// the full path and last write time of the file the object represents.
+            /// </param>
+            public FileDateInfo(FileSystemInfo file)
+                : this(file.FullName, file.LastWriteTime) {}
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="FileDateInfo" />
+            /// class for the specified file and last write time.
+            /// </summary>
+            /// <param name="path">The absolute path of the file.</param>
+            /// <param name="lastWriteTime">The last write time of the file.</param>
+            public FileDateInfo(string path, DateTime lastWriteTime)
+            {
+                _path = path;
+                _lastWriteTime = lastWriteTime;
+            }
+
+            #endregion Public Instance Constructors
+
+            #region Public Instance Properties
+
+            /// <summary>
+            /// Gets the absolute path of the current file.
+            /// </summary>
+            /// <value>
+            /// The absolute path of the current file.
+            /// </value>
+            public string Path
+            {
+                get { return _path; }
+            }
+
+            /// <summary>
+            /// Gets the time when the current file was last written to.
+            /// </summary>
+            /// <value>
+            /// The time when the current file was last written to.
+            /// </value>
+            public DateTime LastWriteTime
+            {
+                get { return _lastWriteTime; }
+            }
+
+            #endregion Public Instance Properties
+
+            #region Private Instance Fields
+            
+            private DateTime _lastWriteTime;
+            private string _path;
+
+            #endregion Private Instance Fields
+        }
 
         /// <summary>
         /// Provides methods and properties to properly manage file operations for
@@ -832,7 +920,7 @@ namespace NAnt.Core.Tasks {
             /// used to check path equality.
             /// </remarks>
             /// <returns>
-            /// <b>true</b> if both paths match; otherwise <b>false</b>.
+            /// <c>true</c> if both paths match; otherwise <c>false</c>.
             /// </returns>
             public bool SourceEqualsTarget()
             {
@@ -892,8 +980,8 @@ namespace NAnt.Core.Tasks {
             /// The <see cref="System.IO.FileSystemInfo"/> to check.
             /// </param>
             /// <returns>
-            /// <b>true</b> if the target file is considered out of date; otherwise
-            /// <b>false</b>
+            /// <c>true</c> if the target file is considered out of date; otherwise
+            /// <c>false</c>
             /// </returns>
             public static bool TargetIsOutdated(FileSystemInfo source, FileSystemInfo target)
             {
@@ -915,8 +1003,8 @@ namespace NAnt.Core.Tasks {
             /// The object to check.
             /// </param>
             /// <returns>
-            /// <b>true</b> if <paramref name="item"/> is the same type as
-            /// <typeparamref name="TFileSystemInfo"/>; otherwise, <b>false</b>.
+            /// <c>true</c> if <paramref name="item"/> is the same type as
+            /// <typeparamref name="TFileSystemInfo"/>; otherwise, <c>false</c>.
             /// </returns>
             private bool IsFileSystemType<TFileSystemInfo>(FileSystemInfo item)
                 where TFileSystemInfo : FileSystemInfo
@@ -983,8 +1071,8 @@ namespace NAnt.Core.Tasks {
             /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>.
             /// </param>
             /// <returns>
-            /// <b>true</b> if the <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> 
-            /// contains an element with the specified key; otherwise, <b>false</b>.
+            /// <c>true</c> if the <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/>
+            /// contains an element with the specified key; otherwise, <c>false</c>.
             /// </returns>
             public bool ContainsKey(string key)
             {
@@ -1029,6 +1117,81 @@ namespace NAnt.Core.Tasks {
                     {
                         result++;
                     }
+                }
+                return result;
+            }
+
+            /// <summary>
+            /// Converts the current instance of
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> to
+            /// the old style FileCopyMap hashtable.
+            /// </summary>
+            /// <returns>
+            /// The contents of
+            /// <see cref="NAnt.Core.Tasks.CopyTask.FileOperationMap"/> in a
+            /// new hashtable.
+            /// </returns>
+            public Hashtable ConvertToHashtable()
+            {
+                // Setup var to return
+                Hashtable result;
+
+                // Initialize return var with the proper case sensitivity
+                // based on underlying OS.
+                if (PlatformHelper.IsUnix)
+                {
+                    result = new Hashtable();
+                }
+                else
+                {
+                    result = CollectionsUtil.CreateCaseInsensitiveHashtable();
+                }
+
+                // Loop through this collection and load the return hashtable var.
+                for (int i = 0; i < this.Count; i++)
+                {
+                    FileOperation temp = this[i];
+                    string sourceFileName;
+                    string targetFileName;
+
+                    // For a FileToFile operation, load the file names in the return
+                    // hashtable var as is.
+                    if (temp.OperationType == CopyTask.OperationType.FileToFile)
+                    {
+                        result.Add(temp.Target, new FileDateInfo(temp.SourceInfo));
+                    }
+                    // For a FileToDirectory operation, use the source file name as
+                    // the target file name and load accordingly.
+                    else if (temp.OperationType == CopyTask.OperationType.FileToDirectory)
+                    {
+                        sourceFileName = Path.GetFileName(temp.Source);
+                        targetFileName = Path.Combine(temp.Target, sourceFileName);
+
+                        result.Add(targetFileName, new FileDateInfo(temp.SourceInfo));
+                    }
+                    // For other operations (ie: DirectoryToDirectory), scan the
+                    // source directory for all files and load them into the
+                    // return hashtable var.
+                    else
+                    {
+                        // Retrieve all files from the current path and any subdirectories.
+                        DirectoryScanner dirScan = new DirectoryScanner();
+                        dirScan.BaseDirectory = temp.SourceInfo as DirectoryInfo;
+                        dirScan.Includes.Add("**/*");
+                        dirScan.Scan();
+                        StringCollection sourceFiles = dirScan.FileNames;
+
+                        for (int s = 0; s < sourceFiles.Count; s++)
+                        {
+                            string source = sourceFiles[s];
+                            sourceFileName = Path.GetFileName(source);
+                            targetFileName = Path.Combine(temp.Target, sourceFileName);
+
+                            result.Add(targetFileName, new FileDateInfo(sourceFileName,
+                                File.GetLastWriteTime(sourceFileName)));
+                        }
+                    }
+
                 }
                 return result;
             }

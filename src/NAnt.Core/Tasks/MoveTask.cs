@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 
@@ -206,15 +207,12 @@ namespace NAnt.Core.Tasks {
                     {
                         Log(Level.Verbose, "Moving {0}.", currentOperation.ToString());
 
-                        string sourceDirectory = null;
                         string destinationDirectory = null;
 
                         switch (currentOperation.OperationType)
                         {
                             case OperationType.FileToFile:
-                                // Setup the source and dest directory vars
-                                sourceDirectory =
-                                    Path.GetDirectoryName(currentOperation.Source);
+                                // Setup the dest directory var
                                 destinationDirectory =
                                     Path.GetDirectoryName(currentOperation.Target);
 
@@ -238,19 +236,9 @@ namespace NAnt.Core.Tasks {
                                     currentOperation.Target, Filters,
                                     InputEncoding, OutputEncoding);
 
-                                // If there are no more files in the current directory
-                                // and any subdirectories, then delete the current
-                                // directory.
-                                if (FileUtils.DirectoryIsEmpty(sourceDirectory,
-                                    IncludeEmptyDirs))
-                                {
-                                    Directory.Delete(sourceDirectory, true);
-                                }
                                 break;
                             case OperationType.FileToDirectory:
-                                // Setup the source and dest directory vars
-                                sourceDirectory =
-                                    Path.GetDirectoryName(currentOperation.Source);
+                                // Setup the dest directory var
                                 destinationDirectory = currentOperation.Target;
 
                                 // Setup a local var that combines the directory
@@ -277,14 +265,6 @@ namespace NAnt.Core.Tasks {
                                 FileUtils.MoveFile(currentOperation.Source,
                                     targetFile, Filters, InputEncoding, OutputEncoding);
 
-                                // If there are no more files in the current directory
-                                // and any subdirectories, then delete the current
-                                // directory.
-                                if (FileUtils.DirectoryIsEmpty(sourceDirectory,
-                                    IncludeEmptyDirs))
-                                {
-                                    Directory.Delete(sourceDirectory, true);
-                                }
                                 break;
                             case OperationType.DirectoryToDirectory:
                                 // Throw a build exception if the target directory
@@ -314,19 +294,6 @@ namespace NAnt.Core.Tasks {
                     }
                 }
 
-                // If the CopyFileSet base directory is not the project base directory
-                // and the CopyFileSet base directory does not contain files (including
-                // in any subdirectories), remove the CopyFileSet base directory.
-                if (CopyFileSet.BaseDirectory.FullName != Project.BaseDirectory)
-                {
-                    if (FileUtils.DirectoryIsEmpty(CopyFileSet.BaseDirectory.FullName,
-                        IncludeEmptyDirs))
-                    {
-                        Directory.Delete(
-                            CopyFileSet.BaseDirectory.FullName, true);
-                    }
-                }
-
                 int fileMovements = OperationMap.CountFileOperations();
                 int dirMovements = OperationMap.CountDirectoryOperations();
 
@@ -350,6 +317,7 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of CopyTask
+
     }
 }
 
