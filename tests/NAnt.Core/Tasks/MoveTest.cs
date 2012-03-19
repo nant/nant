@@ -42,6 +42,15 @@ namespace Tests.NAnt.Core.Tasks {
         private string _tempDirDest;
         private string _tempFileSrc;
 
+        private string _tempDirSourceOne;
+        private string _tempDirSourceTwo;
+        private string _tempFileSourceOne;
+        private string _tempFileSourceTwo;
+        private string _tempDirTargetOne;
+        private string _tempDirTargetTwo;
+        private string _tempFileTargetOne;
+        private string _tempFileTargetTwo;
+
         #endregion Private Instance Fields
 
         #region Private Static Fields
@@ -53,8 +62,17 @@ namespace Tests.NAnt.Core.Tasks {
 
         private const string _xmlFileSetProjectTemplate =
             "<project>"
-                + "<move todir=\"{0}\" verbose=\"true\" includeemptydirs=\"true\">"
+                + "<move todir=\"{0}\">"
                     + "<fileset basedir=\"{1}\" />"
+                + "</move>"
+            + "</project>";
+
+        private const string _xmlFileSetIncludesProjectTemplate =
+            "<project>"
+                + "<move todir=\"{0}\">"
+                    + "<fileset basedir=\"{1}\">"
+                        + "<include name=\"**/*\"/>"
+                    + "</fileset>"
                 + "</move>"
             + "</project>";
         
@@ -65,29 +83,88 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
             _tempDirDest = CreateTempDir("foob");
             _tempFileSrc = CreateTempFile("foo.xml", "SRC");
+
+            // The following vars are needed for directory moving tests.
+            _tempDirSourceOne = CreateTempDir("dirA");
+            _tempDirSourceTwo = CreateTempDir(Path.Combine("dirA", "subDir"));
+            _tempFileSourceOne = CreateTempFile(Path.Combine(_tempDirSourceOne, "file.one"));
+            _tempFileSourceTwo = CreateTempFile(Path.Combine(_tempDirSourceTwo, "file.two"));
+            _tempDirTargetOne = Path.Combine(TempDirName, "dirB");
+            _tempDirTargetTwo = Path.Combine(_tempDirTargetOne, "subDir");
+            _tempFileTargetOne = Path.Combine(_tempDirTargetOne, "file.one");
+            _tempFileTargetTwo = Path.Combine(_tempDirTargetTwo, "file.two");
         }
 
+        /// <summary>
+        /// Tests moving a directory using a fileset element.
+        /// </summary>
         [Test]
-        public void MoveDirectoryTest() {
-            string tempDirA = CreateTempDir("a");
-            string targetDir = Path.Combine(Path.GetTempPath(), "b");
-            string tempSubDirA = Path.Combine(tempDirA, "test");
-            string targetSubDirB = Path.Combine(targetDir, "test");
+        public void FilesetDirectoryMoveTest()
+        {
+            RunBuild(string.Format(_xmlFileSetProjectTemplate, _tempDirTargetOne,
+                _tempDirSourceOne));
 
-            TempDir.Delete(targetDir);
-            TempDir.Delete(tempSubDirA);
+            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+                string.Format("'{0}' directory does not exist", _tempDirTargetOne));
+            Assert.IsTrue(File.Exists(_tempFileTargetOne),
+                string.Format("'{0}' file does not exist", _tempFileTargetOne));
 
-            Directory.CreateDirectory(tempSubDirA);
+            Assert.IsTrue(Directory.Exists(_tempDirTargetTwo),
+                string.Format("'{0}' directory does not exist", _tempDirTargetTwo));
+            Assert.IsTrue(File.Exists(_tempFileTargetTwo),
+                string.Format("'{0}' file does not exist", _tempFileTargetTwo));
 
-            string tempStampFile = CreateTempFile(Path.Combine(tempSubDirA, "stamp"));
-            string targetStampFile = Path.Combine(targetSubDirB, "stamp");
+            Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' directory still exists", _tempDirSourceOne));
+            Assert.IsFalse(File.Exists(_tempFileSourceOne),
+                string.Format("'{0}' file still exists", _tempFileSourceOne));
 
-            RunBuild(string.Format(_xmlFileSetProjectTemplate, targetDir, tempDirA));
+            Assert.IsFalse(Directory.Exists(_tempDirSourceTwo),
+                string.Format("'{0}' directory still exists", _tempDirSourceTwo));
+            Assert.IsFalse(File.Exists(_tempFileSourceTwo),
+                string.Format("'{0}' file still exists", _tempFileSourceTwo));
+        }
 
-            Assert.IsTrue(Directory.Exists(targetDir), string.Format("'{0}' directory does not exist", targetDir));
-            Assert.IsTrue(File.Exists(targetStampFile), string.Format("'{0}' file does not exist", targetStampFile));
-            Assert.IsFalse(Directory.Exists(tempDirA), string.Format("'{0}' directory still exist", tempDirA));
-            Assert.IsFalse(File.Exists(tempStampFile), string.Format("'{0}' file still exists", tempStampFile));
+        /// <summary>
+        /// Tests moving the contents of a directory using a fileset element.
+        /// </summary>
+        [Test]
+        public void FilesetIncludeDirectoryMoveTest()
+        {
+            RunBuild(string.Format(_xmlFileSetIncludesProjectTemplate, _tempDirTargetOne,
+                _tempDirSourceOne));
+
+            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+                string.Format("'{0}' directory does not exist", _tempDirTargetOne));
+            Assert.IsTrue(File.Exists(_tempFileTargetOne),
+                string.Format("'{0}' file does not exist", _tempFileTargetOne));
+
+            Assert.IsTrue(Directory.Exists(_tempDirTargetTwo),
+                string.Format("'{0}' directory does not exist", _tempDirTargetTwo));
+            Assert.IsTrue(File.Exists(_tempFileTargetTwo),
+                string.Format("'{0}' file does not exist", _tempFileTargetTwo));
+
+            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' directory does not exist", _tempDirSourceOne));
+            Assert.IsFalse(File.Exists(_tempFileSourceOne),
+                string.Format("'{0}' file still exists", _tempFileSourceOne));
+
+            Assert.IsTrue(Directory.Exists(_tempDirSourceTwo),
+                string.Format("'{0}' directory does not exist", _tempDirSourceTwo));
+            Assert.IsFalse(File.Exists(_tempFileSourceTwo),
+                string.Format("'{0}' file still exists", _tempFileSourceTwo));
+        }
+
+        /// <summary>
+        /// Tests the failure of trying to move a directory to a location
+        /// that already exists.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void TargetDirectoryExistsTest()
+        {
+            RunBuild(string.Format(_xmlFileSetProjectTemplate, _tempDirDest,
+                _tempDirSourceOne));
         }
 
         [Test]
