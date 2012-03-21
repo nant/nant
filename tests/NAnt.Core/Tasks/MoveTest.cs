@@ -55,26 +55,35 @@ namespace Tests.NAnt.Core.Tasks {
 
         #region Private Static Fields
 
-        private const string _xmlProjectTemplate = 
-            "<project>" 
-                + "<move file=\"{0}\" tofile=\"{1}\" overwrite=\"{2}\" />"
-            + "</project>";
+        private const string _xmlProjectTemplate = @"
+            <project>
+                <move file='{0}' tofile='{1}' overwrite='{2}' />
+            </project>
+        ";
 
-        private const string _xmlFileSetProjectTemplate =
-            "<project>"
-                + "<move todir=\"{0}\">"
-                    + "<fileset basedir=\"{1}\" />"
-                + "</move>"
-            + "</project>";
+        private const string _xmlProjectTemplate2 = @"
+            <project>
+                <move todir='{0}'>
+                    <fileset basedir='{1}' />
+                </move>
+            </project>
+        ";
 
-        private const string _xmlFileSetIncludesProjectTemplate =
-            "<project>"
-                + "<move todir=\"{0}\">"
-                    + "<fileset basedir=\"{1}\">"
-                        + "<include name=\"**/*\"/>"
-                    + "</fileset>"
-                + "</move>"
-            + "</project>";
+        private const string _xmlProjectTemplate3 = @"
+            <project>
+                <move todir='{0}'>
+                    <fileset basedir='{1}'>
+                        <include name='**/*'/>
+                    </fileset>
+                </move>
+            </project>
+        ";
+
+        private const string _xmlProjectTemplate4 = @"
+            <project>
+                <move verbose='true' file='{0}' todir='{1}' />
+            </project>
+        ";
         
         #endregion Private Static Fields
 
@@ -101,7 +110,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void FilesetDirectoryMoveTest()
         {
-            RunBuild(string.Format(_xmlFileSetProjectTemplate, _tempDirTargetOne,
+            RunBuild(string.Format(_xmlProjectTemplate2, _tempDirTargetOne,
                 _tempDirSourceOne));
 
             Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
@@ -131,7 +140,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void FilesetIncludeDirectoryMoveTest()
         {
-            RunBuild(string.Format(_xmlFileSetIncludesProjectTemplate, _tempDirTargetOne,
+            RunBuild(string.Format(_xmlProjectTemplate3, _tempDirTargetOne,
                 _tempDirSourceOne));
 
             Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
@@ -156,14 +165,42 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// A simple file move test.
+        /// </summary>
+        [Test]
+        public void SimpleFileMoveTest()
+        {
+            RunBuild(String.Format(_xmlProjectTemplate, _tempFileSourceOne, _tempFileTargetOne, "true"));
+
+            Assert.IsFalse(File.Exists(_tempFileSourceOne),
+                string.Format("'{0}' file still exists", _tempFileSourceOne));
+            Assert.IsTrue(File.Exists(_tempFileTargetOne),
+                string.Format("'{0}' file does not exist", _tempFileTargetOne));
+        }
+
+        /// <summary>
+        /// Simple file to dir move test.
+        /// </summary>
+        [Test]
+        public void SimpleFileToDirMoveTest()
+        {
+            RunBuild(String.Format(_xmlProjectTemplate4, _tempFileSourceOne, _tempDirTargetOne));
+
+            Assert.IsFalse(File.Exists(_tempFileSourceOne),
+                string.Format("'{0}' file still exists", _tempFileSourceOne));
+            Assert.IsTrue(File.Exists(_tempFileTargetOne),
+                string.Format("'{0}' file does not exist", _tempFileTargetOne));
+        }
+
+        /// <summary>
         /// Tests the failure of trying to move a directory to a location
         /// that already exists.
         /// </summary>
         [Test]
         [ExpectedException(typeof(TestBuildException))]
-        public void TargetDirectoryExistsTest()
+        public void MoveTargetDirectoryExistsTest()
         {
-            RunBuild(string.Format(_xmlFileSetProjectTemplate, _tempDirDest,
+            RunBuild(string.Format(_xmlProjectTemplate2, _tempDirDest,
                 _tempDirSourceOne));
         }
 

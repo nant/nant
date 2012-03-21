@@ -208,6 +208,18 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Tests the failure of trying to copy a directory to a location
+        /// that already exists.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void CopyTargetDirectoryExistsTest()
+        {
+            string newTempDir = CreateTempDir("a.c");
+            RunBuild(String.Format(_xmlProjectTemplate4, tempDir1, newTempDir));
+        }
+
+        /// <summary>
         /// Copy everything from under tempDir1 to a new temp directory and 
         /// ensure it exists.
         /// </summary>
