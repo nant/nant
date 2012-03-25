@@ -179,12 +179,12 @@ namespace NAnt.SourceControl.Tasks {
         #region Protected Instance Methods
 
         /// <summary>
-        /// Converts a <see cref="System.DateTime"/> value to a <see cref="System.String"/>
-        /// representation that can be interpreted by cvs.
+        /// Converts a date value to a string representation that can be
+        /// interpreted by cvs.
         /// </summary>
-        /// <param name="item"><see cref="System.DateTime"/> to convert.</param>
+        /// <param name="item">Date to convert.</param>
         /// <returns>
-        /// <see cref="System.String"/> interpretation of <paramref name="item"/>.
+        /// String interpretation of <paramref name="item"/>.
         /// </returns>
         protected string ToCvsDateTimeString(DateTime item) {
             return string.Format("{0} {1,2} {2}", item.ToString("ddd MMM"), 
