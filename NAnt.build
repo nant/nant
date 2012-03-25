@@ -877,15 +877,4 @@
         <echo file="${wrapper}" append="true">exec ${path::combine(install.prefix, 'bin')}/mono ${path::combine(install.nant, 'bin')}/NAnt.exe "$@"</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'nant')}" />
     </target>
-    <target name="rpm" depends="init, build">
-        <echo message="Build dir: ${build.dir}" />
-        <copy todir="${build.dir}">
-            <fileset>
-                <include name="NAnt.spec" />
-            </fileset>
-        </copy>
-
-        <nant buildfile="release.xml" target="prepare-rpm" />
-        <nant buildfile="release.xml" target="binary-rpm" />
-    </target>
 </project>
