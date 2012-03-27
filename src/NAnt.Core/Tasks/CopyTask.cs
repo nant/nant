@@ -44,8 +44,38 @@ namespace NAnt.Core.Tasks {
     ///   explicitly overwrite files with the <see cref="Overwrite" /> attribute.
     ///   </para>
     ///   <para>
-    ///   When a <see cref="FileSet" /> is used to select files to copy, the 
-    ///   <see cref="ToDirectory" /> attribute must be set. Files that are 
+    ///   Entire directory structures can be copied to a new location.  For this
+    ///   to happen, the following criteria must be met:
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       <description>
+    ///       Everything in the fileset is included
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       The directory structure is not flattened
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       Empty directories are included
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       Destination directory does not exist
+    ///       </description>
+    ///     </item>
+    ///   </list>
+    ///   <para>
+    ///   If any of these items are not met, then the files within the source
+    ///   directory will be copied over instead of the entire directory structure.
+    ///   </para>
+    ///   <para>
+    ///   When a <see cref="FileSet" /> is used to select files or directories to
+    ///   copy, the <see cref="ToDirectory" /> attribute must be set. Files that are
     ///   located under the base directory of the <see cref="FileSet" /> will
     ///   be copied to a directory under the destination directory matching the
     ///   path relative to the base directory of the <see cref="FileSet" />,
@@ -126,7 +156,7 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <copy tofile="target/dir">
+    /// <copy todir="target/dir">
     ///   <fileset basedir="source/dir"/>
     /// </copy>
     ///     ]]>
@@ -276,6 +306,12 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <remarks>
         ///   <para>
+        ///   FileCopyMap should now be considered a readonly hashtable. Any changes to
+        ///   this property will not be taken into account during the file operation
+        ///   task. To interact with the file operation, use the
+        ///   <see cref="OperationMap"/> property.
+        ///   </para>
+        ///   <para>
         ///   The key of the <see cref="Hashtable" /> is the absolute path of
         ///   the destination file and the value is a <see cref="FileDateInfo" />
         ///   holding the path and last write time of the most recently updated
@@ -286,7 +322,7 @@ namespace NAnt.Core.Tasks {
         ///   On Windows, the <see cref="Hashtable" /> is case-insensitive.
         ///   </para>
         /// </remarks>
-        [ObsoleteAttribute("Use OperationMap instead of FileCopyMap.")]
+        [ObsoleteAttribute("FileCopyMap is now considered a readonly hashtable. To interact with file operation, use the OperationMap property")]
         protected Hashtable FileCopyMap
         {
             get { return _operationMap.ConvertToHashtable(); }
@@ -417,8 +453,30 @@ namespace NAnt.Core.Tasks {
                     _operationMap.Add(operation);
                 }
             }
-            else if (CopyFileSet.Includes.Count != 0)
+            // This copy/moves the entire directory.  In order for this to occur, the
+            // following criteria needs to be met:
+            // * Everything in the fileset is included
+            // * The directory structure is not flattened
+            // * Empty directories are included
+            // * and the destination directory does not exist
+            else if (CopyFileSet.IsEverythingIncluded && !Flatten && IncludeEmptyDirs &&
+                !ToDirectory.Exists)
             {
+                OperationMap.Add(new FileOperation(CopyFileSet.BaseDirectory, ToDirectory));
+            }
+            // Otherwise, copy/move the individual files.
+            else
+            {
+                // If no includes were specified, add all files and subdirectories
+                // from the fileset's base directory to the fileset.
+                if (CopyFileSet.Includes.Count == 0)
+                {
+                    CopyFileSet.Includes.Add("**/*");
+
+                    // Make sure to rescan the fileset after adding "**/*"
+                    CopyFileSet.Scan();
+                }
+
                 // copy file set contents.
                 // get the complete path of the base directory of the fileset,
                 // ie, c:\work\nant\src
@@ -512,10 +570,6 @@ namespace NAnt.Core.Tasks {
                         }
                     }
                 }
-            }
-            else
-            {
-                OperationMap.Add(new FileOperation(CopyFileSet.BaseDirectory, ToDirectory));
             }
 
             // do all the actual copy operations now

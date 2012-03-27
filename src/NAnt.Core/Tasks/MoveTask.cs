@@ -40,8 +40,38 @@ namespace NAnt.Core.Tasks {
     ///   attribute.
     ///   </para>
     ///   <para>
-    ///   A <see cref="FileSet" /> can be used to select files to move. To use
-    ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> 
+    ///   Entire directory structures can be moved to a new location.  For this
+    ///   to happen, the following criteria must be met:
+    ///   </para>
+    ///   <list type="bullet">
+    ///     <item>
+    ///       <description>
+    ///       Everything in the fileset is included
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       The directory structure is not flattened
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       Empty directories are included
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///       Destination directory does not exist
+    ///       </description>
+    ///     </item>
+    ///   </list>
+    ///   <para>
+    ///   If any of these items are not met, then the files within the source
+    ///   directory will be moved over instead of the entire directory structure.
+    ///   </para>
+    ///   <para>
+    ///   A <see cref="FileSet" /> can be used to select files or directories to move.
+    ///   To use a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" />
     ///   attribute must be set.
     ///   </para>
     ///   <h3>Encoding</h3>
@@ -113,7 +143,7 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <move tofile="target/dir">
+    /// <move todir="target/dir">
     ///   <fileset basedir="source/dir"/>
     /// </move>
     ///     ]]>

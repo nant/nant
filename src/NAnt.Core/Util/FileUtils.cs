@@ -72,7 +72,7 @@ namespace NAnt.Core.Util
             Encoding outputEncoding)
         {
             // determine if filters are available
-            bool filtersAvailable = !FilterChainIsNullOrEmpty(filterChain);
+            bool filtersAvailable = !FilterChain.IsNullOrEmpty(filterChain);
 
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Copy method
@@ -180,7 +180,7 @@ namespace NAnt.Core.Util
         {
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
-            if (FilterChainIsNullOrEmpty(filterChain) &&
+            if (FilterChain.IsNullOrEmpty(filterChain) &&
                 inputEncoding == null && outputEncoding == null)
             {
                 File.Move(sourceFileName, destFileName);
@@ -286,32 +286,47 @@ namespace NAnt.Core.Util
 
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
-            if (FilterChainIsNullOrEmpty(filterChain) &&
+            if (FilterChain.IsNullOrEmpty(filterChain) &&
                 inputEncoding == null &&
                 outputEncoding == null)
             {
 
-                // If the source & target paths are different or the paths are the same
-                // naming with different casing and on a *nix platform, move them over.
-                if (!sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase) ||
-                    (!sourceDirectory.Equals(destDirectory) && PlatformHelper.IsUnix))
+                // If the source & target paths are completely the same, including
+                // case, throw an exception.
+                if (sourceDirectory.Equals(destDirectory, StringComparison.InvariantCulture))
                 {
-                    Directory.Move(sourceDirectory, destDirectory);
+                    throw new BuildException("Source and Target paths are identical");
                 }
-                else if (sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    // If the source & target paths are the same but difference case
-                    // (ie: C:\nant to C:\NAnt), stage the directory before moving it.
-                    string stagePath = GetTempDirectoryName();
 
-                    Directory.Move(sourceDirectory, stagePath);
-                    Directory.Move(stagePath, destDirectory);
+                // Windows filenames and directories are case-insensitive. If a user
+                // wants to rename a directory with the same name but different casing
+                // (ie: C:\nant to C:\NAnt), then the move needs to be staged.
+                if (PlatformHelper.IsWindows)
+                {
+                    // If the directory names are the same but different casing, stage
+                    // the move by moving the source directory to a temp location
+                    // before moving it to the destination.
+                    if (sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        string stagePath = GetTempDirectoryName();
+
+                        Directory.Move(sourceDirectory, stagePath);
+                        Directory.Move(stagePath, destDirectory);
+                    }
+                    // If the directory source and destination names are different, use
+                    // Directory.Move.
+                    else
+                    {
+                        Directory.Move(sourceDirectory, destDirectory);
+                    }
                 }
+                // Non-Windows systems, such as Linux/Unix, filenames and directories
+                // are case-sensitive. So as long as the directory names are not
+                // identical, with the check above, the Directory.Move method
+                // can be used.
                 else
                 {
-                    // If the source & target paths are completely the same, including
-                    // case, throw an exception.
-                    throw new BuildException("Source and Target paths are identical");
+                    Directory.Move(sourceDirectory, destDirectory);
                 }
             }
             else
@@ -608,28 +623,6 @@ namespace NAnt.Core.Util
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Determines whether a given FilterChain is null or empty.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if <paramref name="filterChain"/> is null or empty;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        /// <param name='filterChain'>
-        /// The FilterChain to check.
-        /// </param>
-        private static bool FilterChainIsNullOrEmpty(FilterChain filterChain)
-        {
-            if (filterChain == null)
-            {
-                return true;
-            }
-            else
-            {
-                return filterChain.Filters.Count <= 0;
-            }
         }
 
         #endregion Private Static Methods

@@ -602,25 +602,20 @@ namespace NAnt.Core.Types {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             if (!_hasScanned){
                 sb.AppendFormat("Base path: {0}", BaseDirectory);
-                sb.Append(Environment.NewLine);
+                sb.AppendLine();
                 
-                sb.Append("AsIs:");
-                sb.Append(Environment.NewLine);
-                sb.Append(AsIs.ToString());
-                sb.Append(Environment.NewLine);
+                sb.AppendLine("AsIs:");
+                sb.AppendLine(AsIs.ToString());
 
-                sb.Append("Files:");
-                sb.Append(Environment.NewLine);
-                sb.Append(_scanner.ToString());
-                sb.Append(Environment.NewLine);
+                sb.AppendLine("Files:");
+                sb.AppendLine(_scanner.ToString());
 
-                sb.Append("PathFiles:");
-                sb.Append(Environment.NewLine);
-                sb.Append(_pathFiles.ToString());
-                sb.Append(Environment.NewLine);
+                sb.AppendLine("PathFiles:");
+                sb.AppendLine(_pathFiles.ToString());
             } else {
-                sb.Append("Files:");
-                sb.Append(Environment.NewLine);
+                sb.AppendFormat("IsEverythingIncluded: {0}", IsEverythingIncluded);
+                sb.AppendLine();
+                sb.AppendLine("Files:");
                 foreach (string file in this.FileNames) {
                     sb.Append(file);
                     sb.Append(Environment.NewLine);
@@ -725,6 +720,26 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Internal Instance Methods
+
+        #region Protected Internal Instance Properties
+
+        /// <summary>
+        /// Indicates whether or not every file and directory is included in
+        /// the fileset list.
+        /// </summary>
+        protected internal bool IsEverythingIncluded
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.IsEverythingIncluded;
+            }
+        }
+
+        #endregion Protected Internal Instance Properties
 
         #region Public Static Methods
 

@@ -44,12 +44,20 @@ namespace Tests.NAnt.Core.Tasks {
 
         private string _tempDirSourceOne;
         private string _tempDirSourceTwo;
+        private string _tempDirSourceThree;
+        private string _tempDirSourceFour;
         private string _tempFileSourceOne;
         private string _tempFileSourceTwo;
+        private string _tempFileSourceThree;
+        private string _tempFileSourceFour;
         private string _tempDirTargetOne;
         private string _tempDirTargetTwo;
+        private string _tempDirTargetThree;
+        private string _tempDirTargetFour;
         private string _tempFileTargetOne;
         private string _tempFileTargetTwo;
+        private string _tempFileTargetThree;
+        private string _tempFileTargetFour;
 
         #endregion Private Instance Fields
 
@@ -84,6 +92,14 @@ namespace Tests.NAnt.Core.Tasks {
                 <move verbose='true' file='{0}' todir='{1}' />
             </project>
         ";
+
+        private const string _xmlProjectTemplate5 = @"
+            <project>
+                <move todir='{0}' includeemptydirs='false'>
+                    <fileset basedir='{1}' />
+                </move>
+            </project>
+        ";
         
         #endregion Private Static Fields
 
@@ -96,12 +112,20 @@ namespace Tests.NAnt.Core.Tasks {
             // The following vars are needed for directory moving tests.
             _tempDirSourceOne = CreateTempDir("dirA");
             _tempDirSourceTwo = CreateTempDir(Path.Combine("dirA", "subDir"));
+            _tempDirSourceThree = CreateTempDir("dirE");
+            _tempDirSourceFour = CreateTempDir(Path.Combine(_tempDirSourceThree, "CVS"));
             _tempFileSourceOne = CreateTempFile(Path.Combine(_tempDirSourceOne, "file.one"));
             _tempFileSourceTwo = CreateTempFile(Path.Combine(_tempDirSourceTwo, "file.two"));
+            _tempFileSourceThree = CreateTempFile(Path.Combine(_tempDirSourceThree, "file.three"));
+            _tempFileSourceFour = CreateTempFile(Path.Combine(_tempDirSourceFour, "file.four"));
             _tempDirTargetOne = Path.Combine(TempDirName, "dirB");
             _tempDirTargetTwo = Path.Combine(_tempDirTargetOne, "subDir");
+            _tempDirTargetThree = Path.Combine(_tempDirTargetOne, "dirX");
+            _tempDirTargetFour = Path.Combine(_tempDirTargetThree, "CVS");
             _tempFileTargetOne = Path.Combine(_tempDirTargetOne, "file.one");
             _tempFileTargetTwo = Path.Combine(_tempDirTargetTwo, "file.two");
+            _tempFileTargetThree = Path.Combine(_tempDirTargetThree, "file.three");
+            _tempFileTargetFour = Path.Combine(_tempDirTargetFour, "file.four");
         }
 
         /// <summary>
@@ -193,15 +217,62 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Tests the failure of trying to move a directory to a location
-        /// that already exists.
+        /// Tests empty directory moves when includeemptydir property is false.
         /// </summary>
         [Test]
-        [ExpectedException(typeof(TestBuildException))]
-        public void MoveTargetDirectoryExistsTest()
+        public void DoNotIncludeEmptyDirMoveTest()
         {
-            RunBuild(string.Format(_xmlProjectTemplate2, _tempDirDest,
-                _tempDirSourceOne));
+            string emptySourceDirOne = CreateTempDir(Path.Combine(_tempDirSourceOne, "EmptyOne"));
+            string emptySourceDirTwo = CreateTempDir(Path.Combine(_tempDirSourceOne, "EmptyTwo"));
+            string emptyTargetDirOne = Path.Combine(_tempDirTargetOne, "EmptyOne");
+            string emptyTargetDirTwo = Path.Combine(_tempDirTargetOne, "EmptyTwo");
+
+            RunBuild(String.Format(_xmlProjectTemplate5, _tempDirTargetOne, _tempDirSourceOne));
+
+            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+                string.Format("'{0}' target directory does not exist", _tempDirTargetOne));
+
+            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' source directory does not exist", _tempDirSourceOne));
+
+            Assert.IsTrue(Directory.Exists(emptySourceDirOne),
+                string.Format("'{0}' empty directory does not exist", emptySourceDirOne));
+
+            Assert.IsTrue(Directory.Exists(emptySourceDirTwo),
+                string.Format("'{0}' empty directory does not exist", emptySourceDirTwo));
+
+            Assert.IsFalse(Directory.Exists(emptyTargetDirOne),
+                string.Format("'{0}' empty directory does exist", emptyTargetDirOne));
+
+            Assert.IsFalse(Directory.Exists(emptyTargetDirTwo),
+                string.Format("'{0}' empty directory does exist", emptyTargetDirTwo));
+        }
+
+        /// <summary>
+        /// Checks to see if the move task will move
+        /// </summary>
+        [Test]
+        public void FilesetExcludeDirectoryMoveTest()
+        {
+            RunBuild(String.Format(_xmlProjectTemplate3, _tempDirTargetThree, _tempDirSourceThree));
+
+            Assert.IsTrue(Directory.Exists(_tempDirTargetThree),
+                string.Format("'{0}' target directory does not exist", _tempDirTargetThree));
+
+            Assert.IsTrue(File.Exists(_tempFileTargetThree),
+                string.Format("'{0}' target file does not exist", _tempFileTargetThree));
+
+            Assert.IsTrue(File.Exists(_tempFileSourceFour),
+                string.Format("'{0}' source file does not exist", _tempFileSourceFour));
+
+            Assert.IsFalse(Directory.Exists(_tempDirTargetFour),
+                string.Format("'{0}' target directory does exist", _tempDirTargetFour));
+
+            Assert.IsFalse(File.Exists(_tempFileTargetFour),
+                string.Format("'{0}' target file does exist", _tempFileTargetFour));
+
+            Assert.IsFalse(File.Exists(_tempFileSourceThree),
+                string.Format("'{0}' source file does exist", _tempFileSourceThree));
         }
 
         [Test]
