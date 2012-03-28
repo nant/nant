@@ -81,7 +81,7 @@ namespace Tests.NAnt.Core.Tasks {
             <project>
                 <move todir='{0}'>
                     <fileset basedir='{1}'>
-                        <include name='**/*'/>
+                        <include name='{2}'/>
                     </fileset>
                 </move>
             </project>
@@ -115,17 +115,17 @@ namespace Tests.NAnt.Core.Tasks {
             _tempDirSourceThree = CreateTempDir("dirE");
             _tempDirSourceFour = CreateTempDir(Path.Combine(_tempDirSourceThree, "CVS"));
             _tempFileSourceOne = CreateTempFile(Path.Combine(_tempDirSourceOne, "file.one"));
-            _tempFileSourceTwo = CreateTempFile(Path.Combine(_tempDirSourceTwo, "file.two"));
-            _tempFileSourceThree = CreateTempFile(Path.Combine(_tempDirSourceThree, "file.three"));
-            _tempFileSourceFour = CreateTempFile(Path.Combine(_tempDirSourceFour, "file.four"));
+            _tempFileSourceTwo = CreateTempFile(Path.Combine(_tempDirSourceTwo, "file2.two"));
+            _tempFileSourceThree = CreateTempFile(Path.Combine(_tempDirSourceThree, "file3.three"));
+            _tempFileSourceFour = CreateTempFile(Path.Combine(_tempDirSourceFour, "file4.four"));
             _tempDirTargetOne = Path.Combine(TempDirName, "dirB");
             _tempDirTargetTwo = Path.Combine(_tempDirTargetOne, "subDir");
             _tempDirTargetThree = Path.Combine(_tempDirTargetOne, "dirX");
             _tempDirTargetFour = Path.Combine(_tempDirTargetThree, "CVS");
             _tempFileTargetOne = Path.Combine(_tempDirTargetOne, "file.one");
-            _tempFileTargetTwo = Path.Combine(_tempDirTargetTwo, "file.two");
-            _tempFileTargetThree = Path.Combine(_tempDirTargetThree, "file.three");
-            _tempFileTargetFour = Path.Combine(_tempDirTargetFour, "file.four");
+            _tempFileTargetTwo = Path.Combine(_tempDirTargetTwo, "file2.two");
+            _tempFileTargetThree = Path.Combine(_tempDirTargetThree, "file3.three");
+            _tempFileTargetFour = Path.Combine(_tempDirTargetFour, "file4.four");
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void FilesetIncludeDirectoryMoveTest()
         {
             RunBuild(string.Format(_xmlProjectTemplate3, _tempDirTargetOne,
-                _tempDirSourceOne));
+                _tempDirSourceOne, "**/*"));
 
             Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' directory does not exist", _tempDirTargetOne));
@@ -177,13 +177,13 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(_tempFileTargetTwo),
                 string.Format("'{0}' file does not exist", _tempFileTargetTwo));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
-                string.Format("'{0}' directory does not exist", _tempDirSourceOne));
+            Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' directory still exists", _tempDirSourceOne));
             Assert.IsFalse(File.Exists(_tempFileSourceOne),
                 string.Format("'{0}' file still exists", _tempFileSourceOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceTwo),
-                string.Format("'{0}' directory does not exist", _tempDirSourceTwo));
+            Assert.IsFalse(Directory.Exists(_tempDirSourceTwo),
+                string.Format("'{0}' directory still exists", _tempDirSourceTwo));
             Assert.IsFalse(File.Exists(_tempFileSourceTwo),
                 string.Format("'{0}' file still exists", _tempFileSourceTwo));
         }
@@ -200,6 +200,28 @@ namespace Tests.NAnt.Core.Tasks {
                 string.Format("'{0}' file still exists", _tempFileSourceOne));
             Assert.IsTrue(File.Exists(_tempFileTargetOne),
                 string.Format("'{0}' file does not exist", _tempFileTargetOne));
+        }
+
+        [Test]
+        public void SelectFileMoveTest()
+        {
+            RunBuild(string.Format(_xmlProjectTemplate3, _tempDirTargetOne,
+                _tempDirSourceOne, "**/file.*"));
+
+            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' source directory does not exist", _tempDirSourceOne));
+            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+                string.Format("'{0}' target directory does not exist", _tempDirTargetOne));
+
+            Assert.IsFalse(File.Exists(_tempFileSourceOne),
+                string.Format("'{0}' source file still exists", _tempFileSourceOne));
+            Assert.IsTrue(File.Exists(_tempFileTargetOne),
+                string.Format("'{0}' target file does not exist", _tempFileTargetOne));
+
+            Assert.IsTrue(File.Exists(_tempFileSourceTwo),
+                string.Format("'{0}' source file does not exists", _tempFileSourceTwo));
+            Assert.IsFalse(File.Exists(_tempFileTargetTwo),
+                string.Format("'{0}' target file does exist", _tempFileTargetTwo));
         }
 
         /// <summary>
@@ -254,7 +276,8 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void FilesetExcludeDirectoryMoveTest()
         {
-            RunBuild(String.Format(_xmlProjectTemplate3, _tempDirTargetThree, _tempDirSourceThree));
+            RunBuild(String.Format(_xmlProjectTemplate3, _tempDirTargetThree,
+                _tempDirSourceThree, "**/*"));
 
             Assert.IsTrue(Directory.Exists(_tempDirTargetThree),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetThree));

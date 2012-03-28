@@ -765,12 +765,12 @@ namespace NAnt.Core {
                 }
             }
 
- #if DEBUG_REGEXES
+#if DEBUG_REGEXES
              Console.WriteLine("Result: {0}", included);
- #endif
-            // If the current file/directory was not included and the isEverythingIncluded
+#endif
+            // If the current file was not included and the isEverythingIncluded
             // indicator is true; set the isEverythingIncluded indicator to false.
-            if (!included && _isEverythingIncluded)
+            if (!included && _isEverythingIncluded && File.Exists(path))
             {
                 _isEverythingIncluded = false;
             }
