@@ -69,6 +69,19 @@ namespace Tests.NAnt.DotNet.Tasks {
                 </asminfo>
             </project>";
 
+        private const string _buildXmlErrorTwo = @"<?xml version='1.0'?>
+            <project>
+                <asminfo output='AssemblyInfo.cs' language='CSharp'>
+                    <imports>
+                        <import namespace='System' />
+                        <import namespace='System.Security' />
+                    </imports>
+                    <attributes>
+                        <attribute type='AssemblyTitleAttribute' />
+                    </attributes>
+                </asminfo>
+            </project>";
+
         /// <summary>
         /// Standard test for the AsmInfo task.
         /// </summary>
@@ -82,7 +95,7 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// have the "value" attribute.
         /// </summary>
         [Test]
-        public void Test_Without_Value()
+        public void attributeWithNoValueShouldWorkWhenPublicDefaultConstructorExists()
         {
             RunBuild(_buildXmlTwo);
         }
@@ -94,9 +107,21 @@ namespace Tests.NAnt.DotNet.Tasks {
         /// </summary>
         [Test]
         [ExpectedException(typeof(TestBuildException))]
-        public void emptyValueForAttributeWithoutDefaultConstructorShouldCauseBuildException()
+        public void specifyingValueForAttrbuteWithNoConstructorTakingASingleParameterShouldCauseBuildException()
         {
             RunBuild(_buildXmlError);
+        }
+
+        /// <summary>
+        /// Runs a AsmInfo task that is expected to fail because
+        /// the attribute constructors does not have a default
+        /// constructer with no parameters.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void attributeWithNoValueShouldCauseBuildExceptionWhenNoPublicDefaultConstructorExists()
+        {
+            RunBuild(_buildXmlErrorTwo);
         }
     }
 }
