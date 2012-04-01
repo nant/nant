@@ -539,39 +539,18 @@ namespace NAnt.DotNet.Tasks {
                 assemblyResolver.Attach();
 
                 try {
-                    Type type = null;
+                    // Try to find the type from typename parameter.
+                    Type type = FindType(assemblies, imports, typename);
 
-                    // load each assembly and try to get type from it
-                    foreach (string assemblyFileName in assemblies) {
-                        // load assembly from filesystem
-                        Assembly assembly = Assembly.LoadFrom(assemblyFileName);
-                        // try to load type from assembly
-                        type = assembly.GetType(typename, false, false);
-                        if (type == null) {
-                            foreach (string import in imports) {
-                                type = assembly.GetType(import + "." + typename, false, false);
-                                if (type != null) {
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (type != null) {
-                            break;
-                        }
-                    }
-
-                    // try to load type from all assemblies loaded from disk, if
-                    // it was not loaded from the references assemblies 
-                    if (type == null) {
-                        type = Type.GetType(typename, false, false);
-                        if (type == null) {
-                            foreach (string import in imports) {
-                                type = Type.GetType(import + "." + typename, false, false);
-                                if (type != null) {
-                                    break;
-                                }
-                            }
+                    // If typename type was not found from above statement and
+                    // typename does not end with the word "Attribute", append
+                    // "Attribute" to typename and try to find the type again.
+                    if (type == null)
+                    {
+                        if (!typename.EndsWith("Attribute"))
+                        {
+                            string attrTypeName = String.Concat(typename, "Attribute");
+                            type = FindType(assemblies, imports, attrTypeName);
                         }
                     }
 
@@ -581,7 +560,7 @@ namespace NAnt.DotNet.Tasks {
                             ConstructorInfo defaultConstructor = type.GetConstructor(
                                 BindingFlags.Public | BindingFlags.Instance, null, 
                                 new Type[0], new ParameterModifier[0]);
-                            if (defaultConstructor != null) {
+                            if (defaultConstructor == null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
                                     ResourceUtils.GetString("NA2005"), type.FullName), Location.UnknownLocation);
@@ -627,6 +606,67 @@ namespace NAnt.DotNet.Tasks {
             }
 
             #endregion Public Instance Methods
+
+            #region Private Instance Methods
+
+            /// <summary>
+            /// Finds a given type from a given list of assemblies and import statements.
+            /// </summary>
+            /// <param name='assemblies'>
+            /// A list of assemblies to search for a given type.
+            /// </param>
+            /// <param name='imports'>
+            /// A list of import statements to search for a given type.
+            /// </param>
+            /// <param name='typename'>
+            /// The name of the type to locate.
+            /// </param>
+            /// <returns>
+            /// The type object found from assemblies and import statements based
+            /// on the name of the type.
+            /// </returns>
+            private Type FindType(StringCollection assemblies, StringCollection imports, string typename)
+            {
+                Type type = null;
+
+                // load each assembly and try to get type from it
+                foreach (string assemblyFileName in assemblies) {
+                    // load assembly from filesystem
+                    Assembly assembly = Assembly.LoadFrom(assemblyFileName);
+                    // try to load type from assembly
+                    type = assembly.GetType(typename, false, false);
+                    if (type == null) {
+                        foreach (string import in imports) {
+                            type = assembly.GetType(import + "." + typename, false, false);
+                            if (type != null) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (type != null) {
+                        break;
+                    }
+                }
+
+                // try to load type from all assemblies loaded from disk, if
+                // it was not loaded from the references assemblies 
+                if (type == null) {
+                    type = Type.GetType(typename, false, false);
+                    if (type == null) {
+                        foreach (string import in imports) {
+                            type = Type.GetType(import + "." + typename, false, false);
+                            if (type != null) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return type;
+            }
+
+            #endregion Private Instance Methods
         }
     }
 }

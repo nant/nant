@@ -43,9 +43,76 @@ namespace Tests.NAnt.DotNet.Tasks {
                 </asminfo>
             </project>";
 
+        private const string _buildXmlTwo = @"<?xml version='1.0'?>
+            <project>
+                <asminfo output='AssemblyInfo.cs' language='CSharp'>
+                    <imports>
+                        <import namespace='System' />
+                        <import namespace='System.Security' />
+                        <import namespace='System.Reflection' />
+                        <import namespace='System.Runtime.InteropServices' />
+                    </imports>
+                    <attributes>
+                        <attribute type='ComVisibleAttribute' value='false' />
+                        <attribute type='CLSCompliantAttribute' value='true' />
+                        <attribute type='AssemblyVersionAttribute' value='1.0.0.0' />
+                        <attribute type='AssemblyTitleAttribute' value='My fun assembly' />
+                        <attribute type='AssemblyDescriptionAttribute' value='More fun than a barrel of monkeys' />
+                        <attribute type='AssemblyCopyrightAttribute' value='Copyright (c) 2002, Monkeyboy, Inc.' />
+                        <attribute type='AllowPartiallyTrustedCallers' />
+                    </attributes>
+                </asminfo>
+            </project>";
+
+        private const string _buildXmlError = @"<?xml version='1.0'?>
+            <project>
+                <asminfo output='AssemblyInfo.cs' language='CSharp'>
+                    <imports>
+                        <import namespace='System' />
+                        <import namespace='System.Security' />
+                        <import namespace='System.Reflection' />
+                        <import namespace='System.Runtime.InteropServices' />
+                    </imports>
+                    <attributes>
+                        <attribute type='ComVisibleAttribute' value='false' />
+                        <attribute type='CLSCompliantAttribute' value='true' />
+                        <attribute type='AssemblyVersionAttribute' value='1.0.0.0' />
+                        <attribute type='AssemblyTitleAttribute' value='My fun assembly' />
+                        <attribute type='AssemblyDescriptionAttribute' value='More fun than a barrel of monkeys' />
+                        <attribute type='AssemblyCopyrightAttribute' value='Copyright (c) 2002, Monkeyboy, Inc.' />
+                        <attribute type='AllowPartiallyTrustedCallers' value='' />
+                    </attributes>
+                </asminfo>
+            </project>";
+
+        /// <summary>
+        /// Standard test for the AsmInfo task.
+        /// </summary>
         [Test]
         public void Test_Normal() {
             RunBuild(_buildXml);
+        }
+
+        /// <summary>
+        /// Tests the AsmInfo task when attribute type does not
+        /// end with the word Attribute.
+        /// </summary>
+        [Test]
+        public void Test_Without_Attribute_Suffix()
+        {
+            RunBuild(_buildXmlTwo);
+        }
+
+        /// <summary>
+        /// Runs a AsmInfo task that is expected to fail because
+        /// one of the attribute constructors does not except a
+        /// string parameter.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(TestBuildException))]
+        public void Test_Error()
+        {
+            RunBuild(_buildXmlError);
         }
     }
 }
