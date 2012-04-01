@@ -542,18 +542,6 @@ namespace NAnt.DotNet.Tasks {
                     // Try to find the type from typename parameter.
                     Type type = FindType(assemblies, imports, typename);
 
-                    // If typename type was not found from above statement and
-                    // typename does not end with the word "Attribute", append
-                    // "Attribute" to typename and try to find the type again.
-                    if (type == null)
-                    {
-                        if (!typename.EndsWith("Attribute"))
-                        {
-                            string attrTypeName = String.Concat(typename, "Attribute");
-                            type = FindType(assemblies, imports, attrTypeName);
-                        }
-                    }
-
                     if (type != null) {
                         object typedValue = null;
                         if (value == null) {
@@ -589,15 +577,27 @@ namespace NAnt.DotNet.Tasks {
                             if (typedValue == null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    ResourceUtils.GetString("NA2003"), typename), Location.UnknownLocation);
+                                    ResourceUtils.GetString("NA2003"), typename),
+                                    Location.UnknownLocation);
                             }
                         }
 
                         return typedValue;
                     } else {
-                        throw new BuildException(string.Format(
-                            CultureInfo.InvariantCulture,
-                            ResourceUtils.GetString("NA2001"),typename), Location.UnknownLocation);
+                        if (!typename.EndsWith("Attribute"))
+                        {
+                            throw new BuildException(string.Format(
+                                CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA2039"),typename),
+                                Location.UnknownLocation);
+                        }
+                        else
+                        {
+                            throw new BuildException(string.Format(
+                                CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA2001"),typename),
+                                Location.UnknownLocation);
+                        }
                     }
                 } finally {
                     // detach assembly resolver from the current domain
