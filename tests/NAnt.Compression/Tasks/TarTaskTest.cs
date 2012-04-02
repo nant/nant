@@ -88,44 +88,5 @@ namespace Tests.NAnt.Compression.Tasks {
             Assert.IsTrue(File.Exists(Path.Combine(extractDir, "test1.txt")), "#1");
             Assert.IsTrue(File.Exists(Path.Combine(extractDir, "test2.txt")), "#2");
         }
-        
-        
-        [Test]
-        public void Test_FlattenedFile2() {
-            const string projectXML = @"<?xml version='1.0'?>
-                <project>
-                    <tar destfile='test.tar' flatten='true'>
-                        <fileset basedir='src'>
-                            <include name='/**/*' />
-                        </fileset>
-                    </tar>
-                    <untar src='test.tar' dest='extract' />
-                </project>";
-
-            // Created nested structure
-            CreateTempDir("src");
-            string Path1 = Path.Combine("src", "folder1");
-            CreateTempDir(Path1);
-            CreateTempFile(Path.Combine(Path1, "test1.txt"), "First");
-            
-            string Path2 = Path.Combine("src", "folder2");
-            CreateTempDir(Path2);
-            CreateTempFile(Path.Combine(Path2, "test1.txt"), "Second");
-            
-            // Run code
-            RunBuild(projectXML);
-            
-            // Check both files are in the root directory (flat)
-            string extractDir = Path.Combine(TempDirName, "extract");
-            string testFile = Path.Combine(extractDir, "test1.txt");
-            Assert.IsTrue(File.Exists(testFile), "#1");
-            
-            // finally check whether second entry (from folder2) was indeed
-            // added to zip file (and as such extracted from it)
-            using (StreamReader sr = new StreamReader(testFile, true)) {
-                Assert.AreEqual("Second", sr.ReadToEnd(), "#2");
-                sr.Close();
-            }
-        }
     }
 }
