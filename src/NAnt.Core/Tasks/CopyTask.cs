@@ -460,7 +460,7 @@ namespace NAnt.Core.Tasks {
             // * Empty directories are included
             // * and the destination directory does not exist
             else if (CopyFileSet.IsEverythingIncluded && !Flatten && IncludeEmptyDirs &&
-                !ToDirectory.Exists)
+                FileOperation.TargetDirectoryDoesNotExist(CopyFileSet.BaseDirectory, ToDirectory))
             {
                 OperationMap.Add(new FileOperation(CopyFileSet.BaseDirectory, ToDirectory));
             }
@@ -980,6 +980,25 @@ namespace NAnt.Core.Tasks {
             }
 
             /// <summary>
+            /// Checks to see whether or not the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.SourceInfo"/>
+            /// is identical to the full path of
+            /// <see cref="P:NAnt.Core.Tasks.CopyTask.FileOperation.TargetInfo"/>.
+            /// </summary>
+            /// <remarks>
+            /// The difference between this method and SourceEqualsTarget is
+            /// that the casing of the path is never ignored regardless of
+            /// operating system.
+            /// </remarks>
+            /// <returns>
+            /// <c>true</c> if both paths are identical; otherwise <c>false</c>.
+            /// </returns>
+            public bool SourceIsIdenticalToTarget()
+            {
+                return _source.FullName.Equals(_target.FullName, StringComparison.InvariantCulture);
+            }
+
+            /// <summary>
             /// Updates the source of a given instance based on the
             /// <see cref="P:System.IO.FileSystemInfo.LastWriteTime"/>.
             /// <remarks>
@@ -1038,6 +1057,29 @@ namespace NAnt.Core.Tasks {
             public static bool TargetIsOutdated(FileSystemInfo source, FileSystemInfo target)
             {
                 return (!target.Exists) || (source.LastWriteTime > target.LastWriteTime);
+            }
+
+            /// <summary>
+            /// Checks to see if the target directory does not exist or that
+            /// it does not match the source directory name.
+            /// </summary>
+            /// <param name="source">
+            /// Source directory to check against <paramref name="target"/>.
+            /// </param>
+            /// <param name="target">
+            /// The target directory to validate.
+            /// </param>
+            /// <returns>
+            /// <c>true</c> if the target file is considered out of date; otherwise
+            /// <c>false</c>
+            /// </returns>
+            public static bool TargetDirectoryDoesNotExist(DirectoryInfo source, DirectoryInfo target)
+            {
+                if (!target.Exists)
+                {
+                    return true;
+                }
+                return !source.FullName.Equals(target.FullName, StringComparison.InvariantCulture);
             }
 
             #endregion Public Static Methods
