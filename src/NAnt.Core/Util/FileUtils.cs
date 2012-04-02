@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -71,6 +72,14 @@ namespace NAnt.Core.Util
             Encoding inputEncoding,
             Encoding outputEncoding)
         {
+            // If the source file does not exist, throw an exception.
+            if (!File.Exists(sourceFileName))
+            {
+                throw new BuildException(
+                    String.Format("Cannot copy file: Source File {0} does not exist",
+                        sourceFileName));
+            }
+
             // determine if filters are available
             bool filtersAvailable = !FilterChain.IsNullOrEmpty(filterChain);
 
@@ -178,6 +187,14 @@ namespace NAnt.Core.Util
             Encoding inputEncoding,
             Encoding outputEncoding)
         {
+            // If the source file does not exist, throw an exception.
+            if (!File.Exists(sourceFileName))
+            {
+                throw new BuildException(
+                    String.Format("Cannot move file: Source File {0} does not exist",
+                        sourceFileName));
+            }
+
             // if no filters have been defined, and no input or output encoding
             // is set, we can just use the File.Move method
             if (FilterChain.IsNullOrEmpty(filterChain) &&
@@ -285,7 +302,7 @@ namespace NAnt.Core.Util
             }
 
             // if no filters have been defined, and no input or output encoding
-            // is set, we can just use the File.Move method
+            // is set, proceed with a straight directory move.
             if (FilterChain.IsNullOrEmpty(filterChain) &&
                 inputEncoding == null &&
                 outputEncoding == null)
@@ -298,39 +315,95 @@ namespace NAnt.Core.Util
                     throw new BuildException("Source and Target paths are identical");
                 }
 
-                // Windows filenames and directories are case-insensitive. If a user
-                // wants to rename a directory with the same name but different casing
-                // (ie: C:\nant to C:\NAnt), then the move needs to be staged.
-                if (PlatformHelper.IsWindows)
+                try
                 {
-                    // If the directory names are the same but different casing, stage
-                    // the move by moving the source directory to a temp location
-                    // before moving it to the destination.
-                    if (sourceDirectory.Equals(destDirectory, StringComparison.InvariantCultureIgnoreCase))
+                    // wants to rename a directory with the same name but different casing
+                    // (ie: C:\nant to C:\NAnt), then the move needs to be staged.
+                    if (PlatformHelper.IsWindows)
                     {
-                        string stagePath = GetTempDirectoryName();
+                        // If the directory names are the same but different casing, stage
+                        // the move by moving the source directory to a temp location
+                        // before moving it to the destination.
+                        if (sourceDirectory.Equals(destDirectory,
+                            StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            // Since the directory is being renamed with different
+                            // casing, the temp directory should be in the same
+                            // location as the destination directory to avoid
+                            // possible different volume errors.
+                            string rootPath = Directory.GetParent(destDirectory);
+                            string stagePath =
+                                Path.Combine(rootPath, Path.GetRandomFileName());
 
-                        Directory.Move(sourceDirectory, stagePath);
-                        Directory.Move(stagePath, destDirectory);
+                            try
+                            {
+                                // Move the source dir to the stage path
+                                // before moving everything to the destination
+                                // path.
+                                Directory.Move(sourceDirectory, stagePath);
+                                Directory.Move(stagePath, destDirectory);
+                            }
+                            catch
+                            {
+                                // If an error occurred during the staged directory
+                                // move, check to see if the stage path exists.  If
+                                // the source directory successfully moved to the
+                                // stage path, move the stage path back to the
+                                // source path and rethrow the exception.
+                                if (Directory.Exists(stagePath))
+                                {
+                                    if (!Directory.Exists(sourceDirectory))
+                                    {
+                                        Directory.Move(stagePath, sourceDirectory);
+                                    }
+                                }
+                                throw;
+                            }
+                        }
+                        // If the directory source and destination names are
+                        // different, use Directory.Move.
+                        else
+                        {
+                            Directory.Move(sourceDirectory, destDirectory);
+                        }
                     }
-                    // If the directory source and destination names are different, use
-                    // Directory.Move.
+
+                    // Non-Windows systems, such as Linux/Unix, filenames and directories
+                    // are case-sensitive. So as long as the directory names are not
+                    // identical, with the check above, the Directory.Move method
+                    // can be used.
                     else
                     {
                         Directory.Move(sourceDirectory, destDirectory);
                     }
                 }
-                // Non-Windows systems, such as Linux/Unix, filenames and directories
-                // are case-sensitive. So as long as the directory names are not
-                // identical, with the check above, the Directory.Move method
-                // can be used.
-                else
+                // Catch and rethrow any IO exceptions that may arise during
+                // the directory move.
+                catch (IOException ioEx)
                 {
-                    Directory.Move(sourceDirectory, destDirectory);
+                    // If the error occurred because the destination directory
+                    // exists, throw a build exception to tell the user that the
+                    // destination directory already exists.
+                    if (Directory.Exists(destDirectory))
+                    {
+                        throw new BuildException(
+                            String.Format("Could not move directory '{0}' because destination directory '{1}' already exists",
+                            sourceDirectory, destDirectory));
+                    }
+                    // Any other IOExceptions should be displayed to the user
+                    // via build exception.
+                    else
+                    {
+                        throw new BuildException(
+                            String.Format("Unhandled IOException when trying to move directory '{0}' to '{1}'",
+                            sourceDirectory, destDirectory), ioEx);
+                    }
                 }
             }
             else
             {
+                // Otherwise, use the copy directory method and directory.delete
+                // method to move the directory over.
                 CopyDirectory(sourceDirectory, destDirectory, filterChain,
                     inputEncoding, outputEncoding);
                 Directory.Delete(sourceDirectory, true);
