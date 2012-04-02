@@ -331,7 +331,7 @@ namespace NAnt.Core.Util
                             // casing, the temp directory should be in the same
                             // location as the destination directory to avoid
                             // possible different volume errors.
-                            string rootPath = Directory.GetParent(destDirectory);
+                            string rootPath = Directory.GetParent(destDirectory).FullName;
                             string stagePath =
                                 Path.Combine(rootPath, Path.GetRandomFileName());
 
