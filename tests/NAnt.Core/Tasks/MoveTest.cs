@@ -18,6 +18,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -202,6 +203,9 @@ namespace Tests.NAnt.Core.Tasks {
                 string.Format("'{0}' file does not exist", _tempFileTargetOne));
         }
 
+        /// <summary>
+        /// Tests moving select contents of a directory using a fileset element.
+        /// </summary>
         [Test]
         public void SelectFileMoveTest()
         {
@@ -236,6 +240,52 @@ namespace Tests.NAnt.Core.Tasks {
                 string.Format("'{0}' file still exists", _tempFileSourceOne));
             Assert.IsTrue(File.Exists(_tempFileTargetOne),
                 string.Format("'{0}' file does not exist", _tempFileTargetOne));
+        }
+
+        /// <summary>
+        /// Renames a directory with the same name but different casing.
+        /// </summary>
+        [Test]
+        public void RenameDirectoryToSameNameDifferenceCasingTest()
+        {
+            string sameNameSubDir = "Dira";
+            string sameNameTarget = Path.Combine(TempDirName, sameNameSubDir);
+            RunBuild(String.Format(_xmlProjectTemplate2, sameNameTarget, _tempDirSourceOne));
+
+            // This should be true regardless of underlying OS NAnt is running on.
+            Assert.IsTrue(Directory.Exists(sameNameTarget),
+                string.Format("'{0}' directory does not exist", sameNameTarget));
+
+            if (PlatformHelper.IsWindows)
+            {
+                // Because Windows is case-insensitive, need to make sure that 
+                // the directory name's casing matches what is on the filesystem
+                // after the move.
+                DirectoryInfo parent = new DirectoryInfo(TempDirName);
+                DirectoryInfo[] subDirs = parent.GetDirectories();
+                bool foundCasing = false;
+
+                foreach (DirectoryInfo subDir in subDirs)
+                {
+                    if (sameNameSubDir.Equals(subDir.Name, 
+                        StringComparison.InvariantCulture))
+                    {
+                        foundCasing = true;
+                        break;
+                    }
+                }
+
+                if (!foundCasing)
+                {
+                    Assert.Fail("Directory '{0}' may exist but not in the expected casing: '{1}'",
+                        _tempDirSourceOne, sameNameTarget);
+                }
+            }
+            else
+            {
+                Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+                    string.Format("'{0}' directory still exists", _tempDirSourceOne));
+            }
         }
 
         /// <summary>

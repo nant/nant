@@ -223,7 +223,7 @@ namespace NAnt.Core.Tasks {
                     // Setup a temporary var to hold the current file operation
                     // details.
                     FileOperation currentOperation = OperationMap[i];
-                    if (currentOperation.SourceEqualsTarget())
+                    if (currentOperation.SourceIsIdenticalToTarget())
                     {
                         Log(Level.Warning, String.Format("Skipping self-move of {0}.",
                             currentOperation.Source));
@@ -294,17 +294,6 @@ namespace NAnt.Core.Tasks {
 
                                 break;
                             case OperationType.DirectoryToDirectory:
-                                // Throw a build exception if the target directory
-                                // already exists.
-                                if (Directory.Exists(currentOperation.Target))
-                                {
-                                    throw new BuildException(
-                                        string.Format(CultureInfo.InvariantCulture,
-                                        "Failed to move directory {0}." +
-                                        "Directory '{1}' already exists.",
-                                        currentOperation.ToString(),
-                                        currentOperation.Target));
-                                }
 
                                 // Move over the entire directory with filters
                                 FileUtils.MoveDirectory(currentOperation.Source,

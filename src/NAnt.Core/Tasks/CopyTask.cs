@@ -458,9 +458,13 @@ namespace NAnt.Core.Tasks {
             // * Everything in the fileset is included
             // * The directory structure is not flattened
             // * Empty directories are included
-            // * and the destination directory does not exist
+            // * and either
+            //   * the destination directory does not exist
+            //   * or the destination directory is the same as source directory but
+            //     with different casing (ie: C:\nant to C:\NAnt)
             else if (CopyFileSet.IsEverythingIncluded && !Flatten && IncludeEmptyDirs &&
-                FileOperation.TargetDirectoryDoesNotExist(CopyFileSet.BaseDirectory, ToDirectory))
+                FileOperation.TargetDirectoryDoesNotExist(CopyFileSet.BaseDirectory, 
+                    ToDirectory))
             {
                 OperationMap.Add(new FileOperation(CopyFileSet.BaseDirectory, ToDirectory));
             }
@@ -1061,7 +1065,7 @@ namespace NAnt.Core.Tasks {
 
             /// <summary>
             /// Checks to see if the target directory does not exist or that
-            /// it does not match the source directory name.
+            /// it does match the source directory name but not string casing.
             /// </summary>
             /// <param name="source">
             /// Source directory to check against <paramref name="target"/>.
@@ -1070,16 +1074,19 @@ namespace NAnt.Core.Tasks {
             /// The target directory to validate.
             /// </param>
             /// <returns>
-            /// <c>true</c> if the target file is considered out of date; otherwise
-            /// <c>false</c>
+            /// <c>true</c> if the target directory does not exist or matches the source
+            /// directory name but not casing; otherwise <c>false</c>
             /// </returns>
             public static bool TargetDirectoryDoesNotExist(DirectoryInfo source, DirectoryInfo target)
             {
+                // If the target doesn't exist, return true.
                 if (!target.Exists)
                 {
                     return true;
                 }
-                return !source.FullName.Equals(target.FullName, StringComparison.InvariantCulture);
+                // Otherwise, check to see if the source and target paths are the same when ignoring case.
+                // Return the result of the path comparison.
+                return source.FullName.Equals(target.FullName, StringComparison.InvariantCultureIgnoreCase);
             }
 
             #endregion Public Static Methods

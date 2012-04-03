@@ -387,7 +387,9 @@ namespace NAnt.Core.Util
                     if (Directory.Exists(destDirectory))
                     {
                         throw new BuildException(
-                            String.Format("Could not move directory '{0}' because destination directory '{1}' already exists",
+                            string.Format(CultureInfo.InvariantCulture,
+                            "Failed to move directory {0}." +
+                            "Directory '{1}' already exists.",
                             sourceDirectory, destDirectory));
                     }
                     // Any other IOExceptions should be displayed to the user
