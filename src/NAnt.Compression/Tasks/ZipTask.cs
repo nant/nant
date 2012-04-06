@@ -72,6 +72,7 @@ namespace NAnt.Compression.Tasks {
         private DateTime _stampDateTime;
         private string _comment;
         private bool _includeEmptyDirs;
+        private bool _flatten;
         private DuplicateHandling _duplicateHandling = DuplicateHandling.Add;
         private Encoding _encoding;
         private Hashtable _addedDirs = new Hashtable();
@@ -129,6 +130,18 @@ namespace NAnt.Compression.Tasks {
         public bool IncludeEmptyDirs {
             get { return _includeEmptyDirs; }
             set { _includeEmptyDirs = value; }
+        }
+        
+        /// <summary>
+        /// Ignore directory structure of source directory, compress all files 
+        /// into a single directory.
+        /// The default value is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("flatten")]
+        [BooleanValidator()]
+        public virtual bool Flatten {
+            get { return _flatten; }
+            set { _flatten = value; }
         }
 
         /// <summary>
@@ -214,7 +227,7 @@ namespace NAnt.Compression.Tasks {
                         string entryName;
 
                         // determine name of the zip entry
-                        if (file.StartsWith(basePath)) {
+                        if (!Flatten && file.StartsWith(basePath)) {
                             entryName = file.Substring(basePath.Length);
                             if (entryName.Length > 0 && entryName[0] == Path.DirectorySeparatorChar) {
                                 entryName = entryName.Substring(1);
