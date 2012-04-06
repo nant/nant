@@ -65,6 +65,7 @@ namespace NAnt.Compression.Tasks {
 
         private FileInfo _destFile;
         private TarFileSetCollection _filesets = new TarFileSetCollection();
+        private bool _flatten = false;
         private bool _includeEmptyDirs = false;
         private TarCompressionMethod _compressionMethod = TarCompressionMethod.None;
         private Hashtable _addedDirs = new Hashtable();
@@ -91,6 +92,18 @@ namespace NAnt.Compression.Tasks {
         public bool IncludeEmptyDirs {
             get { return _includeEmptyDirs; }
             set { _includeEmptyDirs = value; }
+        }
+
+        /// <summary>
+        /// Ignore directory structure of source directory, compress all files 
+        /// into a single directory.
+        /// The default value is <see langword="false" />.
+        /// </summary>
+        [TaskAttribute("flatten")]
+        [BooleanValidator()]
+        public virtual bool Flatten {
+            get { return _flatten; }
+            set { _flatten = value; }
         }
 
         /// <summary>
@@ -172,7 +185,7 @@ namespace NAnt.Compression.Tasks {
                         string entryDirName = string.Empty;
 
                         // determine name of the tar entry
-                        if (file.StartsWith(basePath)) {
+                        if (!Flatten && file.StartsWith(basePath)) {
                             entryFileName = file.Substring(basePath.Length);
                             if (entryFileName.Length > 0 && entryFileName[0] == Path.DirectorySeparatorChar) {
                                 entryFileName = entryFileName.Substring(1);
