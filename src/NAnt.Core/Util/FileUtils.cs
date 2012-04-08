@@ -228,7 +228,7 @@ namespace NAnt.Core.Util
         /// <param name="outputEncoding">
         /// The encoding used to write the destination file.
         /// </param>
-        public static void CopyDirectory(
+        internal static void CopyDirectory(
             string sourceDirectory,
             string destDirectory,
             FilterChain filterChain,
@@ -285,7 +285,7 @@ namespace NAnt.Core.Util
         /// <param name="outputEncoding">
         /// The encoding used to write the destination file.
         /// </param>
-        public static void MoveDirectory(
+        internal static void MoveDirectory(
             string sourceDirectory,
             string destDirectory,
             FilterChain filterChain,
@@ -419,7 +419,7 @@ namespace NAnt.Core.Util
         /// <returns>
         /// The temp directory name.
         /// </returns>
-        public static string GetTempDirectoryName()
+        internal static string GetTempDirectoryName()
         {
             return CombinePaths(Path.GetTempPath(), Path.GetRandomFileName());
         }
