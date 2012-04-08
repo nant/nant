@@ -770,6 +770,8 @@ namespace NAnt.Core {
 #endif
             // If the current file was not included and the isEverythingIncluded
             // indicator is true; set the isEverythingIncluded indicator to false.
+            // Note: File.Exists(path) is used to make sure the current path is
+            // a file and not a directory.
             if (!included && _isEverythingIncluded && File.Exists(path))
             {
                 _isEverythingIncluded = false;

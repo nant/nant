@@ -243,6 +243,36 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Tests to ensure that files of a subdirectory are moved without actually
+        /// moving the subdirectory itself.
+        /// </summary>
+        /// <remarks>
+        /// This should happen when the fileset base directory has other files/directories
+        /// besides the subdirectory being moved.
+        /// </remarks>
+        [Test]
+        public void MoveSubdirectoryOnlyTest()
+        {
+            string targetDir = CreateTempDir("dirAtarget");
+            string targetSubDir = Path.Combine(targetDir, "subDir");
+            string targetSubDirFile = Path.Combine(targetSubDir, "file2.two");
+            RunBuild(String.Format(_xmlProjectTemplate3, targetDir, _tempDirSourceOne, "subDir/**"));
+
+            Assert.IsTrue(Directory.Exists(targetSubDir),
+                string.Format("'{0}' target sub directory does not exist", targetSubDir));
+
+            Assert.IsTrue(File.Exists(targetSubDirFile),
+                string.Format("'{0}' target sub directory file does not exist", targetSubDirFile));
+
+            Assert.IsTrue(Directory.Exists(_tempDirSourceTwo),
+                string.Format("'{0}' source sub directory does exist", _tempDirSourceTwo));
+
+            Assert.IsFalse(File.Exists(_tempFileSourceTwo),
+                string.Format("'{0}' source sub directory file does exist", _tempFileSourceTwo));
+
+        }
+
+        /// <summary>
         /// Renames a directory with the same name but different casing.
         /// </summary>
         [Test]
