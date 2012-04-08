@@ -588,130 +588,138 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file copies.
         /// </summary>
         protected virtual void DoFileOperations() {
-            if (OperationMap.Count > 0)
+            // If the operation map is empty, exit (return) the method.
+            if (OperationMap.Count <= 0)
             {
-                // Get the number of file and directory copies to display to
-                // the user.
-                int fileMovements = OperationMap.CountFileOperations();
-                int dirMovements = OperationMap.CountDirectoryOperations();
+                return;
+            }
 
-                // Output the number of file copies
-                if (fileMovements > 0)
+            // Get the number of file and directory copies to display to
+            // the user.
+            int fileMovements = OperationMap.CountFileOperations();
+            int dirMovements = OperationMap.CountDirectoryOperations();
+
+            // Output the number of file copies
+            if (fileMovements > 0)
+            {
+                if (ToFile != null) {
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                        fileMovements, (fileMovements != 1) ? "s" : "", ToFile);
+                } else {
+                    Log(Level.Info, "Copying {0} file{1} to '{2}'.",
+                        fileMovements, (fileMovements != 1) ? "s" : "", ToDirectory);
+                }
+            }
+
+            // Output the number of directory copies
+            if (dirMovements > 0)
+            {
+                if (ToFile != null) {
+                    Log(Level.Info, "Copying {0} {1} to '{2}'.",
+                        dirMovements, (dirMovements != 1) ? "directories" : "directory",
+                        ToFile);
+                } else {
+                    Log(Level.Info, "Copying {0} {1} to '{2}'.",
+                        dirMovements, (dirMovements != 1) ? "directories" : "directory",
+                        ToDirectory);
+                }
+            }
+
+            // loop thru our file list
+            for (int i = 0; i < OperationMap.Count; i++)
+            {
+                // Setup a temporary var to hold the current file operation
+                // details.
+                FileOperation currentOperation = OperationMap[i];
+                if (currentOperation.SourceEqualsTarget())
                 {
-                    if (ToFile != null) {
-                        Log(Level.Info, "Copying {0} file{1} to '{2}'.",
-                            fileMovements, (fileMovements != 1) ? "s" : "", ToFile);
-                    } else {
-                        Log(Level.Info, "Copying {0} file{1} to '{2}'.",
-                            fileMovements, (fileMovements != 1) ? "s" : "", ToDirectory);
-                    }
+                    Log(Level.Verbose, "Skipping self-copy of '{0}'.",
+                        currentOperation.Source);
+                    continue;
                 }
 
-                // Output the number of directory copies
-                if (dirMovements > 0)
+                try
                 {
-                    if (ToFile != null) {
-                        Log(Level.Info, "Copying {0} {1} to '{2}'.",
-                            dirMovements, (dirMovements != 1) ? "directories" : "directory",
-                            ToFile);
-                    } else {
-                        Log(Level.Info, "Copying {0} {1} to '{2}'.",
-                            dirMovements, (dirMovements != 1) ? "directories" : "directory",
-                            ToDirectory);
+                    Log(Level.Verbose, "Copying {0}.", currentOperation.ToString());
+
+                    switch (currentOperation.OperationType)
+                    {
+                        case OperationType.FileToFile:
+                            // create directory if not present
+                            string destinationDirectory =
+                                Path.GetDirectoryName(currentOperation.Target);
+                            if (!Directory.Exists(destinationDirectory))
+                            {
+                                Directory.CreateDirectory(destinationDirectory);
+                                Log(Level.Verbose, "Created directory '{0}'.",
+                                    destinationDirectory);
+                            }
+
+                            // Ensure the target file is removed before
+                            // attempting to copy.
+                            if (File.Exists(currentOperation.Target))
+                            {
+                                File.Delete(currentOperation.Target);
+                            }
+    
+                            // copy the file with filters
+                            FileUtils.CopyFile(currentOperation.Source,
+                                currentOperation.Target, Filters,
+                                InputEncoding, OutputEncoding);
+                            break;
+                        case OperationType.FileToDirectory:
+                            // Setup a local var that combines the directory
+                            // of the target path with the source file name.
+                            string targetFile = Path.Combine(currentOperation.Target,
+                                Path.GetFileName(currentOperation.Source));
+                            // create directory if not present
+                            if (!Directory.Exists(currentOperation.Target))
+                            {
+                                Directory.CreateDirectory(currentOperation.Target);
+                                Log(Level.Verbose, "Created directory '{0}'.",
+                                    currentOperation.Target);
+                            }
+
+                            // Ensure the target file is removed before
+                            // attempting to copy.
+                            if (File.Exists(targetFile))
+                            {
+                                File.Delete(targetFile);
+                            }
+    
+                            // copy the file with filters
+                            FileUtils.CopyFile(currentOperation.Source,
+                                targetFile, Filters, InputEncoding, OutputEncoding);
+                            break;
+                        case OperationType.DirectoryToDirectory:
+                            // Throw a build exception if the target directory
+                            // already exists.
+                            if (Directory.Exists(currentOperation.Target))
+                            {
+                                throw new BuildException(
+                                    string.Format(CultureInfo.InvariantCulture,
+                                    "Failed to copy {0}.  Directory '{1}' already exists.",
+                                    currentOperation.ToString(),
+                                    currentOperation.Target));
+                            }
+                            
+                            // Copy over the entire directory with filters
+                            FileUtils.CopyDirectory(currentOperation.Source,
+                                currentOperation.Target, Filters, InputEncoding,
+                                OutputEncoding);
+                            break;
+                        default:
+                            throw new
+                                BuildException("Unrecognized copy operation. " +
+                                "The copy task can only copy a file to file, " +
+                                "file to directory, or directory to directory.");
                     }
                 }
-
-                // loop thru our file list
-                for (int i = 0; i < OperationMap.Count; i++)
+                catch (Exception ex)
                 {
-                    // Setup a temporary var to hold the current file operation
-                    // details.
-                    FileOperation currentOperation = OperationMap[i];
-                    if (currentOperation.SourceEqualsTarget())
-                    {
-                        Log(Level.Verbose, "Skipping self-copy of '{0}'.",
-                            currentOperation.Source);
-                        continue;
-                    }
-
-                    try
-                    {
-                        Log(Level.Verbose, "Copying {0}.", currentOperation.ToString());
-
-                        switch (currentOperation.OperationType)
-                        {
-                            case OperationType.FileToFile:
-                                // create directory if not present
-                                string destinationDirectory =
-                                    Path.GetDirectoryName(currentOperation.Target);
-                                if (!Directory.Exists(destinationDirectory))
-                                {
-                                    Directory.CreateDirectory(destinationDirectory);
-                                    Log(Level.Verbose, "Created directory '{0}'.",
-                                        destinationDirectory);
-                                }
-
-                                // Ensure the target file is removed before
-                                // attempting to copy.
-                                if (File.Exists(currentOperation.Target))
-                                {
-                                    File.Delete(currentOperation.Target);
-                                }
-        
-                                // copy the file with filters
-                                FileUtils.CopyFile(currentOperation.Source,
-                                    currentOperation.Target, Filters,
-                                    InputEncoding, OutputEncoding);
-                                break;
-                            case OperationType.FileToDirectory:
-                                // Setup a local var that combines the directory
-                                // of the target path with the source file name.
-                                string targetFile = Path.Combine(currentOperation.Target,
-                                    Path.GetFileName(currentOperation.Source));
-                                // create directory if not present
-                                if (!Directory.Exists(currentOperation.Target))
-                                {
-                                    Directory.CreateDirectory(currentOperation.Target);
-                                    Log(Level.Verbose, "Created directory '{0}'.",
-                                        currentOperation.Target);
-                                }
-
-                                // Ensure the target file is removed before
-                                // attempting to copy.
-                                if (File.Exists(targetFile))
-                                {
-                                    File.Delete(targetFile);
-                                }
-        
-                                // copy the file with filters
-                                FileUtils.CopyFile(currentOperation.Source,
-                                    targetFile, Filters, InputEncoding, OutputEncoding);
-                                break;
-                            case OperationType.DirectoryToDirectory:
-                                // Throw a build exception if the target directory
-                                // already exists.
-                                if (Directory.Exists(currentOperation.Target))
-                                {
-                                    throw new BuildException(
-                                        string.Format(CultureInfo.InvariantCulture,
-                                        "Failed to copy {0}.  Directory '{1}' already exists.",
-                                        currentOperation.ToString(),
-                                        currentOperation.Target));
-                                }
-                                
-                                // Copy over the entire directory with filters
-                                FileUtils.CopyDirectory(currentOperation.Source,
-                                    currentOperation.Target, Filters, InputEncoding,
-                                    OutputEncoding);
-                                break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Cannot copy {0}.", currentOperation.ToString()),
-                            Location, ex);
-                    }
+                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+                        "Cannot copy {0}.", currentOperation.ToString()),
+                        Location, ex);
                 }
             }
         }
