@@ -287,5 +287,41 @@ namespace Tests.NAnt.Compression.Tasks {
 
             RunBuild(projectXML);
         }
+
+        /// <summary>
+        /// Verifies whether Flatten produces a flat zip file by discarding
+        /// directory structure.
+        /// attribute.
+        /// </summary>
+        [Test]
+        public void Test_FlattenedFile() {
+            const string projectXML = @"<?xml version='1.0'?>
+                <project>
+                    <zip zipfile='test.zip' flatten='true'>
+                        <fileset basedir='src'>
+                            <include name='/**/*' />
+                        </fileset>
+                    </zip>
+                    <unzip zipfile='test.zip' todir='extract' />
+                </project>";
+
+            // Created nested structure
+            CreateTempDir("src");
+            string Path1 = Path.Combine("src", "folder1");
+            CreateTempDir(Path1);
+            CreateTempFile(Path.Combine(Path1, "test1.txt"), "First");
+            
+            string Path2 = Path.Combine("src", "folder2");
+            CreateTempDir(Path2);
+            CreateTempFile(Path.Combine(Path2, "test2.txt"), "Second");
+            
+            // Run code
+            RunBuild(projectXML);
+            
+            // Check both files are in the root directory (flat)
+            string extractDir = Path.Combine(TempDirName, "extract");
+            Assert.IsTrue(File.Exists(Path.Combine(extractDir, "test1.txt")), "#1");
+            Assert.IsTrue(File.Exists(Path.Combine(extractDir, "test2.txt")), "#2");
+        }
     }
 }

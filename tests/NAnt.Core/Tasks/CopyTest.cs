@@ -69,6 +69,14 @@ namespace Tests.NAnt.Core.Tasks {
             </project>
         ";
 
+        const string _xmlProjectTemplate4 = @"
+            <project>
+                <copy todir='{0}'>
+                    <fileset basedir='{1}'/>
+                </copy>
+            </project>
+        ";
+
         string tempFile1, tempFile2, tempFile3, tempFile4, tempFile5, tempFile6, tempFile7;
         string tempDir1, tempDir2, tempDir3, tempDir4, tempDir5;
 
@@ -184,6 +192,19 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
             Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
             Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
+        }
+
+        /// <summary>
+        /// Simple directory copy test.
+        /// </summary>
+        [Test]
+        public void Test_copy_Dir_Structure()
+        {
+            string dest = Path.Combine(TempDirName, "a.c");
+            RunBuild(String.Format(_xmlProjectTemplate4, dest, tempDir1));
+
+            Assert.IsTrue(Directory.Exists(dest),
+                String.Format("Directory was not copied: {0}", tempDir1));
         }
 
         /// <summary>

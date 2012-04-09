@@ -60,9 +60,14 @@ else
 $(error Specified target "$(TARGET)" is not valid)
 endif
 
+# Make sure that -debug+ is specified in NAnt command if DEBUG is defined
+ifdef DEBUG
+NANT_DEBUG := -debug+
+endif
+
 # Assign remaining vars
 TARGET_FRAMEWORK = -t:$(TARGET)
-NANT = $(MONO) bootstrap/NAnt.exe
+NANT = $(MONO) bootstrap/NAnt.exe $(NANT_DEBUG)
 
 
 all: bootstrap build-nant
