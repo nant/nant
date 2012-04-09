@@ -11,7 +11,6 @@ DEFINE = NET
 FRAMEWORK_DIR = net
 !endif
 
-
 !if "$(TARGET)" == "net-2.0" || "$(TARGET)" == "mono-2.0"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 !else if "$(TARGET)" == "net-3.5" || "$(TARGET)" == "mono-3.5"
@@ -22,8 +21,12 @@ DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
 !error Specified target "$(TARGET)" is not valid
 !endif
 
+!ifdef DEBUG
+NANT_DEBUG = -debug+
+!endif
+
 TARGET_FRAMEWORK = -t:$(TARGET)
-NANT = $(MONO) bootstrap\NAnt.exe
+NANT = $(MONO) bootstrap\NAnt.exe $(NANT_DEBUG)
 
 all:  bootstrap build-nant
 
