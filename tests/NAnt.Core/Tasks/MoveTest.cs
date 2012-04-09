@@ -362,6 +362,9 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(_tempDirTargetThree),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetThree));
 
+            Assert.IsTrue(Directory.Exists(_tempDirSourceThree),
+                string.Format("'{0}' source directory does not exist", _tempDirSourceThree));
+
             Assert.IsTrue(File.Exists(_tempFileTargetThree),
                 string.Format("'{0}' target file does not exist", _tempFileTargetThree));
 
