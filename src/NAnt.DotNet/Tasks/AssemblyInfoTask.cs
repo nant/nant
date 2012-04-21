@@ -539,41 +539,8 @@ namespace NAnt.DotNet.Tasks {
                 assemblyResolver.Attach();
 
                 try {
-                    Type type = null;
-
-                    // load each assembly and try to get type from it
-                    foreach (string assemblyFileName in assemblies) {
-                        // load assembly from filesystem
-                        Assembly assembly = Assembly.LoadFrom(assemblyFileName);
-                        // try to load type from assembly
-                        type = assembly.GetType(typename, false, false);
-                        if (type == null) {
-                            foreach (string import in imports) {
-                                type = assembly.GetType(import + "." + typename, false, false);
-                                if (type != null) {
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (type != null) {
-                            break;
-                        }
-                    }
-
-                    // try to load type from all assemblies loaded from disk, if
-                    // it was not loaded from the references assemblies 
-                    if (type == null) {
-                        type = Type.GetType(typename, false, false);
-                        if (type == null) {
-                            foreach (string import in imports) {
-                                type = Type.GetType(import + "." + typename, false, false);
-                                if (type != null) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    // Try to find the type from typename parameter.
+                    Type type = FindType(assemblies, imports, typename);
 
                     if (type != null) {
                         object typedValue = null;
@@ -581,7 +548,7 @@ namespace NAnt.DotNet.Tasks {
                             ConstructorInfo defaultConstructor = type.GetConstructor(
                                 BindingFlags.Public | BindingFlags.Instance, null, 
                                 new Type[0], new ParameterModifier[0]);
-                            if (defaultConstructor != null) {
+                            if (defaultConstructor == null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
                                     ResourceUtils.GetString("NA2005"), type.FullName), Location.UnknownLocation);
@@ -610,15 +577,27 @@ namespace NAnt.DotNet.Tasks {
                             if (typedValue == null) {
                                 throw new BuildException(string.Format(
                                     CultureInfo.InvariantCulture,
-                                    ResourceUtils.GetString("NA2003"), typename), Location.UnknownLocation);
+                                    ResourceUtils.GetString("NA2003"), typename),
+                                    Location.UnknownLocation);
                             }
                         }
 
                         return typedValue;
                     } else {
-                        throw new BuildException(string.Format(
-                            CultureInfo.InvariantCulture,
-                            ResourceUtils.GetString("NA2001"),typename), Location.UnknownLocation);
+                        if (!typename.EndsWith("Attribute"))
+                        {
+                            throw new BuildException(string.Format(
+                                CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA2039"),typename),
+                                Location.UnknownLocation);
+                        }
+                        else
+                        {
+                            throw new BuildException(string.Format(
+                                CultureInfo.InvariantCulture,
+                                ResourceUtils.GetString("NA2001"),typename),
+                                Location.UnknownLocation);
+                        }
                     }
                 } finally {
                     // detach assembly resolver from the current domain
@@ -627,6 +606,67 @@ namespace NAnt.DotNet.Tasks {
             }
 
             #endregion Public Instance Methods
+
+            #region Private Instance Methods
+
+            /// <summary>
+            /// Finds a given type from a given list of assemblies and import statements.
+            /// </summary>
+            /// <param name='assemblies'>
+            /// A list of assemblies to search for a given type.
+            /// </param>
+            /// <param name='imports'>
+            /// A list of import statements to search for a given type.
+            /// </param>
+            /// <param name='typename'>
+            /// The name of the type to locate.
+            /// </param>
+            /// <returns>
+            /// The type object found from assemblies and import statements based
+            /// on the name of the type.
+            /// </returns>
+            private Type FindType(StringCollection assemblies, StringCollection imports, string typename)
+            {
+                Type type = null;
+
+                // load each assembly and try to get type from it
+                foreach (string assemblyFileName in assemblies) {
+                    // load assembly from filesystem
+                    Assembly assembly = Assembly.LoadFrom(assemblyFileName);
+                    // try to load type from assembly
+                    type = assembly.GetType(typename, false, false);
+                    if (type == null) {
+                        foreach (string import in imports) {
+                            type = assembly.GetType(import + "." + typename, false, false);
+                            if (type != null) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (type != null) {
+                        break;
+                    }
+                }
+
+                // try to load type from all assemblies loaded from disk, if
+                // it was not loaded from the references assemblies 
+                if (type == null) {
+                    type = Type.GetType(typename, false, false);
+                    if (type == null) {
+                        foreach (string import in imports) {
+                            type = Type.GetType(import + "." + typename, false, false);
+                            if (type != null) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return type;
+            }
+
+            #endregion Private Instance Methods
         }
     }
 }

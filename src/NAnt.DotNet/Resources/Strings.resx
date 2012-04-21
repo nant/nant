@@ -165,6 +165,9 @@
     <data name="NA2038">
         <value>Type '{0}' is not a valid CodeDomProvider.</value>
     </data>
+    <data name="NA2039">
+        <value>Assembly attribute with type '{0}' could not be loaded. Should it be '{0}Attribute'?</value>
+    </data>
 
     <!--Message from:\NAnt.DotNet\Tasks\AssemblyLinkerTask.cs-->
     <data name="String_LinkerDoesNotSupportTemplateAssembly">
