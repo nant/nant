@@ -62,7 +62,7 @@
         </exec>
     </target>
     <!-- copy the release notes and license to sourceforge -->
-    <target name="deploy-releasenotes-sf" depends="set-net-1.0-framework-configuration, release, package, create-shell">
+    <target name="deploy-releasenotes-sf" depends="set-${framework::get-target-framework()}-framework-configuration, release, package, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -87,7 +87,7 @@
         </exec>
     </target>
     <!-- copy schema to sourceforge -->
-    <target name="deploy-schema-sf" depends="set-net-1.0-framework-configuration, release, package, create-shell">
+    <target name="deploy-schema-sf" depends="set-${framework::get-target-framework()}-framework-configuration, release, package, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -112,7 +112,7 @@
         </exec>
     </target>
     <!-- copy online docs (manual) to sourceforge -->
-    <target name="deploy-doc-sf" depends="set-net-1.0-framework-configuration, release, package-doc, create-shell">
+    <target name="deploy-doc-sf" depends="set-${framework::get-target-framework()}-framework-configuration, release, package-doc, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
@@ -141,7 +141,7 @@
         </exec>
     </target>
     <!-- copy website to sourceforge -->
-    <target name="deploy-web-sf" depends="set-net-1.0-framework-configuration, release, create-shell">
+    <target name="deploy-web-sf" depends="set-${framework::get-target-framework()}-framework-configuration, release, create-shell">
         <!-- make sure the directory tree exists -->
         <exec program="ssh">
             <arg value="${sf.net.ssh.server}" />
