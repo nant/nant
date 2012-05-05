@@ -243,6 +243,8 @@
     <Compile Include="Util\ResourceUtils.cs" />
     <Compile Include="Util\StopWatchStack.cs" />
     <Compile Include="Util\StringUtils.cs" />
+    <Compile Include="Tasks\ChooseTask.cs" />
+    <Compile Include="Tasks\TryCatchTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
