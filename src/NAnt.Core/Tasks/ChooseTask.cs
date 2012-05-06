@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Xml;
@@ -108,7 +109,7 @@ namespace NAnt.Core.Tasks {
     public class ChooseTask : Task {
         #region Private Instance Fields
 
-        private ArrayList _nestedTaskContainers = new ArrayList();
+        private List<ElementContainer> _elementContainers = new List<ElementContainer>();
 
         #endregion Private Instance Fields
 
@@ -123,10 +124,10 @@ namespace NAnt.Core.Tasks {
         /// </value>
         private bool IsFallbackDefined {
             get { 
-                foreach (NestedTaskContainer nestedTaskContainer in _nestedTaskContainers) {
+                foreach (ElementContainer container in _elementContainers) {
                     // only allow one fallback container, so check if a otherwise
                     // container was already added
-                    if (!(nestedTaskContainer is When)) {
+                    if (!(container is When)) {
                         return true;
                     }
                 }
@@ -139,8 +140,8 @@ namespace NAnt.Core.Tasks {
         #region Override implementation of Task
 
         protected override void ExecuteTask() {
-            foreach (NestedTaskContainer nestedTaskContainer in _nestedTaskContainers) {
-                When when = nestedTaskContainer as When;
+            foreach (ElementContainer container in _elementContainers) {
+                When when = container as When;
                 // execute the nested tasks of the first matching when element
                 if (when != null) {
                     if (when.Test) {
@@ -148,7 +149,7 @@ namespace NAnt.Core.Tasks {
                         break;
                     }
                 } else {
-                    nestedTaskContainer.Execute();
+                    container.Execute();
                 }
             }
         }
@@ -169,7 +170,7 @@ namespace NAnt.Core.Tasks {
                     + " element in the <{0} ... /> task.", Name), Location);
             }
 
-            _nestedTaskContainers.Add(when);
+            _elementContainers.Add(when);
         }
 
         /// <summary>
@@ -177,13 +178,13 @@ namespace NAnt.Core.Tasks {
         /// elements are <see langword="true" />.
         /// </summary>
         [BuildElement("otherwise")]
-        public void AddFallback(NestedTaskContainer fallback) {
+        public void AddFallback(ElementContainer fallback) {
             if (IsFallbackDefined) {
                 throw new BuildException("The <otherwise> element may only"
                     + " be defined once.", Location);
             }
 
-            _nestedTaskContainers.Add(fallback);
+            _elementContainers.Add(fallback);
         }
 
         #endregion Public Instance Methods
@@ -192,7 +193,7 @@ namespace NAnt.Core.Tasks {
     /// <summary>
     /// Groups a set of tasks to execute when a condition is met.
     /// </summary>
-    public class When : NestedTaskContainer {
+    public class When : ElementContainer {
         #region Private Instance Fields
 
         private bool _test = true;
@@ -224,108 +225,5 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of NestedTaskContainer
-    }
-
-    /// <summary>
-    /// Executes embedded tasks in the order in which they are defined.
-    /// </summary>
-    public class NestedTaskContainer : Element {
-        #region Private Instance Fields
-
-        private StringCollection _subXMLElements;
-
-        #endregion Private Instance Fields
-
-        #region Override implementation of Element
-
-        /// <summary>
-        /// Gets a value indicating whether the element is performing additional
-        /// processing using the <see cref="XmlNode" /> that was use to 
-        /// initialize the element.
-        /// </summary>
-        /// <value>
-        /// <see langword="true" />, as a <see cref="NestedTaskContainer" /> is
-        /// responsable for creating tasks from the nested build elements.
-        /// </value>
-        protected override bool CustomXmlProcessing {
-            get { return true;}
-        }
-
-        #endregion Override implementation of Element
-
-        #region Public Instance Methods
-
-        public virtual void Execute() {
-            ExecuteChildTasks();
-        }
-
-        #endregion Public Instance Methods
-
-        #region Protected Instance Methods
-
-        /// <summary>
-        /// Creates and executes the embedded (child XML nodes) elements.
-        /// </summary>
-        protected virtual void ExecuteChildTasks() {
-            foreach (XmlNode childNode in XmlNode) {
-                //we only care about xmlnodes (elements) that are of the right namespace.
-                if (!(childNode.NodeType == XmlNodeType.Element) || !childNode.NamespaceURI.Equals(NamespaceManager.LookupNamespace("nant"))) {
-                    continue;
-                }
-                
-                // ignore any private xml elements (by def. this includes any property with a BuildElementAttribute (name).
-                if (IsPrivateXmlElement(childNode)) {
-                    continue;
-                }
-
-                if (TypeFactory.TaskBuilders.Contains(childNode.Name)) {
-                    // create task instance
-                    Task task = CreateChildTask(childNode);
-                    // for now, we should assume null tasks are because of 
-                    // incomplete metadata about the XML
-                    if (task != null) {
-                        task.Parent = this;
-                        // execute task
-                        task.Execute();
-                    }
-                } else if (TypeFactory.DataTypeBuilders.Contains(childNode.Name)) {
-                    // we are an datatype declaration
-                    DataTypeBase dataType = CreateChildDataTypeBase(childNode);
-
-                    Log(Level.Debug, "Adding a {0} reference with id '{1}'.", childNode.Name, dataType.ID);
-                    if (!Project.DataTypeReferences.Contains(dataType.ID)) {
-                        Project.DataTypeReferences.Add(dataType.ID, dataType);
-                    } else {
-                        Project.DataTypeReferences[dataType.ID] = dataType; // overwrite with the new reference.
-                    }
-                } else {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                        ResourceUtils.GetString("NA1071"), childNode.Name), 
-                        Project.GetLocation(childNode));
-                }
-            }
-        }
-
-        protected virtual Task CreateChildTask(XmlNode node) {
-            return Project.CreateTask(node);
-        }
-
-        protected virtual DataTypeBase CreateChildDataTypeBase(XmlNode node) {
-            return Project.CreateDataTypeBase(node);
-        }
-        
-        protected virtual bool IsPrivateXmlElement(XmlNode node) {
-            return (_subXMLElements != null && _subXMLElements.Contains(node.Name));
-        }
-
-        protected virtual void AddPrivateXmlElementName(string name) {
-            if (_subXMLElements == null)
-                _subXMLElements = new StringCollection();
-
-            if (!_subXMLElements.Contains(name))
-                _subXMLElements.Add(name);
-        }
-
-        #endregion Protected Instance Methods
     }
 }

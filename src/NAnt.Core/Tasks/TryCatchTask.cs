@@ -184,9 +184,9 @@ namespace NAnt.Core.Tasks {
     public class TryCatchTask : Task {
         #region Private Instance Fields
 
-        private TaskContainer _tryBlock;
+        private ElementContainer _tryBlock;
         private CatchElement _catchBlock;
-        private TaskContainer _finallyBlock;
+        private ElementContainer _finallyBlock;
 
         #endregion Private Instance Fields
 
@@ -197,7 +197,7 @@ namespace NAnt.Core.Tasks {
         /// the build script.
         /// </summary>
         [BuildElement("try", Required=true)]
-        public TaskContainer TryBlock {
+        public ElementContainer TryBlock {
             get { return _tryBlock; }
             set { _tryBlock = value; }
         }
@@ -221,7 +221,7 @@ namespace NAnt.Core.Tasks {
         /// prevent any subsequent tasks from executing.
         /// </remarks>
         [BuildElement("finally", Required=false)]
-        public TaskContainer FinallyBlock {
+        public ElementContainer FinallyBlock {
             get { return _finallyBlock; }
             set { _finallyBlock = value; }
         }
@@ -250,7 +250,7 @@ namespace NAnt.Core.Tasks {
 
         #endregion Override implementation of Task
 
-        public class CatchElement : TaskContainer {
+        public class CatchElement : ElementContainer {
             #region Private Instance Fields
 
             private string _property;
