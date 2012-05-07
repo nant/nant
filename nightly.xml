@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <project name="nant" default="nightly">
     <!-- import necessary sourceforge.net ssh configurations -->
-	<include buildfile="SFNetInclude.xml" />
+	<include buildfile="etc/shellconfig.xml" />
     <!-- set release type -->
     <property name="project.release.type" value="nightly" />
 
