@@ -28,7 +28,8 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 
-namespace NAnt.Core.Tasks {
+namespace NAnt.Core.Tasks
+{
     /// <summary>
     /// Replaces text in an XML file at the location specified by an XPath 
     /// expression.
@@ -91,15 +92,16 @@ namespace NAnt.Core.Tasks {
     ///   </code>
     /// </example>
     [TaskName("xmlpoke")]
-    public class XmlPokeTask : Task {
+    public class XmlPokeTask : Task
+    {
         #region Private Instance Fields
-        
+
         private FileInfo _xmlFile;
         private string _value;
         private string _xPathExpression;
         private bool _preserveWhitespace;
         private XmlNamespaceCollection _namespaces = new XmlNamespaceCollection();
-        
+
         #endregion Private Instance Fields
 
         #region Public Instance Properties
@@ -108,8 +110,9 @@ namespace NAnt.Core.Tasks {
         /// The name of the file that contains the XML document that is going 
         /// to be poked.
         /// </summary>
-        [TaskAttribute("file", Required=true)]
-        public FileInfo XmlFile {
+        [TaskAttribute("file", Required = true)]
+        public FileInfo XmlFile
+        {
             get { return _xmlFile; }
             set { _xmlFile = value; }
         }
@@ -117,9 +120,10 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The XPath expression used to select which nodes are to be modified.
         /// </summary>
-        [TaskAttribute("xpath", Required=true)]
-        [StringValidator(AllowEmpty=false)]
-        public string XPath {
+        [TaskAttribute("xpath", Required = true)]
+        [StringValidator(AllowEmpty = false)]
+        public string XPath
+        {
             get { return _xPathExpression; }
             set { _xPathExpression = value; }
         }
@@ -127,9 +131,10 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The value that replaces the contents of the selected nodes.
         /// </summary>
-        [TaskAttribute("value", Required=true)]
-        [StringValidator(AllowEmpty=true)]
-        public string Value {
+        [TaskAttribute("value", Required = true)]
+        [StringValidator(AllowEmpty = true)]
+        public string Value
+        {
             get { return _value; }
             set { _value = value; }
         }
@@ -138,7 +143,8 @@ namespace NAnt.Core.Tasks {
         /// Namespace definitions to resolve prefixes in the XPath expression.
         /// </summary>
         [BuildElementCollection("namespaces", "namespace")]
-        public XmlNamespaceCollection Namespaces {
+        public XmlNamespaceCollection Namespaces
+        {
             get { return _namespaces; }
             set { _namespaces = value; }
         }
@@ -159,25 +165,30 @@ namespace NAnt.Core.Tasks {
 
 
         #endregion Public Instance Properties
-        
+
         #region Override implementation of Task
-         
+
         /// <summary>
         /// Executes the XML poke task.
         /// </summary>
-        protected override void ExecuteTask() {
+        protected override void ExecuteTask()
+        {
             // ensure the specified xml file exists
-            if (!XmlFile.Exists) {
-                throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
+            if (!XmlFile.Exists)
+            {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1154"), XmlFile.FullName), Location);
             }
 
-            try {
+            try
+            {
                 XmlDocument document = LoadDocument(XmlFile.FullName, PreserveWhitespace);
 
                 XmlNamespaceManager nsMgr = new XmlNamespaceManager(document.NameTable);
-                foreach (XmlNamespace xmlNamespace in Namespaces) {
-                    if (xmlNamespace.IfDefined && !xmlNamespace.UnlessDefined) {
+                foreach (XmlNamespace xmlNamespace in Namespaces)
+                {
+                    if (xmlNamespace.IfDefined && !xmlNamespace.UnlessDefined)
+                    {
                         nsMgr.AddNamespace(xmlNamespace.Prefix, xmlNamespace.Uri);
                     }
                 }
@@ -186,20 +197,25 @@ namespace NAnt.Core.Tasks {
 
                 // don't bother trying to update any nodes or save the
                 // file if no nodes were found in the first place.
-                if (nodes.Count > 0) {
+                if (nodes.Count > 0)
+                {
                     UpdateNodes(nodes, Value);
                     SaveDocument(document, XmlFile.FullName);
-                } 
-            } catch (BuildException ex) {
+                }
+            }
+            catch (BuildException ex)
+            {
                 throw ex;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                                                       ResourceUtils.GetString("NA1159"), XmlFile.FullName), 
+                                                       ResourceUtils.GetString("NA1159"), XmlFile.FullName),
                     Location, ex);
             }
         }
         #endregion Override implementation of Task
-        
+
         #region Private Instance Methods
 
         /// <summary>
@@ -215,21 +231,25 @@ namespace NAnt.Core.Tasks {
         /// An <see cref="T:System.Xml.XmlDocument" /> containing
         /// the document object model representing the file.
         /// </returns>
-        private XmlDocument LoadDocument(string fileName, bool preserveWhitespace) {
+        private XmlDocument LoadDocument(string fileName, bool preserveWhitespace)
+        {
             XmlDocument document = null;
 
-            try {
-                Log(Level.Verbose, "Attempting to load XML document" 
+            try
+            {
+                Log(Level.Verbose, "Attempting to load XML document"
                     + " in file '{0}'.", fileName);
 
                 document = new XmlDocument();
                 document.PreserveWhitespace = preserveWhitespace;
                 document.Load(fileName);
 
-                Log(Level.Verbose, "XML document in file '{0}' loaded" 
+                Log(Level.Verbose, "XML document in file '{0}' loaded"
                     + " successfully.", fileName);
                 return document;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1158"), fileName), Location,
                     ex);
@@ -254,30 +274,36 @@ namespace NAnt.Core.Tasks {
         /// An <see cref="XmlNodeList" /> containing references to the nodes 
         /// that matched the XPath expression.
         /// </returns>
-        private XmlNodeList SelectNodes(string xpath, XmlDocument document, XmlNamespaceManager nsMgr) {
+        private XmlNodeList SelectNodes(string xpath, XmlDocument document, XmlNamespaceManager nsMgr)
+        {
             XmlNodeList nodes = null;
 
-            try {
-                Log(Level.Verbose, "Selecting nodes with XPath" 
+            try
+            {
+                Log(Level.Verbose, "Selecting nodes with XPath"
                     + " expression '{0}'.", xpath);
 
                 nodes = document.SelectNodes(xpath, nsMgr);
 
-                // report back how many we found if any. If not then
-                // log a message saying we didn't find any.
-                if (nodes.Count != 0) {
-                    Log(Level.Info, "Found '{0}' nodes matching" 
-                        + " XPath expression '{1}'.", nodes.Count, xpath);
-                } else {
-                    Log(Level.Warning, "No matching nodes were found" 
-                        + " with XPath expression '{0}'.", xpath);
-                }
-                return nodes;
-            } catch (Exception ex) {
+
+            }
+            catch (Exception ex)
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1161"),
                     xpath), Location, ex);
             }
+            // throw exception if no nodes found for XPath (handled gracefully if failonerror=false)
+            if (nodes == null || nodes.Count == 0)
+            {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                                       ResourceUtils.GetString("NA1156"),
+                                                       xpath), Location);
+            }
+            // report back how many we found.
+            Log(Level.Info, "Found '{0}' nodes matching"
+                    + " XPath expression '{1}'.", nodes.Count, xpath);
+            return nodes;
         }
 
         /// <summary>
@@ -289,38 +315,44 @@ namespace NAnt.Core.Tasks {
         /// <param name="value">
         /// The text to replace the contents with.
         /// </param>
-        private void UpdateNodes(XmlNodeList nodes, string value) {
+        private void UpdateNodes(XmlNodeList nodes, string value)
+        {
             Log(Level.Verbose, "Updating nodes with value '{0}'.",
                 value);
-                
+
             int index = 0;
-            foreach (XmlNode node in nodes) {
+            foreach (XmlNode node in nodes)
+            {
                 Log(Level.Verbose, "Updating node '{0}'.", index);
                 node.InnerXml = value;
-                index ++;
+                index++;
             }
 
-            Log( Level.Verbose, "Updated all nodes successfully.",
+            Log(Level.Verbose, "Updated all nodes successfully.",
                 value);
         }
-        
+
         /// <summary>
         /// Saves the XML document to a file.
         /// </summary>
         /// <param name="document">The XML document to be saved.</param>
         /// <param name="fileName">The file name to save the XML document under.</param>
-        private void SaveDocument(XmlDocument document, string fileName) {
-            try {
-                Log(Level.Verbose, "Attempting to save XML document" 
+        private void SaveDocument(XmlDocument document, string fileName)
+        {
+            try
+            {
+                Log(Level.Verbose, "Attempting to save XML document"
                     + " to '{0}'.", fileName);
 
                 document.Save(fileName);
-                
-                Log(Level.Verbose, "XML document successfully saved" 
+
+                Log(Level.Verbose, "XML document successfully saved"
                     + " to '{0}'.", fileName);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                    ResourceUtils.GetString("NA1162"), fileName), 
+                    ResourceUtils.GetString("NA1162"), fileName),
                     Location, ex);
             }
         }
