@@ -262,22 +262,21 @@ namespace NAnt.Core.Tasks {
                     + " expression '{0}'.", xpath);
 
                 nodes = document.SelectNodes(xpath, nsMgr);
-
-                // report back how many we found if any. If not then
-                // log a message saying we didn't find any.
-                if (nodes.Count != 0) {
-                    Log(Level.Info, "Found '{0}' nodes matching" 
-                        + " XPath expression '{1}'.", nodes.Count, xpath);
-                } else {
-                    Log(Level.Warning, "No matching nodes were found" 
-                        + " with XPath expression '{0}'.", xpath);
-                }
-                return nodes;
             } catch (Exception ex) {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                     ResourceUtils.GetString("NA1161"),
                     xpath), Location, ex);
             }
+            // throw exception if no nodes found for XPath (handled gracefully if failonerror=false)
+            if (nodes == null || nodes.Count == 0) {
+                throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                                                       ResourceUtils.GetString("NA1156"),
+                                                       xpath), Location);
+            }
+            // report back how many we found.
+            Log(Level.Info, "Found '{0}' nodes matching"
+                    + " XPath expression '{1}'.", nodes.Count, xpath);
+            return nodes;
         }
 
         /// <summary>
