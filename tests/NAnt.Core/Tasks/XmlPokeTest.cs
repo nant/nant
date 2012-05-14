@@ -194,10 +194,15 @@ namespace Tests.NAnt.Core.Tasks {
                 "file=\"{0}\" xpath=\"/configuration/appSettings/add[@key ='server']/@value\"",
                 xmlFile);
 
-            // execute build
-            RunBuild(string.Format(CultureInfo.InvariantCulture, 
-                _projectXml, xmlPokeTaskAttributes, xmlPeekTaskAttributes,
-                "${configuration.server}"));
+            try {
+                // execute build
+                RunBuild(string.Format(CultureInfo.InvariantCulture,
+                    _projectXml, xmlPokeTaskAttributes, xmlPeekTaskAttributes,
+                    "${configuration.server}"));
+            } catch (TestBuildException ex) {
+                // assert that a BuildException was the cause of the TestBuildException
+                Assert.IsTrue((ex.InnerException != null && ex.InnerException.GetType() == typeof(BuildException)));
+            }
         }
 
         [Test]
