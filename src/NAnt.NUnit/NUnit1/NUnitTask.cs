@@ -29,11 +29,9 @@ using NAnt.Core.Attributes;
 using NAnt.NUnit.Types;
 using NAnt.NUnit1.Types;
 
-#if NET_4_0
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
-#endif
 
 namespace NAnt.NUnit1.Tasks {
     /// <summary>
@@ -213,13 +211,11 @@ namespace NAnt.NUnit1.Tasks {
             domSetup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             domSetup.ConfigurationFile = Project.GetFullPath(test.AppConfigFile);
             domSetup.ApplicationName = "NAnt Remote Domain";
-#if NET_4_0
+
             PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
             AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
                                     domSetup, domainPermSet);
-#else
-            AppDomain newDomain = AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup);
-#endif
+
             // instantiate subclassed test runner in new domain
             Type runnerType = typeof(RemoteNUnitTestRunner);
             ObjectHandle oh = newDomain.CreateInstance ( 
