@@ -166,6 +166,8 @@
     <Compile Include="NAnt.VSNet\Tasks\VjsSolutionTests.cs" />
     <None Include="NAnt.Win32\NAnt.Win32.build" />
     <Compile Include="NAnt.Win32\Tasks\ReadRegistryTest.cs" />
+    <Compile Include="NAnt.Core\Tasks\ChooseTaskTests.cs" />
+    <Compile Include="NAnt.Core\Tasks\TryCatchTaskTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
