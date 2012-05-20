@@ -53,6 +53,47 @@
                 </td>
             </tr>
         </table>
+        <h2>Latest Changes</h2>
+        <h3>Breaking changes</h3>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/xmlpoke.html">XmlPoke</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Updated XmlPoke task to honor the <code>failonerror</code> attribute. 
+                    (<a href="https://github.com/nant/nant/issues/44">Issue #44</a>)
+                </p>
+            </div>
+        </div>
+        <h3>Changes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading">NAnt AppDomains</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Updated NAnt to use the Unrestricted permission state when creating
+                    AppDomains by default instead of just on .NET/Mono 4.0.
+                    (<a href="https://github.com/nant/nant/issues/48">Issue #48</a>)
+                </p>
+            </div>
+        </div>
+        <h4>Tasks</h4>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/trycatch.html">TryCatch</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Moved <code>&lt;trycatch&gt;</code> task from NAntContrib to NAnt.
+                    (<a href="https://github.com/nant/nant/issues/26">Issue #26</a>)
+                </p>
+            </div>
+            <h5><a class="heading" href="help/tasks/choose.html">Choose</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Moved <code>&lt;choose&gt;</code> task from NAntContrib to NAnt.
+                    (<a href="https://github.com/nant/nant/issues/26">Issue #26</a>)
+                </p>
+            </div>
+        </div>
         <h2>0.92-beta1 (May 6, 2012)</h2>
         <h3>No Updates since 0.92-alpha1</h3>
         <h2>0.92-alpha1 (April 22, 2012)</h2>
@@ -104,8 +145,8 @@
 		<div style="margin-left: 20px;">
             <h5><a class="heading" href="help/tasks/mail.html">Mail</a></h5>
             <div style="margin-left: 20px;">
-                <p>Updated &lt;mail&gt; task to reference System.Net.Mail namespace instead of System.Web.Mail.</p>
-                <p>Added additional attritbutes for greater control of the &lt;mail&gt; task. Such as:</p>
+                <p>Updated <code>&lt;mail&gt;</code> task to reference System.Net.Mail namespace instead of System.Web.Mail.</p>
+                <p>Added additional attritbutes for greater control of the <code>&lt;mail&gt;</code> task. Such as:</p>
                 <ul>
                 <li>mailport</li>
                 <li>ssl</li>
@@ -117,13 +158,13 @@
             <h5><a class="heading" href="help/tasks/zip.html">Zip</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Added flatten attribute to &lt;zip&gt; task.
+                    Added flatten attribute to <code>&lt;zip&gt;</code> task.
                 </p>
             </div>
             <h5><a class="heading" href="help/tasks/tar.html">Tar</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Added flatten attribute to &lt;tar&gt; task.
+                    Added flatten attribute to <code>&lt;tar&gt;</code> task.
                 </p>
             </div>
 		</div>
@@ -132,18 +173,22 @@
 		<div style="margin-left: 20px;">
             <h5><a class="heading">Copy/Move tasks</a></h5>
             <div style="margin-left: 20px;">
-                <p>Fixed issues with copy/move tasks when trying to relocate directories. <a href="https://github.com/nant/nant/issues/11">Issue #11</a></p>
+                <p>Fixed issues with <code>&lt;copy&gt;</code> and <code>&lt;move&gt;</code> tasks when trying to relocate directories. 
+                (<a href="https://github.com/nant/nant/issues/11">Issue #11</a>)
+                </p>
             </div>
             <h5><a class="heading" href="help/tasks/asminfo.html">Asminfo</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Fixed issue with asminfo task when trying to add assembly attributes with default constructors. <a href="https://github.com/nant/nant/issues/41">Issue #41</a>
+                    Fixed issue with <code>&lt;asminfo&gt;</code> task when trying to add assembly attributes with default constructors. 
+                    (<a href="https://github.com/nant/nant/issues/41">Issue #41</a>)
                 </p>
             </div>
             <h5><a class="heading" href="help/tasks/style.html">Style</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Updated &lt;style&gt; task to preserve singleton tags whenever possible. <a href="https://github.com/nant/nant/issues/17">Issue #17</a>
+                    Updated <code>&lt;style&gt;</code> task to preserve singleton tags whenever possible. 
+                    (<a href="https://github.com/nant/nant/issues/17">Issue #17</a>)
                 </p>
             </div>
 		</div>
