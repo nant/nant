@@ -40,7 +40,7 @@
     <!-- Setup temp file location vars -->    
     <property name="temp.dir" value="${path::get-temp-path()}"/>
     <property name="work.dir" value="${path::combine(temp.dir, 'nightlies')}"/>
-    <property name="stage.dir" value="${path::combine(temp.dir, 'nightly.extract')}"/>
+    <property name="extract.dir" value="${path::combine(temp.dir, 'nightly.extract')}"/>
     <property name="nightly.temp.filename" value="${path::combine(temp.dir, 'teamcity.nightly.zip')}"/>
 
     <!-- Setup the project specific file list vars.  Used during the SF.NET nightly upload process-->    
@@ -244,7 +244,6 @@
                     </if>
                 </if>
             </if>
-
         </foreach>
         
         <!-- Shutdown the sourceforge.net connection -->
