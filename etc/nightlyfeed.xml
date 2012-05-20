@@ -40,17 +40,13 @@
     <!-- Setup temp file location vars -->    
     <property name="temp.dir" value="${path::get-temp-path()}"/>
     <property name="work.dir" value="${path::combine(temp.dir, 'nightlies')}"/>
+    <property name="stage.dir" value="${path::combine(temp.dir, 'nightly.extract')}"/>
     <property name="nightly.temp.filename" value="${path::combine(temp.dir, 'teamcity.nightly.zip')}"/>
-    <!--<property name="nightly.temp.filename" value="${path::get-temp-file-name()}"/>-->
 
     <!-- Setup the project specific file list vars.  Used during the SF.NET nightly upload process-->    
     <foreach item="String" delim=" " in="${available.projects}" property="project.setup.name">
         <property name="${project.setup.name}.filelist" value="${path::combine(temp.dir, project.setup.name + '.files')}"/>
     </foreach>
-    <!--
-    <property name="nant.filelist" value="${path::combine(temp.dir, 'nant.files')}"/>
-    <property name="nantcontrib.filelist" value="${path::combine(temp.dir, 'nantcontrib.files')}"/>
-    -->
     
     <target name="download.nightly" description="Stages the nightly zipfile from the teamcity site for processing">
         <!-- If the work.dir directory does not exist on the target system, create it before proceeding -->
@@ -81,6 +77,14 @@
             </if>
         </foreach>
 
+        <!-- 
+        Setup the directory to extract the contents of the bin.zip files for retrieving
+        the help files and release notes.
+        -->
+        <if test="${not directory::exists(extract.dir)}">
+            <mkdir dir="${extract.dir}"/>
+        </if>
+
         <!-- Create a shell to SF.NET via ssh command -->
         <exec program="ssh">
             <arg line="${sf.net.ssh.user},nant@${sf.net.ssh.server}" />
@@ -91,7 +95,9 @@
         <!-- Loop through the projects listed in the available.projects property -->
         <foreach item="String" delim=" " in="${available.projects}" property="project.name">
             <!-- Setup the necessary project specific properties -->
-            <property name="date.list" value="${temp.dir}/${project.name}_nightly_dates.txt"/>                    
+            <property name="date.list" value="${temp.dir}/${project.name}_nightly_dates.txt"/>
+            <property name="sf.net.web.path" value="/home/project-web/${project.name}/htdocs"/>
+            <property name="sf.net.web.nightly.path" value="${sf.net.web.path}/nightly"/>
             <property name="sf.net.release.path" value="/home/frs/project/n/na/${project.name}/${project.name}" />
             <property name="sf.net.nightly.path" value="${sf.net.release.path}/nightly" />
             <property name="sf.connection" value="${sf.net.ssh.user},${project.name}@${sf.net.ssh.server}" />
@@ -117,6 +123,8 @@
             <if test="${not string::contains(nightly.dates, nightly.date)}">
                 <!-- Setup the path to the new nightly directory to load the files to -->
                 <property name="target.path" value="${path::combine(sf.net.nightly.path, nightly.date)}"/>
+                <property name="extract.dir.contents" value="${project.name}_contents.txt"/>
+                <property name="extract.contents.path" value="${path::combine(temp.dir, extract.dir.contents)}"/>
                 
                 <!-- Create the directory in the SF.NET project space -->
                 <exec program="ssh">
@@ -134,6 +142,14 @@
                     <if test="${string::get-length(project.file) &gt; 0}">
                         <!-- Get the file name (without the path) to help set the target filename -->
                         <property name="current.file" value="${path::get-file-name(project.file)}"/>
+                        
+                        <!-- If the current file ends with "bin.zip", extract it to the extract.dir path -->
+                        <if test="${string::ends-with(current.file, 'bin.zip')}">
+                            <unzip zipfile="${current.file}" todir="${extract.dir}" />
+                            <exec program="ls" output="${extract.contents.path}">
+                                <arg value="${extract.dir}"/>
+                            </exec>
+                        </if>
                         
                         <!-- Set the name that the file will be displayed as in SF.NET -->
                         <if test="${string::ends-with(current.file, '.zip')}">
@@ -153,9 +169,84 @@
                         </exec>
                     </if>
                 </foreach>
+                
+                <!-- 
+                If a bin.zip file was found and extracted, start the process of 
+                uploading the nightly information into project-web
+                -->
+                <if test="${file::exists(extract.contents.path)}">
+                    <loadfile file="${extract.contents.path}" property="files.dir"/>
+                    <property name="prog.files" value="${path::combine(extract.dir, string::trim(files.dir))}"/>
+                    <property name="doc.zip" value="doc.tar.gz"/>
+                    <property name="local.doc.zip" value="${path::combine(temp.dir, doc.zip)}"/>
+                    <property name="schema.filename" value="${project.name}.xsd"/>
+                    <property name="schema.filepath" value="${prog.files}/schema/${schema.filename}"/>
+
+                    <!-- Tarball the help files that were extracted to upload to SF.net -->
+                    <tar destfile="${local.doc.zip}" compression="GZip">
+                        <fileset basedir="${path::combine(prog.files, 'doc')}">
+                            <include name="**/*" />
+                        </fileset>
+                    </tar>
+                    
+                    <!-- Copy the nightly files to project web -->
+                    <echo message="Copying nightly files to ${project.name} project web"/>
+                    <exec program="ssh">
+                        <arg line="${sf.connection}" />
+                        <arg line="-i ${private.key}"/>
+                        <arg line="cp -pR ${path::combine(sf.net.nightly.path, nightly.date)} ${sf.net.web.nightly.path}"/>
+                    </exec>
+                    
+                    <!-- Upload the doc tarball -->
+                    <exec program="scp">
+                        <arg line="-i ${private.key}" />
+                        <arg value="${local.doc.zip}" />
+                        <arg value="${sf.connection}:${sf.net.web.nightly.path}/${nightly.date}" />
+                    </exec>
+                    
+                    <!-- Extract the doc tar ball in the appropriate location -->
+                    <exec program="ssh">
+                        <arg line="${sf.connection}" />
+                        <arg line="-i ${private.key}"/>
+                        <arg line="cd ${sf.net.web.nightly.path}/${nightly.date}"/>
+                        <arg line="&amp;&amp; tar -xzf ${doc.zip}"/>
+                        <arg line="&amp;&amp; rm --force ${doc.zip}"/>
+                    </exec>
+                    
+                    <!-- Upload the Xml schema file (if it exists) -->
+                    <if test="${file::exists(schema.filepath)}">
+                        <exec program="scp">
+                            <arg line="-i ${private.key}" />
+                            <arg value="${schema.filepath}" />
+                            <arg value="${sf.connection}:${sf.net.web.nightly.path}/${nightly.date}/${schema.filename}" />
+                        </exec>
+                    </if>
+                    
+                    <!-- Reset the "latest" link -->
+                    <exec program="ssh">
+                        <arg line="${sf.connection}" />
+                        <arg value="rm --force ${sf.net.web.nightly.path}/latest" />
+                        <arg value="&amp;&amp; ln -sf ${sf.net.web.nightly.path}/${nightly.date} ${sf.net.web.nightly.path}/latest" />
+                        <arg value="&amp;&amp; chmod -R 775 ${sf.net.web.nightly.path}/latest" />
+                    </exec>
+                    
+                    <!-- File and directory cleanup -->
+                    <if test="${directory::exists(prog.files)}">
+                        <delete dir="${prog.files}"/>
+                    </if>
+        
+                    <if test="${file::exists(extract.contents.path)}">
+                        <delete file="${extract.contents.path}"/>
+                    </if>
+        
+                    <if test="${file::exists(local.doc.zip)}">
+                        <delete file="${local.doc.zip}"/>
+                    </if>
+                </if>
             </if>
 
         </foreach>
+        
         <!-- Shutdown the sourceforge.net connection -->
         <exec program="ssh">
             <arg line="${sf.net.ssh.user},nant@${sf.net.ssh.server}" />
@@ -167,12 +258,15 @@
     </target>
     
     <target name="clean" description="Cleans up the temp files used during the staging process.">
-        <!-- Remove the downloaded nightly zipfile and work directory -->
+        <!-- Remove the downloaded nightly zipfile, stage and work directory -->
         <if test="${file::exists(nightly.temp.filename)}">
             <delete file="${nightly.temp.filename}"/>
         </if>
         <if test="${directory::exists(work.dir)}">
             <delete dir="${work.dir}"/>
+        </if>
+        <if test="${directory::exists(extract.dir)}">
+            <delete dir="${extract.dir}"/>
         </if>
         
         <!-- Remove the project specific files and directories if applicable -->
