@@ -27,11 +27,9 @@ using System.Runtime.Remoting;
 
 using NUnit.Core;
 
-#if NET_4_0
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
-#endif
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
@@ -143,15 +141,9 @@ namespace NAnt.NUnit2.Tasks {
                 domSetup.ConfigurationFile = assemblyFile.FullName + ".config";
             }
 
-#if NET_4_0
             PermissionSet myDomainPermSet = new PermissionSet(PermissionState.Unrestricted);
             return AppDomain.CreateDomain(domSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, domSetup, myDomainPermSet);
-#else
-            return AppDomain.CreateDomain( 
-                domSetup.ApplicationName, 
-                AppDomain.CurrentDomain.Evidence, 
-                domSetup);
-#endif
+
         }
 
         private RemoteTestRunner CreateTestRunner(AppDomain domain) {

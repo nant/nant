@@ -31,11 +31,9 @@ using System.Runtime.Remoting.Lifetime;
 using System.Security.Cryptography;
 using System.Text;
 
-#if NET_4_0
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
-#endif
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -451,19 +449,16 @@ namespace NAnt.DotNet.Tasks {
 
             private object GetTypedValue(AssemblyAttribute attribute, StringCollection assemblies, StringCollection imports) {
                 // locate type assuming TypeName is fully qualified typename
-#if NET_4_0     
                 PermissionSet domainPermSet = new PermissionSet(PermissionState.Unrestricted);
                 AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", AppDomain.CurrentDomain.Evidence, 
                     AppDomain.CurrentDomain.SetupInformation, domainPermSet);
 
+#if NET_4_0
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
                     null, new object[0], CultureInfo.InvariantCulture, new object[0]);
 #else
-                AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", 
-                    AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.SetupInformation);
-
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
