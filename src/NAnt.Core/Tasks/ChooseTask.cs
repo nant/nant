@@ -188,42 +188,42 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Public Instance Methods
-    }
-
-    /// <summary>
-    /// Groups a set of tasks to execute when a condition is met.
-    /// </summary>
-    public class When : ElementContainer {
-        #region Private Instance Fields
-
-        private bool _test = true;
-
-        #endregion Private Instance Fields
-
-        #region Public Instance Properties
 
         /// <summary>
-        /// Used to test arbitrary boolean expression.
+        /// Groups a set of tasks to execute when a condition is met.
         /// </summary>
-        [TaskAttribute("test", Required=true)]
-        [BooleanValidator()]
-        public bool Test {
-            get { return _test; }
-            set { _test = value; }
-        }
-
-        #endregion Public Instance Properties
-
-        #region Override implementation of NestedTaskContainer
-
-        public override void Execute() {
-            if (!Test) {
-                return;
+        public class When : ElementContainer {
+            #region Private Instance Fields
+    
+            private bool _test = true;
+    
+            #endregion Private Instance Fields
+    
+            #region Public Instance Properties
+    
+            /// <summary>
+            /// Used to test arbitrary boolean expression.
+            /// </summary>
+            [TaskAttribute("test", Required=true)]
+            [BooleanValidator()]
+            public bool Test {
+                get { return _test; }
+                set { _test = value; }
             }
-
-            base.Execute();
+    
+            #endregion Public Instance Properties
+    
+            #region Override implementation of NestedTaskContainer
+    
+            public override void Execute() {
+                if (!Test) {
+                    return;
+                }
+    
+                base.Execute();
+            }
+    
+            #endregion Override implementation of NestedTaskContainer
         }
-
-        #endregion Override implementation of NestedTaskContainer
     }
 }
