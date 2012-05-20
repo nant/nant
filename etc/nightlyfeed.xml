@@ -145,7 +145,7 @@
                         
                         <!-- If the current file ends with "bin.zip", extract it to the extract.dir path -->
                         <if test="${string::ends-with(current.file, 'bin.zip')}">
-                            <unzip zipfile="${current.file}" todir="${extract.dir}" />
+                            <unzip zipfile="${path::combine(work.dir, current.file)}" todir="${extract.dir}" />
                             <exec program="ls" output="${extract.contents.path}">
                                 <arg value="${extract.dir}"/>
                             </exec>
