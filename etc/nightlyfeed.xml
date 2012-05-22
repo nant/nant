@@ -225,6 +225,7 @@
                     <!-- Reset the "latest" link -->
                     <exec program="ssh">
                         <arg line="${sf.connection}" />
+                        <arg line="-i ${private.key}" />
                         <arg value="rm --force ${sf.net.web.nightly.path}/latest" />
                         <arg value="&amp;&amp; ln -sf ${sf.net.web.nightly.path}/${nightly.date} ${sf.net.web.nightly.path}/latest" />
                         <arg value="&amp;&amp; chmod -R 775 ${sf.net.web.nightly.path}/latest" />
