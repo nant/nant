@@ -313,8 +313,15 @@ namespace NAnt.Core.Tasks {
                 Log(Level.Verbose, "Attempting to save XML document" 
                     + " to '{0}'.", fileName);
 
-                document.Save(fileName);
-                
+                XmlWriterSettings wSettings = new XmlWriterSettings();
+                wSettings.Indent = true;
+                wSettings.ConformanceLevel = ConformanceLevel.Fragment;
+                wSettings.OmitXmlDeclaration = true;
+                using (XmlWriter output = XmlWriter.Create(fileName, wSettings))
+                {
+                    document.WriteTo(output);
+                }
+
                 Log(Level.Verbose, "XML document successfully saved" 
                     + " to '{0}'.", fileName);
             } catch (Exception ex) {
