@@ -316,7 +316,6 @@ namespace NAnt.Core.Tasks {
                 XmlWriterSettings wSettings = new XmlWriterSettings();
                 wSettings.Indent = true;
                 wSettings.ConformanceLevel = ConformanceLevel.Fragment;
-                wSettings.OmitXmlDeclaration = true;
                 using (XmlWriter output = XmlWriter.Create(fileName, wSettings))
                 {
                     document.WriteTo(output);
