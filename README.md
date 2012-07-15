@@ -1,8 +1,9 @@
 NAnt
+====
 
 What is it? 
 -----------
-NAnt is a .NET based build tool. In theory it is kind of like make without 
+NAnt is a .NET-based build tool. In theory it is kind of like `make` without
 make's wrinkles. In practice it's a lot like Ant. 
   
 If you are not familiar with Jakarta Ant you can get more information at the
@@ -11,9 +12,9 @@ Ant project web site (http://ant.apache.org/).
 
 Why NAnt?
 ---------
-Because Ant was too Java specific.
-Because Ant needed the Java runtime.  NAnt only needs the .NET 
-or Mono runtime.
+Because Ant was too Java-specific.
+
+Because Ant needed the Java runtime. NAnt only needs the .NET or Mono runtime.
 
 
 The Latest Version
@@ -24,101 +25,100 @@ http://nant.sourceforge.net/
 
 Files
 -----
-  README.txt      - This file.
-  Makefile        - Makefile for compilation with GNU Make.
-  Makefile.nmake  - Makefile for compilation with Microsoft NMake.
-
+|  File           |  Purpose                                        |
+| --------------- | ----------------------------------------------- |
+|  README.txt     |  This file                                      |
+|  Makefile       |  Makefile for compilation with GNU Make         |
+|  Makefile.nmake |  Makefile for compilation with Microsoft NMake  |
 
 Compilation and Installation
-----------------------------
+============================
 
-   a. Overview
-   -----------
-   The compilation process uses NAnt to build NAnt.
+Overview
+--------
+The compilation process uses NAnt to build NAnt.
+
+The approach is to first compile a copy of NAnt (using `make`/`nmake`) for
+bootstrapping purpose. Next, the bootstrapped version of NAnt is used in
+conjunction with NAnt build file (`NAnt.build`) to build the full version.
+
+
+Prerequisites
+-------------
+To build NAnt, you will need the following components:
+
+Windows
+-------
+
+* A version of the Microsoft .NET Framework.
+
+  Available from http://msdn.microsoft.com/netframework/
+  
+  You will need the .NET Framework SDK as well as the runtime 
+  components if you intend to compile programs.
+
+  Note: NAnt currently supports versions 1.0, 1.1, 2.0, 3.5, and 4.0 
+  of the Microsoft .NET Framework. 
+
+or
+
+* Mono for Windows (version 2.0 or higher)
+
+  Available from http://www.mono-project.com/downloads/
+
+Linux/Unix
+----------
+
+* GNU toolchain - including GNU `make`
+
+* `pkg-config`
+
+    Available from: http://www.freedesktop.org/Software/pkgconfig
+
+* A working Mono installation and development libraries (version 2.0 or higher)
+
+    Available from: http://www.mono-project.com/downloads/
+
+        
+Building the Software
+---------------------
    
-   The approach is to first compile a copy of NAnt (using make/nmake) for 
-   bootstrapping purpose. Next, the bootstrapped version of NAnt is used in 
-   conjunction with NAnt build file (NAnt.build) to build the full version.
-   
-   
-   b. Prerequisites
-   ----------------
-   To build NAnt, you will need the following components:
+Build NAnt using Microsoft .NET:     
 
-   Windows
-   -------
+* GNU Make
 
-       * A version of the Microsoft .NET Framework
-
-           Available from http://msdn.microsoft.com/netframework/
-         
-           You will need the .NET Framework SDK as well as the runtime 
-           components if you intend to compile programs.
-
-           Note: NAnt currently supports versions 1.0, 1.1, 2.0, 3.5, and 4.0 
-           of the Microsoft .NET Framework. 
-
-       or
-
-       * Mono for Windows (version 2.0 or higher)
-
-           Available from http://www.mono-project.com/downloads/
-   
-   Linux/Unix
-   ----------
-
-       * GNU toolchain - including GNU make
-
-       * pkg-config
-
-           Available from: http://www.freedesktop.org/Software/pkgconfig
-
-       * A working Mono installation and development libraries (version 2.0 or higher)
-
-           Available from: http://www.mono-project.com/downloads/
-
-           
-    b. Building the Software
-    ------------------------
-      
-    Build NAnt using Microsoft .NET:     
-
-    GNU Make
-    --------
         make install MONO= MCS=csc prefix=<installation path> [DESTDIR=<staging path>] [TARGET=<nant target>]
 
-        eg. make install MONO= MCS=csc prefix="c:\Program Files" TARGET=net-2.0
+    eg. `make install MONO= MCS=csc prefix="c:\Program Files" TARGET=net-2.0`
 
-    NMake
-    -----
+* NMake
+
         nmake -f Makefile.nmake install prefix=<installation path> [DESTDIR=<staging path>] [TARGET=<nant target>]
-    
-        eg. nmake -f Makefile.nmake install prefix="c:\Program Files" TARGET=net-4.0
+
+    eg. `nmake -f Makefile.nmake install prefix="c:\Program Files" TARGET=net-4.0`
 
 
-    Building NAnt using Mono:
+Building NAnt using Mono:
 
-    GNU Make
-    --------
+* GNU Make
+
         make install prefix=<installation path> [DESTDIR=<staging path>] [TARGET=<nant target>]
 
-        eg. make install prefix="c:\Program Files" TARGET=mono-4.0
+    eg. `make install prefix="c:\Program Files" TARGET=mono-4.0`
 
-    NMake
-    -----
+* NMake
+
         nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=<installation path> [DESTDIR=<staging path>] [TARGET=<nant target>]
-    
-        eg. nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/
 
-Note: 
+    eg. `nmake -f Makefile.nmake install MONO=mono CSC=mcs prefix=/usr/local/`
 
-These instructions only apply to the source distribution of NAnt, as the binary distribution 
-contains pre-built assemblies.
+Note: These instructions only apply to the source distribution of NAnt, as the
+binary distribution contains pre-built assemblies.
 
 
 Documentation
 -------------
-Documentation is available in HTML format, in the doc/ directory.
+Documentation is available in HTML format, in the `doc/` directory.
 
 
 License
@@ -156,3 +156,4 @@ included with all NAnt distributions.
 For more licensing information refer to the GNU General Public License on the 
 GNU Project web site.
 http://www.gnu.org/copyleft/gpl.html
+
