@@ -4,7 +4,7 @@ NAnt
 What is it? 
 -----------
 NAnt is a .NET-based build tool. In theory it is kind of like `make` without
-make's wrinkles. In practice it's a lot like Ant. 
+`make`'s wrinkles. In practice it's a lot like Ant. 
   
 If you are not familiar with Jakarta Ant you can get more information at the
 Ant project web site (http://ant.apache.org/).
@@ -27,7 +27,7 @@ Files
 -----
 |  File           |  Purpose                                        |
 | --------------- | ----------------------------------------------- |
-|  README.txt     |  This file                                      |
+|  README.md/txt  |  This file                                      |
 |  Makefile       |  Makefile for compilation with GNU Make         |
 |  Makefile.nmake |  Makefile for compilation with Microsoft NMake  |
 
