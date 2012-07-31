@@ -205,6 +205,22 @@ namespace NAnt.Core.Functions {
             return Directory.Exists(Project.GetFullPath(path));
         }
 
+        /// <summary>
+        /// Returns only the name of the directory, such as "Bin"..
+        /// </summary>
+        /// <param name="path">The path to the directory. The path parameter can be a file name, including a file on a Universal Naming Convention (UNC) share..</param>
+        /// <returns>
+        /// A string containing the name of the directory.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
+        /// <exception cref="SecurityException">The caller does not have the required permission over <paramref name="path" />.</exception>
+        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        [Function("get-name")]
+        public string GetName(string path) {
+            return new DirectoryInfo(path).Name;
+        }
+
         #endregion Public Instance Methods
     }
 }
