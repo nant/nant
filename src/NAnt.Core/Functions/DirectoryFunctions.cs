@@ -218,7 +218,7 @@ namespace NAnt.Core.Functions {
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-name")]
         public string GetName(string path) {
-            return new DirectoryInfo(fullname).Name;
+            return new DirectoryInfo(path).Name;
         }
 
         #endregion Public Instance Methods
