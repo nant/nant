@@ -214,7 +214,6 @@ namespace NAnt.Core.Functions {
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
-        /// <exception cref="SecurityException">The caller does not have the required permission over <paramref name="path" />.</exception>
         /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
         [Function("get-name")]
         public string GetName(string path) {
