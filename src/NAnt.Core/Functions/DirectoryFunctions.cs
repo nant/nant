@@ -206,15 +206,33 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
-        /// Returns only the name of the directory, such as "Bin"..
+        /// Retrieves the directory name of the specified <paramref name="path" />.
         /// </summary>
-        /// <param name="path">The path to the directory. The path parameter can be a file name, including a file on a Universal Naming Convention (UNC) share..</param>
+        /// <param name="path">The directory's full path. The path parameter can be a 
+        /// file name, including a file on a Universal Naming Convention (UNC) share.
+        /// </param>
         /// <returns>
         /// A string containing the name of the directory.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path" /> is a zero-length string, contains only white space, or contains one or more invalid characters.</exception>
-        /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="path" /> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="path" /> is a zero-length string, contains only white space, 
+        /// or contains one or more invalid characters.
+        /// </exception>
+        /// <exception cref="PathTooLongException">
+        /// The specified path, file name, or both exceed the system-defined maximum 
+        /// length.
+        /// </exception>
+        /// <example>
+        ///   <para>Gets directory name "test" from full path string.</para>
+        ///   <code>
+        ///     <![CDATA[
+        /// <property name="test.dir" value="${directory::get-name('C:\Temp\bin\test')}" />
+        ///     ]]>
+        ///   </code>
+        /// </example>
         [Function("get-name")]
         public string GetName(string path) {
             return new DirectoryInfo(path).Name;
