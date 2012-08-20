@@ -569,7 +569,10 @@ namespace NAnt.Core.Tasks {
     
                     foreach (string item in parsedAddresses)
                     {
-                        results.Add(ConvertStringToMailAddress(item));
+                        if (!String.IsNullOrEmpty(item))
+                        {
+                            results.Add(ConvertStringToMailAddress(item));
+                        }
                     }
                 }
     

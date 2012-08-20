@@ -50,6 +50,21 @@ namespace Tests.NAnt.Core.Tasks
         private static SimpleSmtpServer _smtpServer;
 
         /// <summary>
+        /// A basic NAnt project template to use for new tests for the &lt;mail&gt;
+        /// task that uses the tolist attribute.
+        /// </summary>
+        private const string _xmlToListProjectTemplate = @"
+            <project>
+                <mail
+                    mailhost='localhost'
+                    from='nant@sourceforge.net'
+                    tolist='{0}'
+                    subject='Message from the {1} test method'
+                    mailport='{2}'
+                    message='{3}'/>
+            </project>";
+
+        /// <summary>
         /// The From email address to use for all testing.
         /// </summary>
         private const string _fromEmail = "nant@sourceforge.net";
@@ -352,6 +367,21 @@ namespace Tests.NAnt.Core.Tasks
         #endregion SetUp/TearDown Methods
 
         #region Simple Email Test Methods
+
+        [Test]
+        public void IncludeTrailingSemiColon()
+        {
+            RunBuild(String.Format(_xmlToListProjectTemplate,
+                                   String.Concat(_singleEmail, ";"),
+                                   "IncludeTrailingSemiColon",
+                                   _port,
+                                   CreateSampleEmailMessage("IncludeTrailingSemiColon")
+                                   )
+                     );
+
+            Assert.AreEqual(1, _smtpServer.ReceivedEmailCount);
+            Assert.AreEqual(1, _smtpServer.ReceivedEmail[0].ToAddresses.Length);
+        }
 
         /// <summary>
         /// Test a simple email scenario with 1 email address.
