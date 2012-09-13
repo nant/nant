@@ -417,6 +417,7 @@ namespace NAnt.Core.Tasks {
                         X509Certificate.CreateFromCertFile(certificate));
                 }
 
+                httpRequest.ReadWriteTimeout = Timeout;
                 webRequest = httpRequest;
             } else {
                 webRequest = WebRequest.Create(uri);
