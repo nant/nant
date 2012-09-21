@@ -56,7 +56,7 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="nunit.framework">
-      <HintPath>..\lib\net\1.0\nunit.framework.dll</HintPath>
+      <HintPath>..\lib\common\2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="netDumbster">
       <HintPath>..\lib\common\neutral\netDumbster.dll</HintPath>

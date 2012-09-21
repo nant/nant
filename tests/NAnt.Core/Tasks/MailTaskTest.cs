@@ -335,9 +335,9 @@ namespace Tests.NAnt.Core.Tasks
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Could not cleanup temp dir: {0}", _tempPath);
-                Console.WriteLine("Encountered error:");
-                Console.WriteLine(ex.Message);
+                System.Console.WriteLine("Could not cleanup temp dir: {0}", _tempPath);
+                System.Console.WriteLine("Encountered error:");
+                System.Console.WriteLine(ex.Message);
             }
         }
 
