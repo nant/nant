@@ -75,6 +75,8 @@
     <Compile Include="MSBuildProjectProvider.cs" />
     <Compile Include="MSBuildProjectReference.cs" />
     <Compile Include="MSBuildReference.cs" />
+    <Compile Include="VS2012\VisualStudio11Solution.cs" />
+    <Compile Include="VS2012\VisualStudio11SolutionProvider.cs" />
     <None Include="NAnt.MSBuild.build" />
     <Compile Include="NAntLogger.cs" />
     <Compile Include="Functions\MSBuildFunctions.cs" />

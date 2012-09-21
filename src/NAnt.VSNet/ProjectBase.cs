@@ -825,6 +825,11 @@ namespace NAnt.VSNet {
         /// Visual Studio 2010
         /// </summary>
         Rosario = 100,
+
+        /// <summary>
+        /// Visual Studio 2012
+        /// </summary>
+        VisualStudio11 = 110,
     }
 
     /// <summary>

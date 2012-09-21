@@ -326,6 +326,8 @@ namespace NAnt.MSBuild {
                 string targetFrameworkVer = _targetNetVerNode.InnerText;
 
                 switch (targetFrameworkVer.ToUpper().Trim()) {
+                    case "V4.5":
+                        return ProductVersion.VisualStudio11;
                     case "V4.0":
                         return ProductVersion.Rosario;
                     case "V3.5":
@@ -346,6 +348,8 @@ namespace NAnt.MSBuild {
                 }
 
                 switch (toolsVersionAttribute.Value) {
+                    case "V4.5":
+                        return ProductVersion.VisualStudio11;
                     case "4.0":
                         return ProductVersion.Rosario;
                     case "3.5":
