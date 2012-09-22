@@ -45,6 +45,9 @@ namespace NAnt.VSNet {
             if (formatVersion == "11.00") {
                 return 10;
             }
+            if (formatVersion == "12.00") {
+                return 10;
+            }
             return 0;
         }
 
