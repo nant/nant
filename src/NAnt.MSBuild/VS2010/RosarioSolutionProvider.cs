@@ -42,13 +42,13 @@ namespace NAnt.VSNet {
             }
 
             string formatVersion = matches[0].Groups["formatVersion"].Value;
-            if (formatVersion == "11.00") {
-                return 10;
+            switch (formatVersion) {
+                case "11.00":
+                case "12.00":
+                    return 10;
+                default: 
+                    return 0;
             }
-            if (formatVersion == "12.00") {
-                return 10;
-            }
-            return 0;
         }
 
         public SolutionBase GetInstance(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
