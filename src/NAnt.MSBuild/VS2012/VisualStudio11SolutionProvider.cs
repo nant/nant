@@ -1,4 +1,4 @@
-// NAnt - A .NET build tool
+﻿// NAnt - A .NET build tool
 // Copyright (C) 2001-2011 Gerry Shaw
 //
 // This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Martin Aliger (martin_aliger@myrealbox.com)
+// Matt Bowers (mwbowers81@gmail.com)
 
 using System;
 using System.CodeDom.Compiler;
@@ -30,7 +30,7 @@ using NAnt.VSNet.Extensibility;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
-    internal class RosarioSolutionProvider : ISolutionBuildProvider {
+    internal class VisualStudio11SolutionProvider : ISolutionBuildProvider {
         #region Implementation of ISolutionBuildProvider
 
         public int IsSupported(string fileContents) {
@@ -42,17 +42,17 @@ namespace NAnt.VSNet {
             }
 
             string formatVersion = matches[0].Groups["formatVersion"].Value;
-            if (formatVersion == "11.00") {
+            if (formatVersion == "12.00") {
                 return 10;
             }
             return 0;
         }
 
         public SolutionBase GetInstance(string solutionContent, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver) {
-            return new RosarioSolution(solutionContent, solutionTask, tfc, gacCache, refResolver);
+            return new VisualStudio11Solution(solutionContent, solutionTask, tfc, gacCache, refResolver);
         }
 
         #endregion Implementation of ISolutionBuildProvider
     }
-} 
+}
 
