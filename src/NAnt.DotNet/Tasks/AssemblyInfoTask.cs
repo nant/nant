@@ -453,7 +453,7 @@ namespace NAnt.DotNet.Tasks {
                 AppDomain newDomain = AppDomain.CreateDomain("TypeGatheringDomain", AppDomain.CurrentDomain.Evidence, 
                     AppDomain.CurrentDomain.SetupInformation, domainPermSet);
 
-#if NET_4_0 || NET_4_5
+#if NET_4_0
                 TypedValueGatherer typedValueGatherer = (TypedValueGatherer) 
                     newDomain.CreateInstanceAndUnwrap(typeof(TypedValueGatherer).Assembly.FullName, 
                     typeof(TypedValueGatherer).FullName, false, BindingFlags.Public | BindingFlags.Instance, 
