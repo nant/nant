@@ -32,6 +32,7 @@ using NAnt.Core.Util;
 using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
+using Microsoft.Win32;
 
 namespace NAnt.MSBuild {
     internal class MSBuildProject : ProjectBase {
@@ -348,9 +349,18 @@ namespace NAnt.MSBuild {
                 }
 
                 switch (toolsVersionAttribute.Value) {
-                    case "V4.5":
-                        return ProductVersion.VisualStudio11;
                     case "4.0":
+                        RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(
+                                @"Software\Microsoft\MSBuild\ToolsVersions\4.0", false);
+                        string[] installedVisualStudioVersions = sdkRegSubKey.GetSubKeyNames();
+
+                        foreach (string ver in installedVisualStudioVersions)
+                        {
+                            if (ver == "11.0")
+                            {
+                                return ProductVersion.VisualStudio11;
+                            }
+                        }
                         return ProductVersion.Rosario;
                     case "3.5":
                         return ProductVersion.Orcas;
