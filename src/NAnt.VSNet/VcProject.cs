@@ -652,6 +652,9 @@ namespace NAnt.VSNet {
             string pdbTargetFileName;
 
             switch (ProductVersion) {
+                case ProductVersion.VisualStudio11:
+                    pdbTargetFileName = "$(IntDir)/vc110.pdb";
+                    break;
                 case ProductVersion.Rosario:
                     pdbTargetFileName = "$(IntDir)/vc100.pdb";
                     break;
