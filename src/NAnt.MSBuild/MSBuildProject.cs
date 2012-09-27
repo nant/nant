@@ -32,6 +32,7 @@ using NAnt.Core.Util;
 using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
+using Microsoft.Win32;
 
 namespace NAnt.MSBuild {
     internal class MSBuildProject : ProjectBase {
@@ -326,6 +327,8 @@ namespace NAnt.MSBuild {
                 string targetFrameworkVer = _targetNetVerNode.InnerText;
 
                 switch (targetFrameworkVer.ToUpper().Trim()) {
+                    case "V4.5":
+                        return ProductVersion.VisualStudio11;
                     case "V4.0":
                         return ProductVersion.Rosario;
                     case "V3.5":
@@ -347,6 +350,12 @@ namespace NAnt.MSBuild {
 
                 switch (toolsVersionAttribute.Value) {
                     case "4.0":
+                        RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(@"\SOFTWARE\Microsoft\MSBuild\ToolsVersions\4.0", false);
+                        foreach (string ver in sdkRegSubKey.GetSubKeyNames()) {
+                            if (ver == "11.0") {
+                                return ProductVersion.VisualStudio11;
+                            }
+                        }
                         return ProductVersion.Rosario;
                     case "3.5":
                         return ProductVersion.Orcas;
