@@ -55,6 +55,11 @@ ifeq ($(findstring 4.0,$(SELECTED_TARGET)),4.0)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
 endif
 
+# Loads (net,mono)-4.5 DEFINE vars
+ifeq ($(findstring 4.5,$(SELECTED_TARGET)),4.5)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5
+endif
+
 # If TARGET var is invalid, throw an error
 else
 $(error Specified target "$(TARGET)" is not valid)
