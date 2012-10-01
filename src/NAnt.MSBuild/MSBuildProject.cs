@@ -350,12 +350,6 @@ namespace NAnt.MSBuild {
 
                 switch (toolsVersionAttribute.Value) {
                     case "4.0":
-                        RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(@"\SOFTWARE\Microsoft\MSBuild\ToolsVersions\4.0", false);
-                        foreach (string ver in sdkRegSubKey.GetSubKeyNames()) {
-                            if (ver == "11.0") {
-                                return ProductVersion.VisualStudio11;
-                            }
-                        }
                         return ProductVersion.Rosario;
                     case "3.5":
                         return ProductVersion.Orcas;
