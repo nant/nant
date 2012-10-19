@@ -126,7 +126,7 @@ namespace NAnt.Core.Functions {
         ///   </para>
         ///   <code>
         ///     <![CDATA[
-        /// <echo message="${version::get-major-version(assemblyname::get-version(assemblyname::get-assembly-name('nunit.framework.dll')))}" />
+        /// <echo message="${version::get-major(assemblyname::get-version(assemblyname::get-assembly-name('nunit.framework.dll')))}" />
         ///     ]]>
         ///   </code>
         /// </example>
