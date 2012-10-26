@@ -191,7 +191,7 @@
                 <p>All tasks support <code>if</code> and <code>unless</code> attributes. 
                     Expressions can be used there to control which tasks get executed:</p>
                 <p>
-                    <code>&lt;property name="myprj.basedir" value="c:\" unless="<a href="../functions/property.exists.html">property::exists</a>('myprj.basedir')" 
+                    <code>&lt;property name="myprj.basedir" value="c:\" unless="<span class="expression">${<a href="../functions/property.exists.html">property::exists</a>('myprj.basedir')}</span>" 
                         /&gt;<br />
                         &lt;csc target="library" output="out.dll" ...
                         <br />
