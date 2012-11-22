@@ -1267,7 +1267,10 @@ namespace NAnt.Core.Tasks {
                     // hashtable var as is.
                     if (temp.OperationType == CopyTask.OperationType.FileToFile)
                     {
-                        result.Add(temp.Target, new FileDateInfo(temp.SourceInfo));
+                        if (!result.ContainsKey(temp.Target))
+                        {
+                            result.Add(temp.Target, new FileDateInfo(temp.SourceInfo));
+                        }
                     }
                     // For a FileToDirectory operation, use the source file name as
                     // the target file name and load accordingly.
@@ -1276,7 +1279,10 @@ namespace NAnt.Core.Tasks {
                         sourceFileName = Path.GetFileName(temp.Source);
                         targetFileName = Path.Combine(temp.Target, sourceFileName);
 
-                        result.Add(targetFileName, new FileDateInfo(temp.SourceInfo));
+                        if (!result.ContainsKey(targetFileName))
+                        {
+                            result.Add(targetFileName, new FileDateInfo(temp.SourceInfo));
+                        }
                     }
                     // For other operations (ie: DirectoryToDirectory), scan the
                     // source directory for all files and load them into the
@@ -1296,8 +1302,11 @@ namespace NAnt.Core.Tasks {
                             sourceFileName = Path.GetFileName(source);
                             targetFileName = Path.Combine(temp.Target, sourceFileName);
 
-                            result.Add(targetFileName, new FileDateInfo(sourceFileName,
-                                File.GetLastWriteTime(sourceFileName)));
+                            if (!result.ContainsKey(targetFileName))
+                            {
+                                result.Add(targetFileName, new FileDateInfo(sourceFileName,
+                                    File.GetLastWriteTime(sourceFileName)));
+                            }
                         }
                     }
 
