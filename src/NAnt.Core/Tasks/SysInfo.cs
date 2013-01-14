@@ -25,6 +25,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Functions;
+using System.Text.RegularExpressions;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -43,7 +44,7 @@ namespace NAnt.Core.Tasks {
     ///     </item>
     ///     <item>
     ///       <term>&lt;<see cref="Prefix" />&gt;.env.*</term>
-    ///       <description>Environment variables (e.g., &lt;<see cref="Prefix" />&gt;.env.PATH).</description>
+    ///       <description>Environment variables (e.g., &lt;<see cref="Prefix" />&gt;.env.PATH). Note that on x64 machines, variable's names containing "(x86)" will contain ".x86" instead (e.g., &lt;<see cref="Prefix" />&gt;.env.ProgramFiles.x86).</description>
     ///     </item>
     ///     <item>
     ///       <term>&lt;<see cref="Prefix" />&gt;.os.platform</term>
@@ -189,7 +190,9 @@ namespace NAnt.Core.Tasks {
             IDictionary variables = Environment.GetEnvironmentVariables();
             foreach (string name in variables.Keys) {
                 try {
-                    Properties[Prefix + "env." + name] = (string) variables[name];
+                    string safeName = name.Replace("(x86)", ".x86");    // since on 64bit Windows provide such variable names, let's make them nice
+                    safeName = Regex.Replace(name, "[^_A-Za-z0-9\\-.]", "_");      // see PropertyDictionary.ValidatePropertyName
+                    Properties[Prefix + "env." + safeName] = (string)variables[name];
                 } catch (Exception ex) {
                     if (!FailOnError) {
                         Log(Level.Warning, "Property could not be created for"
