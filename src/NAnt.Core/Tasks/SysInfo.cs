@@ -191,7 +191,7 @@ namespace NAnt.Core.Tasks {
             foreach (string name in variables.Keys) {
                 try {
                     string safeName = name.Replace("(x86)", ".x86");    // since on 64bit Windows provide such variable names, let's make them nice
-                    safeName = Regex.Replace(name, "[^_A-Za-z0-9\\-.]", "_");      // see PropertyDictionary.ValidatePropertyName
+                    safeName = Regex.Replace(safeName, "[^_A-Za-z0-9\\-.]", "_");      // see PropertyDictionary.ValidatePropertyName
                     Properties[Prefix + "env." + safeName] = (string)variables[name];
                 } catch (Exception ex) {
                     if (!FailOnError) {
