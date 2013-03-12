@@ -473,7 +473,7 @@ namespace NAnt.Core.Tasks {
             {
                 // If no includes were specified, add all files and subdirectories
                 // from the fileset's base directory to the fileset.
-                if (CopyFileSet.Includes.Count == 0)
+                if ((CopyFileSet.Includes.Count == 0) && (CopyFileSet.AsIs.Count == 0))
                 {
                     CopyFileSet.Includes.Add("**/*");
 
