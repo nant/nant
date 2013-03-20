@@ -92,7 +92,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_FixEnvironmentVariablesThatWouldBeMappedToIllegalPropertyNames(string name, string value)
         {
             //
-            // ensure properties with names that would be illegal property names are fixed (with an "_" replacing invalid chars)
+            // ensure properties with names that would be illegal property names are fixed (by replacing "_" invalid chars)
             // SetEnvironmentVariable is first available on .Net 2.0
             //
             string xml = @"<?xml version='1.0' ?>
