@@ -86,23 +86,43 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(match.Success, "SysInfo property should've been modified!" + Environment.NewLine + result);
         }
 
-        [Test]
-        [ExpectedException(typeof(TestBuildException))]
-        public void Test_FailOnIllegalPropertyNames() {
+        [TestCase("AnIllegalPropertyWithWrong^Chars>", "Value")]
+        [TestCase("AnIllegalPropertyWithWrong(Chars)", "Value")]
+        [TestCase("My(x86)Property", "Value")]
+        public void Test_FixEnvironmentVariablesThatWouldBeMappedToIllegalPropertyNames(string name, string value)
+        {
             //
-            // ensure properties with parentheses will fail like ProgramFiles(x86)
+            // ensure properties with names that would be illegal property names are fixed (with an "_" replacing invalid chars)
             // SetEnvironmentVariable is first available on .Net 2.0
             //
             string xml = @"<?xml version='1.0' ?>
             <project>
-                <sysinfo />
+                <sysinfo verbose='true' />
             </project>";
-            if (AssignEnvironmentVariable("AnIllegalPropertyWithPa(rens)", "AnIllegalPropertyWithParens")) {
-                RunBuild(xml);
+            if (AssignEnvironmentVariable(name, value))
+            {
+                string result = RunBuild(xml);
+                string expression = string.Format("{0} = {1}", Regex.Replace(name, "[^_A-Za-z0-9\\-.]", "_"), value);
+                Assert.IsTrue(result.Contains(expression), "SysInfo should have fixed an environment variable name that is not a valid property name!" + Environment.NewLine + result);
             } else {
                 throw new TestBuildException();
             }
+        }
 
+        [TestCase("sys.env.CommonProgramFiles.x86")]
+        [TestCase("sys.env.ProgramFiles.x86")]
+        public void Test_FixEnvironmentVariablesEndingWith_x86(string expectedVariableName)
+        {
+            //
+            // ensure properties with "(x86)" will fail like ProgramFiles(x86)
+            // SetEnvironmentVariable is first available on .Net 2.0
+            //
+            string xml = @"<?xml version='1.0' ?>
+            <project>
+                <sysinfo verbose='true' />
+            </project>";
+            string result = RunBuild(xml);
+            Assert.IsTrue(result.Contains(expectedVariableName + " = "), "SysInfo should have fixed an environment variable name that is not a valid property name!" + Environment.NewLine + result);
         }
 
 #if (ONLY_1_0 || ONLY_1_1)
