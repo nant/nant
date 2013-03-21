@@ -25,6 +25,7 @@ using System.IO;
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Functions;
+using System.Text.RegularExpressions;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -43,7 +44,7 @@ namespace NAnt.Core.Tasks {
     ///     </item>
     ///     <item>
     ///       <term>&lt;<see cref="Prefix" />&gt;.env.*</term>
-    ///       <description>Environment variables (e.g., &lt;<see cref="Prefix" />&gt;.env.PATH).</description>
+    ///       <description>Environment variables (e.g., &lt;<see cref="Prefix" />&gt;.env.PATH). Note that on x64 machines, variable's names containing "(x86)" will contain ".x86" instead (e.g., &lt;<see cref="Prefix" />&gt;.env.ProgramFiles.x86).</description>
     ///     </item>
     ///     <item>
     ///       <term>&lt;<see cref="Prefix" />&gt;.os.platform</term>
@@ -87,10 +88,17 @@ namespace NAnt.Core.Tasks {
     ///     </item>
     ///   </list>
     ///   <para>
-    ///   When the name of an environment variable is not a valid property name,
-    ///   the task will fail. In that case, set <see cref="Task.FailOnError" /> to 
-    ///   <see langword="true" /> to allow that environment variable to be 
-    ///   skipped.
+    ///   When the name of an environment variable contains characters that are not allowed 
+    ///   in a property name, the task will use a property name where each of such characters
+    ///   is replaced with an underscore (_).
+    ///   </para>
+    ///   <para>
+    ///   Moreover when the name of an environment variable ends with the string "(x86)" the name
+    ///   of the property that is defined by this task will end with ".x86" instead.
+    ///   </para>
+    ///   <para>
+    ///   For example the environment variable "ProgramFiles(x86)" will become "sys.env.ProgramFiles.x86"
+    ///   but an environment variable named "Program(x86)Files" would become "sys.env.Program_x86_Files".
     ///   </para>
     ///   <note>
     ///   we advise you to use the following functions instead:
@@ -189,7 +197,9 @@ namespace NAnt.Core.Tasks {
             IDictionary variables = Environment.GetEnvironmentVariables();
             foreach (string name in variables.Keys) {
                 try {
-                    Properties[Prefix + "env." + name] = (string) variables[name];
+                    string safeName = name.EndsWith("(x86)") ? name.Replace("(x86)", ".x86") : name;    // since on 64bit Windows provide such variable names, let's make them nice
+                    safeName = Regex.Replace(safeName, "[^_A-Za-z0-9\\-.]", "_");      // see PropertyDictionary.ValidatePropertyName
+                    Properties[Prefix + "env." + safeName] = (string)variables[name];
                 } catch (Exception ex) {
                     if (!FailOnError) {
                         Log(Level.Warning, "Property could not be created for"
