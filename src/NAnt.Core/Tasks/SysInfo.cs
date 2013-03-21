@@ -88,10 +88,17 @@ namespace NAnt.Core.Tasks {
     ///     </item>
     ///   </list>
     ///   <para>
-    ///   When the name of an environment variable is not a valid property name,
-    ///   the task will fail. In that case, set <see cref="Task.FailOnError" /> to 
-    ///   <see langword="true" /> to allow that environment variable to be 
-    ///   skipped.
+    ///   When the name of an environment variable contains characters that are not allowed 
+    ///   in a property name, the task will use a property name where each of such characters
+    ///   is replaced with an underscore (_).
+    ///   </para>
+    ///   <para>
+    ///   Moreover when the name of an environment variable ends with the string "(x86)" the name
+    ///   of the property that is defined by this task will end with ".x86" instead.
+    ///   </para>
+    ///   <para>
+    ///   For example the environment variable "ProgramFiles(x86)" will become "sys.env.ProgramFiles.x86"
+    ///   but an environment variable named "Program(x86)Files" would become "sys.env.Program_x86_Files".
     ///   </para>
     ///   <note>
     ///   we advise you to use the following functions instead:
