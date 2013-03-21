@@ -86,15 +86,18 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(match.Success, "SysInfo property should've been modified!" + Environment.NewLine + result);
         }
 
-        [TestCase("AnIllegalPropertyWithWrong^Chars>", "Value")]
-        [TestCase("AnIllegalPropertyWithWrong(Chars)", "Value")]
-        [TestCase("My(x86)Property", "Value")]
-        public void Test_FixEnvironmentVariablesThatWouldBeMappedToIllegalPropertyNames(string name, string value)
+        [TestCase("AnIllegalPropertyWithWrong^Chars>", "sys.env.AnIllegalPropertyWithWrong_Chars_")]
+        [TestCase("AnIllegalPropertyWithWrong(Chars)", "sys.env.AnIllegalPropertyWithWrong_Chars_")]
+        [TestCase("My(x86)Property", "sys.env.My_x86_Property")]
+        [TestCase("MyProgramFiles(x86)", "sys.env.MyProgramFiles.x86")]
+        [TestCase("MyCommonFiles(x86)", "sys.env.MyCommonFiles.x86")]
+        public void Test_FixEnvironmentVariablesThatWouldBeMappedToIllegalPropertyNames(string name, string expected)
         {
             //
             // ensure properties with names that would be illegal property names are fixed (by replacing "_" invalid chars)
             // SetEnvironmentVariable is first available on .Net 2.0
             //
+            string value = "Value";
             string xml = @"<?xml version='1.0' ?>
             <project>
                 <sysinfo verbose='true' />
@@ -102,28 +105,13 @@ namespace Tests.NAnt.Core.Tasks {
             if (AssignEnvironmentVariable(name, value))
             {
                 string result = RunBuild(xml);
-                string expression = string.Format("{0} = {1}", Regex.Replace(name, "[^_A-Za-z0-9\\-.]", "_"), value);
+                string expression = string.Format("{0} = {1}", expected, value);
                 Assert.IsTrue(result.Contains(expression), "SysInfo should have fixed an environment variable name that is not a valid property name!" + Environment.NewLine + result);
             } else {
                 throw new TestBuildException();
             }
         }
 
-        [TestCase("sys.env.CommonProgramFiles.x86")]
-        [TestCase("sys.env.ProgramFiles.x86")]
-        public void Test_FixEnvironmentVariablesEndingWith_x86(string expectedVariableName)
-        {
-            //
-            // ensure properties with "(x86)" will fail like ProgramFiles(x86)
-            // SetEnvironmentVariable is first available on .Net 2.0
-            //
-            string xml = @"<?xml version='1.0' ?>
-            <project>
-                <sysinfo verbose='true' />
-            </project>";
-            string result = RunBuild(xml);
-            Assert.IsTrue(result.Contains(expectedVariableName + " = "), "SysInfo should have fixed an environment variable name that is not a valid property name!" + Environment.NewLine + result);
-        }
 
 #if (ONLY_1_0 || ONLY_1_1)
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError=true)]
