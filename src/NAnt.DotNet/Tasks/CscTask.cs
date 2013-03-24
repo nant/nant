@@ -329,17 +329,6 @@ namespace NAnt.DotNet.Tasks {
         }
 
         /// <summary>
-        /// Gets or sets the mcs sdk version to apply to the new mcs compiler
-        /// for Mono 3.0+
-        /// </summary>
-        [FrameworkConfigurable("mcssdk")]
-        public double McsSdk 
-        {
-            get { return _mcsSdk; }
-            set { _mcsSdk = value; }
-        }
-
-        /// <summary>
         /// Specifies whether the compiler for the active target framework
         /// supports generation of XML Documentation file. The default is 
         /// <see langword="true" />.
@@ -373,6 +362,21 @@ namespace NAnt.DotNet.Tasks {
         }
 
         #endregion Public Instance Properties
+
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets or sets the mcs sdk version to apply to the new mcs compiler
+        /// for Mono 3.0+
+        /// </summary>
+        [FrameworkConfigurable("mcssdk")]
+        protected double McsSdk 
+        {
+            get { return _mcsSdk; }
+            set { _mcsSdk = value; }
+        }
+
+        #endregion Protected Instance Properties
 
         #region Override implementation of CompilerBase
 
