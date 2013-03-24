@@ -318,7 +318,7 @@ namespace NAnt.Core {
             xsltDoc.Load(reader);
             xsltDoc.DocumentElement.SetAttribute("xmlns:nant",buildDoc.DocumentElement.NamespaceURI);
 
-            XslTransform transform = new XslTransform();
+            XslCompiledTransform transform = new XslCompiledTransform();
             transform.Load(xsltDoc);
 
             StringBuilder sb = new StringBuilder();

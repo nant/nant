@@ -11,6 +11,7 @@
         <!-- build main assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.dll" doc="${build.dir}/bin/${project::get-name()}.xml">
             <nowarn>
+                <warning number="0612" />
                 <warning number="0618" />
                 <warning number="1591" />
                 <warning number="1572" />
