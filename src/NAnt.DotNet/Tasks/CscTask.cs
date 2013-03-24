@@ -90,6 +90,7 @@ namespace NAnt.DotNet.Tasks {
         private string _langVersion;
 
         // framework configuration settings
+		private double _mcsSdk = 0;
         private bool _supportsDocGeneration = true;
         private bool _supportsPlatform;
         private bool _supportsLangVersion;
@@ -327,6 +328,17 @@ namespace NAnt.DotNet.Tasks {
             set { _codepage = StringUtils.ConvertEmptyToNull(value); }
         }
 
+		/// <summary>
+		/// Gets or sets the mcs sdk version to apply to the new mcs compiler
+		/// for Mono 3.0+
+		/// </summary>
+		[FrameworkConfigurable("mcssdk")]
+		public double McsSdk 
+		{
+			get { return _mcsSdk; }
+			set { _mcsSdk = value; }
+		}
+
         /// <summary>
         /// Specifies whether the compiler for the active target framework
         /// supports generation of XML Documentation file. The default is 
@@ -377,6 +389,16 @@ namespace NAnt.DotNet.Tasks {
             if (BaseAddress != null) {
                 WriteOption(writer, "baseaddress", BaseAddress);
             }
+
+			// If mcs is the compiler and the specified McsSdk version is specified, append the new
+			// -sdk: option to the argument list.
+			if (PlatformHelper.IsMono) 
+			{
+				if (ExeName.Equals("mcs", StringComparison.InvariantCultureIgnoreCase) && _mcsSdk > 0) 
+				{
+					WriteOption(writer, "sdk", _mcsSdk.ToString());
+				}
+			}
 
             // XML documentation
             if (DocFile != null) {
