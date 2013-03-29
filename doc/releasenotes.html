@@ -57,10 +57,22 @@
         <h3>Bug Fixes</h3>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/sysinfo.html">Sysinfo</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed an issue with the <code>&lt;sysinfo&gt;</code> task when dealing 
+                    with environment property names which contains invalid characters 
+                    like parentheses. E.g. <code>ProgramFiles(x86)</code> on Win7 64 bit 
+                    will result in <code>sys.env.ProgramFiles.x86</code>.  
+                    (<a href="https://github.com/nant/nant/issues/83">Issue #83</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
             <h5><a class="heading" href="help/tasks/mail.html">Mail</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Fixed an issue with the <code>&lt;Mail&gt;</code> task when dealing 
+                    Fixed an issue with the <code>&lt;mail&gt;</code> task when dealing 
                     with email address lines ending with a semi-colon.
                     (<a href="https://github.com/nant/nant/issues/61">Issue #61</a>)
                 </p>
