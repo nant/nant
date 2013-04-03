@@ -26,7 +26,7 @@
     <xslt:output method="text" />
     <msxsl:script language="C#" implements-prefix="stringutils">
     <![CDATA[
-        string PadRight( string str, int padding) {
+        public string PadRight( string str, int padding) {
             return str.PadRight(padding);
         }
     ]]>
