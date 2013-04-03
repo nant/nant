@@ -90,6 +90,7 @@ namespace NAnt.DotNet.Tasks {
         private string _langVersion;
 
         // framework configuration settings
+        private double _mcsSdk = 0;
         private bool _supportsDocGeneration = true;
         private bool _supportsPlatform;
         private bool _supportsLangVersion;
@@ -362,6 +363,21 @@ namespace NAnt.DotNet.Tasks {
 
         #endregion Public Instance Properties
 
+        #region Protected Instance Properties
+
+        /// <summary>
+        /// Gets or sets the mcs sdk version to apply to the new mcs compiler
+        /// for Mono 3.0+
+        /// </summary>
+        [FrameworkConfigurable("mcssdk")]
+        protected double McsSdk 
+        {
+            get { return _mcsSdk; }
+            set { _mcsSdk = value; }
+        }
+
+        #endregion Protected Instance Properties
+
         #region Override implementation of CompilerBase
 
         /// <summary>
@@ -376,6 +392,16 @@ namespace NAnt.DotNet.Tasks {
             // the base address for the DLL
             if (BaseAddress != null) {
                 WriteOption(writer, "baseaddress", BaseAddress);
+            }
+
+            // If mcs is the compiler and the specified McsSdk version is specified, append the new
+            // -sdk: option to the argument list.
+            if (PlatformHelper.IsMono) 
+            {
+                if (ExeName.Equals("mcs", StringComparison.InvariantCultureIgnoreCase) && _mcsSdk > 0) 
+                {
+                    WriteOption(writer, "sdk", _mcsSdk.ToString());
+                }
             }
 
             // XML documentation
