@@ -197,19 +197,8 @@ namespace NAnt.Win32.Tasks {
                         if (Regex.IsMatch(installedWinSdkSubKeys[j], _regexNetFxTools)) {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
-                            // First, from Wow6432Node to ensure that possible different value for
-                            // 64 bit registry takes preference
+                            // From Wow6432Node last so that value for 64 bit registry is used first
                             List<string> netFxDirs = new List<string>();
-                            if (sdkVerRegSubKey_x86 != null)
-                            {
-                                RegistryKey winSdkRegKey = sdkVerRegSubKey_x86.OpenSubKey(installedWinSdkSubKeys[j]);
-                                if (winSdkRegKey != null)
-                                {
-                                    string installDir = winSdkRegKey.GetValue("InstallationFolder").ToString();
-                                    netFxDirs.Add(installDir);
-                                    netFxDirs.Add(Path.Combine(installDir, "bin"));
-                                }
-                            }
 
                             if (sdkVerRegSubKey != null) {
                                 RegistryKey winSdkRegKey = sdkVerRegSubKey.OpenSubKey(installedWinSdkSubKeys[j]);
@@ -218,6 +207,14 @@ namespace NAnt.Win32.Tasks {
                                     netFxDirs.Add(installDir);
                                     netFxDirs.Add(Path.Combine(installDir, "bin"));
                                 }
+                            }
+                            if (sdkVerRegSubKey_x86 != null) {
+                              RegistryKey winSdkRegKey = sdkVerRegSubKey_x86.OpenSubKey(installedWinSdkSubKeys[j]);
+                              if (winSdkRegKey != null) {
+                                string installDir = winSdkRegKey.GetValue("InstallationFolder").ToString();
+                                netFxDirs.Add(installDir);
+                                netFxDirs.Add(Path.Combine(installDir, "bin"));
+                              }
                             }
                             
                             // Loop through all of the directories in the possible directory
