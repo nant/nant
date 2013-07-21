@@ -122,20 +122,14 @@ namespace NAnt.Win32.Tasks {
         /// </summary>
         protected override void ExecuteTask()
         {
-            // Bool variable used to indicate that a valid SDK was found
-            bool sdkFound = FindSdk(RegistryBase);
-            if (!sdkFound)
-                sdkFound = FindSdk(RegistryBaseWow64);
-
-            // if the Properties dictionary does not contain the _propName as a key, throw an error.
-            if (!sdkFound) {
+            // if cannot find SDK, then throw an error
+            if (!TryFindSdk(RegistryBase) && !TryFindSdk(RegistryBaseWow64)) {
                 throw new BuildException(String.Format(CultureInfo.InvariantCulture,"System does not have minimum specified Windows SDK {0}!", _minWinSdkVer));
             }
         }
 
-        private bool FindSdk(string registryBase)
+        private bool TryFindSdk(string registryBase)
         {
-            bool sdkFound = false;
             // Initialize all necessary Version objects
             // These will hold the min, max, and loop WinSDK versions found
             Version minSdkVersion = StringToVersion(_minWinSdkVer);
@@ -150,6 +144,8 @@ namespace NAnt.Win32.Tasks {
             // Get all of the WinSDK version keys from the user's registry and
             // load them into a string array.
             RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(registryBase, false);
+            if (sdkRegSubKey == null) 
+                return false;
             string[] installedWinSdkVersions = sdkRegSubKey.GetSubKeyNames();
 
             // Sort and reverse the WinSDK version key array to make sure that
@@ -158,6 +154,7 @@ namespace NAnt.Win32.Tasks {
             Array.Sort(installedWinSdkVersions);
             Array.Reverse(installedWinSdkVersions);
 
+            bool sdkFound = false;
             // Loop through all of the WinSDK version keys.
             for (int i = 0; i < installedWinSdkVersions.Length; i++)
             {
@@ -192,18 +189,10 @@ namespace NAnt.Win32.Tasks {
                         {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
-                            string[] netFxDirs = new string[]
-                            {
-                                sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
-                                            .OpenSubKey(installedWinSdkSubKeys[j])
-                                            .GetValue("InstallationFolder")
-                                            .ToString(),
-                                Path.Combine(
-                                    sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
-                                                .OpenSubKey(installedWinSdkSubKeys[j])
-                                                .GetValue("InstallationFolder")
-                                                .ToString(), "bin")
-                            };
+                            var installationDir = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
+                                                              .OpenSubKey(installedWinSdkSubKeys[j])
+                                                              .GetValue("InstallationFolder").ToString();
+                            string[] netFxDirs = new string[] { installationDir, Path.Combine(installationDir, "bin") };
 
                             // Loop through all of the directories in the possible directory
                             // locations array
