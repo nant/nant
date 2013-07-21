@@ -48,8 +48,9 @@ namespace NAnt.Win32.Tasks {
         private string _maxWinSdkVer;
         private string _minNetFxVer = "2.0";
         private string _maxNetFxVer;
-        private readonly string _registryBase = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows";
-        private readonly string _regexNetFxTools = @"^WinSDK.*NetFx.*Tools.*$";
+        private const string RegistryBase = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows";
+        private const string RegistryBaseWow64 = @"SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows";
+        private const string RegexNetFxTools = @"^WinSDK.*NetFx.*Tools.*$";
         
         #endregion Private Instance Fields
 
@@ -135,7 +136,7 @@ namespace NAnt.Win32.Tasks {
             
             // Get all of the WinSDK version keys from the user's registry and
             // load them into a string array.
-            RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(_registryBase, false);
+            RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(RegistryBase, false);
             string[] installedWinSdkVersions = sdkRegSubKey.GetSubKeyNames();
             
             // Sort and reverse the WinSDK version key array to make sure that
@@ -169,7 +170,7 @@ namespace NAnt.Win32.Tasks {
                     // Loop through all of the current WinSdk loop subkeys
                     for(int j = 0; j < installedWinSdkSubKeys.Length; j++) {
                         // Check to see if the current subkey matches the RegEx string
-                        if (Regex.IsMatch(installedWinSdkSubKeys[j], _regexNetFxTools)) {
+                        if (Regex.IsMatch(installedWinSdkSubKeys[j], RegexNetFxTools)) {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
                             string[] netFxDirs = new string[] {
