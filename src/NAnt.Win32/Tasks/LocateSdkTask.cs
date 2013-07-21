@@ -115,6 +115,13 @@ namespace NAnt.Win32.Tasks {
         #endregion Public Instance Properties
 
         #region Override implementation of Task
+
+        struct SdkInfo
+        {
+            public string SdkVersion;
+            public string NetVersion;
+            public string InstalledDir;
+        }
         
         /// <summary>
         /// locate the most recent WinSDK installed
@@ -187,16 +194,8 @@ namespace NAnt.Win32.Tasks {
                             
                                 // If the full file path exists, load the gacutil.exe.config xml file
                                 if (File.Exists(netFxXmlFile)) {
-                                    XmlDocument gacXmlDoc = new XmlDocument();
-                                    gacXmlDoc.Load(netFxXmlFile);
-                                    
-                                    // Get the supported runtime version from the version attribute
-                                    // and load it into the loopNetVersion Version object to use for
-                                    // comparisons
-                                    XmlNode gacVersion = gacXmlDoc.SelectSingleNode("/configuration/startup/requiredRuntime");
-                                    XmlAttribute versionAttribute = gacVersion.Attributes["version"];
-                                    loopNetVersion = StringToVersion(versionAttribute.Value.ToString());
-                                    
+                                    loopNetVersion = GetNetVersionFromGacutilConfig(netFxXmlFile);
+
                                     // If the maxNetVersion object is not null and is less than
                                     // the loopNetVersion, continue to the next iteration of the 
                                     // inner loop
@@ -231,6 +230,19 @@ namespace NAnt.Win32.Tasks {
             if (!sdkFound) {
                 throw new BuildException(String.Format(CultureInfo.InvariantCulture,"System does not have minimum specified Windows SDK {0}!", _minWinSdkVer));
             }
+        }
+
+        private Version GetNetVersionFromGacutilConfig(string netFxXmlFile)
+        {
+            XmlDocument gacXmlDoc = new XmlDocument();
+            gacXmlDoc.Load(netFxXmlFile);
+
+            // Get the supported runtime version from the version attribute
+            // and load it into the loopNetVersion Version object to use for
+            // comparisons
+            XmlNode gacVersion = gacXmlDoc.SelectSingleNode("/configuration/startup/requiredRuntime");
+            XmlAttribute versionAttribute = gacVersion.Attributes["version"];
+            return StringToVersion(versionAttribute.Value.ToString());
         }
 
         #endregion Override implementation of Task
