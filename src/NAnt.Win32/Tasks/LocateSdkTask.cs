@@ -18,6 +18,7 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml;
@@ -116,99 +117,123 @@ namespace NAnt.Win32.Tasks {
 
         #region Override implementation of Task
 
-        struct SdkInfo
-        {
-            public string SdkVersion;
-            public string NetVersion;
-            public string InstalledDir;
-        }
-        
         /// <summary>
         /// locate the most recent WinSDK installed
         /// </summary>
-        protected override void ExecuteTask() {
+        protected override void ExecuteTask()
+        {
+            // Bool variable used to indicate that a valid SDK was found
+            bool sdkFound = FindSdk(RegistryBase);
+            if (!sdkFound)
+                sdkFound = FindSdk(RegistryBaseWow64);
+
+            // if the Properties dictionary does not contain the _propName as a key, throw an error.
+            if (!sdkFound) {
+                throw new BuildException(String.Format(CultureInfo.InvariantCulture,"System does not have minimum specified Windows SDK {0}!", _minWinSdkVer));
+            }
+        }
+
+        private bool FindSdk(string registryBase)
+        {
+            bool sdkFound = false;
             // Initialize all necessary Version objects
             // These will hold the min, max, and loop WinSDK versions found
             Version minSdkVersion = StringToVersion(_minWinSdkVer);
             Version maxSdkVersion = StringToVersion(_maxWinSdkVer);
             Version loopSdkVersion = null;
-            
+
             // These will hold the min, max, and loop .NET versions found
             Version minNetVersion = StringToVersion(_minNetFxVer);
             Version maxNetVersion = StringToVersion(_maxNetFxVer);
             Version loopNetVersion = null;
-            
-            // Bool variable used to indicate that a valid SDK was found
-            bool sdkFound = false;
-            
+
             // Get all of the WinSDK version keys from the user's registry and
             // load them into a string array.
-            RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(RegistryBase, false);
+            RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(registryBase, false);
             string[] installedWinSdkVersions = sdkRegSubKey.GetSubKeyNames();
-            
+
             // Sort and reverse the WinSDK version key array to make sure that
             // the latest version is reviewed first before reviewing earlier
             // versions.
             Array.Sort(installedWinSdkVersions);
             Array.Reverse(installedWinSdkVersions);
-            
+
             // Loop through all of the WinSDK version keys.
-            for(int i = 0; i < installedWinSdkVersions.Length; i++) {
+            for (int i = 0; i < installedWinSdkVersions.Length; i++)
+            {
                 loopSdkVersion = StringToVersion(installedWinSdkVersions[i]);
-                
+
                 // If a maxVersion was indicated and the loopVersion is greater than
                 // the maxVersion, skip to the next item in the installedVersion array.
-                if (maxSdkVersion != null) {
-                    if (loopSdkVersion > maxSdkVersion) {
+                if (maxSdkVersion != null)
+                {
+                    if (loopSdkVersion > maxSdkVersion)
+                    {
                         continue;
                     }
                 }
-                
+
                 // If the loopVersion is greater than or equal to the minVersion, loop through the subkeys
                 // for a valid .NET sdk path
-                if (minSdkVersion <= loopSdkVersion) {
+                if (minSdkVersion <= loopSdkVersion)
+                {
                     // Gets all of the current WinSdk loop subkeys
                     string[] installedWinSdkSubKeys = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).GetSubKeyNames();
-                    
+
                     // Sort and reverse the order of the subkeys to go from greatest to least
                     Array.Sort(installedWinSdkSubKeys);
                     Array.Reverse(installedWinSdkSubKeys);
-                    
+
                     // Loop through all of the current WinSdk loop subkeys
-                    for(int j = 0; j < installedWinSdkSubKeys.Length; j++) {
+                    for (int j = 0; j < installedWinSdkSubKeys.Length; j++)
+                    {
                         // Check to see if the current subkey matches the RegEx string
-                        if (Regex.IsMatch(installedWinSdkSubKeys[j], RegexNetFxTools)) {
+                        if (Regex.IsMatch(installedWinSdkSubKeys[j], RegexNetFxTools))
+                        {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
-                            string[] netFxDirs = new string[] {
-                                sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).OpenSubKey(installedWinSdkSubKeys[j]).GetValue("InstallationFolder").ToString(),
-                                Path.Combine(sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).OpenSubKey(installedWinSdkSubKeys[j]).GetValue("InstallationFolder").ToString(), "bin")
+                            string[] netFxDirs = new string[]
+                            {
+                                sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
+                                            .OpenSubKey(installedWinSdkSubKeys[j])
+                                            .GetValue("InstallationFolder")
+                                            .ToString(),
+                                Path.Combine(
+                                    sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
+                                                .OpenSubKey(installedWinSdkSubKeys[j])
+                                                .GetValue("InstallationFolder")
+                                                .ToString(), "bin")
                             };
-                            
+
                             // Loop through all of the directories in the possible directory
                             // locations array
-                            foreach(string netFxDir in netFxDirs) {
+                            foreach (string netFxDir in netFxDirs)
+                            {
                                 // Set the full path to the gacutil.exe.config file based on the current
                                 // directory in the directories array
                                 string netFxXmlFile = Path.Combine(netFxDir, "gacutil.exe.config");
-                            
+
                                 // If the full file path exists, load the gacutil.exe.config xml file
-                                if (File.Exists(netFxXmlFile)) {
+                                if (File.Exists(netFxXmlFile))
+                                {
                                     loopNetVersion = GetNetVersionFromGacutilConfig(netFxXmlFile);
 
                                     // If the maxNetVersion object is not null and is less than
                                     // the loopNetVersion, continue to the next iteration of the 
                                     // inner loop
-                                    if (maxNetVersion != null) {
-                                        if (loopNetVersion > maxNetVersion) {
+                                    if (maxNetVersion != null)
+                                    {
+                                        if (loopNetVersion > maxNetVersion)
+                                        {
                                             continue;
                                         }
                                     }
-                                    
+
                                     // If loopNetVersion is greater than or equal to minNetVersion
                                     // assign the value of the InstallationFolder key of the current subfolder
                                     // to the property name and exit the inner loop
-                                    if (minNetVersion <= loopNetVersion) {
+                                    if (minNetVersion <= loopNetVersion)
+                                    {
                                         Properties[_propName] = netFxDir;
                                         sdkFound = true;
                                         break;
@@ -217,22 +242,19 @@ namespace NAnt.Win32.Tasks {
                             }
                         }
                     }
-                    
+
                     // If a valid Sdk version was found within the current Sdk subkeys, break
                     // the outer loop.
-                    if (sdkFound) {
+                    if (sdkFound)
+                    {
                         break;
                     }
                 }
             }
-            
-            // if the Properties dictionary does not contain the _propName as a key, throw an error.
-            if (!sdkFound) {
-                throw new BuildException(String.Format(CultureInfo.InvariantCulture,"System does not have minimum specified Windows SDK {0}!", _minWinSdkVer));
-            }
+            return sdkFound;
         }
 
-        private Version GetNetVersionFromGacutilConfig(string netFxXmlFile)
+        private static Version GetNetVersionFromGacutilConfig(string netFxXmlFile)
         {
             XmlDocument gacXmlDoc = new XmlDocument();
             gacXmlDoc.Load(netFxXmlFile);
@@ -258,7 +280,7 @@ namespace NAnt.Win32.Tasks {
         /// <returns>
         /// A <see cref="Version"/> object representing the version string.
         /// </returns>
-        private Version StringToVersion(string sdkVersion) {
+        private static Version StringToVersion(string sdkVersion) {
             if (!String.IsNullOrEmpty(sdkVersion)) {
                 // Make any non-numeric characters uppercase
                 sdkVersion = sdkVersion.Trim().ToUpper();
