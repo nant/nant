@@ -1005,6 +1005,7 @@ namespace NAnt.Core {
         /// Global tasks are not executed.
         /// </remarks>
         public void Execute(string targetName, bool forceDependencies) {
+#if FALSE
             // sort the dependency tree, and run everything from the
             // beginning until we hit our targetName.
             // 
@@ -1037,6 +1038,47 @@ namespace NAnt.Core {
             // target, the target that contained the <call> task should be 
             // considered the current target again
             _currentTarget = callingTarget;
+#else
+            // sorting checks if all the targets (and dependencies)
+            // exist, and if there is any cycle in the dependency
+            // graph.
+            TopologicalTargetSort (targetName, Targets);
+
+            // Dictionary is faster than implementation in TargetCollection.Find
+            System.Collections.Generic.Dictionary<string, Target> targets = new System.Collections.Generic.Dictionary<string, Target>();
+            foreach (Target target in Targets) {
+                targets [target.Name] = target;
+            }
+
+            // Use execution graph to run targets in parallel
+            using (ExecutionGraph graph = new ExecutionGraph()) {
+
+                PopulateExecutionGraph(targetName, Targets, graph);
+                graph.WalkThrough(delegate(string currentTargetName) {
+
+                    Target currentTarget;
+                    if (!targets.TryGetValue(currentTargetName, out currentTarget)) {
+                        Target wildcardTarget = targets [WildTarget];
+                        currentTarget = wildcardTarget.Clone ();
+                        currentTarget.Name = targetName;
+                    }
+
+                    Target savedTarget = _currentTarget;
+                    _currentTarget = currentTarget;
+
+                    try {
+                        lock (currentTarget) {
+                            if (forceDependencies || !currentTarget.Executed || currentTarget.Name == targetName) {
+                                currentTarget.Execute ();
+                            }
+                        }
+                    } finally {
+                        _currentTarget = savedTarget;
+                    }
+                }
+                );
+            }
+#endif
         }
 
         /// <summary>
@@ -1715,6 +1757,30 @@ namespace NAnt.Core {
 
             state[root] = Project.Visited;
             executeTargets.Add(target);
+        }
+
+        private void PopulateExecutionGraph (string root, TargetCollection targets, ExecutionGraph graph)
+        {
+            Target target = targets.Find(root);
+
+            ExecutionNode node = graph.GetNode(root);
+
+            if (target == null) {
+                target = targets.Find(WildTarget);
+            }
+
+            bool noDependencies = true;
+            foreach (string dependencyName in target.Dependencies) {
+                PopulateExecutionGraph(dependencyName, targets, graph);
+
+                ExecutionNode dependencyNode = graph.GetNode(dependencyName);
+                dependencyNode.RegisterDependantNode(node);
+                noDependencies = false;
+            }
+
+            if (noDependencies) {
+                graph.RegisterLeafNode(node);
+            }
         }
 
         /// <summary>
