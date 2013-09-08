@@ -92,6 +92,7 @@
     <None Include="NAnt.Core.build" />
     <Compile Include="PathScanner.cs" />
     <Compile Include="PlatformHelper.cs" />
+    <Compile Include="ExecutionGraph.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectSettingsLoader.cs" />
     <Compile Include="PropertyDictionary.cs" />
@@ -246,6 +247,7 @@
     <Compile Include="Tasks\ChooseTask.cs" />
     <Compile Include="Tasks\TryCatchTask.cs" />
     <Compile Include="ElementContainer.cs" />
+    <Compile Include="ExecutionNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
