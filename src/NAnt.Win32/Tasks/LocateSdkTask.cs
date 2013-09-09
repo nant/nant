@@ -187,7 +187,7 @@ namespace NAnt.Win32.Tasks {
                         {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
-                            var installationDir = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
+                            string installationDir = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i])
                                                               .OpenSubKey(installedWinSdkSubKeys[j])
                                                               .GetValue("InstallationFolder").ToString();
                             string[] netFxDirs = new string[] { installationDir, Path.Combine(installationDir, "bin") };
