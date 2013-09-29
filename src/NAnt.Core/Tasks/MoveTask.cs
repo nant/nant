@@ -17,9 +17,9 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (imaclean@gmail.com)
-// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 
@@ -40,38 +40,8 @@ namespace NAnt.Core.Tasks {
     ///   attribute.
     ///   </para>
     ///   <para>
-    ///   Entire directory structures can be moved to a new location.  For this
-    ///   to happen, the following criteria must be met:
-    ///   </para>
-    ///   <list type="bullet">
-    ///     <item>
-    ///       <description>
-    ///       Everything in the fileset is included
-    ///       </description>
-    ///     </item>
-    ///     <item>
-    ///       <description>
-    ///       The directory structure is not flattened
-    ///       </description>
-    ///     </item>
-    ///     <item>
-    ///       <description>
-    ///       Empty directories are included
-    ///       </description>
-    ///     </item>
-    ///     <item>
-    ///       <description>
-    ///       Destination directory does not exist
-    ///       </description>
-    ///     </item>
-    ///   </list>
-    ///   <para>
-    ///   If any of these items are not met, then the files within the source
-    ///   directory will be moved over instead of the entire directory structure.
-    ///   </para>
-    ///   <para>
-    ///   A <see cref="FileSet" /> can be used to select files or directories to move.
-    ///   To use a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" />
+    ///   A <see cref="FileSet" /> can be used to select files to move. To use
+    ///   a <see cref="FileSet" />, the <see cref="CopyTask.ToDirectory" /> 
     ///   attribute must be set.
     ///   </para>
     ///   <h3>Encoding</h3>
@@ -143,7 +113,7 @@ namespace NAnt.Core.Tasks {
     ///   </para>
     ///   <code>
     ///     <![CDATA[
-    /// <move todir="target/dir">
+    /// <move tofile="target/dir">
     ///   <fileset basedir="source/dir"/>
     /// </move>
     ///     ]]>
@@ -214,122 +184,48 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file moves.
         /// </summary>
         protected override void DoFileOperations() {
-            // If the operation map is empty, exit (return) the method.
-            if (OperationMap.Count <= 0)
-            {
-                return;
-            }
+            if (FileCopyMap.Count > 0) {
+                // loop thru our file list
+                foreach (DictionaryEntry fileEntry in FileCopyMap) {
+                    string destinationPath = (string) fileEntry.Key;
+                    string sourcePath = ((FileDateInfo) fileEntry.Value).Path;
 
-            // loop thru our file list
-            for (int i = 0; i < OperationMap.Count; i++)
-            {
-                // Setup a temporary var to hold the current file operation
-                // details.
-                FileOperation currentOperation = OperationMap[i];
-                if (currentOperation.SourceIsIdenticalToTarget())
-                {
-                    Log(Level.Warning, String.Format("Skipping self-move of {0}.",
-                        currentOperation.Source));
-                    continue;
-                }
+                    if (sourcePath == destinationPath) {
+                        Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
+                        continue;
+                    }
 
-                try
-                {
-                    Log(Level.Verbose, "Moving {0}.", currentOperation.ToString());
-
-                    string destinationDirectory = null;
-
-                    switch (currentOperation.OperationType)
-                    {
-                        case OperationType.FileToFile:
-                            // Setup the dest directory var
-                            destinationDirectory =
-                                Path.GetDirectoryName(currentOperation.Target);
-
-                            // create directory if not present
-                            if (!Directory.Exists(destinationDirectory))
-                            {
-                                Directory.CreateDirectory(destinationDirectory);
-                                Log(Level.Verbose, "Created directory '{0}'.",
-                                    destinationDirectory);
+                    try {
+                        // check if directory exists
+                        if (Directory.Exists(sourcePath)) {
+                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
+                            Directory.Move(sourcePath, destinationPath);
+                        } else {
+                            DirectoryInfo todir = new DirectoryInfo(destinationPath);
+                            if (!todir.Exists) {
+                                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
                             }
 
-                            // Ensure the target file is removed before
-                            // attempting to move.
-                            if (File.Exists(currentOperation.Target))
-                            {
-                                File.Delete(currentOperation.Target);
+                            Log(Level.Verbose, "Moving '{0}' to '{1}'.", sourcePath, destinationPath);
+
+                            // if destination file exists, remove it first if
+                            // in overwrite mode
+                            if (File.Exists(destinationPath)) {
+                                Log(Level.Verbose, "Removing '{0}' before moving '{1}'.", destinationPath, sourcePath);
+                                File.Delete(destinationPath);
                             }
 
-                            // move the file with filters
-                            FileUtils.MoveFile(currentOperation.Source,
-                                currentOperation.Target, Filters,
+                            // move the file and apply filters
+                            FileUtils.MoveFile(sourcePath, destinationPath, Filters, 
                                 InputEncoding, OutputEncoding);
-
-                            break;
-                        case OperationType.FileToDirectory:
-                            // Setup the dest directory var
-                            destinationDirectory = currentOperation.Target;
-
-                            // Setup a local var that combines the directory
-                            // of the target path with the source file name.
-                            string targetFile = Path.Combine(destinationDirectory,
-                                Path.GetFileName(currentOperation.Source));
-
-                            // create directory if not present
-                            if (!Directory.Exists(destinationDirectory))
-                            {
-                                Directory.CreateDirectory(destinationDirectory);
-                                Log(Level.Verbose, "Created directory '{0}'.",
-                                    destinationDirectory);
-                            }
-
-                            // Ensure the target file is removed before
-                            // attempting to move.
-                            if (File.Exists(targetFile))
-                            {
-                                File.Delete(targetFile);
-                            }
-
-                            // move the file with filters
-                            FileUtils.MoveFile(currentOperation.Source,
-                                targetFile, Filters, InputEncoding, OutputEncoding);
-
-                            break;
-                        case OperationType.DirectoryToDirectory:
-
-                            // Move over the entire directory with filters
-                            FileUtils.MoveDirectory(currentOperation.Source,
-                                currentOperation.Target, Filters, InputEncoding,
-                                OutputEncoding);
-                            break;
-                        default:
-                            throw new
-                                BuildException("Unrecognized move operation. " +
-                                "The move task can only move a file to file, " +
-                                "file to directory, or directory to directory.");
+                        }
+                    } catch (IOException ex) {
+                        throw new BuildException(string.Format(CultureInfo.InvariantCulture,
+                            "Failed to move {0} to {1}.", sourcePath, destinationPath),
+                            Location, ex);
                     }
                 }
-                catch (IOException ex)
-                {
-                    throw new BuildException(string.Format(CultureInfo.InvariantCulture,
-                        "Failed to move {0}.", currentOperation.ToString()),
-                        Location, ex);
-                }
-            }
-
-            int fileMovements = OperationMap.CountFileOperations();
-            int dirMovements = OperationMap.CountDirectoryOperations();
-
-            if (fileMovements > 0)
-            {
-                Log(Level.Info, "{0} file{1} moved.", fileMovements,
-                    fileMovements != 1 ? "s" : "");
-            }
-            if (dirMovements > 0)
-            {
-                Log(Level.Info, "{0} {1} moved.", dirMovements,
-                    dirMovements != 1 ? "directories" : "directory");
+                Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
             }
         }
 
@@ -340,7 +236,6 @@ namespace NAnt.Core.Tasks {
         }
 
         #endregion Override implementation of CopyTask
-
     }
 }
 

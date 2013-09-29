@@ -124,9 +124,6 @@ namespace NAnt.Core {
         private ArrayList _searchDirIsRecursive;
         private bool _caseSensitive;
 
-        // Indicates whether or not every file scanned was included
-        private bool _isEverythingIncluded = true;
-
         #endregion Private Instance Fields
 
         #region Private Static Fields
@@ -310,15 +307,6 @@ namespace NAnt.Core {
             }
         }
 
-        /// <summary>
-        /// Indicates whether or not the directory scanner included everything
-        /// that it scanned.
-        /// </summary>
-        public bool IsEverythingIncluded
-        {
-            get { return _isEverythingIncluded; }
-        }
-
         #endregion Public Instance Properties
 
         #region Public Instance Methods
@@ -376,7 +364,6 @@ namespace NAnt.Core {
         #region Private Instance Methods
 
         private void Reset () {
-            _isEverythingIncluded = true;
             _includePatterns = null;
             _includeNames = null;
             _excludePatterns = null;
@@ -766,17 +753,8 @@ namespace NAnt.Core {
             }
 
 #if DEBUG_REGEXES
-             Console.WriteLine("Result: {0}", included);
+            Console.WriteLine("Result: {0}", included);
 #endif
-            // If the current file was not included and the isEverythingIncluded
-            // indicator is true; set the isEverythingIncluded indicator to false.
-            // Note: File.Exists(path) is used to make sure the current path is
-            // a file and not a directory.
-            if (!included && _isEverythingIncluded && File.Exists(path))
-            {
-                _isEverythingIncluded = false;
-            }
-
             return included;
         }
 

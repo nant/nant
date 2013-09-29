@@ -176,32 +176,6 @@ namespace NAnt.Core.Filters {
 
         #endregion Internal Instance Methods
 
-        #region Internal Static Methods
-
-        /// <summary>
-        /// Determines whether a given FilterChain is null or empty.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if <paramref name="filterChain"/> is null or empty;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        /// <param name='filterChain'>
-        /// The FilterChain to check.
-        /// </param>
-        internal static bool IsNullOrEmpty(FilterChain filterChain)
-        {
-            if (filterChain == null)
-            {
-                return true;
-            }
-            else
-            {
-                return filterChain.Filters.Count <= 0;
-            }
-        }
-
-        #endregion Internal Static Methods
-
         /// <summary>
         /// Configurator that initializes filters in the order in which they've
         /// been specified in the build file.

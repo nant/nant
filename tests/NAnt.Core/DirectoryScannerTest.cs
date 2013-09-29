@@ -769,30 +769,6 @@ namespace Tests.NAnt.Core {
             Assert.AreEqual(1, _scanner.FileNames.Count, "#4");
         }
 
-        /// <summary>
-        /// Tests the "IsEverythingIncluded" indicator to make sure it is working
-        /// correctly.
-        /// </summary>
-        [Test]
-        public void IsEverythingIncludedTest()
-        {
-            TempFile.Create(Path.Combine(_folder3, "EverythingIncluded.txt"));
-            TempFile.Create(Path.Combine(_folder3, "EverythingIncluded.tlb"));
-            TempFile.Create(Path.Combine(_folder3, "EverythingIncluded.now"));
-
-            _scanner.Includes.Add(Path.Combine(_folder2, "**/*"));
-            _scanner.Scan();
-
-            Assert.IsTrue(_scanner.IsEverythingIncluded,
-                "Everything was not included");
-
-            _scanner.Includes.Clear();
-            _scanner.Includes.Add(Path.Combine(_folder3, "*.txt"));
-            _scanner.Scan();
-
-            Assert.IsFalse(_scanner.IsEverythingIncluded, "Everything was included");
-        }
-
         #endregion Public Instance Methods
 
         #region Protected Instance Methods

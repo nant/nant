@@ -613,18 +613,13 @@ namespace NAnt.Core.Types {
                 sb.AppendLine("PathFiles:");
                 sb.AppendLine(_pathFiles.ToString());
             } else {
-                sb.AppendFormat("IsEverythingIncluded: {0}", IsEverythingIncluded);
-                sb.AppendLine();
                 sb.AppendLine("Files:");
                 foreach (string file in this.FileNames) {
-                    sb.Append(file);
-                    sb.Append(Environment.NewLine);
+                    sb.AppendLine(file);
                 }
-                sb.Append("Dirs:");
-                sb.Append(Environment.NewLine);
+                sb.AppendLine("Dirs:");
                 foreach (string dir in this.DirectoryNames) {
-                    sb.Append(dir);
-                    sb.Append(Environment.NewLine);
+                    sb.AppendLine(dir);
                 }
             }
 
@@ -720,26 +715,6 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Internal Instance Methods
-
-        #region Protected Internal Instance Properties
-
-        /// <summary>
-        /// Indicates whether or not every file and directory is included in
-        /// the fileset list.
-        /// </summary>
-        protected internal bool IsEverythingIncluded
-        {
-            get
-            {
-                if (!_hasScanned)
-                {
-                    Scan();
-                }
-                return _scanner.IsEverythingIncluded;
-            }
-        }
-
-        #endregion Protected Internal Instance Properties
 
         #region Public Static Methods
 

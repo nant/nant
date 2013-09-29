@@ -197,7 +197,7 @@ namespace Tests.NAnt.Core {
                 configDoc.DocumentElement);
             FrameworkInfo tf = project.Frameworks ["testnet-1.0"];
             if (!tf.IsValid) {
-                Assert.Ignore(tf.Description + "is not available.");
+                Assert.Ignore(tf.Description + " is not available.");
             }
 
             Assert.IsNull(tf.SdkDirectory, "#1");
