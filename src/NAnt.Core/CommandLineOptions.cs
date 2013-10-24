@@ -297,6 +297,12 @@ namespace NAnt.Core {
             get { return _targets; }
         }
 
+        [CommandLineArgument(CommandLineArgumentTypes.AtMostOnce, Name = "jobs", ShortName = "j", Description = "Starts targets as parallel jobs")]
+        public bool UseJobs {
+            get { return _useJobs; }
+            set { _useJobs = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Private Instance Fields
@@ -319,6 +325,7 @@ namespace NAnt.Core {
         private StringCollection _targets = new StringCollection();
         private bool _showProjectHelp;
         private bool _pause;
+        private bool _useJobs;
 
         #endregion Private Instance Fields
     }

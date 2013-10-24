@@ -184,6 +184,9 @@ namespace NAnt.Core {
                     }
                 }
 
+                // Enable parallel execution of targets
+                project.RunTargetsInParallel = cmdlineOptions.UseJobs;
+
                 if (cmdlineOptions.ShowProjectHelp) {
                     Console.WriteLine();
                     ConsoleDriver.ShowProjectHelp(project.Document);
