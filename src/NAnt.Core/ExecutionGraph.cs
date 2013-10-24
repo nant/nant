@@ -86,11 +86,11 @@ namespace NAnt.Core {
         private void ScheduleForExecution(ExecutionNode node) {
             Interlocked.Increment(ref _activeNodes);
 
-            StartTask(() => {
+            StartTask(delegate {
                 try {
                     this.VisitNode(node.Name);
 
-                    foreach (var dependantNode in node.DependantNodes) {
+                    foreach (ExecutionNode dependantNode in node.DependantNodes) {
                         if (dependantNode.ResolvePrerequisite()) {
                             this.ScheduleForExecution(dependantNode);
                         }
@@ -128,8 +128,8 @@ namespace NAnt.Core {
         /// <param name='action'>
         /// Action to be executed in the task.
         /// </param>
-        private void StartTask(Action action) {
-            ThreadPool.QueueUserWorkItem(delegate { action(); });
+        private void StartTask(WaitCallback action) {
+            ThreadPool.QueueUserWorkItem(action);
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace NAnt.Core {
         /// Initiates execution of the tree and waits for completion.
         /// </summary>
         private void Run () {
-			foreach (var node in this._nodes.Values) {
+			foreach (ExecutionNode node in this._nodes.Values) {
 				node.PrepareForRun ();
 			}
 
@@ -187,7 +187,7 @@ namespace NAnt.Core {
 
 			Interlocked.Increment (ref _activeNodes);
 
-			foreach (var node in this._leaves) {
+			foreach (ExecutionNode node in this._leaves) {
 				this.ScheduleForExecution (node);
 			}
 
