@@ -31,10 +31,21 @@ namespace Tests.NAnt.Core {
     public class ConcurrencyTest : BuildTestBase {
         #region Private Static Fields
 
-        private const string TwoConcurrentTargets = @"
+        private const string TwoIndependentTargets = @"
             <project default='Target1'>
                 <target name='Target1' depends='Target2 Target3' />
                 <target name='Target2'>
+                    <sleep seconds='1' />
+                </target>
+                <target name='Target3'>
+                    <sleep seconds='1' />
+                </target>
+            </project>";
+
+        private const string DependentTargets = @"
+            <project default='Target1'>
+                <target name='Target1' depends='Target2 Target3' />
+                <target name='Target2' depends='Target3'>
                     <sleep seconds='1' />
                 </target>
                 <target name='Target3'>
@@ -47,12 +58,12 @@ namespace Tests.NAnt.Core {
         #region Public Instance Methods
 
         [Test]
-        public void Test_Concurrency() {
+        public void IndependentTargetsExecuteInParallel() {
             // create new listener that allows us to track build events
             TestBuildListener listener = new TestBuildListener();
 
             // run the build
-            Project project = CreateFilebasedProject(TwoConcurrentTargets, Level.Info);
+            Project project = CreateFilebasedProject(TwoIndependentTargets, Level.Info);
             project.RunTargetsInParallel = true;
 
             
@@ -63,10 +74,44 @@ namespace Tests.NAnt.Core {
             // execute the project
             ExecuteProject(project);
             
+            DateTime target2startTime = listener.GetTargetStartTime("Target2");
             DateTime target2finishTime = listener.GetTargetFinishTime("Target2");
             DateTime target3startTime = listener.GetTargetStartTime("Target3");
+            DateTime target3finishTime = listener.GetTargetFinishTime("Target3");
 
-            Assert.IsTrue(target3startTime < target2finishTime, "Target3 was not started until Target2 was finished");
+            Assert.IsTrue(target2startTime <= target2finishTime, "Target2 start time is after finish time");
+            Assert.IsTrue(target3startTime <= target3finishTime, "Target3 start time is after finish time");
+
+            Assert.IsTrue(target3startTime <= target2finishTime, "Target3 was not started until Target2 was finished");
+            Assert.IsTrue(target2startTime <= target3finishTime, "Target2 was not started until Target3 was finished");
+        }
+
+        [Test]
+        public void DependentTargetsExecuteSequentially() {
+            // create new listener that allows us to track build events
+            TestBuildListener listener = new TestBuildListener();
+
+            // run the build
+            Project project = CreateFilebasedProject(DependentTargets, Level.Info);
+            project.RunTargetsInParallel = true;
+
+            
+            //use Project.AttachBuildListeners to attach.
+            IBuildListener[] listeners = {listener};
+            project.AttachBuildListeners(new BuildListenerCollection(listeners));
+
+            // execute the project
+            ExecuteProject(project);
+            
+            DateTime target2startTime = listener.GetTargetStartTime("Target2");
+            DateTime target2finishTime = listener.GetTargetFinishTime("Target2");
+            DateTime target3startTime = listener.GetTargetStartTime("Target3");
+            DateTime target3finishTime = listener.GetTargetFinishTime("Target3");
+
+            Assert.IsTrue(target2startTime <= target2finishTime, "Target2 start time is after finish time");
+            Assert.IsTrue(target3startTime <= target3finishTime, "Target3 start time is after finish time");
+
+            Assert.IsTrue(target3finishTime <= target2startTime, "Target2 was started before Target3 was finished");
         }
 
         #endregion Public Instance Methods
