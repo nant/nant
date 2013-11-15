@@ -206,6 +206,19 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Simple directory copy test.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Dir_Structure()
+        {
+            string dest = Path.Combine(TempDirName, "a.c");
+            RunBuild(String.Format(_xmlProjectTemplate4, dest, tempDir1));
+
+            Assert.IsTrue(Directory.Exists(dest),
+                String.Format("Directory was not copied: {0}", tempDir1));
+        }
+
+        /// <summary>
         /// Copy everything from under tempDir1 to a new temp directory and 
         /// ensure it exists.
         /// </summary>
@@ -499,20 +512,6 @@ namespace Tests.NAnt.Core.Tasks {
             // Test the existance of copied directories
             Assert.IsTrue(Directory.Exists(expectedDir1), "Directory should have been created: {0}", expectedDir1);
             Assert.IsTrue(Directory.Exists(expectedDir2), "Directory should have been created: {0}", expectedDir2);
-            
-            
-        /// a.b\
-        ///     a.bb
-        ///     a.bc
-        ///     foo\*
-        ///         x.x
-        ///     goo\*           
-        ///         x\
-        ///             y.y
-        ///         ha.he
-        ///         ha.he2*
-        ///         ha.he3*
-        ///     empty\          -- note: empty directory
         }
 
         /// <summary>
