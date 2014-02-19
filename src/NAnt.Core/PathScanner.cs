@@ -18,9 +18,10 @@
 // Brad Wilson (http://www.quality.nu/contact.aspx)
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -134,7 +135,7 @@ namespace NAnt.Core {
                 // walk the paths, and see if the given file is on the path
                 foreach (string path in paths) {
                     //do not scan inaccessible directories.
-                    if (!Directory.Exists(path)) {
+                    if (!LongPathDirectory.Exists(path)) {
                         continue;
                     }
 
@@ -143,16 +144,16 @@ namespace NAnt.Core {
                     if (!String.IsNullOrEmpty(directoryName)) {
                         scanPath = FileUtils.CombinePaths(path, directoryName);
                         //do not scan inaccessible directories.
-                        if (!Directory.Exists(scanPath)) {
+                        if (!LongPathDirectory.Exists(scanPath)) {
                             continue;
                         }
                     }
 
                     try {
-                        string[] found = Directory.GetFiles(scanPath, fileName);
-
-                        if (found.Length > 0) {
-                            scannedNames.Add(found[0]);
+                        IEnumerable<string> foundFiles = LongPathDirectory.EnumerateFiles(scanPath, fileName);
+                        List<string> files = new List<string>(foundFiles);
+                        if (files.Count > 0) {
+                            scannedNames.Add(files[0]);
                             break;
                         } 
                     } catch (UnauthorizedAccessException e) {

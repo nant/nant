@@ -31,7 +31,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
-
+using Microsoft.Experimental.IO;
 using NUnit.Core;
 using NUnit.Core.Filters;
 using TestOutput = NUnit.Core.TestOutput;
@@ -450,7 +450,7 @@ namespace NAnt.NUnit2.Tasks {
                     Location, ex);
             } finally {
                 // make sure temp file with test results is removed
-                File.Delete(xmlResultFile);
+                LongPathFile.Delete(xmlResultFile);
             }
         }
 

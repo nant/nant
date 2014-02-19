@@ -28,7 +28,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
-
+using Microsoft.Experimental.IO;
 using NDoc.Core;
 using NDoc.Core.Reflection;
 
@@ -174,13 +174,13 @@ namespace NDoc.Documenter.NAnt {
 
             // create the html output directories
             try {
-                Directory.CreateDirectory(OutputDirectory);
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "elements"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "functions"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "types"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "tasks"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "enums"));
-                Directory.CreateDirectory(Path.Combine(OutputDirectory, "filters"));
+                LongPathDirectory.Create(OutputDirectory);
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "elements"));
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "functions"));
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "types"));
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "tasks"));
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "enums"));
+                LongPathDirectory.Create(Path.Combine(OutputDirectory, "filters"));
             } catch (Exception ex) {
                 throw new DocumenterException("The output directories could not" 
                     + " be created.", ex);
@@ -210,7 +210,7 @@ namespace NDoc.Documenter.NAnt {
             } finally {
                 // ensure temporary file is removed
                 if (tempFile != null) {
-                    File.Delete(tempFile);
+                    LongPathFile.Delete(tempFile);
                 }
             }
 

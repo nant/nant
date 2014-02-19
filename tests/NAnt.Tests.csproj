@@ -53,6 +53,10 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Experimental.IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\common\neutral\Microsoft.Experimental.IO.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="nunit.framework">

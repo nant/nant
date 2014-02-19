@@ -21,8 +21,8 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Xml; 
-
+using System.Xml;
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -162,7 +162,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
         void CleanAllObjs() {
             foreach (string objPathName in _objPathName) {
                 try {
-                    File.Delete(objPathName);
+                    LongPathFile.Delete(objPathName);
                 } catch (Exception) {
                 } finally {
                     Assert.IsFalse(File.Exists(objPathName), "Object file \"{0}\" exists.", objPathName);
@@ -172,7 +172,7 @@ namespace Tests.NAnt.VisualCpp.Tasks
 
         void CleanAllBins() {
             try {
-                File.Delete(_binPathName);
+                LongPathFile.Delete(_binPathName);
             } catch (Exception) {
             } finally {
                 Assert.IsFalse(File.Exists(_binPathName), "Binary file \"{0}\" exists.", _binPathName);

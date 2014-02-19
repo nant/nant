@@ -55,7 +55,7 @@ namespace Tests.NAnt.Core.Tasks {
             string destination = Path.GetTempFileName() + ".html";
 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
             Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
 
@@ -98,7 +98,7 @@ namespace Tests.NAnt.Core.Tasks {
                 getTask.HttpProxy = _proxy;
 
                 if (File.Exists(destination)) {
-                    File.Delete(destination);
+                    LongPathFile.Delete(destination);
                 }
                 Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't");
 
@@ -156,7 +156,7 @@ namespace Tests.NAnt.Core.Tasks {
 
             // cleanup 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
         }
 
@@ -181,7 +181,7 @@ namespace Tests.NAnt.Core.Tasks {
             string destination = Path.GetTempFileName() + ".zip";
 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
 
             Assert.IsTrue(!File.Exists(destination), destination + " exists, but shouldn't");
@@ -196,7 +196,7 @@ namespace Tests.NAnt.Core.Tasks {
 
             // cleanup 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
 
             Assert.IsTrue(!File.Exists(destination), destination + " exists, but shouldn't.");
@@ -224,7 +224,7 @@ namespace Tests.NAnt.Core.Tasks {
             string destination = Path.GetTempFileName() + ".gif";
 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
 
             Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
@@ -240,7 +240,7 @@ namespace Tests.NAnt.Core.Tasks {
 
             // cleanup 
             if (File.Exists(destination)) {
-                File.Delete(destination);
+                LongPathFile.Delete(destination);
             }
             Assert.IsFalse(File.Exists(destination), destination + " exists, but shouldn't.");
         }

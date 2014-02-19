@@ -25,7 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.Reflection;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using Microsoft.Win32;
 
 using NAnt.Core;
@@ -461,8 +461,8 @@ namespace NAnt.VSNet.Tasks {
                     basePath = tfc.BasePath;
 
                     // ensure temp directory exists
-                    if (!Directory.Exists(tfc.BasePath)) {
-                        Directory.CreateDirectory(tfc.BasePath);
+                    if (!LongPathDirectory.Exists(tfc.BasePath)) {
+                        LongPathDirectory.Create(tfc.BasePath);
                     }
 
                     // create temporary domain
@@ -489,7 +489,7 @@ namespace NAnt.VSNet.Tasks {
                     }
                 }
             } finally {
-                if (basePath != null && Directory.Exists(basePath)) {
+                if (basePath != null && LongPathDirectory.Exists(basePath)) {
                     Log(Level.Debug, "Cleaning up temp folder '{0}'.", basePath); 
 
                     // delete temporary directory and all files in it

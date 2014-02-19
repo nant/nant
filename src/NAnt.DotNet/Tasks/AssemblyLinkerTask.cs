@@ -25,7 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -678,7 +678,7 @@ namespace NAnt.DotNet.Tasks {
                     // make sure stream is closed or response file cannot be deleted
                     writer.Close(); 
                     // make sure we delete response file even if an exception is thrown
-                    File.Delete(_responseFileName);
+                    LongPathFile.Delete(_responseFileName);
                     // initialize name of response file
                     _responseFileName = null;
                 }

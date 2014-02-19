@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -55,10 +55,10 @@ reefer.maddness",
             TempFile.Create(Path.Combine(TempDirName, "reefer.saddness"));
 
             string sub1Path = Path.Combine(TempDirName, "sub1");
-            Directory.CreateDirectory(sub1Path);
+            LongPathDirectory.Create(sub1Path);
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
             string sub2Path = Path.Combine(TempDirName, "sub2");
-            Directory.CreateDirectory(sub2Path);
+            LongPathDirectory.Create(sub2Path);
         }
 
         [Test]
@@ -316,7 +316,7 @@ reefer.maddness",
             Assert.AreEqual (1, _fileSet.FileNames.Count, "#6");
 
             string sub1Path = Path.Combine(TempDirName, "suB1");
-            Directory.CreateDirectory(sub1Path);
+            LongPathDirectory.Create(sub1Path);
             TempFile.Create(Path.Combine(sub1Path, "sub.one"));
 
             _fileSet.Scan ();

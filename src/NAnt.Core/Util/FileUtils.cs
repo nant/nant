@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Filters;
 using NAnt.Core.Types;
 
@@ -205,7 +205,7 @@ namespace NAnt.Core.Util
             else
             {
                 CopyFile(sourceFileName, destFileName, filterChain, inputEncoding, outputEncoding);
-                File.Delete(sourceFileName);
+                LongPathFile.Delete(sourceFileName);
             }
         }
 
@@ -236,7 +236,7 @@ namespace NAnt.Core.Util
             Encoding outputEncoding)
         {
             // If the source directory does not exist, throw an exception.
-            if (!Directory.Exists(sourceDirectory))
+            if (!LongPathDirectory.Exists(sourceDirectory))
             {
                 throw new BuildException(
                     String.Format("Cannot copy directory: Source Directory {0} does not exist",
@@ -245,21 +245,21 @@ namespace NAnt.Core.Util
             }
 
             // Create the destination directory if it does not exist.
-            if (!Directory.Exists(destDirectory))
+            if (!LongPathDirectory.Exists(destDirectory))
             {
-                Directory.CreateDirectory(destDirectory);
+                LongPathDirectory.Create(destDirectory);
             }
 
             // Copy all of the files to the destination directory using
             // the CopyFile static method.
-            foreach (string file in Directory.GetFiles(sourceDirectory))
+            foreach (string file in LongPathDirectory.EnumerateFiles(sourceDirectory))
             {
                 string targetFile = CombinePaths(destDirectory, Path.GetFileName(file));
                 CopyFile(file, targetFile, filterChain, inputEncoding, outputEncoding);
             }
 
             // Copy all of the subdirectory information by calling this method again.
-            foreach (string dir in Directory.GetDirectories(sourceDirectory))
+            foreach (string dir in LongPathDirectory.EnumerateDirectories(sourceDirectory))
             {
                 string targetDir = CombinePaths(destDirectory, Path.GetFileName(dir));
                 CopyDirectory(dir, targetDir, filterChain, inputEncoding, outputEncoding);
@@ -294,7 +294,7 @@ namespace NAnt.Core.Util
         {
 
             // If the source directory does not exist, throw an exception.
-            if (!Directory.Exists(sourceDirectory))
+            if (!LongPathDirectory.Exists(sourceDirectory))
             {
                 throw new BuildException(
                     String.Format("Cannot move directory: Source Directory {0} does not exist",
@@ -350,9 +350,9 @@ namespace NAnt.Core.Util
                                 // the source directory successfully moved to the
                                 // stage path, move the stage path back to the
                                 // source path and rethrow the exception.
-                                if (Directory.Exists(stagePath))
+                                if (LongPathDirectory.Exists(stagePath))
                                 {
-                                    if (!Directory.Exists(sourceDirectory))
+                                    if (!LongPathDirectory.Exists(sourceDirectory))
                                     {
                                         Directory.Move(stagePath, sourceDirectory);
                                     }
@@ -384,7 +384,7 @@ namespace NAnt.Core.Util
                     // If the error occurred because the destination directory
                     // exists, throw a build exception to tell the user that the
                     // destination directory already exists.
-                    if (Directory.Exists(destDirectory))
+                    if (LongPathDirectory.Exists(destDirectory))
                     {
                         throw new BuildException(
                             string.Format(CultureInfo.InvariantCulture,
@@ -472,9 +472,9 @@ namespace NAnt.Core.Util
             // create a uniquely named zero-byte file
             string tempFile = Path.GetTempFileName();
             // remove the temporary file
-            File.Delete(tempFile);
+            LongPathFile.Delete(tempFile);
             // create a directory named after the unique temporary file
-            Directory.CreateDirectory(tempFile);
+            LongPathDirectory.Create(tempFile);
             // return the 
             return new DirectoryInfo(tempFile);
         }
@@ -666,7 +666,7 @@ namespace NAnt.Core.Util
             string resolvedFile = null;
 
             foreach (string directory in directories) {
-                if (!Directory.Exists(directory))
+                if (!LongPathDirectory.Exists(directory))
                     continue;
 
                 resolvedFile = ScanDirectory (directory, fileName, recursive);
@@ -689,8 +689,7 @@ namespace NAnt.Core.Util
             if (!recursive)
                 return null;
 
-            string[] subDirs = Directory.GetDirectories(directory);
-            foreach (string subDir in subDirs) {
+            foreach (string subDir in LongPathDirectory.EnumerateDirectories(directory)) {
                 absolutePath = ScanDirectory (Path.Combine (directory, subDir),
                     fileName, recursive);
                 if (absolutePath != null)

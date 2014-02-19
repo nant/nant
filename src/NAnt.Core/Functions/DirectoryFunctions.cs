@@ -23,7 +23,7 @@ using System.IO;
 using System.Collections;
 using System.Reflection;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -61,7 +61,7 @@ namespace NAnt.Core.Functions {
             // .NET 2.0 if the path does not exist, so we take care of this
             // ourselves to ensure the behaviour of this function remains
             // consistent across different CLR versions
-            if (!Directory.Exists(fullPath)) {
+            if (!LongPathDirectory.Exists(fullPath)) {
                 throw new IOException(string.Format(CultureInfo.InvariantCulture,
                     "Could not find a part of the path \"{0}\".", fullPath));
             }
@@ -85,7 +85,7 @@ namespace NAnt.Core.Functions {
             // .NET 2.0 if the path does not exist, so we take care of this
             // ourselves to ensure the behaviour of this function remains
             // consistent across different CLR versions
-            if (!Directory.Exists(fullPath)) {
+            if (!LongPathDirectory.Exists(fullPath)) {
                 throw new IOException(string.Format(CultureInfo.InvariantCulture,
                     "Could not find a part of the path \"{0}\".", fullPath));
             }
@@ -110,7 +110,7 @@ namespace NAnt.Core.Functions {
             // .NET 2.0 if the path does not exist, so we take care of this
             // ourselves to ensure the behaviour of this function remains
             // consistent across different CLR versions
-            if (!Directory.Exists(fullPath)) {
+            if (!LongPathDirectory.Exists(fullPath)) {
                 throw new IOException(string.Format(CultureInfo.InvariantCulture,
                     "Could not find a part of the path \"{0}\".", fullPath));
             }
@@ -202,7 +202,7 @@ namespace NAnt.Core.Functions {
         /// </example>
         [Function("exists")]
         public bool Exists(string path) {
-            return Directory.Exists(Project.GetFullPath(path));
+            return LongPathDirectory.Exists(Project.GetFullPath(path));
         }
 
         /// <summary>

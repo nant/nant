@@ -24,7 +24,7 @@
 
 using System;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -238,7 +238,7 @@ namespace NAnt.VisualCpp.Tasks {
             } finally {
                 // make sure we delete response file even if an exception is thrown
                 writer.Close(); // make sure stream is closed or file cannot be deleted
-                File.Delete(_responseFileName);
+                LongPathFile.Delete(_responseFileName);
                 _responseFileName = null;
             }
         }

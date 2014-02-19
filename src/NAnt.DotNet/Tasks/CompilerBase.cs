@@ -27,7 +27,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -540,8 +540,8 @@ namespace NAnt.DotNet.Tasks {
                     Modules.Scan();
 
                     // create the base directory if it does not exist
-                    if (!Directory.Exists(OutputFile.DirectoryName)) {
-                        Directory.CreateDirectory(OutputFile.DirectoryName);
+                    if (!LongPathDirectory.Exists(OutputFile.DirectoryName)) {
+                        LongPathDirectory.Create(OutputFile.DirectoryName);
                     }                    
                     
                     Log(Level.Info, ResourceUtils.GetString("String_CompilingFiles"),
@@ -717,7 +717,7 @@ namespace NAnt.DotNet.Tasks {
                         // determine directory for satellite assembly
                         string culturedir = Path.Combine(OutputFile.DirectoryName, culture);
                         // ensure diretory for satellite assembly exists
-                        Directory.CreateDirectory(culturedir);
+                        LongPathDirectory.Create(culturedir);
                         // determine filename of satellite assembly
                         FileInfo outputFile = new FileInfo(Path.Combine(culturedir, 
                             Path.GetFileNameWithoutExtension(OutputFile.Name) 
@@ -729,12 +729,12 @@ namespace NAnt.DotNet.Tasks {
                 } finally {
                     // cleanup .resource files
                     foreach (string compiledResourceFile in compiledResourceFiles) {
-                        File.Delete(compiledResourceFile);
+                        LongPathFile.Delete(compiledResourceFile);
                     }
                     
                     // make sure we delete response file even if an exception is thrown
                     writer.Close(); // make sure stream is closed or file cannot be deleted
-                    File.Delete(_responseFileName);
+                    LongPathFile.Delete(_responseFileName);
                     _responseFileName = null;
                 }
             }

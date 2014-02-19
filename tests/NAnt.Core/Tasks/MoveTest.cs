@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -138,22 +138,22 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(string.Format(_xmlProjectTemplate2, _tempDirTargetOne,
                 _tempDirSourceOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' directory does not exist", _tempDirTargetOne));
             Assert.IsTrue(File.Exists(_tempFileTargetOne),
                 string.Format("'{0}' file does not exist", _tempFileTargetOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetTwo),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetTwo),
                 string.Format("'{0}' directory does not exist", _tempDirTargetTwo));
             Assert.IsTrue(File.Exists(_tempFileTargetTwo),
                 string.Format("'{0}' file does not exist", _tempFileTargetTwo));
 
-            Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+            Assert.IsFalse(LongPathDirectory.Exists(_tempDirSourceOne),
                 string.Format("'{0}' directory still exists", _tempDirSourceOne));
             Assert.IsFalse(File.Exists(_tempFileSourceOne),
                 string.Format("'{0}' file still exists", _tempFileSourceOne));
 
-            Assert.IsFalse(Directory.Exists(_tempDirSourceTwo),
+            Assert.IsFalse(LongPathDirectory.Exists(_tempDirSourceTwo),
                 string.Format("'{0}' directory still exists", _tempDirSourceTwo));
             Assert.IsFalse(File.Exists(_tempFileSourceTwo),
                 string.Format("'{0}' file still exists", _tempFileSourceTwo));
@@ -168,22 +168,22 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(string.Format(_xmlProjectTemplate3, _tempDirTargetOne,
                 _tempDirSourceOne, "**/*"));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' directory does not exist", _tempDirTargetOne));
             Assert.IsTrue(File.Exists(_tempFileTargetOne),
                 string.Format("'{0}' file does not exist", _tempFileTargetOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetTwo),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetTwo),
                 string.Format("'{0}' directory does not exist", _tempDirTargetTwo));
             Assert.IsTrue(File.Exists(_tempFileTargetTwo),
                 string.Format("'{0}' file does not exist", _tempFileTargetTwo));
 
-            Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+            Assert.IsFalse(LongPathDirectory.Exists(_tempDirSourceOne),
                 string.Format("'{0}' directory still exists", _tempDirSourceOne));
             Assert.IsFalse(File.Exists(_tempFileSourceOne),
                 string.Format("'{0}' file still exists", _tempFileSourceOne));
 
-            Assert.IsFalse(Directory.Exists(_tempDirSourceTwo),
+            Assert.IsFalse(LongPathDirectory.Exists(_tempDirSourceTwo),
                 string.Format("'{0}' directory still exists", _tempDirSourceTwo));
             Assert.IsFalse(File.Exists(_tempFileSourceTwo),
                 string.Format("'{0}' file still exists", _tempFileSourceTwo));
@@ -212,9 +212,9 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(string.Format(_xmlProjectTemplate3, _tempDirTargetOne,
                 _tempDirSourceOne, "**/file.*"));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirSourceOne),
                 string.Format("'{0}' source directory does not exist", _tempDirSourceOne));
-            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetOne));
 
             Assert.IsFalse(File.Exists(_tempFileSourceOne),
@@ -258,13 +258,13 @@ namespace Tests.NAnt.Core.Tasks {
             string targetSubDirFile = Path.Combine(targetSubDir, "file2.two");
             RunBuild(String.Format(_xmlProjectTemplate3, targetDir, _tempDirSourceOne, "subDir/**"));
 
-            Assert.IsTrue(Directory.Exists(targetSubDir),
+            Assert.IsTrue(LongPathDirectory.Exists(targetSubDir),
                 string.Format("'{0}' target sub directory does not exist", targetSubDir));
 
             Assert.IsTrue(File.Exists(targetSubDirFile),
                 string.Format("'{0}' target sub directory file does not exist", targetSubDirFile));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceTwo),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirSourceTwo),
                 string.Format("'{0}' source sub directory does exist", _tempDirSourceTwo));
 
             Assert.IsFalse(File.Exists(_tempFileSourceTwo),
@@ -283,7 +283,7 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(String.Format(_xmlProjectTemplate2, sameNameTarget, _tempDirSourceOne));
 
             // This should be true regardless of underlying OS NAnt is running on.
-            Assert.IsTrue(Directory.Exists(sameNameTarget),
+            Assert.IsTrue(LongPathDirectory.Exists(sameNameTarget),
                 string.Format("'{0}' directory does not exist", sameNameTarget));
 
             if (PlatformHelper.IsWindows)
@@ -313,7 +313,7 @@ namespace Tests.NAnt.Core.Tasks {
             }
             else
             {
-                Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+                Assert.IsFalse(LongPathDirectory.Exists(_tempDirSourceOne),
                     string.Format("'{0}' directory still exists", _tempDirSourceOne));
             }
         }
@@ -331,22 +331,22 @@ namespace Tests.NAnt.Core.Tasks {
 
             RunBuild(String.Format(_xmlProjectTemplate5, _tempDirTargetOne, _tempDirSourceOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirSourceOne),
                 string.Format("'{0}' source directory does not exist", _tempDirSourceOne));
 
-            Assert.IsTrue(Directory.Exists(emptySourceDirOne),
+            Assert.IsTrue(LongPathDirectory.Exists(emptySourceDirOne),
                 string.Format("'{0}' empty directory does not exist", emptySourceDirOne));
 
-            Assert.IsTrue(Directory.Exists(emptySourceDirTwo),
+            Assert.IsTrue(LongPathDirectory.Exists(emptySourceDirTwo),
                 string.Format("'{0}' empty directory does not exist", emptySourceDirTwo));
 
-            Assert.IsFalse(Directory.Exists(emptyTargetDirOne),
+            Assert.IsFalse(LongPathDirectory.Exists(emptyTargetDirOne),
                 string.Format("'{0}' empty directory does exist", emptyTargetDirOne));
 
-            Assert.IsFalse(Directory.Exists(emptyTargetDirTwo),
+            Assert.IsFalse(LongPathDirectory.Exists(emptyTargetDirTwo),
                 string.Format("'{0}' empty directory does exist", emptyTargetDirTwo));
         }
 
@@ -359,10 +359,10 @@ namespace Tests.NAnt.Core.Tasks {
             RunBuild(String.Format(_xmlProjectTemplate3, _tempDirTargetThree,
                 _tempDirSourceThree, "**/*"));
 
-            Assert.IsTrue(Directory.Exists(_tempDirTargetThree),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirTargetThree),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetThree));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceThree),
+            Assert.IsTrue(LongPathDirectory.Exists(_tempDirSourceThree),
                 string.Format("'{0}' source directory does not exist", _tempDirSourceThree));
 
             Assert.IsTrue(File.Exists(_tempFileTargetThree),
@@ -371,7 +371,7 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(_tempFileSourceFour),
                 string.Format("'{0}' source file does not exist", _tempFileSourceFour));
 
-            Assert.IsFalse(Directory.Exists(_tempDirTargetFour),
+            Assert.IsFalse(LongPathDirectory.Exists(_tempDirTargetFour),
                 string.Format("'{0}' target directory does exist", _tempDirTargetFour));
 
             Assert.IsFalse(File.Exists(_tempFileTargetFour),

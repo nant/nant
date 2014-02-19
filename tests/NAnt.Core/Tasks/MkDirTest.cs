@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
@@ -42,7 +42,7 @@ namespace Tests.NAnt.Core.Tasks {
             string tempDir = Path.Combine(TempDirName, "goo");
             string result = RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, tempDir));
             
-            Assert.IsTrue(Directory.Exists(tempDir), "Dir should have been created:" + result);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir), "Dir should have been created:" + result);
         }
     }
 }

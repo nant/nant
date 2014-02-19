@@ -33,7 +33,7 @@ using System.Runtime.Remoting.Lifetime;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -324,8 +324,8 @@ namespace NAnt.DotNet.Tasks {
                 string targetDir = Path.GetDirectoryName(Path.Combine(
                     BaseDirectory.FullName, Target));
                 // ensure target directory exists
-                if (!String.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
-                    Directory.CreateDirectory(targetDir);
+                if (!String.IsNullOrEmpty(targetDir) && !LongPathDirectory.Exists(targetDir)) {
+                    LongPathDirectory.Create(targetDir);
                 }
             } else {
                 foreach (string assembly in Assemblies.FileNames) {
@@ -405,7 +405,7 @@ namespace NAnt.DotNet.Tasks {
 
                     // delete any existing output file
                     if (File.Exists(licensesFile.FullName)) {
-                        File.Delete(licensesFile.FullName);
+                        LongPathFile.Delete(licensesFile.FullName);
                     }
 
                     // copy licenses file to output file (with overwrite)
@@ -643,8 +643,8 @@ namespace NAnt.DotNet.Tasks {
 
                     // overwrite the existing file, if it exists - is there a better way?
                     if (File.Exists(licensesFile)) {
-                        File.SetAttributes(licensesFile, FileAttributes.Normal);
-                        File.Delete(licensesFile);
+                        LongPathFile.SetAttributes(licensesFile, FileAttributes.Normal);
+                        LongPathFile.Delete(licensesFile);
                     }
 
                     // write out the license file, keyed to the appropriate output 

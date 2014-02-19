@@ -24,7 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
@@ -652,7 +652,7 @@ namespace NAnt.Core.Types {
 
                 // add all the as-is patterns to the scanned files.
                 foreach (string name in AsIs) {
-                    if (Directory.Exists(name)) {
+                    if (LongPathDirectory.Exists(name)) {
                         _scanner.DirectoryNames.Add(name);
                     } else {
                         _scanner.FileNames.Add(name);

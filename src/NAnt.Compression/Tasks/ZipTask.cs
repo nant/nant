@@ -26,7 +26,7 @@ using System.Text;
 
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.Zip;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -192,8 +192,8 @@ namespace NAnt.Compression.Tasks {
                 ZipFileSets.FileCount, ZipFile.FullName);
                 
             try {
-                if (!Directory.Exists(ZipFile.DirectoryName)) {
-                    Directory.CreateDirectory(ZipFile.DirectoryName);
+                if (!LongPathDirectory.Exists(ZipFile.DirectoryName)) {
+                    LongPathDirectory.Create(ZipFile.DirectoryName);
                 }
             
                 // set encoding to use for filenames and comment

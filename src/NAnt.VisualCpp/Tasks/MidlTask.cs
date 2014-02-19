@@ -21,7 +21,7 @@
 using System;
 using System.IO;
 using System.Text;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -343,7 +343,7 @@ namespace NAnt.VisualCpp.Tasks {
                     base.ExecuteTask();
                 } finally {
                     // make sure we delete the response file
-                    File.Delete(_responseFileName);
+                    LongPathFile.Delete(_responseFileName);
                     _responseFileName = null;
                 }
             }

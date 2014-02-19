@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NUnit.Framework;
 
@@ -250,7 +251,7 @@ namespace Tests.NAnt.Core.Tasks {
                 </project>";
            
             
-            File.Delete(_xslSrcFileNameFull);
+            LongPathFile.Delete(_xslSrcFileNameFull);
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
         }
 
@@ -262,7 +263,7 @@ namespace Tests.NAnt.Core.Tasks {
                     <style style='{0}' in='{1}' out='{2}' />
                 </project>";
                        
-            File.Delete(_xmlSrcFileNameFull);
+            LongPathFile.Delete(_xmlSrcFileNameFull);
 
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xml, _xslSrcFileNameFull, _xmlSrcFileNameFull, Path.Combine(TempDirName, _xmlSrcFileName + "." + _outputFileExtension)));
         }
@@ -287,7 +288,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_DocumentFunction() {
             string tempDir1 = CreateTempDir("dir1");
             string tempDir1SubDir1 = Path.Combine(tempDir1, "subdir1");
-            Directory.CreateDirectory(tempDir1SubDir1);
+            LongPathDirectory.Create(tempDir1SubDir1);
             string inputXmlFile = Path.Combine(tempDir1SubDir1, "input.xml");
             string xslFile = Path.Combine(tempDir1, "style.xsl");
             string commonXmlFile = Path.Combine(tempDir1, "common.xml");
@@ -368,7 +369,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_Include() {
             string styleDir = CreateTempDir("style");
             string styleIncludeDir = Path.Combine(styleDir, "include");
-            Directory.CreateDirectory(styleIncludeDir);
+            LongPathDirectory.Create(styleIncludeDir);
             string inputXmlFile = Path.Combine(TempDirName, "input.xml");
             string mainXslFile = Path.Combine(styleDir, "style.xsl");
             string includeXslFile = Path.Combine(styleIncludeDir, "include.xsl");

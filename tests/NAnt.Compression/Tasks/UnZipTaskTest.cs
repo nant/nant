@@ -21,7 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using Tests.NAnt.Core;
@@ -45,7 +45,7 @@ namespace Tests.NAnt.Compression.Tasks {
             CreateTempDir("doc");
             CreateTempFile(Path.Combine ("doc", "temp1.file"), "hello");
             RunBuild(_projectXML);
-            Assert.IsTrue(Directory.Exists(Path.Combine(TempDirName, "doc")),
+            Assert.IsTrue(LongPathDirectory.Exists(Path.Combine(TempDirName, "doc")),
                 "UnZip dir not created.");
             TempDir.Delete("doc");
         }

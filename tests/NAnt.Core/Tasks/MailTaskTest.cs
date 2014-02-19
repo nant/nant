@@ -26,6 +26,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 using NAnt.Core;
 using NAnt.Core.Tasks;
@@ -320,9 +321,9 @@ namespace Tests.NAnt.Core.Tasks
             // Setup the temp directory
             _tempPath = Path.Combine(Path.GetTempPath(), "NAntEmailTesting");
 
-            if (!Directory.Exists(_tempPath))
+            if (!LongPathDirectory.Exists(_tempPath))
             {
-                Directory.CreateDirectory(_tempPath);
+                LongPathDirectory.Create(_tempPath);
             }
 
             // Create temp files containing messages to load for testing. The

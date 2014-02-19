@@ -19,7 +19,7 @@
 
 using System;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
@@ -28,10 +28,10 @@ namespace Tests.NAnt.Core.Util {
         [Test]
         public void Test_CreateAndDestroy() {
             string path = TempDir.Create("foobar");
-            Assert.IsTrue(Directory.Exists(path), path + " does not exists.");
+            Assert.IsTrue(LongPathDirectory.Exists(path), path + " does not exists.");
             Assert.IsTrue(path.EndsWith("foobar"), path + " does not end with 'foobar'.");
             TempDir.Delete(path);
-            Assert.IsFalse(Directory.Exists(path), path + " exists.");
+            Assert.IsFalse(LongPathDirectory.Exists(path), path + " exists.");
         }
     }
 }

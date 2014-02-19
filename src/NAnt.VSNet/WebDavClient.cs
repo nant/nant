@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using System.Net;
+using Microsoft.Experimental.IO;
 
 namespace NAnt.VSNet {
     public class WebDavClient {
@@ -84,8 +85,8 @@ namespace NAnt.VSNet {
             request.Headers.Add("Translate: f");
             request.Credentials = CredentialCache.DefaultCredentials;
             FileInfo fi = new FileInfo(localFileName);
-            if (!Directory.Exists(fi.DirectoryName)) {
-                Directory.CreateDirectory(fi.DirectoryName);
+            if (!LongPathDirectory.Exists(fi.DirectoryName)) {
+                LongPathDirectory.Create(fi.DirectoryName);
             }
 
             int bufferSize = 100 * 1024;

@@ -22,7 +22,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -46,14 +46,14 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
             _tempFileName = Path.Combine(TempDirName, "myfile.txt");
             TempFile.Create(_tempFileName);
-            File.SetAttributes(_tempFileName, FileAttributes.Normal);
+            LongPathFile.SetAttributes(_tempFileName, FileAttributes.Normal);
             // Handle case when temp folder is compressed
             _normalFileAttributes = File.GetAttributes(_tempFileName) & (FileAttributes.Normal | FileAttributes.Compressed);
         }
 
         [Test]
         public void Test_Normal() {
-            File.SetAttributes(_tempFileName, FileAttributes.Archive | 
+            LongPathFile.SetAttributes(_tempFileName, FileAttributes.Archive | 
                 FileAttributes.Hidden | FileAttributes.ReadOnly |
                 FileAttributes.System);
             if (!PlatformHelper.IsUnix) {

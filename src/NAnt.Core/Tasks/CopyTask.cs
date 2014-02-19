@@ -26,7 +26,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -419,7 +419,7 @@ namespace NAnt.Core.Tasks {
                 }
                 // If the full path in the SoureFile is a directory,
                 // assign the SourceFile object as a DirectoryInfo object to srcInfo.
-                else if (Directory.Exists(SourceFile.FullName))
+                else if (LongPathDirectory.Exists(SourceFile.FullName))
                 {
                     srcInfo = new DirectoryInfo(SourceFile.FullName);
                 }
@@ -562,9 +562,9 @@ namespace NAnt.Core.Tasks {
 
                         // The full filepath to copy to.
                         string destinationDirectory = Path.Combine(ToDirectory.FullName, dstRelPath);
-                        if (!Directory.Exists(destinationDirectory)) {
+                        if (!LongPathDirectory.Exists(destinationDirectory)) {
                             try {
-                                Directory.CreateDirectory(destinationDirectory);
+                                LongPathDirectory.Create(destinationDirectory);
                             } catch (Exception ex) {
                                 throw new BuildException(string.Format(CultureInfo.InvariantCulture,
                                 "Failed to create directory '{0}'.", destinationDirectory),
@@ -646,11 +646,10 @@ namespace NAnt.Core.Tasks {
                     {
                         case OperationType.FileToFile:
                             // create directory if not present
-                            string destinationDirectory =
-                                Path.GetDirectoryName(currentOperation.Target);
-                            if (!Directory.Exists(destinationDirectory))
+                            string destinationDirectory = Path.GetDirectoryName(currentOperation.Target);
+                            if (!LongPathDirectory.Exists(destinationDirectory))
                             {
-                                Directory.CreateDirectory(destinationDirectory);
+                                LongPathDirectory.Create(destinationDirectory);
                                 Log(Level.Verbose, "Created directory '{0}'.",
                                     destinationDirectory);
                             }
@@ -659,7 +658,7 @@ namespace NAnt.Core.Tasks {
                             // attempting to copy.
                             if (File.Exists(currentOperation.Target))
                             {
-                                File.Delete(currentOperation.Target);
+                                LongPathFile.Delete(currentOperation.Target);
                             }
     
                             // copy the file with filters
@@ -673,9 +672,9 @@ namespace NAnt.Core.Tasks {
                             string targetFile = Path.Combine(currentOperation.Target,
                                 Path.GetFileName(currentOperation.Source));
                             // create directory if not present
-                            if (!Directory.Exists(currentOperation.Target))
+                            if (!LongPathDirectory.Exists(currentOperation.Target))
                             {
-                                Directory.CreateDirectory(currentOperation.Target);
+                                LongPathDirectory.Create(currentOperation.Target);
                                 Log(Level.Verbose, "Created directory '{0}'.",
                                     currentOperation.Target);
                             }
@@ -684,7 +683,7 @@ namespace NAnt.Core.Tasks {
                             // attempting to copy.
                             if (File.Exists(targetFile))
                             {
-                                File.Delete(targetFile);
+                                LongPathFile.Delete(targetFile);
                             }
     
                             // copy the file with filters
@@ -694,7 +693,7 @@ namespace NAnt.Core.Tasks {
                         case OperationType.DirectoryToDirectory:
                             // Throw a build exception if the target directory
                             // already exists.
-                            if (Directory.Exists(currentOperation.Target))
+                            if (LongPathDirectory.Exists(currentOperation.Target))
                             {
                                 throw new BuildException(
                                     string.Format(CultureInfo.InvariantCulture,
@@ -969,7 +968,7 @@ namespace NAnt.Core.Tasks {
                     _target.Exists &&
                     _target.Attributes != FileAttributes.Normal)
                 {
-                    File.SetAttributes(_target.FullName, FileAttributes.Normal);
+                    LongPathFile.SetAttributes(_target.FullName, FileAttributes.Normal);
                 }
             }
 

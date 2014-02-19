@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {
@@ -94,11 +94,11 @@ namespace Tests.NAnt.Core.Tasks {
             tempFile10 = CreateTempFile(Path.Combine(tempDir3, "boo"));
 
             /*
-            File.SetAttributes(tempDir2, FileAttributes.ReadOnly);
-            File.SetAttributes(tempDir3, FileAttributes.ReadOnly); 
+            LongPathFile.SetAttributes(tempDir2, FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(tempDir3, FileAttributes.ReadOnly); 
             */
-            File.SetAttributes(Path.Combine(tempDir3, "ha.he3"), FileAttributes.ReadOnly);
-            File.SetAttributes(Path.Combine(tempDir3, "ha.he2"), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(Path.Combine(tempDir3, "ha.he3"), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(Path.Combine(tempDir3, "ha.he2"), FileAttributes.ReadOnly);
         }
 
         [Test]
@@ -112,10 +112,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile6), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(tempFile7), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should have been created:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should have been created:" + tempDir4);
 
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile6 ));
             
@@ -127,10 +127,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "dir", tempDir2));
 
@@ -142,10 +142,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
 
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, "file", tempFile1 ));
 
@@ -157,10 +157,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile6), "File should have been deleted:" + tempFile6);
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
         }
 
         /// <summary>
@@ -191,14 +191,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         /// <summary>
@@ -229,14 +229,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         /// <summary>
@@ -271,14 +271,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
 
             /// Checks whether removing the last file from a directory, with a 
             /// pattern that does not match the directory itself, will not CAUSE
@@ -296,14 +296,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
 
             /// Checks whether an include pattern that matches all files in an 
             /// empty directory, will NOT cause that directory to be removed.
@@ -320,14 +320,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted in previous step:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
 
             /// Checks whether an include pattern that matches all files in a
             /// empty directory and the directory itself, will cause that 
@@ -345,14 +345,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted in previous step:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
         }
 
         /// <summary>
@@ -383,14 +383,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
         }
 
         /// <summary>
@@ -421,14 +421,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
-            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
-            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -457,14 +457,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile9), "File should not have been deleted:" + tempFile9);
             Assert.IsFalse(File.Exists(tempFile10), "File should have been deleted:" + tempFile10);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -491,14 +491,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -525,14 +525,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(tempFile7), "File should not have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -559,14 +559,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsFalse(Directory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
-            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
-            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
-            Assert.IsFalse(Directory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
-            Assert.IsFalse(Directory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
-            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -593,14 +593,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
             Assert.IsTrue(File.Exists(tempFile8), "File should not have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -627,14 +627,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
 
-            Assert.IsFalse(Directory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
-            Assert.IsFalse(Directory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
-            Assert.IsFalse(Directory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
-            Assert.IsFalse(Directory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
-            Assert.IsFalse(Directory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
-            Assert.IsFalse(Directory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
-            Assert.IsFalse(Directory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir1), "Dir should have been deleted:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir2), "Dir should have been deleted:" + tempDir2);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir3), "Dir should have been deleted:" + tempDir3);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir4), "Dir should have been deleted:" + tempDir4);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir5), "Dir should have been deleted:" + tempDir5);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir6), "Dir should have been deleted:" + tempDir6);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir7), "Dir should have been deleted:" + tempDir7);
+            Assert.IsFalse(LongPathDirectory.Exists(tempDir8), "Dir should have been deleted:" + tempDir8);
         }
 
         [Test]
@@ -661,14 +661,14 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(tempFile7), "File should have been deleted:" + tempFile7);
             Assert.IsFalse(File.Exists(tempFile8), "File should have been deleted:" + tempFile8);
 
-            Assert.IsTrue(Directory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
-            Assert.IsTrue(Directory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
-            Assert.IsTrue(Directory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
-            Assert.IsTrue(Directory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir1), "Dir should not have been deleted:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir2), "Dir should not have been deleted:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir3), "Dir should not have been deleted:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir4), "Dir should not have been deleted:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir5), "Dir should not have been deleted:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir6), "Dir should not have been deleted:" + tempDir6);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir7), "Dir should not have been deleted:" + tempDir7);
+            Assert.IsTrue(LongPathDirectory.Exists(tempDir8), "Dir should not have been deleted:" + tempDir8);
         }
 
         [Test]

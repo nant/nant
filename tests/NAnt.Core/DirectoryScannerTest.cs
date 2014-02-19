@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -804,9 +804,9 @@ namespace Tests.NAnt.Core {
             _folder1 = Path.Combine(TempDirName, "folder1");
             _folder2 = Path.Combine(TempDirName, "folder2");
             _folder3 = Path.Combine(_folder2, "folder3");
-            Directory.CreateDirectory(_folder1);
-            Directory.CreateDirectory(_folder2);
-            Directory.CreateDirectory(_folder3);
+            LongPathDirectory.Create(_folder1);
+            LongPathDirectory.Create(_folder2);
+            LongPathDirectory.Create(_folder3);
 
             _scanner = new DirectoryScanner();
             _scanner.BaseDirectory = TempDirectory;
@@ -847,13 +847,13 @@ namespace Tests.NAnt.Core {
         private void CheckScan(string[] includedFiles, string[] excludedFiles, string[] includedDirs, string[] excludedDirs) {
             // create all the directories
             foreach (string dir in includedDirs) {
-                if (!Directory.Exists(dir)) {
-                    Directory.CreateDirectory(dir);
+                if (!LongPathDirectory.Exists(dir)) {
+                    LongPathDirectory.Create(dir);
                 }
             }
             foreach (string dir in excludedDirs) {
-                if (!Directory.Exists(dir)) {
-                    Directory.CreateDirectory(dir);
+                if (!LongPathDirectory.Exists(dir)) {
+                    LongPathDirectory.Create(dir);
                 }
             }
 

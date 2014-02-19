@@ -19,7 +19,7 @@
 
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -146,7 +146,7 @@ namespace Tests.NAnt.SourceControl.Tasks {
 
             if (File.Exists(checkFilePath)) {
                 // Delete the file.
-                File.Delete(checkFilePath);
+                LongPathFile.Delete(checkFilePath);
             }
 
             // Make sure the file does not exist before we start the test.

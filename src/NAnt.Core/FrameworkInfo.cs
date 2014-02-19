@@ -24,7 +24,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Configuration;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -341,7 +341,7 @@ namespace NAnt.Core {
                         Location.UnknownLocation);
                     if (frameworkDir != null) {
                         // ensure the framework directory exists
-                        if (Directory.Exists(frameworkDir)) {
+                        if (LongPathDirectory.Exists(frameworkDir)) {
                             _frameworkDirectory = new DirectoryInfo(frameworkDir);
                         } else {
                             throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
@@ -388,7 +388,7 @@ namespace NAnt.Core {
                         Location.UnknownLocation);
                     if (frameworkAssemblyDir != null) {
                         // ensure the framework assembly directory exists
-                        if (Directory.Exists(frameworkAssemblyDir)) {
+                        if (LongPathDirectory.Exists(frameworkAssemblyDir)) {
                             // only consider framework assembly directory valid if an assembly
                             // named "System.dll" exists in that directory
                             if (!File.Exists(Path.Combine(frameworkAssemblyDir, "System.dll"))) {
@@ -775,7 +775,7 @@ namespace NAnt.Core {
 
             // the sdk directory does not actually have to exist for a
             // framework to be considered valid
-            if (sdkDir != null && Directory.Exists(sdkDir))
+            if (sdkDir != null && LongPathDirectory.Exists(sdkDir))
                 _sdkDirectory = new DirectoryInfo(sdkDir);
 
             _project = frameworkProject;

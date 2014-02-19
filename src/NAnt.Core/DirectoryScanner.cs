@@ -51,6 +51,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using Microsoft.Experimental.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -551,10 +552,9 @@ namespace NAnt.Core {
             if (_scannedDirectories.Contains(path)) {
                 return;
             }
-
             // add directory to list of scanned directories
             _scannedDirectories.Add(path);
-
+            
             // if the path doesn't exist, return.
             if (!Directory.Exists(path)) {
                 return;
@@ -624,24 +624,23 @@ namespace NAnt.Core {
                     }
                 }
             }
-
-            foreach (DirectoryInfo directoryInfo in currentDirectoryInfo.GetDirectories()) {
+            foreach (string dirFullName in LongPathDirectory.EnumerateDirectories(currentDirectoryInfo.FullName)) {
                 if (recursive) {
                     // scan subfolders if we are running recursively
-                    ScanDirectory(directoryInfo.FullName, true);
+                    ScanDirectory(dirFullName, true);
                 } else {
                     // otherwise just test to see if the subdirectories are included
-                    if (IsPathIncluded(directoryInfo.FullName, includedPatterns, excludedPatterns)) {
-                        _directoryNames.Add(directoryInfo.FullName);
+                    if (IsPathIncluded(dirFullName, includedPatterns, excludedPatterns)) {
+                        _directoryNames.Add(dirFullName);
                     }
                 }
             }
 
             // scan files
-            foreach (FileInfo fileInfo in currentDirectoryInfo.GetFiles()) {
-                string filename = Path.Combine(path, fileInfo.Name);
+            foreach (string fileName in LongPathDirectory.EnumerateFiles(currentDirectoryInfo.FullName)) {
+                string filename = Path.Combine(path, fileName);
                 if (IsPathIncluded(filename, includedPatterns, excludedPatterns)) {
-                    _fileNames.Add(Path.Combine(path, fileInfo.Name));
+                    _fileNames.Add(Path.Combine(path, fileName));
                 }
             }
 

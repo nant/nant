@@ -187,8 +187,8 @@ namespace NAnt.MSBuild {
                 string xmlDocBuildFile = FileUtils.CombinePaths(OutputPath, this.Name + ".xml");
 
                 //// make sure the output directory for the doc file exists
-                //if (!Directory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
-                //    Directory.CreateDirectory(Path.GetDirectoryName(xmlDocBuildFile));
+                //if (!LongPathDirectory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
+                //    LongPathDirectory.Create(Path.GetDirectoryName(xmlDocBuildFile));
                 //}
 
                 // add built documentation file as extra output file
