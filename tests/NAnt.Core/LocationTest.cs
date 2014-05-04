@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -84,7 +84,7 @@ namespace Tests.NAnt.Core {
 
         [TearDown]
         protected void TearDown() {
-            File.Delete(_tempFileName);
+            LongPathFile.Delete(_tempFileName);
             Assert.IsFalse(File.Exists(_tempFileName), _tempFileName + " exists.");
         }
 

@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using Tests.NAnt.Core.Util;
@@ -84,7 +84,7 @@ namespace Tests.NAnt.Core.Tasks {
         public void Test_RecursiveInclude() {
             // modify included build file to recursively include itself
             string recursiveIncludedBuildFile = @"<?xml version='1.0'?><project><include buildfile='include.xml'/></project>";
-            File.Delete(_includeFileName);
+            LongPathFile.Delete(_includeFileName);
             TempFile.CreateWithContents(recursiveIncludedBuildFile, _includeFileName);
 
             try {

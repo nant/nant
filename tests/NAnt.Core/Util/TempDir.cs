@@ -20,7 +20,7 @@
 
 using System;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
@@ -52,16 +52,14 @@ namespace Tests.NAnt.Core.Util {
             try {
                 if (Directory.Exists(path)) {
                     // ensure directorty is writable
-                    File.SetAttributes(path, FileAttributes.Normal);
+                    LongPathFile.SetAttributes(path, FileAttributes.Normal);
                     // ensure all files and subdirectories are writable
                     SetAllFileAttributesToNormal(path);
-                    string[] directoryNames = Directory.GetDirectories(path);
-                    foreach (string directoryName in directoryNames) {
+                    foreach (string directoryName in LongPathDirectory.EnumerateDirectories(path)) {
                         Delete(directoryName);
                     }
-                    string[] fileNames = Directory.GetFiles(path);
-                    foreach (string fileName in fileNames) {
-                        File.Delete(fileName);
+                    foreach (string fileName in LongPathDirectory.EnumerateFiles(path)) {
+                        LongPathFile.Delete(fileName);
                     }
                     Directory.Delete(path, true);
                 }
@@ -80,14 +78,12 @@ namespace Tests.NAnt.Core.Util {
         /// to <see cref="FileAttributes.Normal" />.
         /// </summary>
         private static void SetAllFileAttributesToNormal(string path) {
-            string[] fileNames = Directory.GetFiles(path);
-            foreach (string fileName in fileNames) {
-                File.SetAttributes(fileName, FileAttributes.Normal);
+            foreach (string fileName in LongPathDirectory.EnumerateFiles(path)) {
+                LongPathFile.SetAttributes(fileName, FileAttributes.Normal);
             }
 
-            string[] directoryNames = Directory.GetDirectories(path);
-            foreach (string directoryName in directoryNames) {
-                File.SetAttributes(directoryName, FileAttributes.Normal);
+            foreach (string directoryName in LongPathDirectory.EnumerateDirectories(path)) {
+                LongPathFile.SetAttributes(directoryName, FileAttributes.Normal);
                 SetAllFileAttributesToNormal(directoryName);
             }
         }

@@ -19,7 +19,7 @@
 
 using System;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
@@ -41,7 +41,7 @@ namespace Tests.NAnt.Core.Util {
 
         public static string CreateWithContents(string contents, string fileName) {
             // ensure the directory exists
-            Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+            LongPathDirectory.Create(Path.GetDirectoryName(fileName));
 
             // write the text into the temp file.
             using (FileStream f = new FileStream(fileName, FileMode.Create)) {

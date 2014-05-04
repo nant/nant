@@ -26,7 +26,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
@@ -367,8 +367,8 @@ namespace NAnt.VSNet {
                 UnregisterForComInterop(cs, solutionConfiguration);
 
                 // ensure temp directory exists
-                if (!Directory.Exists(TemporaryFiles.BasePath)) {
-                    Directory.CreateDirectory(TemporaryFiles.BasePath);
+                if (!LongPathDirectory.Exists(TemporaryFiles.BasePath)) {
+                    LongPathDirectory.Create(TemporaryFiles.BasePath);
                 }
 
                 // compile neutral and localized resx files
@@ -576,7 +576,7 @@ namespace NAnt.VSNet {
                 // check if temporary file was created to support empty projects
                 if (tempFile != null) {
                     // ensure temp file is deleted
-                    File.Delete(tempFile);
+                    LongPathFile.Delete(tempFile);
                 }
             }
         }

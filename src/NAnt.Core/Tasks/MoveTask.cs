@@ -22,7 +22,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -247,9 +247,9 @@ namespace NAnt.Core.Tasks {
                                 Path.GetDirectoryName(currentOperation.Target);
 
                             // create directory if not present
-                            if (!Directory.Exists(destinationDirectory))
+                            if (!LongPathDirectory.Exists(destinationDirectory))
                             {
-                                Directory.CreateDirectory(destinationDirectory);
+                                LongPathDirectory.Create(destinationDirectory);
                                 Log(Level.Verbose, "Created directory '{0}'.",
                                     destinationDirectory);
                             }
@@ -258,7 +258,7 @@ namespace NAnt.Core.Tasks {
                             // attempting to move.
                             if (File.Exists(currentOperation.Target))
                             {
-                                File.Delete(currentOperation.Target);
+                                LongPathFile.Delete(currentOperation.Target);
                             }
 
                             // move the file with filters
@@ -277,9 +277,9 @@ namespace NAnt.Core.Tasks {
                                 Path.GetFileName(currentOperation.Source));
 
                             // create directory if not present
-                            if (!Directory.Exists(destinationDirectory))
+                            if (!LongPathDirectory.Exists(destinationDirectory))
                             {
-                                Directory.CreateDirectory(destinationDirectory);
+                                LongPathDirectory.Create(destinationDirectory);
                                 Log(Level.Verbose, "Created directory '{0}'.",
                                     destinationDirectory);
                             }
@@ -288,7 +288,7 @@ namespace NAnt.Core.Tasks {
                             // attempting to move.
                             if (File.Exists(targetFile))
                             {
-                                File.Delete(targetFile);
+                                LongPathFile.Delete(targetFile);
                             }
 
                             // move the file with filters

@@ -19,7 +19,7 @@
 
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -43,13 +43,13 @@ namespace Tests.NAnt.Core.Tasks {
             _notExistingTempFile = CreateTempFile("b.c");
             // delete it to make sure it definitely not exists
             if (_notExistingTempFile != null && File.Exists(_notExistingTempFile)) {
-                File.Delete(_notExistingTempFile);
+                LongPathFile.Delete(_notExistingTempFile);
             }
 
             // create a temporary directory
             _notExistingTempDir = CreateTempDir("test");
             // delete it to make sure it definitely does not exist
-            if (_notExistingTempDir != null && Directory.Exists(_notExistingTempDir)) {
+            if (_notExistingTempDir != null && LongPathDirectory.Exists(_notExistingTempDir)) {
                 Directory.Delete(_notExistingTempDir);
             }
         }

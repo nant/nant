@@ -26,7 +26,7 @@ using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
@@ -138,8 +138,8 @@ namespace NAnt.Compression.Tasks {
                 TarFileSets.FileCount, DestFile.FullName);
 
             try {
-                if (!Directory.Exists(DestFile.DirectoryName)) {
-                    Directory.CreateDirectory(DestFile.DirectoryName);
+                if (!LongPathDirectory.Exists(DestFile.DirectoryName)) {
+                    LongPathDirectory.Create(DestFile.DirectoryName);
                 }
                 
                 outstream = File.Create(DestFile.FullName);

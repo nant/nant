@@ -18,9 +18,10 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -202,8 +203,9 @@ namespace NAnt.Core.Tasks {
                 if (DeleteFileSet.DirectoryNames.Count > 0 && IncludeEmptyDirs) {
                     int dirCount = 0;
                     foreach (string path in DeleteFileSet.DirectoryNames) {
-                        string[] entries = System.IO.Directory.GetFileSystemEntries(path);
-                        if (entries == null || entries.Length == 0) {
+                        List<string> fileSystemEntities = new List<string>(LongPathDirectory.EnumerateFileSystemEntries(path));
+                        if (fileSystemEntities.Count == 0)
+                        {
                             try {
                                 DeleteDirectory(path);
                                 dirCount++;
@@ -232,23 +234,22 @@ namespace NAnt.Core.Tasks {
         private void RecursiveDeleteDirectory(string path) {
             try {
                 // skip the directory if it doesn't exist
-                if (!System.IO.Directory.Exists(path)) {
+                if (!LongPathDirectory.Exists(path)) {
                     return;
                 }
 
                 // first, recursively delete all directories in the directory
-                string[] dirs = System.IO.Directory.GetDirectories(path);
-                foreach (string dir in dirs) {
+                foreach (string dir in LongPathDirectory.EnumerateDirectories(path))
+                {
                     RecursiveDeleteDirectory(dir);
                 }
 
                 // next, delete all files in the directory
-                string[] files = System.IO.Directory.GetFiles(path);
-                foreach (string file in files) {
+                foreach (string file in LongPathDirectory.EnumerateFiles(path)){
                     try {
-                        System.IO.File.SetAttributes(file, FileAttributes.Normal);
+                        LongPathFile.SetAttributes(file, FileAttributes.Normal);
                         Log(Level.Verbose, "Deleting file '{0}'.", file);
-                        System.IO.File.Delete(file);
+                        LongPathFile.Delete(file);
                     } catch (Exception ex) {
                         string msg = string.Format(CultureInfo.InvariantCulture, 
                             ResourceUtils.GetString("NA1114"), file);
@@ -281,10 +282,10 @@ namespace NAnt.Core.Tasks {
                     Log(Level.Info, "Deleting file {0}.", path);
                 }
                 if (deleteInfo.Attributes != FileAttributes.Normal) {
-                    System.IO.File.SetAttributes(deleteInfo.FullName, 
+                    LongPathFile.SetAttributes(deleteInfo.FullName, 
                         FileAttributes.Normal);
                 }
-                System.IO.File.Delete(path);
+                LongPathFile.Delete(path);
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1114"), path);
@@ -297,11 +298,11 @@ namespace NAnt.Core.Tasks {
 
         private void DeleteDirectory(string path) {
             // ensure path is not read-only
-            System.IO.File.SetAttributes(path, FileAttributes.Normal);
+            LongPathFile.SetAttributes(path, FileAttributes.Normal);
             // write output to build log
             Log(Level.Verbose, "Deleting directory '{0}'.", path);
             // finally, delete the directory
-            System.IO.Directory.Delete(path);
+            LongPathDirectory.Delete(path);
         }
 
         #endregion Private Instance Methods

@@ -22,7 +22,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -249,7 +249,7 @@ namespace NAnt.Core.Tasks {
         private void SetFileAttributes(string path, FileAttributes fileAttributes) {
             try {
                 Log(Level.Verbose, path);
-                System.IO.File.SetAttributes(path, fileAttributes);
+                LongPathFile.SetAttributes(path, fileAttributes);
             } catch (Exception ex) {
                 string msg = string.Format(CultureInfo.InvariantCulture, 
                     ResourceUtils.GetString("NA1102"), path);
@@ -284,9 +284,9 @@ namespace NAnt.Core.Tasks {
 
         private void SetDirectoryAttributes(string path, FileAttributes fileAttributes) {
             try {
-                if (System.IO.Directory.Exists(path)) {
+                if (LongPathDirectory.Exists(path)) {
                     Log(Level.Verbose, path);
-                    System.IO.File.SetAttributes(path, fileAttributes);
+                    LongPathFile.SetAttributes(path, fileAttributes);
                 } else {
                     throw new DirectoryNotFoundException();
                 }

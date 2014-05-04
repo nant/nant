@@ -30,7 +30,7 @@ using System.Net;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Xml.XPath;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -426,8 +426,8 @@ namespace NAnt.Core.Tasks {
 
         protected virtual TextWriter CreateWriter(string filepath) {
             string targetDir = Path.GetDirectoryName(Path.GetFullPath(filepath));
-            if (!String.IsNullOrEmpty(targetDir) && !Directory.Exists(targetDir)) {
-                Directory.CreateDirectory(targetDir);
+            if (!String.IsNullOrEmpty(targetDir) && !LongPathDirectory.Exists(targetDir)) {
+                LongPathDirectory.Create(targetDir);
             }
             return new StreamWriter(filepath);
         }

@@ -25,7 +25,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Util;
 
@@ -206,7 +206,7 @@ namespace NAnt.VSNet {
 
             // check whether the directory of the specified file actually 
             // exists
-            if (StringUtils.ConvertEmptyToNull(directory) == null || !Directory.Exists(directory)) {
+            if (StringUtils.ConvertEmptyToNull(directory) == null || !LongPathDirectory.Exists(directory)) {
                 return;
             }
 
@@ -217,7 +217,7 @@ namespace NAnt.VSNet {
             string relatedFilesPattern = Path.GetFileName(Path.ChangeExtension(file, ".*"));
 
             // iterate over each file matching the pattern
-            foreach (string relatedFile in Directory.GetFiles(Path.GetDirectoryName(file), relatedFilesPattern)) {
+            foreach (string relatedFile in LongPathDirectory.EnumerateFiles(Path.GetDirectoryName(file), relatedFilesPattern)) {
                 // ignore files that do not have same base filename as reference file
                 // eg. when reference file is MS.Runtime.dll, we do not want files 
                 //     named MS.Runtime.Interop.dll

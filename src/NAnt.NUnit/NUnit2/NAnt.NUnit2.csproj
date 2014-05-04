@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:Conversion="urn:Conversion" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -55,6 +55,10 @@
     <DocumentationFile>..\..\build\Release\NAnt.NUnit2Tasks.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Experimental.IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\lib\common\neutral\Microsoft.Experimental.IO.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System" />
     <Reference Include="nunit.core">

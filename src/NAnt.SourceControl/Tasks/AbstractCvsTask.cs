@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -511,8 +511,8 @@ namespace NAnt.SourceControl.Tasks {
                 Arguments.Add(new Argument(Module));
             }
 
-            if (!Directory.Exists(DestinationDirectory.FullName)) {
-                Directory.CreateDirectory(DestinationDirectory.FullName);
+            if (!LongPathDirectory.Exists(DestinationDirectory.FullName)) {
+                LongPathDirectory.Create(DestinationDirectory.FullName);
             }
             base.PrepareProcess(process);
             process.StartInfo.FileName = ExeName;

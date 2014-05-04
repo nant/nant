@@ -55,6 +55,10 @@
     <DocumentationFile>..\..\build\Release\NDoc.Documenter.NAnt.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Experimental.IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\common\neutral\Microsoft.Experimental.IO.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="NDoc.Core">
       <HintPath>..\..\lib\common\neutral\NDoc.Core.dll</HintPath>

@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -113,10 +113,10 @@ namespace Tests.NAnt.Core.Tasks {
             tempFile6 = CreateTempFile(Path.Combine(tempDir3, "ha.he2"));
             tempFile7 = CreateTempFile(Path.Combine(tempDir3, "ha.he3"));
 
-            File.SetAttributes(tempDir2, FileAttributes.ReadOnly);
-            File.SetAttributes(tempDir3, FileAttributes.ReadOnly);
-            File.SetAttributes(Path.Combine(tempDir3, "ha.he3"), FileAttributes.ReadOnly);
-            File.SetAttributes(Path.Combine(tempDir3, "ha.he2"), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(tempDir2, FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(tempDir3, FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(Path.Combine(tempDir3, "ha.he3"), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(Path.Combine(tempDir3, "ha.he2"), FileAttributes.ReadOnly);
         }
 
         private string GetPath(string rootPath, params string[] fileParts) {
@@ -144,11 +144,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should not have been created:" + tempFile6);
             Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should not have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should not have been created:" + tempDir2);
-            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should not have been created:" + tempDir3);
-            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should not have been created:" + tempDir4);
-            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should not have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should not have been created:" + tempDir2);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should not have been created:" + tempDir3);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should not have been created:" + tempDir4);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should not have been created:" + tempDir5);
         }
 
         /// <summary>
@@ -187,11 +187,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Tests.NAnt.Core.Tasks {
             string dest = Path.Combine(TempDirName, "a.c");
             RunBuild(String.Format(_xmlProjectTemplate4, dest, tempDir1));
 
-            Assert.IsTrue(Directory.Exists(dest),
+            Assert.IsTrue(LongPathDirectory.Exists(dest),
                 String.Format("Directory was not copied: {0}", tempDir1));
         }
 
@@ -225,11 +225,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
         }
 
         /// <summary>
@@ -250,11 +250,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
-            Assert.IsFalse(Directory.Exists(GetPath(dest, tempDir1, tempDir5)), "Dir should not have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest, tempDir1, tempDir5)), "Dir should not have been created:" + tempDir5);
         }
 
         [Test]
@@ -271,22 +271,22 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
 
             // delete some files and directories
-            File.Delete(GetPath(dest,tempDir1,tempDir3,tempDir4,tempFile4));
-            File.Delete(GetPath(dest,tempDir1,tempDir2,tempFile3));
+            LongPathFile.Delete(GetPath(dest,tempDir1,tempDir3,tempDir4,tempFile4));
+            LongPathFile.Delete(GetPath(dest,tempDir1,tempDir2,tempFile3));
             Directory.Delete(GetPath(dest,tempDir1,tempDir5));
 
             // ensure file is outdated
             File.SetLastWriteTime(GetPath(dest,tempDir1,tempDir3,tempFile5), new DateTime(2000, 1,1));
 
             // set some read-only attributes
-            File.SetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5), FileAttributes.ReadOnly);
 
             // run it again to overwrite
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", string.Empty));
@@ -299,11 +299,11 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
-            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should have been created:" + tempDir2);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should have been created:" + tempDir5);
 
             // check whether readonly file was overwritten (no longer readonly)
             Assert.IsTrue((File.GetAttributes(GetPath(dest,tempDir1,tempDir3,tempFile5)) & FileAttributes.ReadOnly) != FileAttributes.ReadOnly);
@@ -328,10 +328,10 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(File.Exists(GetPath(dest, tempFile6)), "File should have been created:" + tempFile6);
             Assert.IsTrue(File.Exists(GetPath(dest, tempFile7)), "File should have been created:" + tempFile7);
 
-            Assert.IsFalse(Directory.Exists(GetPath(dest, tempDir1)), "Dir should not have been created:" + tempDir1);
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(dest, tempDir1)), "Dir should not have been created:" + tempDir1);
 
             // make a file read-only
-            File.SetAttributes(GetPath(dest, tempFile1), FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(GetPath(dest, tempFile1), FileAttributes.ReadOnly);
 
             // run build again
             RunBuild(String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "/**/*", "flatten=\"true\""));
@@ -379,7 +379,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         [Test]
         public void Test_Copy_Files_InvalidSourceFilePath() {
-            File.Delete(tempFile2);
+            LongPathFile.Delete(tempFile2);
             if (! PlatformHelper.IsUnix ) {
                 try {
                     RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, 
@@ -415,7 +415,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Copy_Files_No_Overwrite() {            
 
-            File.Delete(tempFile2);
+            LongPathFile.Delete(tempFile2);
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
         }
@@ -430,7 +430,7 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Copy_Files_Overwrite_Readonly() {            
 
-            File.SetAttributes(tempFile2, FileAttributes.ReadOnly);
+            LongPathFile.SetAttributes(tempFile2, FileAttributes.ReadOnly);
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate3, tempFile1, tempFile2));
             Assert.IsTrue(File.Exists(tempFile2), "File should have been created:" + tempFile2);
         }
@@ -447,9 +447,9 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Copy_Structure_Directories() {
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, string.Empty));
-            Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
-            Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
-            Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "destination", "source","test"));
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "destination", "source","test"));
         }
 
         /// <summary>
@@ -464,9 +464,9 @@ namespace Tests.NAnt.Core.Tasks {
         [Test]
         public void Test_Copy_Structure_Directories_ExcludeEmptyDirs() {
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate2, tempDir1, " includeemptydirs='false' "));
-            Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
-            Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
-            Assert.IsFalse(Directory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"));
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
+            Assert.IsTrue(LongPathDirectory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
+            Assert.IsFalse(LongPathDirectory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"));
         }
 
         /// <summary>

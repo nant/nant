@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -38,13 +38,13 @@ namespace Tests.NAnt.Core {
         public void SetUp() {
             _tempFolder = Path.Combine (Path.GetTempPath (),
                 "Tests.NAnt.Core.BuildFilesInResourcesTest");
-            if (!Directory.Exists (_tempFolder))
-                Directory.CreateDirectory (_tempFolder);
+            if (!LongPathDirectory.Exists (_tempFolder))
+                LongPathDirectory.Create (_tempFolder);
         }
 
         [TearDown]
         public void TearDown() {
-            if (Directory.Exists (_tempFolder))
+            if (LongPathDirectory.Exists (_tempFolder))
                 Directory.Delete (_tempFolder, true);
         }
 

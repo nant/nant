@@ -19,6 +19,7 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Collections;
 using System.Configuration;
@@ -30,6 +31,7 @@ using System.Xml;
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
+using Microsoft.Experimental.IO;
 
 namespace NAnt.Console {
     /// <summary>
@@ -255,7 +257,7 @@ namespace NAnt.Console {
         }
 
         private static void AppendPrivateBinDir(string baseDir, string dir, StringBuilder sb) {
-            if (!Directory.Exists (dir)) {
+            if (!LongPathDirectory.Exists (dir)) {
                 return;
             }
 
@@ -264,8 +266,8 @@ namespace NAnt.Console {
             }
             sb.Append(GetRelativePath(baseDir, dir));
 
-            string[] subDirs = Directory.GetDirectories(dir);
-            for (int i = 0; i < subDirs.Length; i++) {
+            List<string> subDirs = new List<string>(LongPathDirectory.EnumerateDirectories(dir));
+            for (int i = 0; i < subDirs.Count; i++) {
                 AppendPrivateBinDir(baseDir, subDirs[i], sb);
             }
         }
@@ -411,7 +413,7 @@ namespace NAnt.Console {
                 // explicitly add the lib directory to privatebinpath although 
                 // its added to privatebinpath in the config file, as entries 
                 // in the config file are not reflected in SetupInformation
-                if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib"))) {
+                if (LongPathDirectory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib"))) {
                     AppDomain.CurrentDomain.AppendPrivatePath("lib");
                 }
 

@@ -24,7 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
-
+using Microsoft.Experimental.IO;
 using NUnit.Core;
 
 using System.Security;
@@ -248,13 +248,12 @@ namespace NAnt.NUnit2.Tasks {
 
                 // find assembly in probe paths
                 foreach (string path in _probePaths) {
-                    if (!Directory.Exists(path)) {
+                    if (!LongPathDirectory.Exists(path)) {
                         continue;
                     }
 
-                    string[] assemblies = Directory.GetFiles(path, "*.dll");
-
-                    foreach (string assemblyFile in assemblies) {
+                    foreach (string assemblyFile in LongPathDirectory.EnumerateFiles(path, "*.dll"))
+                    {
                         Assembly assembly = TryLoad (assemblyFile, args.Name, isFullName);
                         if (assembly != null)
                             return assembly;

@@ -55,6 +55,10 @@
     <DocumentationFile>..\..\build\Release\NAnt.VisualCppTasks.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Experimental.IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\common\neutral\Microsoft.Experimental.IO.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
   </ItemGroup>

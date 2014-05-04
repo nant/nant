@@ -22,7 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Collections;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Util;
 using NAnt.VSNet.Tasks;
@@ -63,8 +63,8 @@ namespace NAnt.VSNet {
                 _settings.Add(@"/doc:""" + xmlDocBuildFile + @"""");
 
                 // make sure the output directory for the doc file exists
-                if (!Directory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
-                    Directory.CreateDirectory(Path.GetDirectoryName(xmlDocBuildFile));
+                if (!LongPathDirectory.Exists(Path.GetDirectoryName(xmlDocBuildFile))) {
+                    LongPathDirectory.Create(Path.GetDirectoryName(xmlDocBuildFile));
                 }
 
                 // add built documentation file as extra output file

@@ -22,7 +22,7 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core.Tasks;
@@ -45,9 +45,9 @@ namespace Tests.NAnt.Core.Tasks {
             base.SetUp();
 
             // add 3 directories
-            Directory.CreateDirectory(Path.Combine(TempDirName, "dir1"));
-            Directory.CreateDirectory(Path.Combine(TempDirName, "dir2"));
-            Directory.CreateDirectory(Path.Combine(TempDirName, "dir3"));
+            LongPathDirectory.Create(Path.Combine(TempDirName, "dir1"));
+            LongPathDirectory.Create(Path.Combine(TempDirName, "dir2"));
+            LongPathDirectory.Create(Path.Combine(TempDirName, "dir3"));
 
             // add file names
             _fileList.Add(Path.Combine(TempDirName, "file1.txt"));
@@ -141,15 +141,15 @@ namespace Tests.NAnt.Core.Tasks {
             string fileName = _fileList[0];
 
             // Get rid of the file first
-            File.Delete(fileName);
+            LongPathFile.Delete(fileName);
 
             RunBuild(FormatBuildFile("file='" + fileName + "'"));
             Assert.IsTrue(File.Exists(fileName), "File doesn't exist!");
-            File.Delete(fileName);
+            LongPathFile.Delete(fileName);
 
             RunBuild(FormatBuildFile("file='" + fileName + "'"));
             Assert.IsTrue(File.Exists(fileName), "File doesn't exist!");
-            File.Delete(fileName);
+            LongPathFile.Delete(fileName);
         }
 
         [Test]

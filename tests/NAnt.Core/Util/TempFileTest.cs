@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
@@ -35,7 +35,7 @@ namespace Tests.NAnt.Core.Util {
                 TimeSpan diff = DateTime.Now - File.GetCreationTime(fileName);
                 Assert.IsTrue(diff.TotalSeconds < 10.0, "Creation time should be less than 10 seconds ago.");
             } finally {
-                File.Delete(fileName);
+                LongPathFile.Delete(fileName);
                 Assert.IsFalse(File.Exists(fileName), fileName + " exists.");
             }
         }
@@ -59,7 +59,7 @@ namespace Tests.NAnt.Core.Util {
                 Assert.AreEqual(expected, actual);
             } finally {
                 // delete the temp file
-                File.Delete(fileName);
+                LongPathFile.Delete(fileName);
                 Assert.IsFalse(File.Exists(fileName), fileName + " exists.");
             }
         }

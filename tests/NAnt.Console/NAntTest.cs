@@ -25,6 +25,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using Microsoft.Experimental.IO;
 using X = System.Xml;
 
 using NUnit.Framework;
@@ -320,7 +321,7 @@ namespace Tests.NAnt.Console {
             Assert.IsTrue(match.Success, "Property 'project.name' appears to have been overridden by <property> task." + Environment.NewLine + result);
 
             // delete the build file
-            File.Delete(buildFileName);
+            LongPathFile.Delete(buildFileName);
             Assert.IsFalse(File.Exists(buildFileName), buildFileName + " exists.");
         }
 
@@ -407,7 +408,7 @@ namespace Tests.NAnt.Console {
             }
 
             // delete the build file
-            File.Delete(buildFileName);
+            LongPathFile.Delete(buildFileName);
             Assert.IsFalse(File.Exists(buildFileName), buildFileName + " exists.");
         }
 
@@ -465,7 +466,7 @@ namespace Tests.NAnt.Console {
                 logger.OutputWriter = instanceFileStream;
             } finally {
                 instanceFileStream.Close();
-                File.Delete(streamFileName);
+                LongPathFile.Delete(streamFileName);
             }
         }
     }

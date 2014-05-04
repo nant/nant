@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Globalization;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
@@ -118,7 +118,7 @@ namespace NAnt.SourceControl.Tasks {
                 string vcsHome =
                     Environment.GetEnvironmentVariable(VcsHomeEnv);
                 if (null != vcsHome) {
-                    if (Directory.Exists(vcsHome)) {
+                    if (LongPathDirectory.Exists(vcsHome)) {
                         return new DirectoryInfo(vcsHome);
                     }
                 }

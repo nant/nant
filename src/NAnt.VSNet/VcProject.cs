@@ -28,7 +28,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NAnt.Core;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
@@ -1001,8 +1001,8 @@ namespace NAnt.VSNet {
             }
 
             // ensure output directory exists
-            if (!Directory.Exists(outputDirectory)) {
-                Directory.CreateDirectory(outputDirectory);
+            if (!LongPathDirectory.Exists(outputDirectory)) {
+                LongPathDirectory.Create(outputDirectory);
             }
 
             midlTask.Arguments.Add(new Argument("/out"));
@@ -1747,7 +1747,7 @@ namespace NAnt.VSNet {
                 batchFile = Path.GetTempFileName();
 
                 // remove temp file
-                File.Delete(batchFile);
+                LongPathFile.Delete(batchFile);
 
                 // change extension to .bat
                 batchFile = Path.ChangeExtension(batchFile, ".bat");
@@ -1757,7 +1757,7 @@ namespace NAnt.VSNet {
                     ProjectDirectory.FullName, config);
             } finally {
                 if (batchFile != null && File.Exists(batchFile)) {
-                    File.Delete(batchFile);
+                    LongPathFile.Delete(batchFile);
                 }
             }
         }

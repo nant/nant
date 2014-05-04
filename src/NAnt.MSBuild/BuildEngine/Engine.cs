@@ -56,7 +56,7 @@ namespace NAnt.MSBuild.BuildEngine {
             //AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(CurrentDomain_AssemblyLoad);
             //executionAD.AssemblyLoad += new AssemblyLoadEventHandler(executionAD_AssemblyLoad);
 
-            //File.Delete(tempFile);
+            //LongPathFile.Delete(tempFile);
 
             //Loader l = (Loader)executionAD.CreateInstanceAndUnwrap(typeof(Loader).Assembly.FullName, typeof(Loader).FullName);
             Loader l = new Loader();

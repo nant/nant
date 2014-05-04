@@ -21,7 +21,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Xml;
-
+using Microsoft.Experimental.IO;
 using NUnit.Framework;
 
 using NAnt.Core;
@@ -145,9 +145,9 @@ namespace Tests.NAnt.Compression.Tasks {
             RunBuild(projectXML);
 
             string extractDir = Path.Combine(TempDirName, "extract");
-            Assert.IsTrue(Directory.Exists(extractDir), "#1");
+            Assert.IsTrue(LongPathDirectory.Exists(extractDir), "#1");
             string binDir = Path.Combine(extractDir, "bin");
-            Assert.IsTrue(Directory.Exists(binDir), "#2");
+            Assert.IsTrue(LongPathDirectory.Exists(binDir), "#2");
             string testFile = Path.Combine(binDir, "test.txt");
             Assert.IsTrue(File.Exists(testFile), "#3");
 
@@ -214,9 +214,9 @@ namespace Tests.NAnt.Compression.Tasks {
             RunBuild(projectXML);
 
             string extractDir = Path.Combine(TempDirName, "extract");
-            Assert.IsTrue(Directory.Exists(extractDir), "#1");
+            Assert.IsTrue(LongPathDirectory.Exists(extractDir), "#1");
             string binDir = Path.Combine(extractDir, "bin");
-            Assert.IsTrue(Directory.Exists(binDir), "#2");
+            Assert.IsTrue(LongPathDirectory.Exists(binDir), "#2");
             string testFile = Path.Combine(binDir, "test.txt");
             Assert.IsTrue(File.Exists(testFile), "#3");
 
@@ -251,9 +251,9 @@ namespace Tests.NAnt.Compression.Tasks {
             RunBuild(projectXML);
 
             string extractDir = Path.Combine(TempDirName, "extract");
-            Assert.IsTrue(Directory.Exists(extractDir), "#1");
+            Assert.IsTrue(LongPathDirectory.Exists(extractDir), "#1");
             string binDir = Path.Combine(extractDir, "bin");
-            Assert.IsTrue(Directory.Exists(binDir), "#2");
+            Assert.IsTrue(LongPathDirectory.Exists(binDir), "#2");
             string testFile = Path.Combine(binDir, "test.txt");
             Assert.IsTrue(File.Exists(testFile), "#3");
 
