@@ -345,6 +345,44 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
+        /// Gets the collection of excluded file names that match the fileset.
+        /// </summary>
+        /// <value>
+        /// A collection that contains the excluded file names that match the 
+        /// <see cref="FileSet" />.
+        /// </value>
+        public StringCollection ExcludedFileNames
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.ExcludedFileNames;
+            }
+        }
+
+        /// <summary>
+        /// Gets the collection of excluded directory names that match the fileset.
+        /// </summary>
+        /// <value>
+        /// A collection that contains the excluded directory names that match the 
+        /// <see cref="FileSet" />.
+        /// </value>
+        public StringCollection ExcludedDirectoryNames
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.ExcludedDirectoryNames;
+            }
+        }
+
+        /// <summary>
         /// Gets the collection of file names that match the fileset.
         /// </summary>
         /// <value>
