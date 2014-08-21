@@ -307,7 +307,7 @@ namespace NAnt.NUnit2.Tasks {
                         Version nunitVersion = typeof(TestResult).Assembly.GetName().Version;
 
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Failure executing test(s). If you assembly is not built using"
+                            "Failure executing test(s). If your assembly is not built using"
                             + " NUnit version {0}, then ensure you have redirected assembly"
                             + " bindings. Consult the documentation of the <nunit2> task"
                             + " for more information.", nunitVersion), Location, ex);
