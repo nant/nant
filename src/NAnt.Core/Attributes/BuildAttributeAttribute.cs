@@ -68,7 +68,7 @@ namespace NAnt.Core.Attributes {
     ///   </code>
     /// </example>
     [AttributeUsage(AttributeTargets.Property, Inherited=true)]
-    public abstract class BuildAttributeAttribute : Attribute {
+    public abstract class BuildAttributeAttribute : BaseBuildAttribute {
         #region Protected Instance Constructors
 
         /// <summary>
@@ -78,48 +78,12 @@ namespace NAnt.Core.Attributes {
         /// <param name="name">The name of the attribute.</param>
         /// <exception cref="ArgumentNullException"><paramref name="name" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="name" /> is a zero-length <see cref="string" />.</exception>
-        protected BuildAttributeAttribute(string name) {
-            Name = name;
+        protected BuildAttributeAttribute(string name) : base(name) {
         }
 
         #endregion Protected Instance Constructors
 
         #region Public Instance Properties
-
-        /// <summary>
-        /// Gets or sets the name of the XML attribute.
-        /// </summary>
-        /// <value>
-        /// The name of the XML attribute.
-        /// </value>
-        public string Name {
-            get { return _name; }
-            set { 
-                if (value == null) {
-                    throw new ArgumentNullException("name");
-                }
-                
-                // XML attribute names cannot have whitespace at the beginning, 
-                // or end.
-                _name = value.Trim(); 
-
-                if (_name.Length == 0) {
-                    throw new ArgumentOutOfRangeException("name", value, "A zero-length string is not an allowed value.");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the attribute is required.
-        /// </summary>
-        /// <value>
-        /// <see langword="true" /> if the attribute is required; otherwise, 
-        /// <see langword="false" />. The default is <see langword="false" />.
-        /// </value>
-        public bool Required {
-            get { return _required; }
-            set { _required = value; }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether property references should 
@@ -134,27 +98,11 @@ namespace NAnt.Core.Attributes {
             set { _expandProperties = value; }
         }
 
-        /// <summary>
-        /// Used to specify how this attribute will be handled as the XML is 
-        /// parsed and given to the element.
-        /// </summary>
-        /// <value>
-        /// <see langword="true" /> if XML should be processed; otherwise 
-        /// <see langword="false" />. The default is <see langword="true" />.
-        /// </value>
-        public bool ProcessXml {
-            get { return _processXml; }
-            set { _processXml = value; }
-        }
-
         #endregion Public Instance Properties
 
         #region Private Instance Fields
 
-        private string _name;
-        private bool _required;
         private bool _expandProperties = true;
-        private bool _processXml = true;
 
         #endregion Private Instance Fields
     }
