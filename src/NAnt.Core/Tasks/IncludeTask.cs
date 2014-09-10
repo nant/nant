@@ -130,8 +130,13 @@ namespace NAnt.Core.Tasks {
                     throw new BuildException(ResourceUtils.GetString("NA1179"), Location);
                 }
             }
-        } 
+        }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">If the build file to include doesn't exist.
+        /// </exception>
         protected override void ExecuteTask() {
             string includedFileName = Path.GetFullPath(Path.Combine(_currentBasedir, 
                 BuildFileName));

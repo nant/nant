@@ -41,10 +41,18 @@ namespace NAnt.Core {
             _innerHash = new Hashtable();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameworkInfoDictionary"/> class.
+        /// </summary>
+        /// <param name="original">The original dictionary which well be copied.</param>
         public FrameworkInfoDictionary(FrameworkInfoDictionary original) {
             _innerHash = new Hashtable(original.InnerHash);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameworkInfoDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionary">The dictionary dictionary which well be copied.</param>
         public FrameworkInfoDictionary(IDictionary dictionary) {
             _innerHash = new Hashtable (dictionary);
         }
@@ -184,10 +192,16 @@ namespace NAnt.Core {
             get { return _innerHash.IsSynchronized; }
         }
 
+        /// <summary>
+        /// Gets the number of key/value pairs contained in the Dictionary.
+        /// </summary>
         public int Count {
             get { return _innerHash.Count; }
         }
 
+        /// <summary>
+        /// Gets an object that can be used to synchronize access to the <see cref="ICollection"/>.
+        /// </summary>
         public object SyncRoot {
             get { return _innerHash.SyncRoot; }
         }

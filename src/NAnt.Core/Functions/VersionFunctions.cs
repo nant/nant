@@ -99,6 +99,9 @@ namespace NAnt.Core.Functions {
         #endregion Public Static Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for converting strings to version objects and vice versa.
+    /// </summary>
     [FunctionSet("version", "Conversion")]
     public class VersionConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors

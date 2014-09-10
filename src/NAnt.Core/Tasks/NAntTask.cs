@@ -184,6 +184,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             // run the build file specified in an attribute
             if (BuildFile != null) {

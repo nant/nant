@@ -54,6 +54,9 @@ namespace NAnt.Core
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Executes this instance.
+        /// </summary>
         public virtual void Execute() {
             ExecuteChildTasks();
         }

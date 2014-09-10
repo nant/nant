@@ -143,6 +143,9 @@ namespace NAnt.Core.Tasks {
             Line = 4
         }
 
+        /// <summary>
+        /// Specifies the trimming of items.
+        /// </summary>
         public enum LoopTrim {
             /// <summary>
             /// Do not remove any white space characters.

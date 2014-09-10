@@ -102,6 +102,10 @@ namespace NAnt.Core {
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Creates the <see cref="DataTypeBase"/> instance.
+        /// </summary>
+        /// <returns>The created instance.</returns>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public DataTypeBase CreateDataTypeBase() {
             return (DataTypeBase) Assembly.CreateInstance(

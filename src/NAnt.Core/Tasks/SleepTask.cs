@@ -109,6 +109,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             int sleepTime = GetSleepTime();
             Log(Level.Info, "Sleeping for {0} milliseconds.", sleepTime);

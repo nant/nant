@@ -41,10 +41,18 @@ namespace NAnt.Core {
             _innerHash = new Hashtable();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="original">The original dictionary which well be copied.</param>
         public DataTypeBaseDictionary(DataTypeBaseDictionary original) {
             _innerHash = new Hashtable(original.InnerHash);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionary">The dictionary which will be copied.</param>
         public DataTypeBaseDictionary(IDictionary dictionary) {
             _innerHash = new Hashtable (dictionary);
         }
@@ -65,22 +73,53 @@ namespace NAnt.Core {
             _innerHash = new Hashtable(codeProvider, comparer);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="capacity">The capacity.</param>
+        /// <param name="loadFactor">The load factor.</param>
         public DataTypeBaseDictionary(int capacity, int loadFactor) {
             _innerHash = new Hashtable(capacity, loadFactor);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="codeProvider">The code provider.</param>
+        /// <param name="comparer">The comparer.</param>
         public DataTypeBaseDictionary(IDictionary dictionary, IHashCodeProvider codeProvider, IComparer comparer) {
             _innerHash = new Hashtable (dictionary, codeProvider, comparer);
         }
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="capacity">The capacity.</param>
+        /// <param name="codeProvider">The code provider.</param>
+        /// <param name="comparer">The comparer.</param>
         public DataTypeBaseDictionary(int capacity, IHashCodeProvider codeProvider, IComparer comparer) {
             _innerHash = new Hashtable (capacity, codeProvider, comparer);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="loadFactor">The load factor.</param>
+        /// <param name="codeProvider">The code provider.</param>
+        /// <param name="comparer">The comparer.</param>
         public DataTypeBaseDictionary(IDictionary dictionary, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer) {
             _innerHash = new Hashtable (dictionary, loadFactor, codeProvider, comparer);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeBaseDictionary"/> class.
+        /// </summary>
+        /// <param name="capacity">The capacity.</param>
+        /// <param name="loadFactor">The load factor.</param>
+        /// <param name="codeProvider">The code provider.</param>
+        /// <param name="comparer">The comparer.</param>
         public DataTypeBaseDictionary(int capacity, float loadFactor, IHashCodeProvider codeProvider, IComparer comparer) {
             _innerHash = new Hashtable (capacity, loadFactor, codeProvider, comparer);
         }
@@ -126,14 +165,27 @@ namespace NAnt.Core {
             return Contains((string)key);
         }
 
+        /// <summary>
+        /// Removes all keys and values from the Dictionary.
+        /// </summary>
         public void Clear() {
             _innerHash.Clear();      
         }
 
+        /// <summary>
+        /// Adds the specified key and value to the dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to add.</param>
+        /// <param name="value">The value of the element to add.</param>
         public void Add(string key, DataTypeBase value) {
             _innerHash.Add (key, value);
         }
 
+        /// <summary>
+        /// Adds the specified key and value to the dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to add.</param>
+        /// <param name="value">The value of the element to add.</param>
         void IDictionary.Add(object key, object value) {
             Add((string) key, (DataTypeBase) value);
         }
@@ -192,6 +244,10 @@ namespace NAnt.Core {
 
         #region Implementation of ICloneable
 
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns>The created clone.</returns>
         public DataTypeBaseDictionary Clone() {
             DataTypeBaseDictionary clone = new DataTypeBaseDictionary();
             clone.InnerHash = (Hashtable) _innerHash.Clone();
