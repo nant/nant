@@ -22,15 +22,10 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Collections;
-using System.Reflection;
-using System.Globalization;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
-using NAnt.Core.Util;
 
 namespace NAnt.Win32.Functions {
     /// <summary>

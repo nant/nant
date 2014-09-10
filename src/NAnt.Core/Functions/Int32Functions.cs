@@ -19,9 +19,6 @@
 
 using System;
 using System.Globalization;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {

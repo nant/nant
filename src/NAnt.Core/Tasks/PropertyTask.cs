@@ -18,7 +18,6 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.Collections;
 using System.Globalization;
 

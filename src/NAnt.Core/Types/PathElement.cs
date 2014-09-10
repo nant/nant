@@ -21,8 +21,6 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {

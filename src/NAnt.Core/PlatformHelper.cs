@@ -18,9 +18,6 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace NAnt.Core {
     [Serializable()]

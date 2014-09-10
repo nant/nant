@@ -19,10 +19,8 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -30,9 +28,6 @@ using System.Runtime.Remoting.Lifetime;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
-
-using NAnt.Core;
 
 namespace NAnt.Core.Util {
     /// <summary>

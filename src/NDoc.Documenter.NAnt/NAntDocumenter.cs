@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -31,8 +30,6 @@ using System.Xml.Xsl;
 
 using NDoc.Core;
 using NDoc.Core.Reflection;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NDoc.Documenter.NAnt {

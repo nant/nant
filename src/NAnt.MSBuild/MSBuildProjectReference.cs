@@ -17,19 +17,11 @@
 //
 // Martin Aliger (martin_aliger@myrealbox.com)
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using System.IO;
 using System.CodeDom.Compiler;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VSNet;
-using NAnt.VSNet.Tasks;
-using NAnt.VSNet.Types;
 
 namespace NAnt.MSBuild {
     internal class MSBuildProjectReference : ProjectReferenceBase {

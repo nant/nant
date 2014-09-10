@@ -18,16 +18,9 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
-using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>

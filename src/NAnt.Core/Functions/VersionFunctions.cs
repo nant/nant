@@ -19,8 +19,6 @@
 
 using System;
 using System.Reflection;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {

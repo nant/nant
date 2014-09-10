@@ -23,16 +23,12 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-
-using Microsoft.Win32;
-
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 

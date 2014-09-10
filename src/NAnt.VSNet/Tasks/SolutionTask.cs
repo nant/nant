@@ -40,7 +40,6 @@ using NAnt.VSNet.Types;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
 
 namespace NAnt.VSNet.Tasks {
     /// <summary>

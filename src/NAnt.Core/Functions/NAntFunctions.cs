@@ -20,16 +20,11 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Configuration;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 //

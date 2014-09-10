@@ -18,8 +18,6 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace NAnt.Core {

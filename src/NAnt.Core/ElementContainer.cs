@@ -17,12 +17,9 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 namespace NAnt.Core

@@ -1,5 +1,3 @@
-using System;
-
 namespace NAnt.VisualCpp.Types {
     /// <summary>
     /// Defines the character sets that can be used by the C++ compiler.

@@ -19,12 +19,8 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;

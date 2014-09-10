@@ -17,7 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -26,10 +25,7 @@ using NUnit.Framework;
 using NAnt.Core;
 
 using NAnt.DotNet.Tasks;
-using NAnt.DotNet.Types;
-
 using Tests.NAnt.Core;
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.DotNet.Tasks {
     [TestFixture]

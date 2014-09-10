@@ -17,12 +17,6 @@
 //
 // Ian MacLean (imaclean@gmail.com)
 
-using System;
-
-using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
-
 namespace NAnt.Core {
     public abstract class FunctionSetBase {
         #region Protected Instance Constructors

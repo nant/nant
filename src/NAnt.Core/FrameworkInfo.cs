@@ -22,7 +22,6 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml;
 
 using NAnt.Core.Configuration;

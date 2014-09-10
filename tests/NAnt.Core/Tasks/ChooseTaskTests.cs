@@ -18,11 +18,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.IO;
-using System.Xml;
-using System.Xml.XPath;
-
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {

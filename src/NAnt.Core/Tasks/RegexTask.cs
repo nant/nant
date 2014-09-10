@@ -20,7 +20,6 @@
 // John Cole     (john.cole@uai.com)
 
 using System;
-using System.Collections;
 using System.Globalization;
 using System.Text.RegularExpressions;
 

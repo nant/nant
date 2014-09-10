@@ -19,13 +19,6 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.Collections;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {

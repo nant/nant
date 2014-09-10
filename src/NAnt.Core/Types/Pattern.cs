@@ -17,7 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {

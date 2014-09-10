@@ -18,13 +18,10 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 using NAnt.Core.Types;

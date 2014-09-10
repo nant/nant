@@ -17,8 +17,6 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks {

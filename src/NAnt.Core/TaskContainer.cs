@@ -18,15 +18,12 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Reflection;
 using System.Xml;
 
 using NAnt.Core.Attributes;
-using NAnt.Core.Tasks;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {

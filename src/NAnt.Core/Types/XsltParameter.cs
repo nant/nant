@@ -17,11 +17,7 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Collections;
-
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>

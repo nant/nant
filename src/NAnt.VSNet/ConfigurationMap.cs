@@ -20,7 +20,6 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Globalization;
 
 namespace NAnt.VSNet {
     public sealed class ConfigurationMap : IDictionary, ICollection, IEnumerable {

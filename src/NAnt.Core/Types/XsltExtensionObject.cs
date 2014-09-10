@@ -19,7 +19,6 @@
 // Tim Noll (tim.noll@gmail.com)
 
 using System;
-using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Reflection;

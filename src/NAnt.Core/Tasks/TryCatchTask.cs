@@ -17,10 +17,6 @@
 //
 // Troy Laurin (fiontan@westnet.com.au)
 
-using System;
-
-using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

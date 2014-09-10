@@ -27,8 +27,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Net.Mail;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;

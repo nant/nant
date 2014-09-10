@@ -19,13 +19,7 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Collections;
-using System.Reflection;
 using System.Globalization;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

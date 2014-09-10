@@ -23,8 +23,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

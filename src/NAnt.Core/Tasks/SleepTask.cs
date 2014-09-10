@@ -18,8 +18,6 @@
 // Ian MacLean (ian@maclean.ms)
 
 using System;
-using System.Globalization;
-using System.Xml;
 using System.Threading;
 
 using NAnt.Core.Attributes;
