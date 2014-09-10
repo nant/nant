@@ -22,10 +22,18 @@ using System;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions for working with floating point numbers.
+    /// </summary>
     [FunctionSet("math", "Math")]
     public class MathFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+      /// <summary>
+      /// Initializes a new instance of the <see cref="MathFunctions"/> class.
+      /// </summary>
+      /// <param name="project">The current project.</param>
+      /// <param name="properties">The projects properties.</param>
         public MathFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

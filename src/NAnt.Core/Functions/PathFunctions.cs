@@ -24,6 +24,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to work with path strings.
+    /// </summary>
     [FunctionSet("path", "Path")]
     public class PathFunctions : FunctionSetBase {
         #region Public Instance Constructors

@@ -596,6 +596,12 @@ namespace NAnt.Core.Types {
 
         #region Override implementation of Object
 
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString() {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             if (!_hasScanned){
@@ -642,6 +648,11 @@ namespace NAnt.Core.Types {
             Excludes.AddRange(patternSet.GetExcludePatterns());
         }
 
+        /// <summary>
+        /// Scans the directory/file patterns of the instance.
+        /// </summary>
+        /// <exception cref="BuildException">Error creating FileSet.</exception>
+        /// <exception cref="ValidationException">If <see cref="FailOnEmpty"/> is set to <c>true</c> and the fileset is empty.</exception>
         public virtual void Scan() {
             try {
                 _scanner.BaseDirectory = BaseDirectory;

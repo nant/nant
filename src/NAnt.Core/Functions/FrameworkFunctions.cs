@@ -27,10 +27,18 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to retrieve information about the current framework environment.
+    /// </summary>
     [FunctionSet("framework", "NAnt")]
     public class FrameworkFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameworkFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The parent project.</param>
+        /// <param name="properties">The projects properties.</param>
         public FrameworkFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

@@ -105,6 +105,11 @@ namespace NAnt.Core
             }
         }
 
+        /// <summary>
+        /// Creates the child task specified by the passed XmlNode.
+        /// </summary>
+        /// <param name="node">The node specifiing the task.</param>
+        /// <returns>The created task instance.</returns>
         protected virtual Task CreateChildTask(XmlNode node) {
             return Project.CreateTask(node);
         }

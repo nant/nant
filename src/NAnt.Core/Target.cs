@@ -29,6 +29,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Class for handling NAnt targets.
+    /// </summary>
     [Serializable()]
     public sealed class Target : Element, ICloneable {
         #region Private Instance Fields

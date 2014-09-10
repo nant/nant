@@ -25,6 +25,10 @@ namespace NAnt.Core.Util {
         private readonly DateTimeProvider _dtProvider;
         private readonly Stack _stack = new Stack();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StopWatchStack"/> class.
+        /// </summary>
+        /// <param name="dtProvider">The date and time provider.</param>
         public StopWatchStack(DateTimeProvider dtProvider) {
             _dtProvider = dtProvider;
         }

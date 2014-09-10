@@ -23,10 +23,18 @@ using System.Globalization;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to work with date and time data.
+    /// </summary>
     [FunctionSet("datetime", "Date/Time")]
     public class DateTimeFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateTimeFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public DateTimeFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -200,10 +208,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Static Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions to convert strings in date and time objects and vice versa.
+    /// </summary>
     [FunctionSet("datetime", "Conversion")]
     public class DateTimeConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateTimeConversionFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public DateTimeConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

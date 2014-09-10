@@ -27,6 +27,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Extensibility;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Class to create NAnt tasks from an existing assembly.
+    /// </summary>
     public class TaskBuilder : ExtensionBuilder {
         #region Public Instance Constructors
 
@@ -100,6 +103,10 @@ namespace NAnt.Core {
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Creates the task with the previously passed assembly and name.
+        /// </summary>
+        /// <returns>The created task instance.</returns>
         [ReflectionPermission(SecurityAction.Demand, Flags=ReflectionPermissionFlag.NoFlags)]
         public Task CreateTask() {
             Task task = (Task) Assembly.CreateInstance(

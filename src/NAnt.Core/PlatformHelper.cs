@@ -20,11 +20,25 @@
 using System;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// This class provides information about the plattform NAnt is currently executed on.
+    /// </summary>
     [Serializable()]
     public class PlatformHelper {
+        /// <summary>
+        /// Gets a value indicating if Mono is the current execution plattform. 
+        /// </summary>
         public static readonly bool IsMono;
+
+        /// <summary>
+        /// Gets a value indicating if Windows is the current execution plattform. 
+        /// </summary>
         [Obsolete ("Use IsWindows instead.")]
         public static readonly bool IsWin32;
+
+        /// <summary>
+        /// Gets a value indicating if Unix is the current execution plattform. 
+        /// </summary>
         public static readonly bool IsUnix;
 
         static PlatformHelper() {

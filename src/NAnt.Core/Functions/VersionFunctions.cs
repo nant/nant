@@ -22,6 +22,9 @@ using System.Reflection;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions for working with version objects.
+    /// </summary>
     [FunctionSet("version", "Version")]
     public class VersionFunctions : FunctionSetBase {
         #region Public Instance Constructors

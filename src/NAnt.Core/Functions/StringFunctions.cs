@@ -23,10 +23,18 @@ using System.Globalization;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to work with strings.
+    /// </summary>
     [FunctionSet("string", "String")]
     public class StringFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="propDict">The projects property dictionary.</param>
         public StringFunctions(Project project, PropertyDictionary propDict) : base(project, propDict) {
         }
 

@@ -20,7 +20,16 @@
 using System;
 
 namespace NAnt.Core.Util {
+    /// <summary>
+    /// Class for providing the current time and date.
+    /// </summary>
     public class DateTimeProvider {
+        /// <summary>
+        /// Gets the current time and date.
+        /// </summary>
+        /// <value>
+        /// The current time and date.
+        /// </value>
         public virtual DateTime Now {
             get { return DateTime.Now; }
         }

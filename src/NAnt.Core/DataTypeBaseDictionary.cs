@@ -21,6 +21,10 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core {
+
+    /// <summary>
+    /// Dictionary class to manage the projects types.
+    /// </summary>
     public class DataTypeBaseDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields
 

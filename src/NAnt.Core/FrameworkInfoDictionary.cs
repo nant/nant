@@ -107,10 +107,18 @@ namespace NAnt.Core {
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Removes the value with the specified key from the dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
         public void Remove(string key) {
             _innerHash.Remove(key);
         }
 
+        /// <summary>
+        /// Removes the value with the specified key from the <see cref="T:System.Collections.IDictionary" />.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
         void IDictionary.Remove(object key) {
             Remove((string) key);
         }
@@ -189,6 +197,10 @@ namespace NAnt.Core {
 
         #region Implementation of ICloneable
 
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns>The instance clone.</returns>
         public FrameworkInfoDictionary Clone() {
             FrameworkInfoDictionary clone = new FrameworkInfoDictionary();
             clone.InnerHash = (Hashtable) _innerHash.Clone();

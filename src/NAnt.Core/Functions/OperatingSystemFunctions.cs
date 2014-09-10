@@ -28,6 +28,11 @@ namespace NAnt.Core.Functions {
     public class OperatingSystemFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatingSystemFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public OperatingSystemFunctions(Project project, PropertyDictionary properties) : base(project, properties) {}
 
         #endregion Public Instance Constructors

@@ -834,9 +834,23 @@ namespace NAnt.Core {
         }
     }
 
+    /// <summary>
+    /// Enumeration of CLR types.
+    /// </summary>
     public enum ClrType {
+        /// <summary>
+        /// Desktop CLR is used.
+        /// </summary>
         Desktop = 1,
+        
+        /// <summary>
+        /// Compact CLR is used.
+        /// </summary>
         Compact = 2,
+        
+        /// <summary>
+        /// Browser CLR is used.
+        /// </summary>
         Browser = 3
     }
 

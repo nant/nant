@@ -22,10 +22,18 @@ using System.Globalization;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to convert strings in integer values and vice versa.
+    /// </summary>
     [FunctionSet("int", "Conversion")]
     public class Int32ConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+      /// <summary>
+      /// Initializes a new instance of the <see cref="Int32ConversionFunctions"/> class.
+      /// </summary>
+      /// <param name="project">The current project.</param>
+      /// <param name="properties">The projects properties.</param>
         public Int32ConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
