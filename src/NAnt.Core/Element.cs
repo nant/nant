@@ -443,6 +443,16 @@ namespace NAnt.Core {
 
         #region Public Static Methods
 
+        /// <summary>
+        /// Initializes the build element.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="childNode">The child node.</param>
+        /// <param name="buildElement">The build element.</param>
+        /// <param name="elementType">Type of the element.</param>
+        /// <returns></returns>
+        /// <exception cref="BuildException">If a datatype references contains an id attribute, a reference is not defined or a wrong reference type is used.
+        /// </exception>
         public static Element InitializeBuildElement(Element parent, XmlNode childNode, Element buildElement, Type elementType) {
             // if subtype of DataTypeBase
             DataTypeBase dataType = buildElement as DataTypeBase;
@@ -664,6 +674,11 @@ namespace NAnt.Core {
 
             #region Public Instance Methods
 
+            /// <summary>
+            /// Initializes this instance.
+            /// </summary>
+            /// <exception cref="BuildException">If an unexpected attribute was found on this element.
+            /// </exception>
             public void Initialize() {
                 Type currentType = Element.GetType();
 
@@ -728,6 +743,13 @@ namespace NAnt.Core {
                 }
             }
 
+            /// <summary>
+            /// Initializes the attribute.
+            /// </summary>
+            /// <param name="propertyInfo">The property information.</param>
+            /// <returns></returns>
+            /// <exception cref="BuildException">If an invalid value for an attribute was found.
+            /// </exception>
             protected virtual bool InitializeAttribute(PropertyInfo propertyInfo) {
                 XmlNode attributeNode = null;
                 string attributeValue = null;
@@ -906,6 +928,13 @@ namespace NAnt.Core {
                 return (buildAttribute != null);
             }
 
+            /// <summary>
+            /// Initializes the build element collection.
+            /// </summary>
+            /// <param name="propertyInfo">The property information.</param>
+            /// <returns></returns>
+            /// <exception cref="BuildException">
+            /// </exception>
             protected virtual bool InitializeBuildElementCollection(PropertyInfo propertyInfo) {
                 BuildElementArrayAttribute buildElementArrayAttribute = null;
                 BuildElementCollectionAttribute buildElementCollectionAttribute = null;
@@ -1245,6 +1274,10 @@ namespace NAnt.Core {
                 return true;
             }
 
+            /// <summary>
+            /// Initializes the ordered child elements.
+            /// </summary>
+            /// <exception cref="BuildException">If an element is missing in the build file.</exception>
             protected virtual void InitializeOrderedChildElements() {
                 // first, we'll fill a hashtable with public methods that take
                 // a single argument and to which a BuildElementAttribute is 

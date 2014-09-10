@@ -207,7 +207,10 @@ namespace NAnt.Core.Tasks {
             #endregion Public Instance Properties
     
             #region Override implementation of NestedTaskContainer
-    
+
+            /// <summary>
+            /// Executes this instance.
+            /// </summary>
             public override void Execute() {
                 if (!Test) {
                     return;

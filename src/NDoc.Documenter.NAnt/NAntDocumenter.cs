@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
-
+using NAnt.Core;
 using NDoc.Core;
 using NDoc.Core.Reflection;
 using NAnt.Core.Attributes;
@@ -475,13 +475,37 @@ namespace NDoc.Documenter.NAnt {
         #endregion Private Instance Methods
     }
 
+    /// <summary>
+    /// Enumeration of possible types of a node.
+    /// </summary>
     public enum ElementDocType {
+        /// <summary>
+        /// The node is an unknown node.
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// The node is a <see cref="Task"/> node.
+        /// </summary>
         Task = 1,
+        /// <summary>
+        /// The node is a <see cref="DataTypeBase"/> node.
+        /// </summary>
         DataTypeElement = 2,
+        /// <summary>
+        /// The node is an <see cref="Element"/> node.
+        /// </summary>
         Element = 3,
+        /// <summary>
+        /// The node is an enumeration node.
+        /// </summary>
         Enum = 4,
+        /// <summary>
+        /// The node is a <see cref="Filter"/> node.
+        /// </summary>
         Filter = 5,
+        /// <summary>
+        /// The node is a <see cref="FunctionSet"/> node.
+        /// </summary>
         FunctionSet = 6
     }
 }

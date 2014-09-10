@@ -21,6 +21,9 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Dictionary to collect the available frameworks.
+    /// </summary>
     [Serializable()]
     public sealed class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields

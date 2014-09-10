@@ -761,6 +761,10 @@ namespace NAnt.Core {
         /// </summary>
         public readonly DateTime StartTime;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildReport"/> class.
+        /// </summary>
+        /// <param name="startTime">The start time.</param>
         public BuildReport(DateTime startTime) {
             StartTime = startTime;
             Errors = 0;

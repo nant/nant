@@ -1116,6 +1116,11 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Creates the <see cref="DataTypeBase"/> instance from the passed XML node.
+        /// </summary>
+        /// <param name="elementNode">The element XML node.</param>
+        /// <returns>The created instance.</returns>
         public DataTypeBase CreateDataTypeBase(XmlNode elementNode) {
             DataTypeBase type = TypeFactory.CreateDataType(elementNode, this);
 

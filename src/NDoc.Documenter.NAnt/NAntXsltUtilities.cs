@@ -169,7 +169,7 @@ namespace NDoc.Documenter.NAnt {
         /// Searches the document for the <c>&lt;class&gt;</c> node with the 
         /// given id.
         /// </summary>
-        /// <param name="type">Type.FullName of class to return</param>
+        /// <param name="id">Type.FullName of class to return</param>
         /// <returns>
         /// The <c>&lt;class&gt;</c> node with the given id, or <see langword="null" />
         /// if the node does not exist.
@@ -306,6 +306,11 @@ namespace NDoc.Documenter.NAnt {
             return GetElementNameForType(GetTypeNodeByID(cref));
         }
 
+        /// <summary>
+        /// Gets the type node of the specivied identifier.
+        /// </summary>
+        /// <param name="cref">The identifier.</param>
+        /// <returns>The type node.</returns>
         public XmlNode GetTypeNodeByID(string cref) {
             if (cref[1] == ':' && !cref.StartsWith("T:")) {
                 return null;
@@ -322,6 +327,11 @@ namespace NDoc.Documenter.NAnt {
             return typeNode;
         }
 
+        /// <summary>
+        /// Gets the method node by identifier.
+        /// </summary>
+        /// <param name="cref">The mehtod identifier.</param>
+        /// <returns>The method node.</returns>
         public XmlNode GetMethodNodeByID(string cref) {
             if (cref[1] == ':' && !cref.StartsWith("M:")) {
                 return null;
@@ -522,7 +532,7 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Returns the filename to use for the given function XmlElement
         /// </summary>
-        /// <param name="typeNode">The "method" element to find the filename for.</param>
+        /// <param name="functionNode">The "method" element to find the filename for.</param>
         /// <param name="urlEncode">Specified whether to URLencode the filename.</param>
         internal string GetFileNameForFunction(XmlNode functionNode, bool urlEncode) {
             StringBuilder sb = new StringBuilder();
@@ -558,12 +568,13 @@ namespace NDoc.Documenter.NAnt {
         /// Returns the filename to use for the given class XmlNode
         /// </summary>
         /// <param name="typeNode">The "Class" element to find the filename for.</param>
+        /// <param name="urlEncode">if set to <c>true</c>, the URL will be encoded using UTF8 encoding.</param>
         /// <returns>
         /// The relative path and filename where this type is stored in the
         /// documentation.
         /// </returns>
         /// <remarks>
-        /// For a type that is neither a task, enum, global type, filter or 
+        /// For a type that is neither a task, enum, global type, filter or
         /// functionset, the returned filename will point to the SDK docs for
         /// that type.
         /// </remarks>
@@ -692,8 +703,8 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Gets the TaskNameAttrbute name for the "class" XmlNode
         /// </summary>
-        /// <param name="propertyNode">The XmlNode to look for a name.</param>
-        /// <returns>The <see cref="TaskNameAttribute.Name" /> if the attribute exists for the node.</returns>
+        /// <param name="typeNode">The XmlNode to look for a name.</param>
+        /// <returns>The <see cref="ElementNameAttribute.Name" /> if the attribute exists for the node.</returns>
         /// <remarks>
         /// The class is also checked to make sure it is derived from <see cref="Task" />
         /// </remarks>
@@ -739,7 +750,7 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Returns a partial URL to link to the functionset in the function index.
         /// </summary>
-        /// <param name="typeNode">The "Class" element to find the filename for.</param>
+        /// <param name="functionNode">The "Class" element to find the filename for.</param>
         private string GetHRefForFunctionSet(XmlNode functionNode) {
             XmlAttribute categoryValueAttribute = functionNode.SelectSingleNode("attribute[@name='NAnt.Core.Attributes.FunctionSetAttribute']/property[@name='Category']/@value") as XmlAttribute;
             if (categoryValueAttribute != null && categoryValueAttribute.Value != "") {

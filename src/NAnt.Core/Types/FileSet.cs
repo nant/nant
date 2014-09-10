@@ -554,6 +554,9 @@ namespace NAnt.Core.Types {
 
         #region Override implementation of Element
 
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
         protected override void Initialize() {
             base.Initialize();
             if (DefaultExcludes) {
@@ -803,6 +806,9 @@ namespace NAnt.Core.Types {
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
 
+        /// <summary>
+        /// Class for storing the nested element <see cref="FileSet.Exclude"/>.
+        /// </summary>
         public class Exclude : Element {
             #region Private Instance Fields
 
@@ -850,6 +856,9 @@ namespace NAnt.Core.Types {
             #endregion Public Instance Properties
         }
 
+        /// <summary>
+        /// Class for storing the nested element <see cref="FileSet.Include"/>.
+        /// </summary>
         public class Include : Exclude {
             #region Private Instance Fields
 
@@ -923,6 +932,9 @@ namespace NAnt.Core.Types {
             #endregion Override implementation of Exclude
         }
 
+        /// <summary>
+        /// Class for storing the nested element <see cref="FileSet.ExcludesFiles"/>.
+        /// </summary>
         public class ExcludesFile : Element {
             #region Private Instance Fields
 
@@ -1004,7 +1016,10 @@ namespace NAnt.Core.Types {
 
             #endregion Public Instance Properties
         }
-        
+
+        /// <summary>
+        /// Class for storing the nested element <see cref="FileSet.IncludesFile"/>.
+        /// </summary>
         public class IncludesFile : ExcludesFile {
             #region Private Instance Fields
 

@@ -259,6 +259,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Initializes the task.
+        /// </summary>
         protected override void Initialize() {
             if (XmlNode.ChildNodes.Count == 0)
                 return;

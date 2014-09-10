@@ -36,10 +36,18 @@ using NAnt.Core.Util;
 // 
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt runtime information and operatons.
+    /// </summary>
     [FunctionSet("nant", "NAnt")]
     public class NAntFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NAntFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public NAntFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -495,10 +503,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving platform information.
+    /// </summary>
     [FunctionSet("platform", "NAnt")]
     public class PlatformFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlatformFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public PlatformFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

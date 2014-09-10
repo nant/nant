@@ -208,6 +208,25 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">
+        /// <list type="bullet">
+        /// <item>
+        /// <description>If the <see cref="OutputFile"/> attribute is set and the <see cref="InFiles"/> element is used.</description>
+        /// </item>
+        /// <item>
+        /// <description>If no source files are present.</description>
+        /// </item>
+        /// <item>
+        /// <description>If the xslt file does not exist.</description>
+        /// </item>
+        /// <item>
+        /// <description>If the xslt file cannot be retrieved by the specified URI.</description>
+        /// </item>
+        /// </list>
+        /// </exception>
         protected override void ExecuteTask() {
             // ensure base directory is set, even if fileset was not initialized
             // from XML

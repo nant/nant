@@ -32,6 +32,11 @@ namespace NAnt.Core.Functions {
     public class DirectoryFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DirectoryFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public DirectoryFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

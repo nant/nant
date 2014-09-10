@@ -26,6 +26,9 @@ using NAnt.Core.Attributes;
 using NAnt.Core.Extensibility;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Factory to create <see cref="DataTypeBase"/> instances.
+    /// </summary>
     public class DataTypeBaseBuilder : ExtensionBuilder {
         #region Public Instance Constructors
 

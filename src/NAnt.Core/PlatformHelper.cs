@@ -55,6 +55,11 @@ namespace NAnt.Core {
             IsWin32 = !IsUnix;
         }
 
+        /// <summary>
+        /// Determines whether the volume of the the specified path is case sensitive.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns><c>true</c> if the volume is case sensitive, else <c>false</c>.</returns>
         public static bool IsVolumeCaseSensitive(string path) {
             // GetVolumeInformation is useless, since it marks NTFS drives as
             // case-sensitive and provides no information for non-root

@@ -21,6 +21,9 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core.Util {
+    /// <summary>
+    /// Class which implements a stack for measuring durations using a stack-based structure.
+    /// </summary>
     public class StopWatchStack {
         private readonly DateTimeProvider _dtProvider;
         private readonly Stack _stack = new Stack();
@@ -33,10 +36,17 @@ namespace NAnt.Core.Util {
             _dtProvider = dtProvider;
         }
 
+        /// <summary>
+        /// Creates a new stopwatch instance with the current time and pushes it to the internal stack.
+        /// </summary>
         public void PushStart() {
             _stack.Push(new StopWatch(_dtProvider));
         }
 
+        /// <summary>
+        /// Pops the last started stopwatch and returns its elapsed time.
+        /// </summary>
+        /// <returns>The elapsed time of the last started stopwatch.</returns>
         public TimeSpan PopStop() {
             return ((StopWatch) _stack.Pop()).Elapsed();
         }
