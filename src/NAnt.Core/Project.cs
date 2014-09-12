@@ -110,12 +110,39 @@ namespace NAnt.Core {
 
         #region Public Instance Events
 
+        /// <summary>
+        /// Occurs when a build is started.
+        /// </summary>
         public event BuildEventHandler BuildStarted;
+
+        /// <summary>
+        /// Occurs when a build has finished.
+        /// </summary>
         public event BuildEventHandler BuildFinished;
+
+        /// <summary>
+        /// Occurs when a target is started.
+        /// </summary>
         public event BuildEventHandler TargetStarted;
+        
+        /// <summary>
+        /// Occurs when a target has finished.
+        /// </summary>
         public event BuildEventHandler TargetFinished;
+        
+        /// <summary>
+        /// Occurs when a task is started.
+        /// </summary>
         public event BuildEventHandler TaskStarted;
+
+        /// <summary>
+        /// Occurs when a task has finished.
+        /// </summary>
         public event BuildEventHandler TaskFinished;
+        
+        /// <summary>
+        /// Occurs when a message is logged.
+        /// </summary>
         public event BuildEventHandler MessageLogged;
 
         #endregion Public Instance Events

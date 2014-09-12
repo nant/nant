@@ -854,8 +854,18 @@ namespace NAnt.Core {
         Browser = 3
     }
 
+    /// <summary>
+    /// Enumeration of vendors.
+    /// </summary>
     public enum VendorType {
+        /// <summary>
+        /// Vendor Microsoft.
+        /// </summary>
         Microsoft = 1,
+        
+        /// <summary>
+        /// Vendor Mono.
+        /// </summary>
         Mono = 2
     }
 }

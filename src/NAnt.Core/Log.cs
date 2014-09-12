@@ -384,6 +384,9 @@ namespace NAnt.Core {
         void Flush();
     }
 
+    /// <summary>
+    /// Implementation of the default logger.
+    /// </summary>
     [Serializable()]
     public class DefaultLogger : IBuildLogger {
         #region Public Instance Constructors

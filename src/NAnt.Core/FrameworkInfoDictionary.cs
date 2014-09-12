@@ -142,18 +142,34 @@ namespace NAnt.Core {
             return Contains((string)key);
         }
 
+        /// <summary>
+        /// Removes all elements from the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public void Clear() {
             _innerHash.Clear();      
         }
 
+        /// <summary>
+        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
+        /// <param name="key">The <see cref="T:System.Object" /> to use as the key of the element to add.</param>
+        /// <param name="value">The <see cref="T:System.Object" /> to use as the value of the element to add.</param>
         public void Add(string key, FrameworkInfo value) {
             _innerHash.Add (key, value);
         }
 
+        /// <summary>
+        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
+        /// <param name="key">The <see cref="T:System.Object" /> to use as the key of the element to add.</param>
+        /// <param name="value">The <see cref="T:System.Object" /> to use as the value of the element to add.</param>
         void IDictionary.Add(object key, object value) {
             Add((string) key, (FrameworkInfo) value);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary" /> object is read-only.
+        /// </summary>
         public bool IsReadOnly {
             get { return _innerHash.IsReadOnly; }
         }
@@ -167,15 +183,24 @@ namespace NAnt.Core {
             get { return this[(string) key]; }
             set { this[(string) key] = (FrameworkInfo) value; }
         }
-        
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Collections.ICollection" /> object containing the values in the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public ICollection Values {
             get { return _innerHash.Values; }
         }
 
+        /// <summary>
+        /// Gets an <see cref="T:System.Collections.ICollection" /> object containing the keys of the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public ICollection Keys {
             get { return _innerHash.Keys; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary" /> object has a fixed size.
+        /// </summary>
         public bool IsFixedSize {
             get { return _innerHash.IsFixedSize; }
         }

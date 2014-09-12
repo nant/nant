@@ -79,6 +79,9 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             ExecuteChildTasks();
         }

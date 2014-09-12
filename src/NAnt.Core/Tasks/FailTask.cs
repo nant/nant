@@ -120,6 +120,10 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">During execution.</exception>
         protected override void ExecuteTask() {
             const string defaultMessage = "No message.";
             string message;

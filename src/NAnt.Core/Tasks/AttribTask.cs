@@ -169,6 +169,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             // ensure base directory is set, even if fileset was not initialized
             // from XML
