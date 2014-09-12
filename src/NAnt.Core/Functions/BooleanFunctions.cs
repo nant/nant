@@ -19,16 +19,21 @@
 
 using System;
 using System.Globalization;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to convert strings in boolean values and vice versa.
+    /// </summary>
     [FunctionSet("bool", "Conversion")]
     public class BooleanConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BooleanConversionFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public BooleanConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

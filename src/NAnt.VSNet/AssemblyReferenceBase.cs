@@ -25,13 +25,8 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-
-using Microsoft.Win32;
-
 using NAnt.Core;
 using NAnt.Core.Util;
-
-using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     public abstract class AssemblyReferenceBase : FileReferenceBase {

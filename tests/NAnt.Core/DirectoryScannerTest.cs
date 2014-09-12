@@ -17,7 +17,6 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
 using System.Globalization;
 using System.IO;
 

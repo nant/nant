@@ -29,7 +29,6 @@ using System.Xml;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
 
 namespace NAnt.Console {
     /// <summary>

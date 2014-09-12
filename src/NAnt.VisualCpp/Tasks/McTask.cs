@@ -24,7 +24,6 @@ using System.IO;
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
-using NAnt.Core.Util;
 
 namespace NAnt.VisualCpp.Tasks {
 

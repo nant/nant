@@ -54,8 +54,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using NAnt.Core.Util;
-
 namespace NAnt.Core {
     /// <summary>
     /// Used for searching filesystem based on given include/exclude rules.

@@ -25,7 +25,6 @@ using System.Xml;
 
 using NAnt.Core;
 using NAnt.Core.Util;
-using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     public class ConfigurationSettings : ConfigurationBase {

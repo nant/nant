@@ -19,7 +19,6 @@
 // Scott Hernandez (ScottHernandez@hotmail.com
 
 using System;
-using System.Text;
 using System.Xml;
 using System.Configuration;
 

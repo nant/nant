@@ -19,11 +19,8 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-
-using NAnt.Core.Util;
 
 namespace NAnt.NUnit2.Types {
     /// <summary>

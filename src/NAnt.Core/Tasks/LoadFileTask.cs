@@ -136,6 +136,11 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">If the file to load doesn't exist.
+        /// </exception>
         protected override void ExecuteTask() {
             // make sure file actually exists
             if (!File.Exists) {

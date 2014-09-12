@@ -20,10 +20,6 @@
 using System;
 using System.Collections;
 
-using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Util;
-
 namespace NAnt.DotNet.Types {
     /// <summary>
     /// Contains a collection of <see cref="Module" /> items.

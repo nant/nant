@@ -17,8 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net.be)
 
-using System;
-
 namespace NAnt.Core.Extensibility {
     public interface IPluginConsumer {
         void ConsumePlugin(IPlugin type);

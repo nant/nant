@@ -18,14 +18,10 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
 using System.Collections;
 using System.Reflection;
 using System.Globalization;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Extensibility;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -41,6 +37,13 @@ namespace NAnt.Core {
 
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionEvaluator"/> class.
+        /// </summary>
+        /// <param name="project">The project.</param>
+        /// <param name="properties">The projects properties.</param>
+        /// <param name="state">The state.</param>
+        /// <param name="visiting">The visiting.</param>
         public ExpressionEvaluator(Project project, PropertyDictionary properties, Hashtable state, Stack visiting)
             : base(project) {
             _properties = properties;

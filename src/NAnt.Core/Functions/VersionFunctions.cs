@@ -19,11 +19,12 @@
 
 using System;
 using System.Reflection;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions for working with version objects.
+    /// </summary>
     [FunctionSet("version", "Version")]
     public class VersionFunctions : FunctionSetBase {
         #region Public Instance Constructors
@@ -98,6 +99,9 @@ namespace NAnt.Core.Functions {
         #endregion Public Static Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for converting strings to version objects and vice versa.
+    /// </summary>
     [FunctionSet("version", "Conversion")]
     public class VersionConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors

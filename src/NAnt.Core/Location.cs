@@ -39,6 +39,9 @@ namespace NAnt.Core {
 
         #endregion Private Instance Fields
 
+        /// <summary>
+        /// The unknown location representation.
+        /// </summary>
         public static readonly Location UnknownLocation = new Location();
 
         /// <summary>

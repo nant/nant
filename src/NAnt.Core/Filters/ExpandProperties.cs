@@ -18,8 +18,6 @@
 
 using System;
 using System.Text;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

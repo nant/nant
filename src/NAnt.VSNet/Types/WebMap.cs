@@ -18,12 +18,10 @@
 // Tom Cabanski (tcabanski@OAI.cc)
 
 using System;
-using System.Collections.Specialized;
 using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.VSNet.Types {

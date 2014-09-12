@@ -20,15 +20,11 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Configuration;
 using NAnt.Core.Types;

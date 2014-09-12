@@ -18,7 +18,6 @@
 // Thomas Strauss (strausst@arcor.de)
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 

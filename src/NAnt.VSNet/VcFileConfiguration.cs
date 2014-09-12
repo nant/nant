@@ -27,8 +27,6 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Util;
 
-using NAnt.VSNet.Types;
-
 namespace NAnt.VSNet {
     /// <summary>
     /// Represents the configuration of a file.

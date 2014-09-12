@@ -21,7 +21,6 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.CodeDom.Compiler;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -31,7 +30,6 @@ using System.Xml;
 using Microsoft.Win32;
 
 using NAnt.Core;
-using NAnt.Core.Functions;
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 

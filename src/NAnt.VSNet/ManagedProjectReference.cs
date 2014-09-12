@@ -21,8 +21,6 @@ using System;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 namespace NAnt.VSNet {

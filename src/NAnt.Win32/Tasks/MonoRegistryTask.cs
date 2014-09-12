@@ -17,11 +17,7 @@
 //
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
-using System;
-using System.IO;
-
 using NAnt.Core;
-using NAnt.Core.Util;
 using NAnt.Core.Attributes;
 using Microsoft.Win32;
 

@@ -17,8 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net.be)
 
-using System;
-
 namespace NAnt.Core.Extensibility {
     internal class FunctionArgument {
         public FunctionArgument(string name, int index, object value, ExpressionTokenizer.Position beforeArgument, ExpressionTokenizer.Position afterArgument) {

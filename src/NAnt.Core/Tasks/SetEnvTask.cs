@@ -19,12 +19,8 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -171,7 +167,13 @@ using NAnt.Core.Util;
                 _path = value;
             }
         }
-                
+
+        /// <summary>
+        /// Gets or sets the environment variables.
+        /// </summary>
+        /// <value>
+        /// The environment variables.
+        /// </value>
         [BuildElementArray("variable", ElementType=typeof(EnvironmentVariable))]
         public EnvironmentVariableCollection EnvironmentVariables {
             get { return _environmentVariables; }

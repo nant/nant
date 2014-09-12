@@ -18,16 +18,27 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// This class provides information about the plattform NAnt is currently executed on.
+    /// </summary>
     [Serializable()]
     public class PlatformHelper {
+        /// <summary>
+        /// Gets a value indicating if Mono is the current execution plattform. 
+        /// </summary>
         public static readonly bool IsMono;
+
+        /// <summary>
+        /// Gets a value indicating if Windows is the current execution plattform. 
+        /// </summary>
         [Obsolete ("Use IsWindows instead.")]
         public static readonly bool IsWin32;
+
+        /// <summary>
+        /// Gets a value indicating if Unix is the current execution plattform. 
+        /// </summary>
         public static readonly bool IsUnix;
 
         static PlatformHelper() {
@@ -44,6 +55,11 @@ namespace NAnt.Core {
             IsWin32 = !IsUnix;
         }
 
+        /// <summary>
+        /// Determines whether the volume of the the specified path is case sensitive.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns><c>true</c> if the volume is case sensitive, else <c>false</c>.</returns>
         public static bool IsVolumeCaseSensitive(string path) {
             // GetVolumeInformation is useless, since it marks NTFS drives as
             // case-sensitive and provides no information for non-root

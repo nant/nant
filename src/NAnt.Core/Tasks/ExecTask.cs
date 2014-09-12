@@ -20,8 +20,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;

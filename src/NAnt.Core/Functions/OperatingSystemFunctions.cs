@@ -18,11 +18,6 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Reflection;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
@@ -33,6 +28,11 @@ namespace NAnt.Core.Functions {
     public class OperatingSystemFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperatingSystemFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public OperatingSystemFunctions(Project project, PropertyDictionary properties) : base(project, properties) {}
 
         #endregion Public Instance Constructors
