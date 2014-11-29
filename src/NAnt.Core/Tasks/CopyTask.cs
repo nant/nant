@@ -340,7 +340,7 @@ namespace NAnt.Core.Tasks {
             }
 
             // Clear previous copied files
-            _fileCopyMap = new Hashtable();
+			_fileCopyMap.Clear();
 
             // copy a single file.
             if (SourceFile != null) {

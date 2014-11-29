@@ -430,6 +430,15 @@ namespace NAnt.Core.Types {
             }
         }
 
+		/// <summary>
+		/// Gets a value indicating whether this instance retrieved all 
+		/// files/directories scanned and nothing was excluded.
+		/// </summary>
+		public bool IsEverythingIncluded 
+		{
+			get { return _scanner.IsEverythingIncluded && _hasScanned; }
+		}
+
         /// <summary>
         /// The items to include in the fileset.
         /// </summary>
