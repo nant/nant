@@ -37,6 +37,54 @@ namespace NAnt.Core.Util {
         #region Public Static Methods
 
         /// <summary>
+        /// Copies the contents of a directory to another directory recursively.
+        /// </summary>
+        /// <param name="sourceDir">The directory to copy.</param>
+        /// <param name="destDir">The directory name to copy to.</param>
+        public static void CopyDirectory(string sourceDir, string destDir)
+        {
+            DirectoryInfo sDir;
+            DirectoryInfo[] subDirs;
+            FileInfo[] files;
+
+            if (String.IsNullOrEmpty(sourceDir))
+            {
+                throw new ArgumentNullException("sourceDir");
+            }
+            if (String.IsNullOrEmpty(destDir))
+            {
+                throw new ArgumentNullException("destDir");
+            }
+
+            sDir = new DirectoryInfo(sourceDir);
+            subDirs = sDir.GetDirectories();
+
+            if (!sDir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    String.Format(CultureInfo.InvariantCulture,
+                    "Directory '{0}' does not exist", sDir.FullName));
+            }
+
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            files = sDir.GetFiles();
+            foreach (FileInfo f in files)
+            {
+                f.CopyTo(Path.Combine(destDir, f.Name), false);
+            }
+
+            // Copy all of the subdirectories
+            foreach(DirectoryInfo d in subDirs)
+            {
+                CopyDirectory(d.FullName, Path.Combine(destDir, d.Name));
+            }
+        }
+
+        /// <summary>
         /// Copies a file filtering its content through the filter chain.
         /// </summary>
         /// <param name="sourceFileName">The file to copy</param>

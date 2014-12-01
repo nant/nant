@@ -184,11 +184,16 @@ namespace NAnt.Core.Tasks {
         /// Actually does the file moves.
         /// </summary>
         protected override void DoFileOperations() {
+            string destinationPath;
+            string sourcePath;
+            bool isDir;
+
             if (FileCopyMap.Count > 0) {
                 // loop thru our file list
                 foreach (DictionaryEntry fileEntry in FileCopyMap) {
-                    string destinationPath = (string) fileEntry.Key;
-                    string sourcePath = ((FileDateInfo) fileEntry.Value).Path;
+                    destinationPath = (string) fileEntry.Key;
+                    sourcePath = ((FileDateInfo) fileEntry.Value).Path;
+                    isDir = ((FileDateInfo) fileEntry.Value).IsDirectory;
 
                     if (sourcePath == destinationPath) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
@@ -197,7 +202,7 @@ namespace NAnt.Core.Tasks {
 
                     try {
                         // check if directory exists
-                        if (Directory.Exists(sourcePath)) {
+                        if (isDir) {
                             Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
                             Directory.Move(sourcePath, destinationPath);
                         } else {
