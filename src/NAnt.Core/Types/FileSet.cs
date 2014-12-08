@@ -436,7 +436,14 @@ namespace NAnt.Core.Types {
 		/// </summary>
 		public bool IsEverythingIncluded 
 		{
-			get { return _scanner.IsEverythingIncluded && _hasScanned; }
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                } 
+                return _scanner.IsEverythingIncluded;
+            }
 		}
 
         /// <summary>

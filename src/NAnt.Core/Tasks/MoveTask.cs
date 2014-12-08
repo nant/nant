@@ -187,6 +187,9 @@ namespace NAnt.Core.Tasks {
             string destinationPath;
             string sourcePath;
             bool isDir;
+            StringComparison strCmp = CopyFileSet.CaseSensitive ?
+                StringComparison.InvariantCulture :
+                StringComparison.InvariantCultureIgnoreCase;
 
             if (FileCopyMap.Count > 0) {
                 // loop thru our file list
@@ -195,7 +198,7 @@ namespace NAnt.Core.Tasks {
                     sourcePath = ((FileDateInfo) fileEntry.Value).Path;
                     isDir = ((FileDateInfo) fileEntry.Value).IsDirectory;
 
-                    if (sourcePath == destinationPath) {
+                    if (sourcePath.Equals(destinationPath, StringComparison.InvariantCulture)) {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
                     }
@@ -204,7 +207,20 @@ namespace NAnt.Core.Tasks {
                         // check if directory exists
                         if (isDir) {
                             Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
-                            Directory.Move(sourcePath, destinationPath);
+
+                            if (sourcePath.Equals(destinationPath, strCmp))
+                            {
+                                string rootDir = !String.IsNullOrEmpty(Path.GetDirectoryName(destinationPath)) ?
+                                    Path.GetDirectoryName(destinationPath) : destinationPath;
+                                string tmpDir = Path.Combine(rootDir, Path.GetRandomFileName());
+
+                                Directory.Move(sourcePath, tmpDir);
+                                Directory.Move(tmpDir, destinationPath);
+                            }
+                            else
+                            {
+                                Directory.Move(sourcePath, destinationPath);
+                            }
                         } else {
                             DirectoryInfo todir = new DirectoryInfo(destinationPath);
                             if (!todir.Exists) {

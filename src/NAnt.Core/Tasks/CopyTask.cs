@@ -303,15 +303,15 @@ namespace NAnt.Core.Tasks {
                     Location);
             }
 
-            if (ToDirectory == null && CopyFileSet != null && 
-                    (CopyFileSet.Includes.Count > 0 || CopyFileSet.IsEverythingIncluded)) {
+            if (ToDirectory == null && CopyFileSet != null && CopyFileSet.BaseDirectory != null) 
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "The 'todir' should be set when using the <fileset> element"
                     + " to specify the list of files to be copied."), Location);
             }
 
-            if (SourceFile != null && CopyFileSet != null && 
-                    (CopyFileSet.Includes.Count > 0 || CopyFileSet.IsEverythingIncluded)) {
+            if (SourceFile != null && CopyFileSet != null && CopyFileSet.BaseDirectory != null)
+            {
                 throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
                     "The 'file' attribute and the <fileset> element" 
                     + " cannot be combined."), Location);
@@ -348,7 +348,7 @@ namespace NAnt.Core.Tasks {
             if (SourceFile != null)
             {
                 // copy a single file.
-                if (SourceFile.Exists) 
+                if (SourceFile.Exists)
                 {
                     FileInfo dstInfo = null;
                     if (ToFile != null) 
@@ -428,25 +428,34 @@ namespace NAnt.Core.Tasks {
             }
 
             // copy file set contents.
-            else 
+            else
             {
                 // get the complete path of the base directory of the fileset, ie, c:\work\nant\src
                 DirectoryInfo srcBaseInfo = CopyFileSet.BaseDirectory;
 
                 // Check to see if the file operation is a straight pass through (ie: no file or
                 // directory modifications) before proceeding.
-                bool completeDir = (CopyFileSet.FileNames.Count <= 0 || CopyFileSet.IsEverythingIncluded) && 
-                    !Flatten && IncludeEmptyDirs && FilterChain.IsNullOrEmpty(Filters) &&
-                    _inputEncoding == null && _outputEncoding == null && srcBaseInfo != null &&
-                    !String.IsNullOrEmpty(srcBaseInfo.FullName) && srcBaseInfo.Exists &&
-                    !ToDirectory.Exists;
+                bool completeDir = true;
 
+                // completeDir criteria
+                bool[] dirCheck = new bool[8];
+                dirCheck[0] = CopyFileSet.IsEverythingIncluded;
+                dirCheck[1] = !Flatten;
+                dirCheck[2] = IncludeEmptyDirs;
+                dirCheck[3] = FilterChain.IsNullOrEmpty(Filters);
+                dirCheck[4] = _inputEncoding == null;
+                dirCheck[5] = _outputEncoding == null;
+                dirCheck[6] = srcBaseInfo != null && srcBaseInfo.Exists;
+                dirCheck[7] = !ToDirectory.Exists ||
+                    srcBaseInfo.FullName.Equals(ToDirectory.FullName,
+                        StringComparison.InvariantCultureIgnoreCase);
+
+                for (int b = 0; b < dirCheck.Length; b++) completeDir &= dirCheck[b];
+                    
                 if (completeDir)
                 {
                     FileCopyMap.Add(ToDirectory.FullName, 
                         new FileDateInfo(srcBaseInfo.FullName, srcBaseInfo.LastWriteTime, true));
-                    Console.WriteLine("Complete Dir Entry added: '{0}' - '{1}'", ToDirectory.FullName,
-                        FileCopyMap[ToDirectory.FullName].ToString());
                 }
                 else
                 {
@@ -691,7 +700,6 @@ namespace NAnt.Core.Tasks {
             }
 
             #endregion
-
 
             #region Private Instance Fields
             
