@@ -146,6 +146,8 @@ namespace NAnt.Core.Tasks {
         private FilterChain _filters;
         private Encoding _inputEncoding;
         private Encoding _outputEncoding;
+        private long _fileCount = 0;
+        private long _dirCount = 0;
 
         #endregion Private Instance Fields
 
@@ -289,6 +291,23 @@ namespace NAnt.Core.Tasks {
             get { return _fileCopyMap; }
         }
 
+        /// <summary>
+        /// Gets the number of files that will be affected during the file operation.
+        /// </summary>
+        protected long FileCount
+        {
+            get { return _fileCount; }
+        }
+
+        /// <summary>
+        /// Gets the number of directories that will be affected during the file 
+        /// operation.
+        /// </summary>
+        protected long DirectoryCount
+        {
+            get { return _dirCount; }
+        }
+
         #endregion Protected Instance Properties
 
         #region Override implementation of Task
@@ -369,6 +388,7 @@ namespace NAnt.Core.Tasks {
                     {
                         // add to a copy map of absolute verified paths
                         FileCopyMap.Add(dstInfo.FullName, new FileDateInfo(SourceFile.FullName, SourceFile.LastWriteTime));
+                        _fileCount++;
 
                         if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal)
                         {
@@ -420,6 +440,7 @@ namespace NAnt.Core.Tasks {
                             Location);
                     }
                     FileCopyMap.Add(destDirName, new FileDateInfo(sourceDirName, SourceFile.LastWriteTime, true));
+                    _dirCount++;
                 }
                 else 
                 {
@@ -456,6 +477,7 @@ namespace NAnt.Core.Tasks {
                 {
                     FileCopyMap.Add(ToDirectory.FullName, 
                         new FileDateInfo(srcBaseInfo.FullName, srcBaseInfo.LastWriteTime, true));
+                    _dirCount++;
                 }
                 else
                 {
@@ -512,6 +534,8 @@ namespace NAnt.Core.Tasks {
                                     }
                                 } else {
                                     FileCopyMap.Add(dstInfo.FullName, newFile);
+                                    _fileCount++;
+
                                     if (dstInfo.Exists && dstInfo.Attributes != FileAttributes.Normal) {
                                         File.SetAttributes(dstInfo.FullName, FileAttributes.Normal);
                                     }
@@ -563,17 +587,37 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// Actually does the file copies.
         /// </summary>
-        protected virtual void DoFileOperations() {
-            int fileCount = FileCopyMap.Count;
+        protected virtual void DoFileOperations()
+        {
+            FileSystemInfo fileTarget;
             string destinationFile;
             string destinationDirectory;
             string sourceFile;
             bool isDir;
-            if (fileCount > 0 || Verbose) {
-                if (ToFile != null) {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToFile);
-                } else {
-                    Log(Level.Info, "Copying {0} file{1} to '{2}'.", fileCount, (fileCount != 1) ? "s" : "", ToDirectory);
+            StringComparison strCmp = CopyFileSet.CaseSensitive ?
+                StringComparison.InvariantCulture :
+                StringComparison.InvariantCultureIgnoreCase;
+
+            if (FileCount > 0 || DirectoryCount > 0 || Verbose) 
+            {
+                if (FileCount > 0)
+                {
+                    if (ToFile != null)
+                    {
+                        fileTarget = ToFile;
+                    }
+                    else
+                    {
+                        fileTarget = ToDirectory;
+                    }
+                    Log(Level.Info, "Copying {0} File{1} to '{2}'.",
+                        FileCount, (FileCount > 1) ? "s" : "", fileTarget);
+                }
+
+                if (DirectoryCount > 0)
+                {
+                    Log(Level.Info, "Copying {0} Director{1}.",
+                        DirectoryCount, (DirectoryCount > 1) ? "ies" : "y");
                 }
 
                 // loop thru our file list
@@ -582,20 +626,23 @@ namespace NAnt.Core.Tasks {
                     sourceFile = ((FileDateInfo) fileEntry.Value).Path;
                     isDir = ((FileDateInfo) fileEntry.Value).IsDirectory;
 
-                    if (sourceFile == destinationFile) {
+                    if (sourceFile.Equals(destinationFile, StringComparison.InvariantCulture))
+                    {
                         Log(Level.Verbose, "Skipping self-copy of '{0}'.", sourceFile);
                         continue;
                     }
 
-                    try {
-                        Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
-                        
+                    try 
+                    {
                         if (isDir)
                         {
+                            Log(Level.Verbose, "Copying directory '{0}' to '{1}'",
+                                sourceFile, destinationFile);
                             FileUtils.CopyDirectory(sourceFile, destinationFile);
                         }
                         else
                         {
+                            Log(Level.Verbose, "Copying '{0}' to '{1}'.", sourceFile, destinationFile);
                             // create directory if not present
                             destinationDirectory = Path.GetDirectoryName(destinationFile);
                             if (!Directory.Exists(destinationDirectory)) {

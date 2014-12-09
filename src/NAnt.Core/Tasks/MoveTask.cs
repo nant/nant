@@ -198,7 +198,8 @@ namespace NAnt.Core.Tasks {
                     sourcePath = ((FileDateInfo) fileEntry.Value).Path;
                     isDir = ((FileDateInfo) fileEntry.Value).IsDirectory;
 
-                    if (sourcePath.Equals(destinationPath, StringComparison.InvariantCulture)) {
+                    if (sourcePath.Equals(destinationPath, StringComparison.InvariantCulture))
+                    {
                         Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
                         continue;
                     }
@@ -206,7 +207,8 @@ namespace NAnt.Core.Tasks {
                     try {
                         // check if directory exists
                         if (isDir) {
-                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", sourcePath, destinationPath);
+                            Log(Level.Verbose, "Moving directory '{0}' to '{1}'.", 
+                                sourcePath, destinationPath);
 
                             if (sourcePath.Equals(destinationPath, strCmp))
                             {
@@ -246,7 +248,13 @@ namespace NAnt.Core.Tasks {
                             Location, ex);
                     }
                 }
-                Log(Level.Info, "{0} files moved.", FileCopyMap.Count);
+                if (FileCount > 0)
+                    Log(Level.Info, "{0} file{1} moved.", FileCount, 
+                        (FileCount > 1) ? "s" : "");
+
+                if (DirectoryCount > 0) 
+                    Log(Level.Info, "{0} director{1} moved.", DirectoryCount,
+                        (DirectoryCount > 1) ? "ies" : "y");
             }
         }
 
