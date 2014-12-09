@@ -441,7 +441,7 @@ namespace NAnt.Core.Tasks {
                 bool[] dirCheck = new bool[8];
                 dirCheck[0] = CopyFileSet.IsEverythingIncluded;
                 dirCheck[1] = !Flatten;
-                dirCheck[2] = IncludeEmptyDirs;
+                dirCheck[2] = IncludeEmptyDirs || !CopyFileSet.HasEmptyDirectories;
                 dirCheck[3] = FilterChain.IsNullOrEmpty(Filters);
                 dirCheck[4] = _inputEncoding == null;
                 dirCheck[5] = _outputEncoding == null;

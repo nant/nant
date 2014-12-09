@@ -56,6 +56,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+#if NET_4_0
+using System.Threading.Tasks;
+#endif
+
 namespace NAnt.Core {
     /// <summary>
     /// Used for searching filesystem based on given include/exclude rules.
@@ -130,6 +134,8 @@ namespace NAnt.Core {
 
         // Indicates whether or not every file scanned was included
         private bool _isEverythingIncluded = true;
+        
+        private bool _hasEmptyDirectories = false;
 
         #endregion Private Instance Fields
 
@@ -362,6 +368,15 @@ namespace NAnt.Core {
         {
             get { return _isEverythingIncluded; }
         }
+        
+        /// <summary>
+        /// Indicates whether or not <see cref="P:BaseDirectory"/> contains
+        /// any empty directories.
+        /// </summary>
+        public bool HasEmptyDirectories
+        {
+            get { return _hasEmptyDirectories; }
+        }
 
         #endregion Public Instance Properties
 
@@ -373,10 +388,6 @@ namespace NAnt.Core {
         /// </summary>
         public void Scan() {
             Thread getDirList;
-            bool found;
-            string fsFullName;
-            StringComparison strCmp = CaseSensitive ? StringComparison.InvariantCulture
-                : StringComparison.InvariantCultureIgnoreCase;
             
             _includePatterns = new ArrayList();
             _includeNames = new StringCollectionWithGoodToString ();
@@ -430,6 +441,74 @@ namespace NAnt.Core {
             // everything is included.
             getDirList.Join();
 
+            // Run both "Check" methods in parallel.
+#if NET_4_0
+            Parallel.Invoke(CheckHasEmptyDirectories, CheckIsEverythingIncluded);
+#else
+            Thread[] lastTasks = new Thread[2];
+            lastTasks[0] = new Thread(new ThreadStart(CheckHasEmptyDirectories));
+            lastTasks[1] = new Thread(new ThreadStart(CheckIsEverythingIncluded));
+            
+            foreach (Thread t in lastTasks)
+            {
+                t.IsBackground = true;
+                t.Start();
+            }
+            foreach (Thread t in lastTasks) t.Join();
+#endif
+
+#if DEBUG_REGEXES
+            Console.WriteLine("*********************************************************************");
+#endif
+        }
+
+        #endregion Public Instance Methods
+
+        #region Private Instance Methods
+
+        private void Reset () {
+            _includePatterns = null;
+            _includeNames = null;
+            _excludePatterns = null;
+            _excludeNames = null;
+            _fileNames = null;
+            _directoryNames = null;
+            _excludedFileNames = null;
+            _excludedDirectoryNames = null;
+            _searchDirectories = null;
+            _searchDirIsRecursive = null;
+            _scannedDirectories = null;
+        }
+
+        private void CheckHasEmptyDirectories()
+        {
+            if (_baseDirFileSystem == null) return;
+            
+            DirectoryInfo tmp;
+            
+            foreach (FileSystemInfo fs in _baseDirFileSystem) 
+            {
+                if (!(fs is DirectoryInfo)) continue;
+                
+                tmp = fs as DirectoryInfo;
+                
+                if (tmp.GetFiles().Length == 0 && tmp.GetDirectories().Length == 0)
+                {
+                    _hasEmptyDirectories = true;
+                    break;
+                }
+            }
+        }
+        
+        private void CheckIsEverythingIncluded()
+        {
+            if (_baseDirFileSystem == null) return;
+            
+            bool found;
+            string fsFullName;
+            StringComparison strCmp = CaseSensitive ? StringComparison.InvariantCulture
+                : StringComparison.InvariantCultureIgnoreCase;
+            
             foreach (FileSystemInfo fs in _baseDirFileSystem)
             {
                 found = false;
@@ -500,28 +579,6 @@ namespace NAnt.Core {
                     }
                 }
             }
-
-#if DEBUG_REGEXES
-            Console.WriteLine("*********************************************************************");
-#endif
-        }
-
-        #endregion Public Instance Methods
-
-        #region Private Instance Methods
-
-        private void Reset () {
-            _includePatterns = null;
-            _includeNames = null;
-            _excludePatterns = null;
-            _excludeNames = null;
-            _fileNames = null;
-            _directoryNames = null;
-            _excludedFileNames = null;
-            _excludedDirectoryNames = null;
-            _searchDirectories = null;
-            _searchDirIsRecursive = null;
-            _scannedDirectories = null;
         }
 
         /// <summary>
