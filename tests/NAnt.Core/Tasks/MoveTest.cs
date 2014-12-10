@@ -346,10 +346,8 @@ namespace Tests.NAnt.Core.Tasks {
         {
             string buildScript1 = String.Format(_xmlProjectTemplate5, _tempDirTargetOne, _tempDirSourceOne);
             string buildScript2 = String.Format(_xmlProjectTemplate5, _tempDirTargetThree, _tempDirSourceThree);
-            string emptySourceDirOne = CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyOne"));
-            string emptySourceDirTwo = CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyTwo"));
-            string emptyTargetDirOne = Path.Combine(_tempDirTargetThree, "EmptyOne");
-            string emptyTargetDirTwo = Path.Combine(_tempDirTargetThree, "EmptyTwo");
+            CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyOne"));
+            CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyTwo"));
 
             RunBuild(buildScript1);
 

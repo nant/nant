@@ -594,9 +594,6 @@ namespace NAnt.Core.Tasks {
             string destinationDirectory;
             string sourceFile;
             bool isDir;
-            StringComparison strCmp = CopyFileSet.CaseSensitive ?
-                StringComparison.InvariantCulture :
-                StringComparison.InvariantCultureIgnoreCase;
 
             if (FileCount > 0 || DirectoryCount > 0 || Verbose) 
             {
