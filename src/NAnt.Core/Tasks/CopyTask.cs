@@ -577,7 +577,7 @@ namespace NAnt.Core.Tasks {
                 }
             }
 
-            // do all the actual co:py operations now
+            // do all the actual copy operations now
             DoFileOperations();
         }
 
