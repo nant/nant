@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Kevin Dente (kevindente@yahoo.com)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 // This is useful for debugging where filesets are scanned from - scanning is one
 // of the most intensive activities for NAnt

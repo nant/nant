@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Ian MacLean (imaclean@gmail.com)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
 using System.Collections;
