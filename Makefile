@@ -72,7 +72,7 @@ NANT = $(MONO) bootstrap/NAnt.exe -j $(NANT_DEBUG)
 
 all: bootstrap build-nant
 
-build-nant: 
+build-nant: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build build
 
 clean:
