@@ -362,7 +362,7 @@ namespace NAnt.Core.Tasks {
             }
 
             // Clear previous copied files
-			_fileCopyMap.Clear();
+            _fileCopyMap.Clear();
 
             // if the source file is specified, check to see whether it is a file or directory before proceeding
             if (SourceFile != null)

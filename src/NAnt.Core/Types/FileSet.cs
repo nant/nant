@@ -430,12 +430,12 @@ namespace NAnt.Core.Types {
             }
         }
 
-		/// <summary>
-		/// Gets a value indicating whether this instance retrieved all 
-		/// files/directories scanned and nothing was excluded.
-		/// </summary>
-		public bool IsEverythingIncluded 
-		{
+        /// <summary>
+        /// Gets a value indicating whether this instance retrieved all 
+        /// files/directories scanned and nothing was excluded.
+        /// </summary>
+        public bool IsEverythingIncluded 
+        {
             get
             {
                 if (!_hasScanned)
@@ -444,22 +444,22 @@ namespace NAnt.Core.Types {
                 } 
                 return _scanner.IsEverythingIncluded;
             }
-		}
-		
-		/// <summary>
-		/// Gets a value indicating whether this instance contains empty directories.
-		/// </summary>
-		public bool HasEmptyDirectories
-		{
-		    get
-		    {
+        }
+        
+        /// <summary>
+        /// Gets a value indicating whether this instance contains empty directories.
+        /// </summary>
+        public bool HasEmptyDirectories
+        {
+            get
+            {
                 if (!_hasScanned)
                 {
                     Scan();
                 }
                 return _scanner.HasEmptyDirectories;
-		    }
-		}
+            }
+        }
 
         /// <summary>
         /// The items to include in the fileset.
