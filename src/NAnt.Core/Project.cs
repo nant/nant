@@ -138,6 +138,7 @@ namespace NAnt.Core {
         private PropertyDictionary _properties;
         private PropertyDictionary _frameworkNeutralProperties;
         private Target _currentTarget;
+        private bool _runTargetsInParallel;
 
         // info about frameworks
         private FrameworkInfoDictionary _frameworks = new FrameworkInfoDictionary();
@@ -655,6 +656,19 @@ namespace NAnt.Core {
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether independent targets should be executed
+        /// in parallel execution threads.
+        /// </summary>
+        /// <value>
+        /// <see langword="true" /> if targets should be executed in parallel
+        /// otherwise, <see langword="false" />.
+        /// </value>
+        public bool RunTargetsInParallel {
+            get { return _runTargetsInParallel; }
+            set { _runTargetsInParallel = value; }
+        }
+
+        /// <summary>
         /// The list of targets to build.
         /// </summary>
         /// <remarks>
@@ -1005,38 +1019,82 @@ namespace NAnt.Core {
         /// Global tasks are not executed.
         /// </remarks>
         public void Execute(string targetName, bool forceDependencies) {
-            // sort the dependency tree, and run everything from the
-            // beginning until we hit our targetName.
-            // 
-            // sorting checks if all the targets (and dependencies)
-            // exist, and if there is any cycle in the dependency
-            // graph.
-            TargetCollection sortedTargets = TopologicalTargetSort(targetName, Targets);
-            int currentIndex = 0;
-            Target currentTarget;
+            bool singleThreaded = !RunTargetsInParallel;
+            if (singleThreaded) {
+                // sort the dependency tree, and run everything from the
+                // beginning until we hit our targetName.
+                // 
+                // sorting checks if all the targets (and dependencies)
+                // exist, and if there is any cycle in the dependency
+                // graph.
+                TargetCollection sortedTargets = TopologicalTargetSort(targetName, Targets);
+                int currentIndex = 0;
+                Target currentTarget;
 
-            // store calling target
-            Target callingTarget = _currentTarget;
+                // store calling target
+                Target callingTarget = _currentTarget;
 
-            do {
-                // determine target that should be executed
-                currentTarget = (Target) sortedTargets[currentIndex++];
+                do {
+                    // determine target that should be executed
+                    currentTarget = (Target) sortedTargets[currentIndex++];
 
-                // store target that will be executed
-                _currentTarget = currentTarget;
+                    // store target that will be executed
+                    _currentTarget = currentTarget;
 
-                // only execute targets that have not been executed already, if 
-                // we are not forcing.
-                if (forceDependencies || !currentTarget.Executed || currentTarget.Name == targetName) {
-                    currentTarget.Execute();
+                    // only execute targets that have not been executed already, if 
+                    // we are not forcing.
+                    if (forceDependencies || !currentTarget.Executed || currentTarget.Name == targetName) {
+                        currentTarget.Execute();
+                    }
+                } while (currentTarget.Name != targetName);
+
+                // restore calling target, as a <call> task might have caused the 
+                // current target to be executed and when finished executing this 
+                // target, the target that contained the <call> task should be 
+                // considered the current target again
+                _currentTarget = callingTarget;
+            }
+            else {
+                // sorting checks if all the targets (and dependencies)
+                // exist, and if there is any cycle in the dependency
+                // graph.
+                TopologicalTargetSort (targetName, Targets);
+
+                // Dictionary is faster than implementation in TargetCollection.Find
+                System.Collections.Generic.Dictionary<string, Target> targets = new System.Collections.Generic.Dictionary<string, Target>();
+                foreach (Target target in Targets) {
+                    targets [target.Name] = target;
                 }
-            } while (currentTarget.Name != targetName);
 
-            // restore calling target, as a <call> task might have caused the 
-            // current target to be executed and when finished executing this 
-            // target, the target that contained the <call> task should be 
-            // considered the current target again
-            _currentTarget = callingTarget;
+                // Use execution graph to run targets in parallel
+                using (ExecutionGraph graph = new ExecutionGraph()) {
+
+                    PopulateExecutionGraph(targetName, Targets, graph);
+                    graph.WalkThrough(delegate(string currentTargetName) {
+
+                        Target currentTarget;
+                        if (!targets.TryGetValue(currentTargetName, out currentTarget)) {
+                            Target wildcardTarget = targets [WildTarget];
+                            currentTarget = wildcardTarget.Clone ();
+                            currentTarget.Name = targetName;
+                        }
+
+                        Target savedTarget = _currentTarget;
+                        _currentTarget = currentTarget;
+
+                        try {
+                            lock (currentTarget) {
+                                if (forceDependencies || !currentTarget.Executed || currentTarget.Name == targetName) {
+                                    currentTarget.Execute ();
+                                }
+                            }
+                        } finally {
+                            _currentTarget = savedTarget;
+                        }
+                    }
+                    );
+                }
+            }
         }
 
         /// <summary>
@@ -1715,6 +1773,30 @@ namespace NAnt.Core {
 
             state[root] = Project.Visited;
             executeTargets.Add(target);
+        }
+
+        private void PopulateExecutionGraph (string root, TargetCollection targets, ExecutionGraph graph)
+        {
+            Target target = targets.Find(root);
+
+            ExecutionNode node = graph.GetNode(root);
+
+            if (target == null) {
+                target = targets.Find(WildTarget);
+            }
+
+            bool noDependencies = true;
+            foreach (string dependencyName in target.Dependencies) {
+                PopulateExecutionGraph(dependencyName, targets, graph);
+
+                ExecutionNode dependencyNode = graph.GetNode(dependencyName);
+                dependencyNode.RegisterDependantNode(node);
+                noDependencies = false;
+            }
+
+            if (noDependencies) {
+                graph.RegisterLeafNode(node);
+            }
         }
 
         /// <summary>

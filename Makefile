@@ -67,7 +67,7 @@ endif
 
 # Assign remaining vars
 TARGET_FRAMEWORK = -t:$(TARGET)
-NANT = $(MONO) bootstrap/NAnt.exe $(NANT_DEBUG)
+NANT = $(MONO) bootstrap/NAnt.exe -j $(NANT_DEBUG)
 
 
 all: bootstrap build-nant

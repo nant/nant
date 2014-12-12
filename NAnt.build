@@ -125,7 +125,7 @@
         <delete dir="build" if="${directory::exists('build')}" />
     </target>
 
-    <target name="build" depends="init, create-common-assemblyinfo" description="Builds current configuration">
+    <target name="build.common" depends="init, create-common-assemblyinfo">
         <echo message="Build Directory is ${build.dir}" />
         <!-- ensure bin directory exists -->
         <mkdir dir="${build.dir}/bin" />
@@ -153,27 +153,55 @@
                 <exclude name="common/neutral/scvs.exe" />
             </fileset>
         </copy>
+    </target>
+
+    <target name="build.core" depends="build.common">
         <!-- build NAnt.Core assembly -->
         <nant buildfile="src/NAnt.Core/NAnt.Core.build" target="build" />
+    </target>
+
+    <target name="build.console" depends="build.common,build.core">
         <!-- build NAnt.Console assembly -->
         <nant buildfile="src/NAnt.Console/NAnt.Console.build" target="build" />
+    </target>
+
+    <target name="build.ext" depends="build.core">
         <!-- build extension assemblies -->
         <nant target="build">
             <buildfiles refid="ext.core" />
         </nant>
+    </target>
+
+    <target name="build.msbuild" depends="build.core,build.ext">
         <!-- build NAnt.MSBuild assembly -->
         <nant buildfile="src/NAnt.MSBuild/NAnt.MSBuild.build" target="build" />
+    </target>
+
+    <target name="build.ndoc" depends="build.core,build.ext">
         <!-- build NDoc.Documenter.NAnt assembly -->
         <nant buildfile="src/NDoc.Documenter.NAnt/NDoc.Documenter.NAnt.build" target="build" />
+    </target>
+
+    <target name="build.tests.core" depends="build.core">
         <!-- build NAnt.Core.Tests assembly -->
         <nant buildfile="tests/NAnt.Core/NAnt.Core.build" target="build" />
+    </target>
+
+    <target name="build.tests.console" depends="build.console, build.tests.core">
         <!-- build NAnt.Console.Tests assembly -->
         <nant buildfile="tests/NAnt.Console/NAnt.Console.build" target="build" />
+    </target>
+
+    <target name="build.tests.ext" depends="build.ext">
         <!-- build tests for extension assemblies -->
         <nant target="build">
             <buildfiles refid="ext.core.tests"/>
         </nant>
     </target>
+
+    <target name="build"
+         depends="build.core,build.console,build.ext,build.msbuild,build.ndoc,build.tests.core,build.tests.console,build.tests.ext"
+         description="Builds current configuration"/>
 
     <!-- test the newly built NAnt -->
     <target name="test" depends="build" description="Tests current configuration">
