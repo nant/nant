@@ -105,7 +105,8 @@ namespace NAnt.Core {
         // set to current directory in Scan if user doesn't specify something first.
         // keeping it null, lets the user detect if it's been set or not.
         private DirectoryInfo _baseDirectory;
-        
+
+        // Holds every file and subdirectory information found in BaseDirectory.
         private List<FileSystemInfo> _baseDirFileSystem = new List<FileSystemInfo>();
 
         // holds the nant patterns (absolute or relative paths)
@@ -134,7 +135,8 @@ namespace NAnt.Core {
 
         // Indicates whether or not every file scanned was included
         private bool _isEverythingIncluded = true;
-        
+
+        // Indicates whether or not the base directory contains empty subdirectories.
         private bool _hasEmptyDirectories = false;
 
         #endregion Private Instance Fields
@@ -231,7 +233,13 @@ namespace NAnt.Core {
                 clone._searchDirIsRecursive = (ArrayList) 
                     _searchDirIsRecursive.Clone();
             }
+            if (_baseDirFileSystem != null)
+                clone._baseDirFileSystem = new List<FileSystemInfo>(_baseDirFileSystem);
+
             clone._caseSensitive = _caseSensitive;
+            clone._isEverythingIncluded = _isEverythingIncluded;
+            clone._hasEmptyDirectories = _hasEmptyDirectories;
+
             return clone;
         }
 
@@ -438,7 +446,7 @@ namespace NAnt.Core {
             }
             
             // Wait for the directory scan to finish before checking if
-            // everything is included.
+            // everything is included and if there are any empty directories.
             getDirList.Join();
 
             // Run both "Check" methods in parallel.
@@ -466,7 +474,11 @@ namespace NAnt.Core {
 
         #region Private Instance Methods
 
-        private void Reset () {
+        private void Reset () 
+        {
+            _isEverythingIncluded = true;
+            _hasEmptyDirectories = false;
+            _baseDirFileSystem.Clear();
             _includePatterns = null;
             _includeNames = null;
             _excludePatterns = null;
@@ -480,6 +492,9 @@ namespace NAnt.Core {
             _scannedDirectories = null;
         }
 
+        /// <summary>
+        /// Checks to see if <see cref="BaseDirectory"/> contains empty directories.
+        /// </summary>
         private void CheckHasEmptyDirectories()
         {
             if (_baseDirFileSystem == null) return;
@@ -491,7 +506,9 @@ namespace NAnt.Core {
                 if (!(fs is DirectoryInfo)) continue;
                 
                 tmp = fs as DirectoryInfo;
-                
+
+                // If the current directory does not contain any files or directories,
+                // indicate that BaseDirectory has empty directories and exit loop.
                 if (tmp.GetFiles().Length == 0 && tmp.GetDirectories().Length == 0)
                 {
                     _hasEmptyDirectories = true;
@@ -499,7 +516,11 @@ namespace NAnt.Core {
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Checks to see if all of the files/subdirectories in <see cref="BaseDirectory"/>
+        /// will be included in the calling task.
+        /// </summary>
         private void CheckIsEverythingIncluded()
         {
             if (_baseDirFileSystem == null) return;
@@ -508,7 +529,10 @@ namespace NAnt.Core {
             string fsFullName;
             StringComparison strCmp = CaseSensitive ? StringComparison.InvariantCulture
                 : StringComparison.InvariantCultureIgnoreCase;
-            
+
+            // Loop through all of the files/subdirectories in BaseDirectory and make sure that
+            // the are both included in the appropriate include list and not included in the
+            // appropriate exclude list.
             foreach (FileSystemInfo fs in _baseDirFileSystem)
             {
                 found = false;
