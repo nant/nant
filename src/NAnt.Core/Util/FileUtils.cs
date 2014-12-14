@@ -30,10 +30,8 @@ namespace NAnt.Core.Util {
     /// Provides modified version for Copy and Move from the File class that 
     /// allow for filter chain processing.
     /// </summary>
-    public sealed class FileUtils {
-        private FileUtils() {
-        }
-
+    public static class FileUtils 
+    {
         #region Public Static Methods
 
         /// <summary>
