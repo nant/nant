@@ -32,6 +32,7 @@ using NAnt.Core.Util;
 using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
 using NAnt.VSNet.Types;
+using Microsoft.Win32;
 
 namespace NAnt.MSBuild {
     internal class MSBuildProject : ProjectBase {
@@ -304,9 +305,23 @@ namespace NAnt.MSBuild {
             // <TargetFrameworkVersion> element node
             XmlNode _targetNetVerNode = docElement.SelectSingleNode("ms:PropertyGroup/ms:TargetFrameworkVersion", _nsMgr);
 
-            // If the <ProductVersion> element exists and it is not empty, get the
-            // product version from it.
-            if (_productVerNode != null && !String.IsNullOrEmpty(_productVerNode.InnerText)) {
+            // If the <TargetFrameworkVersion> element exists, get the product version from it.
+            if (_targetNetVerNode != null) {
+                string targetFrameworkVer = _targetNetVerNode.InnerText;
+
+                switch (targetFrameworkVer.ToUpper().Trim()) {
+                    case "V4.5":
+                        return ProductVersion.VisualStudio11;
+                    case "V4.0":
+                        return ProductVersion.Rosario;
+                    case "V3.5":
+                        return ProductVersion.Orcas;
+                    case "V2.0":
+                        return ProductVersion.Whidbey;
+                }
+
+            // If the <ProductVersion> element exists and it is not empty, get the product version from it.
+            } else if (_productVerNode != null && !String.IsNullOrEmpty(_productVerNode.InnerText)) {
                 Version _ver = new Version(_productVerNode.InnerText);
 
                 switch (_ver.Major) {
@@ -319,19 +334,6 @@ namespace NAnt.MSBuild {
                             return ProductVersion.Orcas;
                         }
                         return ProductVersion.Rosario;
-                }
-
-            // If the <TargetFrameworkVersion> element exists, get the product version from it.
-            } else if (_targetNetVerNode != null) {
-                string targetFrameworkVer = _targetNetVerNode.InnerText;
-
-                switch (targetFrameworkVer.ToUpper().Trim()) {
-                    case "V4.0":
-                        return ProductVersion.Rosario;
-                    case "V3.5":
-                        return ProductVersion.Orcas;
-                    case "V2.0":
-                        return ProductVersion.Whidbey;
                 }
 
             // If neither of the above mentioned tags exist, look for the "ToolsVersion"

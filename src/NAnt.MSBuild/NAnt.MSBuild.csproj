@@ -84,6 +84,8 @@
     <Compile Include="VS2008\OrcasSolutionProvider.cs" />
     <Compile Include="VS2010\RosarioSolution.cs" />
     <Compile Include="VS2010\RosarioSolutionProvider.cs" />
+    <Compile Include="VS2012\VisualStudio11Solution.cs" />
+    <Compile Include="VS2012\VisualStudio11SolutionProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
