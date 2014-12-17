@@ -124,6 +124,11 @@ namespace NAnt.Core.Types {
     ///     <item><description>**/CVS</description></item>
     ///     <item><description>**/CVS/**</description></item>
     ///     <item><description>**/.cvsignore</description></item>
+    ///     <item><description>**/._*</description></item>
+    ///     <item><description>**/.bzr</description></item>
+    ///     <item><description>**/.bzr/**</description></item>
+    ///     <item><description>**/.bzr* (eg. .bzrignore)</description></item>
+    ///     <item><description>**/.DS_Store</description></item>
     /// </list>
     /// <para>
     /// If you do not want these default excludes applied, you may disable them 
@@ -651,6 +656,11 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/CVS");
                 Excludes.Add("**/CVS/**");
                 Excludes.Add("**/.cvsignore");
+                Excludes.Add("**/._*");
+                Excludes.Add("**/.bzr");
+                Excludes.Add("**/.bzr/**");
+                Excludes.Add("**/.bzr*");
+                Excludes.Add("**/.DS_Store");
             }
         }
 
