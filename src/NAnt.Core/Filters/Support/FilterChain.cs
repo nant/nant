@@ -189,7 +189,7 @@ namespace NAnt.Core.Filters {
         /// </param>
         internal static bool IsNullOrEmpty(FilterChain filterChain)
         {
-            return (filterChain == null) || filterChain.Filters.Count <= 0;
+            return (filterChain == null || filterChain.Filters.Count <= 0);
         }
 
         #endregion Internal Static Methods
