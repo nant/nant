@@ -17,15 +17,9 @@
 //
 // Thomas Strauss (strausst@arcor.de)
 
-using System;   
 using System.IO;
 
 using NUnit.Framework;
-
-using NAnt.Core;
-
-using Tests.NAnt.Core;
-using Tests.NAnt.Core.Util;
 using Tests.NAnt.VisualCpp;
 
 namespace Tests.NAnt.VSNet.Tasks {

@@ -18,10 +18,6 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using NAnt.Core;
 
 using NUnit.Framework;

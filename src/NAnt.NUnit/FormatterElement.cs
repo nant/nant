@@ -17,11 +17,7 @@
 //
 // Ian MacLean (ian_maclean@another.com)
 
-using System;
 using System.IO;
-using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 

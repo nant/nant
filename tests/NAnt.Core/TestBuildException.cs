@@ -18,7 +18,6 @@
 // Scott Hernandez (Scott Hernandez)
 
 using System;
-using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace Tests.NAnt.Core {

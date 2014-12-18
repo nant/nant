@@ -121,13 +121,31 @@ namespace NAnt.Core.Tasks {
     /// </example>
     [TaskName("foreach")]
     public class LoopTask : TaskContainer {
+        /// <summary>
+        /// Possible types of iteration that can be done.
+        /// </summary>
         public enum LoopItem {
+            /// <summary>
+            /// Loop over files in a <see cref="FileSet"/>.
+            /// </summary>
             File = 1,
+            /// <summary>
+            /// Loop over folders in a <see cref="DirSet"/>
+            /// </summary>
             Folder = 2,
+            /// <summary>
+            /// Loop over the items of a string.
+            /// </summary>
             String = 3,
+            /// <summary>
+            /// Loop over files of a line.
+            /// </summary>
             Line = 4
         }
 
+        /// <summary>
+        /// Specifies the trimming of items.
+        /// </summary>
         public enum LoopTrim {
             /// <summary>
             /// Do not remove any white space characters.
@@ -261,6 +279,25 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of TaskContainer
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">
+        /// <list type="bullet">
+        /// <item>
+        /// <description>If no input data is present.</description>
+        /// </item>
+        /// <item>
+        /// <description>If <see cref="LoopItem.File"/> is used but and the directory of the input file doesn't exist.</description>
+        /// </item>
+        /// <item>
+        /// <description>If <see cref="LoopItem.File"/> is used and more than one property item is set.</description>
+        /// </item>
+        /// <item>
+        /// <description>If <see cref="LoopItem.File"/> is used and no do-block was found.</description>
+        /// </item>
+        /// </list>
+        /// </exception>
         protected override void ExecuteTask() {
             string[] oldPropVals = new string[_props.Length];
             // Save all of the old property values
@@ -399,6 +436,13 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Creates and executes the embedded (child XML nodes) elements.
+        /// </summary>
+        /// <remarks>
+        /// Skips any element defined by the host <see cref="Task" /> that has
+        /// a <see cref="BuildElementAttribute" /> defined.
+        /// </remarks>
         protected override void ExecuteChildTasks() {
             if (StuffToDo == null) {
                 base.ExecuteChildTasks();
@@ -456,6 +500,9 @@ namespace NAnt.Core.Tasks {
         #endregion Private Instance Methods
     }
 
+    /// <summary>
+    /// Class which contains nested elements which are used in the loop.
+    /// </summary>
     public class InElement : Element {
         #region Private Instance Fields
 
@@ -465,6 +512,12 @@ namespace NAnt.Core.Tasks {
 
         #region Public Instance Properties
 
+        /// <summary>
+        /// Gets or sets the items.
+        /// </summary>
+        /// <value>
+        /// The items.
+        /// </value>
         [BuildElement("items")]
         public FileSet Items {
             get { return _items;}

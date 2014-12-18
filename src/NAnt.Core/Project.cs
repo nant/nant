@@ -23,16 +23,12 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-
-using Microsoft.Win32;
-
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 
@@ -114,12 +110,39 @@ namespace NAnt.Core {
 
         #region Public Instance Events
 
+        /// <summary>
+        /// Occurs when a build is started.
+        /// </summary>
         public event BuildEventHandler BuildStarted;
+
+        /// <summary>
+        /// Occurs when a build has finished.
+        /// </summary>
         public event BuildEventHandler BuildFinished;
+
+        /// <summary>
+        /// Occurs when a target is started.
+        /// </summary>
         public event BuildEventHandler TargetStarted;
+        
+        /// <summary>
+        /// Occurs when a target has finished.
+        /// </summary>
         public event BuildEventHandler TargetFinished;
+        
+        /// <summary>
+        /// Occurs when a task is started.
+        /// </summary>
         public event BuildEventHandler TaskStarted;
+
+        /// <summary>
+        /// Occurs when a task has finished.
+        /// </summary>
         public event BuildEventHandler TaskFinished;
+        
+        /// <summary>
+        /// Occurs when a message is logged.
+        /// </summary>
         public event BuildEventHandler MessageLogged;
 
         #endregion Public Instance Events
@@ -1178,6 +1201,11 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Creates the <see cref="DataTypeBase"/> instance from the passed XML node.
+        /// </summary>
+        /// <param name="elementNode">The element XML node.</param>
+        /// <returns>The created instance.</returns>
         public DataTypeBase CreateDataTypeBase(XmlNode elementNode) {
             DataTypeBase type = TypeFactory.CreateDataType(elementNode, this);
 

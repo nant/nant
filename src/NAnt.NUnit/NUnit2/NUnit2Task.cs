@@ -20,9 +20,7 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -35,13 +33,10 @@ using System.Xml.XPath;
 using NUnit.Core;
 using NUnit.Core.Filters;
 using TestOutput = NUnit.Core.TestOutput;
-using NUnit.Framework;
 using NUnit.Util;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
-
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Types;
 

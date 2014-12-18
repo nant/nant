@@ -17,8 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Collections;
 using System.Net;
 
 using NAnt.Core.Attributes;

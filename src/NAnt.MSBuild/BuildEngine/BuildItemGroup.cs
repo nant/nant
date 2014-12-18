@@ -19,9 +19,6 @@
 
 using System;
 using System.Collections;
-using System.Text;
-using System.Reflection;
-using System.IO;
 
 namespace NAnt.MSBuild.BuildEngine {
     internal class BuildItemGroup {

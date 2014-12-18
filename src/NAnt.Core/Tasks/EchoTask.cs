@@ -22,8 +22,6 @@ using System;
 using System.IO;
 using System.Globalization;
 using System.Text;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
@@ -261,6 +259,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Initializes the task.
+        /// </summary>
         protected override void Initialize() {
             if (XmlNode.ChildNodes.Count == 0)
                 return;

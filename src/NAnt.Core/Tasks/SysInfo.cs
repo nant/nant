@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
@@ -177,6 +176,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             Log(Level.Info, "Setting system information properties under " + Prefix + "*");
 

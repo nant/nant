@@ -1,8 +1,6 @@
 using System;
 using System.Reflection;
 using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Configuration {

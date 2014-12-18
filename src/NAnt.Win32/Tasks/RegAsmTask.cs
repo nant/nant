@@ -18,8 +18,6 @@
 // Ian MacLean (ian@maclean.ms)
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -27,7 +25,6 @@ using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 

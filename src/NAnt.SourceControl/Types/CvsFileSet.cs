@@ -17,16 +17,10 @@
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
-using System;
 using System.Collections;
 using System.IO;
-using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
-using NAnt.Core.Util;
-
 using NAnt.SourceControl.Tasks;
 
 namespace NAnt.SourceControl.Types {

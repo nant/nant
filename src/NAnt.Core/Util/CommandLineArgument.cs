@@ -33,6 +33,11 @@ namespace NAnt.Core.Util {
     public class CommandLineArgument {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineArgument"/> class.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="propertyInfo">The property information.</param>
         public CommandLineArgument(CommandLineArgumentAttribute attribute, PropertyInfo propertyInfo) {
             _attribute = attribute;
             _propertyInfo = propertyInfo;

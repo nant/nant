@@ -22,7 +22,6 @@
 //
 // TODO: review interface for future compatibility/customizations issues
 
-using System;
 using System.IO;
 
 using NAnt.Core;

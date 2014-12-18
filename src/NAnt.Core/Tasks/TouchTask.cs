@@ -132,6 +132,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             DateTime touchDateTime = DateTime.Now;
 

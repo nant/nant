@@ -59,6 +59,10 @@ namespace NAnt.Core {
         /// </summary>
         public XmlLogger() : this(new StopWatchStack(new DateTimeProvider())) {}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XmlLogger"/> class.
+        /// </summary>
+        /// <param name="stopWatchStack">The stop watch stack.</param>
         public XmlLogger(StopWatchStack stopWatchStack) {
             _xmlWriter = new XmlTextWriter(_buffer);
             _stopWatchStack = stopWatchStack;

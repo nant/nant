@@ -19,18 +19,11 @@
 // Matthew Mastracci (matt@aclaro.com)
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Globalization;
-using System.IO;
 using System.Text.RegularExpressions;
-
-using NAnt.Core;
 using NAnt.Core.Util;
-
-using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {

@@ -17,11 +17,7 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.CodeDom.Compiler;
-using System.Collections;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VSNet.Tasks;

@@ -18,7 +18,6 @@
 // Ian MacLean (imaclean@gmail.com)
 
 using System;
-using System.Reflection;
 
 namespace NAnt.Core.Attributes {
     /// <summary>

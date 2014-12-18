@@ -21,17 +21,13 @@ using System;
 using System.Xml;
 using System.CodeDom.Compiler;
 using System.Collections;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text;
-
 using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VSNet;
 using NAnt.VSNet.Tasks;
-using NAnt.VSNet.Types;
 
 namespace NAnt.MSBuild {
     internal class MSBuildProject : ProjectBase {

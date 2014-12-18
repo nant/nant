@@ -22,7 +22,6 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml;
 
 using NAnt.Core.Configuration;
@@ -835,14 +834,38 @@ namespace NAnt.Core {
         }
     }
 
+    /// <summary>
+    /// Enumeration of CLR types.
+    /// </summary>
     public enum ClrType {
+        /// <summary>
+        /// Desktop CLR is used.
+        /// </summary>
         Desktop = 1,
+        
+        /// <summary>
+        /// Compact CLR is used.
+        /// </summary>
         Compact = 2,
+        
+        /// <summary>
+        /// Browser CLR is used.
+        /// </summary>
         Browser = 3
     }
 
+    /// <summary>
+    /// Enumeration of vendors.
+    /// </summary>
     public enum VendorType {
+        /// <summary>
+        /// Vendor Microsoft.
+        /// </summary>
         Microsoft = 1,
+        
+        /// <summary>
+        /// Vendor Mono.
+        /// </summary>
         Mono = 2
     }
 }

@@ -18,10 +18,7 @@
 // Martin Aliger (martin_aliger@gordic.cz)
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {

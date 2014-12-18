@@ -18,7 +18,6 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.Collections;
 using System.Globalization;
 
@@ -159,6 +158,10 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">If the target framework cannot be changed.</exception>
         protected override void ExecuteTask() {
             string propertyValue;
 

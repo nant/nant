@@ -20,16 +20,11 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Configuration;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 //
@@ -41,10 +36,18 @@ using NAnt.Core.Util;
 // 
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt runtime information and operatons.
+    /// </summary>
     [FunctionSet("nant", "NAnt")]
     public class NAntFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NAntFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public NAntFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -209,10 +212,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving project information.
+    /// </summary>
     [FunctionSet("project", "NAnt")]
     public class ProjectFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public ProjectFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -287,10 +298,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving target information.
+    /// </summary>
     [FunctionSet("target", "NAnt")]
     public class TargetFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TargetFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public TargetFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -363,10 +382,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving task information.
+    /// </summary>
     [FunctionSet("task", "NAnt")]
     public class TaskFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public TaskFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -410,10 +437,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving property information.
+    /// </summary>
     [FunctionSet("property", "NAnt")]
     public class PropertyFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public PropertyFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -500,10 +535,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Instance Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions for retrieving platform information.
+    /// </summary>
     [FunctionSet("platform", "NAnt")]
     public class PlatformFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlatformFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public PlatformFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

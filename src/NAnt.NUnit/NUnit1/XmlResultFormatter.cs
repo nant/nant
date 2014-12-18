@@ -21,12 +21,9 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Xml;
 
 using NUnit.Framework;
-
-using NAnt.Core.Util;
 
 namespace NAnt.NUnit1.Types {
     /// <summary>

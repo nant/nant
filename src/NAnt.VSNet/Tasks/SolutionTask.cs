@@ -40,7 +40,6 @@ using NAnt.VSNet.Types;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
 
 namespace NAnt.VSNet.Tasks {
     /// <summary>
@@ -428,6 +427,12 @@ namespace NAnt.VSNet.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">
+        /// Project build failed.
+        /// </exception>
         protected override void ExecuteTask() {
             Log(Level.Info, "Starting solution build.");
 

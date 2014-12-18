@@ -18,16 +18,9 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
-using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -139,6 +132,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             foreach (ElementContainer container in _elementContainers) {
                 When when = container as When;
@@ -214,7 +210,10 @@ namespace NAnt.Core.Tasks {
             #endregion Public Instance Properties
     
             #region Override implementation of NestedTaskContainer
-    
+
+            /// <summary>
+            /// Executes this instance.
+            /// </summary>
             public override void Execute() {
                 if (!Test) {
                     return;

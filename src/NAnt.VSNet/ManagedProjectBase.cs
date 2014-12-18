@@ -28,7 +28,6 @@ using System.Text;
 using System.Xml;
 
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
 

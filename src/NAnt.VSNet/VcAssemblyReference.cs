@@ -26,8 +26,6 @@ using System.Xml;
 using NAnt.Core;
 using NAnt.Core.Util;
 
-using NAnt.VSNet.Tasks;
-
 namespace NAnt.VSNet {
     public class VcAssemblyReference : AssemblyReferenceBase {
         public VcAssemblyReference(XmlElement xmlDefinition, ReferencesResolver referencesResolver, ProjectBase parent, GacCache gacCache) : base(xmlDefinition, referencesResolver, parent, gacCache) {

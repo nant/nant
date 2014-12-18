@@ -17,8 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 
