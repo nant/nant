@@ -61,6 +61,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>
     ///   The example will read the server value from the above
     ///   configuration file.
+    ///   </para>
     ///   <para>
     ///   NOTE: The example below shows that the default namespace needs to also be declared. Simply set any prefix and use that prefix in the xpath.
     ///   </para>
