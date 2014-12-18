@@ -17,18 +17,10 @@
 //
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
-using System;
-using System.IO;
-using System.Text;
-using System.Xml;
-using System.Globalization;
-
 using NUnit.Framework;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Attributes {
     [TestFixture]

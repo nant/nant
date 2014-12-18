@@ -23,15 +23,11 @@ using System.Globalization;
 using System.IO;
 
 using ICSharpCode.SharpZipLib.BZip2;
-using ICSharpCode.SharpZipLib.Checksums;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
-using NAnt.Core.Util;
-
 using NAnt.Compression.Types;
 
 namespace NAnt.Compression.Tasks {

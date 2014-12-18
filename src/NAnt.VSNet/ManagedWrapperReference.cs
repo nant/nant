@@ -23,14 +23,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-
-using Microsoft.Win32;
-
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Util;
-using NAnt.Core.Types;
-
 using NAnt.Win32.Tasks;
 
 namespace NAnt.VSNet {

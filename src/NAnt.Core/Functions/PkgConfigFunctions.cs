@@ -22,11 +22,7 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Collections;
-using System.Reflection;
 using System.Globalization;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
@@ -37,6 +33,11 @@ namespace NAnt.Core.Functions {
     public class PkgConfigFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PkgConfigFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public PkgConfigFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

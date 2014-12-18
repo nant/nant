@@ -97,6 +97,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             bool value = true;
             

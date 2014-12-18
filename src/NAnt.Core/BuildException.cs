@@ -23,8 +23,6 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-using NAnt.Core.Util;
-
 namespace NAnt.Core {
     /// <summary>
     /// Thrown whenever an error occurs during the build.

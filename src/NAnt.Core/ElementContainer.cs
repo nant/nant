@@ -17,12 +17,9 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 namespace NAnt.Core
@@ -57,6 +54,9 @@ namespace NAnt.Core
 
         #region Public Instance Methods
 
+        /// <summary>
+        /// Executes this instance.
+        /// </summary>
         public virtual void Execute() {
             ExecuteChildTasks();
         }
@@ -108,6 +108,11 @@ namespace NAnt.Core
             }
         }
 
+        /// <summary>
+        /// Creates the child task specified by the passed XmlNode.
+        /// </summary>
+        /// <param name="node">The node specifiing the task.</param>
+        /// <returns>The created task instance.</returns>
         protected virtual Task CreateChildTask(XmlNode node) {
             return Project.CreateTask(node);
         }

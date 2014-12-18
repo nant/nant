@@ -1,5 +1,3 @@
-using System;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 

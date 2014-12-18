@@ -33,11 +33,8 @@ using System.Text;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet.Types;

@@ -19,7 +19,6 @@
 // Aaron Anderson (gerry_shaw@yahoo.com)
 // Ian MacLean (ian@maclean.ms)
 
-using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;

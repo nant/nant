@@ -20,7 +20,6 @@
 using System;
 
 using NUnit.Framework;
-using Tests.NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
 namespace Tests.NAnt.Win32.Tasks {

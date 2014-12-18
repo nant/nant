@@ -17,7 +17,6 @@
 //
 // Laurent Arnal (laurent@clae.net)
 
-using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.Globalization;

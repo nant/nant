@@ -167,6 +167,10 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
+        /// <exception cref="BuildException">If a directory cannot be deleted.</exception>
         protected override void ExecuteTask() {
             // ensure base directory is set, even if fileset was not initialized
             // from XML

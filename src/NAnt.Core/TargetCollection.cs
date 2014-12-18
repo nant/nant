@@ -24,6 +24,9 @@ using System.Globalization;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Collection class to manage the projects targets.
+    /// </summary>
     [Serializable()]
     public class TargetCollection : ArrayList {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

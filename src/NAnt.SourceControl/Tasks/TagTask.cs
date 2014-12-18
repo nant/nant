@@ -19,10 +19,7 @@
 
 using System;
 using System.Globalization;
-
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 using NAnt.Core.Types;
 
 namespace NAnt.SourceControl.Tasks {

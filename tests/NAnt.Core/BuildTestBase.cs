@@ -19,12 +19,9 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Xml;
-
-using NUnit.Framework;
-
 using NAnt.Core;
+using NUnit.Framework;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core {

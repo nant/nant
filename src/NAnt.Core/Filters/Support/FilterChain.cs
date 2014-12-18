@@ -24,7 +24,6 @@ using System.Text;
 using System.Xml;
 
 using NAnt.Core.Attributes;
-using NAnt.Core.Filters;
 using NAnt.Core.Tasks;
 using NAnt.Core.Util;
 

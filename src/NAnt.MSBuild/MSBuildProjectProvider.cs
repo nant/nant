@@ -17,13 +17,9 @@
 //
 // Martin Aliger (martin_aliger@myrealbox.com)
 
-using System;
-using System.Configuration;
 using System.Xml;
 using System.CodeDom.Compiler;
 using System.IO;
-
-using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VSNet;

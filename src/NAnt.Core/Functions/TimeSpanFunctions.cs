@@ -18,20 +18,21 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions for working with time spans.
+    /// </summary>
     [FunctionSet("timespan", "Date/Time")]
     public class TimeSpanFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeSpanFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public TimeSpanFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 
@@ -285,10 +286,18 @@ namespace NAnt.Core.Functions {
         #endregion Public Static Methods
     }
 
+    /// <summary>
+    /// Class which provides NAnt functions to convert strings in date and time span objects and vice versa.
+    /// </summary>
     [FunctionSet("timespan", "Conversion")]
     public class TimeSpanConversionFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimeSpanConversionFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public TimeSpanConversionFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

@@ -22,7 +22,6 @@ using System.IO;
 
 using NUnit.Framework;
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
 
 namespace Tests.NAnt.VSNet.Tasks {

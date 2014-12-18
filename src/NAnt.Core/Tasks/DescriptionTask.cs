@@ -17,8 +17,6 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
-
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Tasks {
@@ -37,6 +35,9 @@ namespace NAnt.Core.Tasks {
     public class DescriptionTask : Task {
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
         }
 

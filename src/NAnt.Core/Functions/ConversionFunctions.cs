@@ -19,21 +19,22 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Collections;
-using System.Reflection;
-using System.Globalization;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Obsolete class which provides NAnt functions to convert data types.
+    /// </summary>
     [FunctionSet("convert", "Conversion")]
     public class ConversionFunctions : FunctionSetBase {
 
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConversionFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="propDict">The projects property dictionary.</param>
         public ConversionFunctions(Project project, PropertyDictionary propDict ) : base(project, propDict) {}
 
         #endregion Public Instance Constructors

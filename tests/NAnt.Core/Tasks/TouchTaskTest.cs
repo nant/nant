@@ -24,8 +24,6 @@ using System.IO;
 using System.Globalization;
 
 using NUnit.Framework;
-
-using NAnt.Core.Tasks;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {

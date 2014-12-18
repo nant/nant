@@ -18,13 +18,11 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
 using NAnt.Core.Filters;
-using NAnt.Core.Types;
 
 namespace NAnt.Core.Util
 {

@@ -18,13 +18,7 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
-using System.Collections;
 using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Xml;
-
 using NUnit.Framework;
 
 using NAnt.Core;

@@ -17,11 +17,7 @@
 //
 // Martin Aliger (martin_aliger@myrealbox.com)
 
-using System;
 using System.CodeDom.Compiler;
-using System.Xml;
-
-using NAnt.Core;
 using NAnt.Core.Extensibility;
 using NAnt.Core.Util;
 

@@ -20,7 +20,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;

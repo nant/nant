@@ -18,10 +18,7 @@
 // Ian MacLean (ian_maclean@another.com)
 // Hani Atassi (haniatassi@users.sourceforge.net)
 
-using System;
 using System.IO;
-using System.Text;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;

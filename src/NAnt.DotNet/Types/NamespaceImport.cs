@@ -18,12 +18,8 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Globalization;
-using System.Reflection;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
     /// <summary>

@@ -19,10 +19,8 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -30,9 +28,6 @@ using System.Runtime.Remoting.Lifetime;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
-
-using NAnt.Core;
 
 namespace NAnt.Core.Util {
     /// <summary>
@@ -97,11 +92,18 @@ namespace NAnt.Core.Util {
 
         #region Implementation of IDisposable
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool disposing) {
             if (!_disposed) {
                 AppDomain.Unload(_domain);
