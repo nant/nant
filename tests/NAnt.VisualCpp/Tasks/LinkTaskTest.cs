@@ -20,17 +20,11 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Xml; 
-
 using NUnit.Framework;
 
 using NAnt.Core;
 
 using NAnt.VisualCpp.Tasks;
-
-using Tests.NAnt.Core;
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.VisualCpp.Tasks
 {

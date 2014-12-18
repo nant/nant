@@ -17,9 +17,6 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
-using System.Xml;
-
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {

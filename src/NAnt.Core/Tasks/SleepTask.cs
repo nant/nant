@@ -18,8 +18,6 @@
 // Ian MacLean (ian@maclean.ms)
 
 using System;
-using System.Globalization;
-using System.Xml;
 using System.Threading;
 
 using NAnt.Core.Attributes;
@@ -111,6 +109,9 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             int sleepTime = GetSleepTime();
             Log(Level.Info, "Sleeping for {0} milliseconds.", sleepTime);

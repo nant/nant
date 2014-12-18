@@ -19,8 +19,6 @@
 
 using System;
 using System.Collections;
-using System.Globalization;
-using System.Text;
 
 namespace NAnt.Core.Extensibility {
     /// <summary>

@@ -19,10 +19,7 @@
 
 using System;
 using NAnt.Core;
-using NAnt.Core.Util;
-using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.IO;
 using System.Reflection;
 
 namespace NAnt.MSBuild {

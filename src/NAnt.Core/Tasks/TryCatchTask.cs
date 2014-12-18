@@ -17,10 +17,6 @@
 //
 // Troy Laurin (fiontan@westnet.com.au)
 
-using System;
-
-using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
@@ -230,6 +226,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             try {
                 if (TryBlock != null) {

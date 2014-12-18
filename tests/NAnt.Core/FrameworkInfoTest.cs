@@ -26,8 +26,6 @@ using System.Xml;
 using NUnit.Framework;
 
 using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 
 namespace Tests.NAnt.Core {
     [TestFixture]

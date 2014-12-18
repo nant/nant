@@ -24,8 +24,6 @@ using System.Collections;
 using System.Collections.Specialized;   
 using System.Globalization;
 using System.IO;
-using System.Xml;
-
 using NAnt.Core;
 using NAnt.Core.Util;
 

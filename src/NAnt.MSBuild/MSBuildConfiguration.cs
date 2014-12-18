@@ -18,17 +18,12 @@
 // Martin Aliger (martin_aliger@myrealbox.com)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Xml;
-
 using NAnt.Core;
 using NAnt.Core.Util;
 
 using NAnt.VSNet;
-using NAnt.VSNet.Types;
 
 namespace NAnt.MSBuild {
     internal class MSBuildConfiguration : ConfigurationBase {

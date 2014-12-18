@@ -19,8 +19,6 @@
 using System;
 using System.IO;
 
-using NAnt.Core.Types;
-
 namespace NAnt.Core.Filters {
     /// <summary>
     /// Functions as a chainable TextReader

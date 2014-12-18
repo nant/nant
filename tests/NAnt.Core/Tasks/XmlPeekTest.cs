@@ -20,8 +20,6 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 // Charles Chan (cchan_qa@users.sourceforge.net)
 
-using System;
-using System.IO;
 using System.Globalization;
 using System.Threading;
 using System.Xml;
@@ -29,7 +27,6 @@ using System.Xml;
 using NUnit.Framework;
 
 using NAnt.Core;
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
     [TestFixture]

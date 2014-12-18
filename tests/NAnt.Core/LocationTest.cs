@@ -19,8 +19,6 @@
 
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
-
 using NUnit.Framework;
 
 using NAnt.Core;

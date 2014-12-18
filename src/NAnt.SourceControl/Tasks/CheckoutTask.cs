@@ -21,9 +21,7 @@ using System;
 using System.Globalization;
 
 using NAnt.Core.Attributes;
-using NAnt.Core.Tasks;
 using NAnt.Core.Types;
-using NAnt.Core.Util;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>

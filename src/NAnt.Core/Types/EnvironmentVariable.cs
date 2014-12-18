@@ -21,7 +21,6 @@ using System;
 using System.IO;
 
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.Core.Types {
     /// <summary>

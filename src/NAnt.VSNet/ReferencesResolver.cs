@@ -20,21 +20,11 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.CodeDom.Compiler;
 using System.Collections;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
-using System.Xml;
-
-using Microsoft.Win32;
-
-using NAnt.Core;
 using NAnt.Core.Util;
-
-using NAnt.VSNet.Tasks;
 
 namespace NAnt.VSNet {
     public class ReferencesResolver : MarshalByRefObject {

@@ -17,11 +17,7 @@
 
 // Jason Pettys (jason.pettys@workforceroi.com)
 
-using System;
 using System.IO;
-using System.Text;
-using System.Xml;
-
 using NUnit.Framework;
 
 using NAnt.DotNet.Types;

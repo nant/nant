@@ -25,10 +25,7 @@ using System.IO;
 using System.Xml;
 
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using NAnt.Core.Util;
-using NAnt.Core.Types;
-
 using NAnt.Win32.Tasks;
 
 namespace NAnt.VSNet {

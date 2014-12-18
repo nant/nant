@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
@@ -32,8 +31,6 @@ using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;

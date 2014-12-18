@@ -454,6 +454,16 @@ namespace NAnt.Core {
             return filter;
         }
 
+        /// <summary>
+        /// Creates the <see cref="DataTypeBase"/> instance.
+        /// </summary>
+        /// <param name="elementNode">The element XML node.</param>
+        /// <param name="proj">The current project.</param>
+        /// <returns>The created instance.</returns>
+        /// <exception cref="System.ArgumentNullException">If elementNode or proj is <c>null</c>.
+        /// </exception>
+        /// <exception cref="BuildException">If no builder for the elment can be found.
+        /// </exception>
         public static DataTypeBase CreateDataType(XmlNode elementNode, Project proj) {
             if (elementNode == null) {
                 throw new ArgumentNullException("elementNode");

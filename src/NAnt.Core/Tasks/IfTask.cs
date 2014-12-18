@@ -358,6 +358,9 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of TaskContainer
 
+        /// <summary>
+        /// Executes the task.
+        /// </summary>
         protected override void ExecuteTask() {
             if (ConditionsTrue) {
                 base.ExecuteTask();
@@ -368,6 +371,13 @@ namespace NAnt.Core.Tasks {
 
         #region Override implementation of Task
 
+        /// <summary>
+        /// Automatically exclude build elements that are defined on the task
+        /// from things that get executed, as they are evaluated normally during
+        /// XML task initialization.
+        /// </summary>
+        /// <exception cref="BuildException">At least one if condition +
+        ///                          must be set (test, propertytrue, targetexists, etc...):</exception>
         protected override void Initialize() {
             base.Initialize();
 

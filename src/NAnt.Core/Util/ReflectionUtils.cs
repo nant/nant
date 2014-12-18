@@ -18,8 +18,6 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections.Specialized;
-using System.Globalization;
 using System.Reflection;
 
 namespace NAnt.Core.Util {

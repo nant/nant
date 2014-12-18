@@ -19,13 +19,7 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Collections;
-using System.Reflection;
 using System.Globalization;
-
-using NAnt.Core;
-using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
@@ -37,6 +31,11 @@ namespace NAnt.Core.Functions {
     public class EnvironmentFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnvironmentFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public EnvironmentFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

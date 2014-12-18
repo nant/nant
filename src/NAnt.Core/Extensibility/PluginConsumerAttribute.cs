@@ -19,8 +19,6 @@
 
 using System;
 
-using NAnt.Core.Attributes;
-
 namespace NAnt.Core.Extensibility {
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=true)]
     public sealed class PluginConsumerAttribute : Attribute {

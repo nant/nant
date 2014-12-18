@@ -28,6 +28,9 @@ using System.Text.RegularExpressions;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Dictionary to collect a projects properties.
+    /// </summary>
     [Serializable()]
     public class PropertyDictionary : DictionaryBase {
         #region Public Instance Constructors

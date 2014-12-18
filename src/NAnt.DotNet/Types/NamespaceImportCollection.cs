@@ -23,7 +23,6 @@ using System.Text;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
     /// <summary>

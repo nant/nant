@@ -18,7 +18,6 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
-using System.Reflection;
 using System.Globalization;
 using NAnt.Core.Util;
 

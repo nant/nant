@@ -23,9 +23,9 @@ using System.IO;
 using System.Text;
 
 using NAnt.Core.Filters;
-using NAnt.Core.Types;
 
-namespace NAnt.Core.Util {
+namespace NAnt.Core.Util
+{
     /// <summary>
     /// Provides modified version for Copy and Move from the File class that 
     /// allow for filter chain processing.

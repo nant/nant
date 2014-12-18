@@ -17,12 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Xml; 
-
 using NUnit.Framework;
 
 using NAnt.VisualCpp.Util;

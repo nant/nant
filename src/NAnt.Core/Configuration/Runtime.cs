@@ -1,6 +1,4 @@
 using System;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Configuration {

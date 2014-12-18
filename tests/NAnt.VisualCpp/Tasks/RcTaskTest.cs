@@ -20,13 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
-using System.Xml; 
-
 using NUnit.Framework;
-
-using Tests.NAnt.Core;
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.VisualCpp.Tasks {
     [TestFixture]

@@ -19,12 +19,8 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
-using System.IO;
 using System.Reflection;
-using System.Collections;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Globalization;
 
 using NUnit.Framework;

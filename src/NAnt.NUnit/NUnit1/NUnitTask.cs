@@ -20,7 +20,6 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Globalization;
 using System.Runtime.Remoting;
 
 using NAnt.Core;
@@ -31,7 +30,6 @@ using NAnt.NUnit1.Types;
 
 using System.Security;
 using System.Security.Permissions;
-using System.Security.Policy;
 
 namespace NAnt.NUnit1.Tasks {
     /// <summary>

@@ -259,6 +259,13 @@ namespace NAnt.Core.Tasks {
             }
         }
 
+        /// <summary>
+        /// Creates a source file not found exception.
+        /// </summary>
+        /// <param name="sourceFile">The source file.</param>
+        /// <returns>
+        /// The exception instance.
+        /// </returns>
         protected override BuildException CreateSourceFileNotFoundException (string sourceFile) {
             return new BuildException(string.Format(CultureInfo.InvariantCulture,
                 "Could not find file '{0}' to move.", sourceFile),

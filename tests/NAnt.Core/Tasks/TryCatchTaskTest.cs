@@ -17,8 +17,6 @@
 //
 // Troy Laurin (fiontan@westnet.com.au)
 
-using System;
-
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Tasks {

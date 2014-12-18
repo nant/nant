@@ -21,12 +21,8 @@
 using System;
 using System.Collections;
 using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
-
-using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>

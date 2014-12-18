@@ -24,7 +24,6 @@ using System.Xml;
 using System.Globalization;
 
 using NAnt.Core;
-using NAnt.Core.Util;
 using NAnt.Core.Attributes;
 using Microsoft.Win32;
 

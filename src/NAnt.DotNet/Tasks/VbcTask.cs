@@ -28,7 +28,6 @@ using System.Text.RegularExpressions;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 using NAnt.DotNet.Types;

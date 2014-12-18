@@ -18,13 +18,9 @@
 // Ian MacLean ( ian_maclean@another.com )
 
 using System;
-using System.Globalization;
 using System.IO;
-using System.Text;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
-using NAnt.Core.Util;
 
 namespace NAnt.DotNet.Types {
     /// <summary>
