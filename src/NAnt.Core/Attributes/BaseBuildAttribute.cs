@@ -72,7 +72,11 @@ namespace NAnt.Core.Attributes
         /// <see langword="true" /> if the item is required; otherwise, 
         /// <see langword="false" />. The default is <see langword="false" />.
         /// </value>
-        public bool Required { get; set; }
+        public bool Required 
+        {
+            get { return _req; }
+            set { _req = value; }
+        }
 
         /// <summary>
         /// Used to specify how this element will be handled as the XML is parsed 
@@ -82,13 +86,19 @@ namespace NAnt.Core.Attributes
         /// <see langword="true" /> if XML should be processed; otherwise 
         /// <see langword="false" />. The default is <see langword="true" />.
         /// </value>
-        public bool ProcessXml { get; set; }
+        public bool ProcessXml 
+        { 
+            get { return _procXml; } 
+            set { _procXml = value; } 
+        }
 
         #endregion Public Instance Properties
 
         #region Private Instance Fields
 
         private string _name;
+        private bool _procXml;
+        private bool _req;
 
         #endregion Private Instance Fields
     }
