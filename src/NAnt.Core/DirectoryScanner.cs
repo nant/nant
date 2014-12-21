@@ -17,6 +17,7 @@
 //
 // Gerry Shaw (gerry_shaw@yahoo.com)
 // Kevin Dente (kevindente@yahoo.com)
+// Ryan Boggs (rmboggs@users.sourceforge.net)
 
 // This is useful for debugging where filesets are scanned from - scanning is one
 // of the most intensive activities for NAnt
@@ -48,11 +49,17 @@ foreach (string filename in GetIncludedFiles()) {
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+
+#if NET_4_0
+using System.Threading.Tasks;
+#endif
 
 namespace NAnt.Core {
     /// <summary>
@@ -100,6 +107,9 @@ namespace NAnt.Core {
         // keeping it null, lets the user detect if it's been set or not.
         private DirectoryInfo _baseDirectory;
 
+        // Holds every file and subdirectory information found in BaseDirectory.
+        private List<FileSystemInfo> _baseDirFileSystem = new List<FileSystemInfo>();
+
         // holds the nant patterns (absolute or relative paths)
         private StringCollectionWithGoodToString _includes = new StringCollectionWithGoodToString();
         private StringCollectionWithGoodToString _excludes = new StringCollectionWithGoodToString();
@@ -115,6 +125,8 @@ namespace NAnt.Core {
         // holds the result from a scan
         private StringCollectionWithGoodToString _fileNames;
         private DirScannerStringCollection _directoryNames;
+        private StringCollectionWithGoodToString _excludedFileNames;
+        private DirScannerStringCollection _excludedDirectoryNames;
 
         // directories that should be scanned and directories scanned so far
         private DirScannerStringCollection _searchDirectories;
@@ -124,6 +136,9 @@ namespace NAnt.Core {
 
         // Indicates whether or not every file scanned was included
         private bool _isEverythingIncluded = true;
+
+        // Indicates whether or not the base directory contains empty subdirectories.
+        private bool _hasEmptyDirectories = false;
 
         #endregion Private Instance Fields
 
@@ -188,6 +203,16 @@ namespace NAnt.Core {
                 clone._fileNames = (StringCollectionWithGoodToString) 
                     _fileNames.Clone();
             }
+            if (_excludedFileNames != null)
+            {
+                clone._excludedFileNames = (StringCollectionWithGoodToString)
+                    _excludedFileNames.Clone();
+            }
+            if (_excludedDirectoryNames != null)
+            {
+                clone._excludedDirectoryNames = (DirScannerStringCollection)
+                    _excludedDirectoryNames.Clone();
+            }
             if (_includePatterns != null) {
                 clone._includePatterns = (ArrayList) 
                     _includePatterns.Clone();
@@ -209,7 +234,13 @@ namespace NAnt.Core {
                 clone._searchDirIsRecursive = (ArrayList) 
                     _searchDirIsRecursive.Clone();
             }
+            if (_baseDirFileSystem != null)
+                clone._baseDirFileSystem = new List<FileSystemInfo>(_baseDirFileSystem);
+
             clone._caseSensitive = _caseSensitive;
+            clone._isEverythingIncluded = _isEverythingIncluded;
+            clone._hasEmptyDirectories = _hasEmptyDirectories;
+
             return clone;
         }
 
@@ -273,7 +304,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets the list of files that match the given patterns.
+        /// Gets the list of files that match the given included patterns.
         /// </summary>
         public StringCollection FileNames {
             get {
@@ -285,7 +316,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets the list of directories that match the given patterns.
+        /// Gets the list of directories that match the given included patterns.
         /// </summary>
         public StringCollection DirectoryNames {
             get {
@@ -293,6 +324,36 @@ namespace NAnt.Core {
                     Scan();
                 }
                 return _directoryNames;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the list of files that match the given excluded patterns.
+        /// </summary>
+        public StringCollection ExcludedFileNames
+        {
+            get 
+            {
+                if (_excludedFileNames == null)
+                {
+                    Scan();
+                }
+                return _excludedFileNames;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the list of directories that match the given excluded patterns.
+        /// </summary>
+        public StringCollection ExcludedDirectoryNames
+        {
+            get
+            {
+                if (_excludedDirectoryNames == null)
+                {
+                    Scan();
+                }
+                return _excludedDirectoryNames;
             }
         }
 
@@ -307,7 +368,7 @@ namespace NAnt.Core {
                 return _scannedDirectories;
             }
         }
-
+        
         /// <summary>
         /// Indicates whether or not the directory scanner included everything
         /// that it scanned.
@@ -315,6 +376,15 @@ namespace NAnt.Core {
         public bool IsEverythingIncluded
         {
             get { return _isEverythingIncluded; }
+        }
+        
+        /// <summary>
+        /// Indicates whether or not <see cref="P:BaseDirectory"/> contains
+        /// any empty directories.
+        /// </summary>
+        public bool HasEmptyDirectories
+        {
+            get { return _hasEmptyDirectories; }
         }
 
         #endregion Public Instance Properties
@@ -326,12 +396,16 @@ namespace NAnt.Core {
         /// <see cref="BaseDirectory" /> or absolute), to search for filesystem objects.
         /// </summary>
         public void Scan() {
+            Thread getDirList;
+            
             _includePatterns = new ArrayList();
             _includeNames = new StringCollectionWithGoodToString ();
             _excludePatterns = new ArrayList();
             _excludeNames = new StringCollectionWithGoodToString ();
             _fileNames = new StringCollectionWithGoodToString ();
             _directoryNames = new DirScannerStringCollection(CaseSensitive);
+            _excludedFileNames = new StringCollectionWithGoodToString();
+            _excludedDirectoryNames = new DirScannerStringCollection(CaseSensitive);
 
             _searchDirectories = new DirScannerStringCollection(CaseSensitive);
             _searchDirIsRecursive = new ArrayList();
@@ -354,6 +428,14 @@ namespace NAnt.Core {
 
             Console.WriteLine("--- Starting Scan ---");
 #endif
+            // Begin scanning the base directory file system
+            if (_baseDirFileSystem != null) _baseDirFileSystem.Clear();
+            
+            // Gather all of the file system info objects in the background while
+            // scan is performing.  Hoping this will save some time.
+            getDirList = new Thread(new ParameterizedThreadStart(GetAllFileSystemInfo));
+            getDirList.IsBackground = true;
+            getDirList.Start(BaseDirectory);
 
             // convert given NAnt patterns to regex patterns with absolute paths
             // side effect: searchDirectories will be populated
@@ -364,6 +446,26 @@ namespace NAnt.Core {
                 ScanDirectory(_searchDirectories[index], (bool) _searchDirIsRecursive[index]);
             }
             
+            // Wait for the directory scan to finish before checking if
+            // everything is included and if there are any empty directories.
+            getDirList.Join();
+
+            // Run both "Check" methods in parallel.
+#if NET_4_0
+            Parallel.Invoke(CheckHasEmptyDirectories, CheckIsEverythingIncluded);
+#else
+            Thread[] lastTasks = new Thread[2];
+            lastTasks[0] = new Thread(new ThreadStart(CheckHasEmptyDirectories));
+            lastTasks[1] = new Thread(new ThreadStart(CheckIsEverythingIncluded));
+            
+            foreach (Thread t in lastTasks)
+            {
+                t.IsBackground = true;
+                t.Start();
+            }
+            foreach (Thread t in lastTasks) t.Join();
+#endif
+
 #if DEBUG_REGEXES
             Console.WriteLine("*********************************************************************");
 #endif
@@ -373,17 +475,135 @@ namespace NAnt.Core {
 
         #region Private Instance Methods
 
-        private void Reset () {
+        private void Reset () 
+        {
             _isEverythingIncluded = true;
+            _hasEmptyDirectories = false;
+            _baseDirFileSystem.Clear();
             _includePatterns = null;
             _includeNames = null;
             _excludePatterns = null;
             _excludeNames = null;
             _fileNames = null;
             _directoryNames = null;
+            _excludedFileNames = null;
+            _excludedDirectoryNames = null;
             _searchDirectories = null;
             _searchDirIsRecursive = null;
             _scannedDirectories = null;
+        }
+
+        /// <summary>
+        /// Checks to see if <see cref="BaseDirectory"/> contains empty directories.
+        /// </summary>
+        private void CheckHasEmptyDirectories()
+        {
+            if (_baseDirFileSystem == null) return;
+            
+            DirectoryInfo tmp;
+            
+            foreach (FileSystemInfo fs in _baseDirFileSystem) 
+            {
+                if (!(fs is DirectoryInfo)) continue;
+                
+                tmp = fs as DirectoryInfo;
+
+                // If the current directory does not contain any files or directories,
+                // indicate that BaseDirectory has empty directories and exit loop.
+                if (tmp.GetFiles().Length == 0 && tmp.GetDirectories().Length == 0)
+                {
+                    _hasEmptyDirectories = true;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks to see if all of the files/subdirectories in <see cref="BaseDirectory"/>
+        /// will be included in the calling task.
+        /// </summary>
+        private void CheckIsEverythingIncluded()
+        {
+            if (_baseDirFileSystem == null) return;
+            
+            bool found;
+            string fsFullName;
+            StringComparison strCmp = CaseSensitive ? StringComparison.InvariantCulture
+                : StringComparison.InvariantCultureIgnoreCase;
+
+            // Loop through all of the files/subdirectories in BaseDirectory and make sure that
+            // the are both included in the appropriate include list and not included in the
+            // appropriate exclude list.
+            foreach (FileSystemInfo fs in _baseDirFileSystem)
+            {
+                found = false;
+                fsFullName = fs.FullName;
+
+                if (fs is FileInfo)
+                {
+                    if (_excludedFileNames.Count > 0)
+                    {
+                        foreach (string efName in _excludedFileNames)
+                        {
+                            if (fsFullName.Equals(efName, strCmp))
+                            {
+                                _isEverythingIncluded = false;
+                                break;
+                            }
+                        }
+                        if (!_isEverythingIncluded)
+                            break;
+                    }
+                    if (_fileNames.Count > 0)
+                    {
+                        foreach (string fName in _fileNames)
+                        {
+                            if (fsFullName.Equals(fName, strCmp))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            _isEverythingIncluded = false;
+                            break;
+                        }
+                    }
+                }
+                else if (fs is DirectoryInfo)
+                {
+                    if (_excludedDirectoryNames.Count > 0)
+                    {
+                        foreach (string edName in _excludedDirectoryNames)
+                        {
+                            if (fsFullName.Equals(edName, strCmp))
+                            {
+                                _isEverythingIncluded = false;
+                                break;
+                            }
+                        }
+                        if (!_isEverythingIncluded)
+                            break;
+                    }
+                    if (_directoryNames.Count > 0)
+                    {
+                        foreach (string dName in _directoryNames)
+                        {
+                            if (fsFullName.Equals(dName, strCmp))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            _isEverythingIncluded = false;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -628,8 +848,12 @@ namespace NAnt.Core {
                     // scan subfolders if we are running recursively
                     ScanDirectory(directoryInfo.FullName, true);
                 } else {
+                    if (IsPathExcluded(directoryInfo.FullName, excludedPatterns))
+                    {
+                        _excludedDirectoryNames.Add(directoryInfo.FullName);
+                    }
                     // otherwise just test to see if the subdirectories are included
-                    if (IsPathIncluded(directoryInfo.FullName, includedPatterns, excludedPatterns)) {
+                    else if (IsPathIncluded(directoryInfo.FullName, includedPatterns)) {
                         _directoryNames.Add(directoryInfo.FullName);
                     }
                 }
@@ -638,8 +862,12 @@ namespace NAnt.Core {
             // scan files
             foreach (FileInfo fileInfo in currentDirectoryInfo.GetFiles()) {
                 string filename = Path.Combine(path, fileInfo.Name);
-                if (IsPathIncluded(filename, includedPatterns, excludedPatterns)) {
-                    _fileNames.Add(Path.Combine(path, fileInfo.Name));
+                if (IsPathExcluded(filename, excludedPatterns))
+                {
+                    _excludedFileNames.Add(Path.Combine(path, filename));
+                }
+                else if (IsPathIncluded(filename, includedPatterns)) {
+                    _fileNames.Add(filename);
                 }
             }
 
@@ -647,8 +875,23 @@ namespace NAnt.Core {
             // delete empty directories.  This may *seem* like a special case
             // but it is more like formalizing something in a way that makes
             // writing the delete task easier :)
-            if (IsPathIncluded(path, includedPatterns, excludedPatterns)) {
+            if (IsPathExcluded(path, excludedPatterns))
+            {
+                _excludedDirectoryNames.Add(path);
+            }
+            else if (IsPathIncluded(path, includedPatterns)) {
                 _directoryNames.Add(path);
+            }
+            
+            // Strip the contents of _fileNames & _directoryNames that 
+            // exist in their excluded counterparts.
+            foreach (string f in _excludedFileNames)
+            {
+                _fileNames.Remove(f);
+            }
+            foreach (string d in _excludedDirectoryNames)
+            {
+                _directoryNames.Remove(d);
             }
         }
         
@@ -683,10 +926,56 @@ namespace NAnt.Core {
                 return r.IsMatch(path.Substring(entry.BaseDirectory.Length + 1));
             }
         }
+        
+        private bool IsPathExcluded(string path, ArrayList excludedPatterns)
+        {
+            CompareOptions compareOptions = CompareOptions.None;
+            CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
 
-        private bool IsPathIncluded(string path, ArrayList includedPatterns, ArrayList excludedPatterns) {
-            bool included = false;
+            if (!CaseSensitive)
+            {
+                compareOptions |= CompareOptions.IgnoreCase;
 
+#if DEBUG_REGEXES
+            Console.WriteLine("Exclude test: {0}", path);
+#endif
+            }
+            
+            foreach (string name in _excludeNames)
+            {
+#if DEBUG_REGEXES
+                Console.WriteLine("Test exclude name: '{0}'", name);
+#endif
+                if (compare.Compare(name, path, compareOptions) == 0)
+                {
+#if DEBUG_REGEXES
+                    Console.WriteLine("Excluded by name: {0}", name);
+#endif
+                    return true;
+                }
+            }
+                
+            foreach (RegexEntry entry in excludedPatterns)
+            {
+#if DEBUG_REGEXES
+                Console.Write("Test exclude pattern: '{0}'", entry.Pattern);
+#endif
+                if (TestRegex(path, entry))
+                {
+#if DEBUG_REGEXES
+                    Console.WriteLine("Excluded by pattern: {0}", entry.Pattern);
+#endif
+                    return true;
+                }
+            }
+            
+#if DEBUG_REGEXES
+            Console.WriteLine("Result: {0} not excluded", path);
+#endif
+            return false;
+        }
+        
+        private bool IsPathIncluded(string path, ArrayList includedPatterns) {
             CompareOptions compareOptions = CompareOptions.None;
             CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
 
@@ -694,7 +983,7 @@ namespace NAnt.Core {
                 compareOptions |= CompareOptions.IgnoreCase;
 
 #if DEBUG_REGEXES
-            Console.WriteLine("Test: {0}", path);
+            Console.WriteLine("Included test: {0}", path);
 #endif
  
             // check path against include names
@@ -705,79 +994,63 @@ namespace NAnt.Core {
 #endif
                 if (compare.Compare(name, path, compareOptions) == 0) 
                 {
-                    included = true;
 #if DEBUG_REGEXES
                     Console.WriteLine("Included by name: {0}", name);
 #endif
-                    break;
+                    return true;
                 }
             }
 
             // check path against include regexes
-            if (!included) {
-                foreach (RegexEntry entry in includedPatterns) {
+            foreach (RegexEntry entry in includedPatterns) {
 #if DEBUG_REGEXES
-                    Console.Write("Test include pattern: ");
+                Console.Write("Test include pattern: '{0}'", entry.Pattern);
 #endif
-                    if (TestRegex(path, entry)) 
-                    {
-                        included = true;
+                if (TestRegex(path, entry)) 
+                {
 #if DEBUG_REGEXES
-                        Console.WriteLine("Included by pattern: {0}", entry.Pattern);
+                    Console.WriteLine("Included by pattern: {0}", entry.Pattern);
 #endif
-                        break;
-                    }
-                }
-            }
-            
-            // check path against exclude names
-            if (included) {
-                foreach (string name in _excludeNames) {
-#if DEBUG_REGEXES
-                    Console.WriteLine("Test exclude name: '{0}'", name);
-#endif
-                    if (compare.Compare(name, path, compareOptions) == 0) 
-                    {
-                        included = false;
-#if DEBUG_REGEXES
-                        Console.WriteLine("Excluded by name: {0}", name);
-#endif
-                        break;
-                    }
-                }
-            }
-            
-            // check path against exclude regexes
-            if (included) {
-                foreach (RegexEntry entry in excludedPatterns) {
-#if DEBUG_REGEXES
-                    Console.Write("Test exclude pattern: ");
-#endif
-                    if (TestRegex(path, entry)) {
-                        included = false;
-#if DEBUG_REGEXES
-                        Console.WriteLine("Excluded by pattern: {0}", entry.Pattern);
-#endif
-                        break;
-                    }
+                    return true;
                 }
             }
 
 #if DEBUG_REGEXES
-             Console.WriteLine("Result: {0}", included);
+            Console.WriteLine("Result: {0} not included", path);
 #endif
-            // If the current file was not included and the isEverythingIncluded
-            // indicator is true; set the isEverythingIncluded indicator to false.
-            // Note: File.Exists(path) is used to make sure the current path is
-            // a file and not a directory.
-            if (!included && _isEverythingIncluded && File.Exists(path))
-            {
-                _isEverythingIncluded = false;
-            }
-
-            return included;
+            return false;
         }
 
+        
+        private void GetAllFileSystemInfo(object dir)
+        {
+            DirectoryInfo rootDir;
+            
+            if (!(dir is DirectoryInfo))
+                throw new ArgumentException(
+                    String.Format("'dir' is not instance of DirectoryInfo: '{0}'",
+                                  dir.GetType().Name));
+            
+            rootDir = dir as DirectoryInfo;
+            
+            if (_baseDirFileSystem == null)
+                _baseDirFileSystem = new List<FileSystemInfo>();
+            
+            // If the rootDir parameter does not point to an existing directory
+            // on the underlying system, exit the method.
+            if (!rootDir.Exists) return;
+            
+            // Get the files located in rootDir
+            foreach (FileInfo f in rootDir.GetFiles()) _baseDirFileSystem.Add(f);
+            
+            // Retrieve all the subdirectory info
+            foreach (DirectoryInfo d in rootDir.GetDirectories())
+            {
+                _baseDirFileSystem.Add(d);
+                GetAllFileSystemInfo(d);
+            }
+        }
+        
         #endregion Private Instance Methods
 
         #region Private Static Methods
@@ -971,7 +1244,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="value">The string to locate in the <see cref="DirScannerStringCollection" />. The value can be <see langword="null" />.</param>
         /// <returns>
-        /// <seee langword="true" /> if value is found in the <see cref="DirScannerStringCollection" />; otherwise, <see langword="false" />.
+        /// <see langword="true" /> if value is found in the <see cref="DirScannerStringCollection" />; otherwise, <see langword="false" />.
         /// </returns>
         /// <remarks>
         /// String comparisons within the <see cref="DirScannerStringCollection" />
