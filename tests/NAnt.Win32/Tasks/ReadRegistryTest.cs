@@ -37,7 +37,7 @@ namespace Tests.NAnt.Win32.Tasks {
                     // String to use for win9x system
                     _xml = @"
                         <project name='PropTests'>
-                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows\CurrentVersion\ProductId'/>
+                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows\CurrentVersion\ProductName'/>
                             <echo message='productID=${windows.id};'/>
                         </project>";
                     break;
@@ -45,7 +45,7 @@ namespace Tests.NAnt.Win32.Tasks {
                     // String to use for winnt system
                     _xml = @"
                         <project name='PropTests'>
-                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProductId'/>
+                            <readregistry property='windows.id' key='SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProductName'/>
                             <echo message='productID=${windows.id};'/>
                         </project>";
                     break;
