@@ -60,18 +60,32 @@ namespace NAnt.Core.Types {
 
         #region Implementation of ICollection
 
+        /// <summary>
+        /// Gets the number of elements contained in the <see cref="T:System.Collections.ICollection" />.
+        /// </summary>
         public int Count {
             get { return List.Count; }
         }
 
+        /// <summary>
+        /// Copies the elements of the <see cref="T:System.Collections.ICollection" /> to an <see cref="T:System.Array" />, starting at a particular <see cref="T:System.Array" /> index.
+        /// </summary>
+        /// <param name="array">The one-dimensional <see cref="T:System.Array" /> that is the destination of the elements copied from <see cref="T:System.Collections.ICollection" />. The <see cref="T:System.Array" /> must have zero-based indexing.</param>
+        /// <param name="index">The zero-based index in <paramref name="array" /> at which copying begins.</param>
         void ICollection.CopyTo (Array array, int index) {
             List.CopyTo(array, index);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection" /> is synchronized (thread safe).
+        /// </summary>
         bool ICollection.IsSynchronized {
             get { return List.IsSynchronized; }
         }
 
+        /// <summary>
+        /// Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
+        /// </summary>
         object ICollection.SyncRoot {
             get { return List.SyncRoot; }
         }

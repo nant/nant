@@ -20,12 +20,9 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 
-using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Text;
-
 using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;

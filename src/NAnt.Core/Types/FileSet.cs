@@ -23,8 +23,6 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Xml;
-
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
 
@@ -124,6 +122,11 @@ namespace NAnt.Core.Types {
     ///     <item><description>**/CVS</description></item>
     ///     <item><description>**/CVS/**</description></item>
     ///     <item><description>**/.cvsignore</description></item>
+    ///     <item><description>**/._*</description></item>
+    ///     <item><description>**/.bzr</description></item>
+    ///     <item><description>**/.bzr/**</description></item>
+    ///     <item><description>**/.bzr* (eg. .bzrignore)</description></item>
+    ///     <item><description>**/.DS_Store</description></item>
     /// </list>
     /// <para>
     /// If you do not want these default excludes applied, you may disable them 
@@ -345,6 +348,44 @@ namespace NAnt.Core.Types {
         }
 
         /// <summary>
+        /// Gets the collection of excluded file names that match the fileset.
+        /// </summary>
+        /// <value>
+        /// A collection that contains the excluded file names that match the 
+        /// <see cref="FileSet" />.
+        /// </value>
+        public StringCollection ExcludedFileNames
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.ExcludedFileNames;
+            }
+        }
+
+        /// <summary>
+        /// Gets the collection of excluded directory names that match the fileset.
+        /// </summary>
+        /// <value>
+        /// A collection that contains the excluded directory names that match the 
+        /// <see cref="FileSet" />.
+        /// </value>
+        public StringCollection ExcludedDirectoryNames
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.ExcludedDirectoryNames;
+            }
+        }
+
+        /// <summary>
         /// Gets the collection of file names that match the fileset.
         /// </summary>
         /// <value>
@@ -389,6 +430,37 @@ namespace NAnt.Core.Types {
                     Scan();
                 }
                 return _scanner.ScannedDirectories;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance retrieved all 
+        /// files/directories scanned and nothing was excluded.
+        /// </summary>
+        public bool IsEverythingIncluded 
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                } 
+                return _scanner.IsEverythingIncluded;
+            }
+        }
+        
+        /// <summary>
+        /// Gets a value indicating whether this instance contains empty directories.
+        /// </summary>
+        public bool HasEmptyDirectories
+        {
+            get
+            {
+                if (!_hasScanned)
+                {
+                    Scan();
+                }
+                return _scanner.HasEmptyDirectories;
             }
         }
 
@@ -582,6 +654,11 @@ namespace NAnt.Core.Types {
                 Excludes.Add("**/CVS");
                 Excludes.Add("**/CVS/**");
                 Excludes.Add("**/.cvsignore");
+                Excludes.Add("**/._*");
+                Excludes.Add("**/.bzr");
+                Excludes.Add("**/.bzr/**");
+                Excludes.Add("**/.bzr*");
+                Excludes.Add("**/.DS_Store");
             }
         }
 
@@ -613,18 +690,13 @@ namespace NAnt.Core.Types {
                 sb.AppendLine("PathFiles:");
                 sb.AppendLine(_pathFiles.ToString());
             } else {
-                sb.AppendFormat("IsEverythingIncluded: {0}", IsEverythingIncluded);
-                sb.AppendLine();
                 sb.AppendLine("Files:");
                 foreach (string file in this.FileNames) {
-                    sb.Append(file);
-                    sb.Append(Environment.NewLine);
+                    sb.AppendLine(file);
                 }
-                sb.Append("Dirs:");
-                sb.Append(Environment.NewLine);
+                sb.AppendLine("Dirs:");
                 foreach (string dir in this.DirectoryNames) {
-                    sb.Append(dir);
-                    sb.Append(Environment.NewLine);
+                    sb.AppendLine(dir);
                 }
             }
 
@@ -720,26 +792,6 @@ namespace NAnt.Core.Types {
         }
 
         #endregion Internal Instance Methods
-
-        #region Protected Internal Instance Properties
-
-        /// <summary>
-        /// Indicates whether or not every file and directory is included in
-        /// the fileset list.
-        /// </summary>
-        protected internal bool IsEverythingIncluded
-        {
-            get
-            {
-                if (!_hasScanned)
-                {
-                    Scan();
-                }
-                return _scanner.IsEverythingIncluded;
-            }
-        }
-
-        #endregion Protected Internal Instance Properties
 
         #region Public Static Methods
 
@@ -1061,3 +1113,4 @@ namespace NAnt.Core.Types {
         }
     }
 }
+

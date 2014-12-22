@@ -17,10 +17,12 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using NAnt.Core;
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {
+    /// <summary>
+    /// Pattern which is used by a <see cref="PatternSet"/> to include or exclude specific files.
+    /// </summary>
     public class Pattern : Element {
         #region Private Instance Fields
 

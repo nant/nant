@@ -16,20 +16,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
-
-using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
-
 using NAnt.Compression.Types;
 
 namespace NAnt.Compression.Tasks {

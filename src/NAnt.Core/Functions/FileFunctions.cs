@@ -19,14 +19,10 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Security;
-
-using NAnt.Core;
 using NAnt.Core.Types;
 using NAnt.Core.Attributes;
 
@@ -38,6 +34,11 @@ namespace NAnt.Core.Functions {
     public class FileFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public FileFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

@@ -21,6 +21,9 @@ using System;
 using System.Collections;
 
 namespace NAnt.Core {
+    /// <summary>
+    /// Dictionary to collect the available frameworks.
+    /// </summary>
     [Serializable()]
     public sealed class FrameworkInfoDictionary : IDictionary, ICollection, IEnumerable, ICloneable {
         #region Private Instance Fields
@@ -38,10 +41,18 @@ namespace NAnt.Core {
             _innerHash = new Hashtable();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameworkInfoDictionary"/> class.
+        /// </summary>
+        /// <param name="original">The original dictionary which well be copied.</param>
         public FrameworkInfoDictionary(FrameworkInfoDictionary original) {
             _innerHash = new Hashtable(original.InnerHash);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameworkInfoDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionary">The dictionary dictionary which well be copied.</param>
         public FrameworkInfoDictionary(IDictionary dictionary) {
             _innerHash = new Hashtable (dictionary);
         }
@@ -107,10 +118,18 @@ namespace NAnt.Core {
             return GetEnumerator();
         }
 
+        /// <summary>
+        /// Removes the value with the specified key from the dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
         public void Remove(string key) {
             _innerHash.Remove(key);
         }
 
+        /// <summary>
+        /// Removes the value with the specified key from the <see cref="T:System.Collections.IDictionary" />.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
         void IDictionary.Remove(object key) {
             Remove((string) key);
         }
@@ -123,18 +142,34 @@ namespace NAnt.Core {
             return Contains((string)key);
         }
 
+        /// <summary>
+        /// Removes all elements from the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public void Clear() {
             _innerHash.Clear();      
         }
 
+        /// <summary>
+        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
+        /// <param name="key">The <see cref="T:System.Object" /> to use as the key of the element to add.</param>
+        /// <param name="value">The <see cref="T:System.Object" /> to use as the value of the element to add.</param>
         public void Add(string key, FrameworkInfo value) {
             _innerHash.Add (key, value);
         }
 
+        /// <summary>
+        /// Adds an element with the provided key and value to the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
+        /// <param name="key">The <see cref="T:System.Object" /> to use as the key of the element to add.</param>
+        /// <param name="value">The <see cref="T:System.Object" /> to use as the value of the element to add.</param>
         void IDictionary.Add(object key, object value) {
             Add((string) key, (FrameworkInfo) value);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary" /> object is read-only.
+        /// </summary>
         public bool IsReadOnly {
             get { return _innerHash.IsReadOnly; }
         }
@@ -148,15 +183,24 @@ namespace NAnt.Core {
             get { return this[(string) key]; }
             set { this[(string) key] = (FrameworkInfo) value; }
         }
-        
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Collections.ICollection" /> object containing the values in the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public ICollection Values {
             get { return _innerHash.Values; }
         }
 
+        /// <summary>
+        /// Gets an <see cref="T:System.Collections.ICollection" /> object containing the keys of the <see cref="T:System.Collections.IDictionary" /> object.
+        /// </summary>
         public ICollection Keys {
             get { return _innerHash.Keys; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.IDictionary" /> object has a fixed size.
+        /// </summary>
         public bool IsFixedSize {
             get { return _innerHash.IsFixedSize; }
         }
@@ -173,10 +217,16 @@ namespace NAnt.Core {
             get { return _innerHash.IsSynchronized; }
         }
 
+        /// <summary>
+        /// Gets the number of key/value pairs contained in the Dictionary.
+        /// </summary>
         public int Count {
             get { return _innerHash.Count; }
         }
 
+        /// <summary>
+        /// Gets an object that can be used to synchronize access to the <see cref="ICollection"/>.
+        /// </summary>
         public object SyncRoot {
             get { return _innerHash.SyncRoot; }
         }
@@ -189,6 +239,10 @@ namespace NAnt.Core {
 
         #region Implementation of ICloneable
 
+        /// <summary>
+        /// Clones this instance.
+        /// </summary>
+        /// <returns>The instance clone.</returns>
         public FrameworkInfoDictionary Clone() {
             FrameworkInfoDictionary clone = new FrameworkInfoDictionary();
             clone.InnerHash = (Hashtable) _innerHash.Clone();

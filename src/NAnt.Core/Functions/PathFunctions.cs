@@ -20,20 +20,22 @@
 
 using System;
 using System.IO;
-using System.Collections;
-using System.Reflection;
-using System.Globalization;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
+    /// <summary>
+    /// Class which provides NAnt functions to work with path strings.
+    /// </summary>
     [FunctionSet("path", "Path")]
     public class PathFunctions : FunctionSetBase {
         #region Public Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PathFunctions"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         public PathFunctions(Project project, PropertyDictionary properties) : base(project, properties) {
         }
 

@@ -17,7 +17,6 @@
 
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
-using System;
 using System.IO;
 
 using NUnit.Framework;

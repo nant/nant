@@ -21,14 +21,12 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Xsl;
 
@@ -184,6 +182,9 @@ namespace NAnt.Core {
                     }
                 }
 
+                // Enable parallel execution of targets
+                project.RunTargetsInParallel = cmdlineOptions.UseJobs;
+
                 if (cmdlineOptions.ShowProjectHelp) {
                     Console.WriteLine();
                     ConsoleDriver.ShowProjectHelp(project.Document);
@@ -318,8 +319,9 @@ namespace NAnt.Core {
             xsltDoc.Load(reader);
             xsltDoc.DocumentElement.SetAttribute("xmlns:nant",buildDoc.DocumentElement.NamespaceURI);
 
-            XslTransform transform = new XslTransform();
-            transform.Load(xsltDoc);
+            XslCompiledTransform transform = new XslCompiledTransform();
+            XsltSettings settings = new XsltSettings(false, true);
+            transform.Load(xsltDoc, settings, new XmlUrlResolver());
 
             StringBuilder sb = new StringBuilder();
             StringWriter writer = new StringWriter(sb, CultureInfo.InvariantCulture);

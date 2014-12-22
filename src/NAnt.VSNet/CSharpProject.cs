@@ -17,7 +17,6 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
-using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.Globalization;

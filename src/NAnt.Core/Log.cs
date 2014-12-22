@@ -384,6 +384,9 @@ namespace NAnt.Core {
         void Flush();
     }
 
+    /// <summary>
+    /// Implementation of the default logger.
+    /// </summary>
     [Serializable()]
     public class DefaultLogger : IBuildLogger {
         #region Public Instance Constructors
@@ -685,7 +688,7 @@ namespace NAnt.Core {
                 string label = String.Empty;
 
                 if (e.Task != null && !EmacsMode) {
-                    label = "[" + e.Task.Name + "] ";
+                    label = "[" + (e.Target == null ? string.Empty : e.Target.Name + " ") + e.Task.Name + "] ";
                     label = label.PadLeft(e.Project.IndentationSize);
                 }
 
@@ -761,6 +764,10 @@ namespace NAnt.Core {
         /// </summary>
         public readonly DateTime StartTime;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildReport"/> class.
+        /// </summary>
+        /// <param name="startTime">The start time.</param>
         public BuildReport(DateTime startTime) {
             StartTime = startTime;
             Errors = 0;

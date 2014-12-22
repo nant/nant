@@ -18,8 +18,6 @@
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
 using System;
-using System.IO;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace NAnt.Core {
@@ -29,10 +27,22 @@ namespace NAnt.Core {
         private int _startPos = -1;
         private int _endPos = -1;
 
+        /// <summary>
+        /// Gets the start position.
+        /// </summary>
+        /// <value>
+        /// The start position.
+        /// </value>
         public int StartPos {
             get { return _startPos; }
         }
-        
+
+        /// <summary>
+        /// Gets the end position.
+        /// </summary>
+        /// <value>
+        /// The end position.
+        /// </value>
         public int EndPos {
             get { return _endPos; }
         }

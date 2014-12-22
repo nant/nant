@@ -18,19 +18,14 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
-
-using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
     /// <summary>
@@ -318,36 +313,52 @@ namespace Tests.NAnt.Core.Tasks {
             }
         }
 
+        private void PrintDirContents(DirectoryInfo dir)
+        {
+            if (!dir.Exists) return;
+            foreach (FileInfo f in dir.GetFiles())
+            {
+                System.Console.WriteLine(f.FullName);
+            }
+            foreach (DirectoryInfo d in dir.GetDirectories())
+            {
+                System.Console.WriteLine(d.FullName);
+                PrintDirContents(d);
+            }
+        }
+
         /// <summary>
         /// Tests empty directory moves when includeemptydir property is false.
         /// </summary>
+        /// <remarks>
+        /// Copy tasks for directories with includeemptydir='false' should only
+        /// copy the entire directory structure if no empty directories are found
+        /// in the source directory tree.  If empty directories are found, don't copy
+        /// the directory (since no include files were specified in the fileset element).
+        /// </remarks>
         [Test]
         public void DoNotIncludeEmptyDirMoveTest()
         {
-            string emptySourceDirOne = CreateTempDir(Path.Combine(_tempDirSourceOne, "EmptyOne"));
-            string emptySourceDirTwo = CreateTempDir(Path.Combine(_tempDirSourceOne, "EmptyTwo"));
-            string emptyTargetDirOne = Path.Combine(_tempDirTargetOne, "EmptyOne");
-            string emptyTargetDirTwo = Path.Combine(_tempDirTargetOne, "EmptyTwo");
+            string buildScript1 = String.Format(_xmlProjectTemplate5, _tempDirTargetOne, _tempDirSourceOne);
+            string buildScript2 = String.Format(_xmlProjectTemplate5, _tempDirTargetThree, _tempDirSourceThree);
+            CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyOne"));
+            CreateTempDir(Path.Combine(_tempDirSourceThree, "EmptyTwo"));
 
-            RunBuild(String.Format(_xmlProjectTemplate5, _tempDirTargetOne, _tempDirSourceOne));
+            RunBuild(buildScript1);
 
             Assert.IsTrue(Directory.Exists(_tempDirTargetOne),
                 string.Format("'{0}' target directory does not exist", _tempDirTargetOne));
 
-            Assert.IsTrue(Directory.Exists(_tempDirSourceOne),
-                string.Format("'{0}' source directory does not exist", _tempDirSourceOne));
+            Assert.IsFalse(Directory.Exists(_tempDirSourceOne),
+                string.Format("'{0}' source directory does exist", _tempDirSourceOne));
 
-            Assert.IsTrue(Directory.Exists(emptySourceDirOne),
-                string.Format("'{0}' empty directory does not exist", emptySourceDirOne));
+            RunBuild(buildScript2);
 
-            Assert.IsTrue(Directory.Exists(emptySourceDirTwo),
-                string.Format("'{0}' empty directory does not exist", emptySourceDirTwo));
+            Assert.IsTrue(Directory.Exists(_tempDirSourceThree),
+                string.Format("'{0}' target directory does not exist", _tempDirSourceThree));
 
-            Assert.IsFalse(Directory.Exists(emptyTargetDirOne),
-                string.Format("'{0}' empty directory does exist", emptyTargetDirOne));
-
-            Assert.IsFalse(Directory.Exists(emptyTargetDirTwo),
-                string.Format("'{0}' empty directory does exist", emptyTargetDirTwo));
+            Assert.IsFalse(Directory.Exists(_tempDirTargetThree),
+                string.Format("'{0}' source directory does exist", _tempDirTargetThree));
         }
 
         /// <summary>

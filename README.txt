@@ -78,7 +78,7 @@ Compilation and Installation
            Available from: http://www.mono-project.com/downloads/
 
            
-    b. Building the Software
+    c. Building the Software
     ------------------------
       
     Build NAnt using Microsoft .NET:     

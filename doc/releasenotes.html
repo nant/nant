@@ -43,9 +43,7 @@
         <table width="100%">
             <tr>
                 <td>
-                    <h1>
-                        <span class="N">N</span><span class="Ant">Ant</span>
-                        Release Notes</h1>
+                    <h1><span class="N">N</span><span class="Ant">Ant</span>Release Notes</h1>
                 </td>
                 <td>
                     <a href="http://nant.sourceforge.net/"><img style="border-top-width: 0px; border-left-width: 0px; border-bottom-width: 0px;
@@ -57,16 +55,69 @@
         <h3>Bug Fixes</h3>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/copy.html">Copy</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed issues related to copying subdirectories that were introduced in NAnt 0.92.
+                    (Issues <a href="https://github.com/nant/nant/issues/64">#64</a>, 
+                            <a href="https://github.com/nant/nant/issues/85">#85</a>, and
+                            <a href="https://github.com/nant/nant/issues/88">#88</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/csc.html">Csc</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Updated the <code>&lt;csc&gt;</code> task to handle the new compiler
+                    model introduced in <a href="http://www.mono-project.com/Release_Notes_Mono_3.0.6#C.23_Compiler">Mono 3.0</a>.
+                    (<a href="https://github.com/nant/nant/issues/91">Issue #91</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/sysinfo.html">Sysinfo</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Fixed an issue with the <code>&lt;sysinfo&gt;</code> task when dealing 
+                    with environment property names which contains invalid characters 
+                    like parentheses. E.g. <code>ProgramFiles(x86)</code> on Win7 64 bit 
+                    will result in <code>sys.env.ProgramFiles.x86</code>.  
+                    (<a href="https://github.com/nant/nant/issues/83">Issue #83</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
             <h5><a class="heading" href="help/tasks/mail.html">Mail</a></h5>
             <div style="margin-left: 20px;">
                 <p>
-                    Fixed an issue with the <code>&lt;Mail&gt;</code> task when dealing 
+                    Fixed an issue with the <code>&lt;mail&gt;</code> task when dealing 
                     with email address lines ending with a semi-colon.
                     (<a href="https://github.com/nant/nant/issues/61">Issue #61</a>)
                 </p>
             </div>
         </div>
         <h3>Changes</h3>
+        <h4>Core</h4>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="http://www.nunit.org">NUnit</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Upgraded to NUnit 2.6.3.
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5>Parallel Execution</h5>
+            <div style="margin-left: 20px;">
+                <p>Implemented parallel execution of targets in the project.
+                (<a href="https://github.com/nant/nant/pull/105">Issue #105</a>)
+                </p>
+                <p>Fixes builds when make runs multiple jobs simultaneously (make -j)
+                (<a href="https://github.com/nant/nant/pull/115">Issue #115</a>)
+                </p>
+            </div>
+        </div>
         <h4>Functions</h4>
         <div style="margin-left: 20px;">
             <h5>

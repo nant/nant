@@ -19,9 +19,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
@@ -76,6 +73,28 @@ namespace Tests.NAnt.Core.Tasks {
                 </copy>
             </project>
         ";
+        
+        const string _xmlProjectTemplate5 = @"
+            <project>
+                <mkdir dir='{0}' />
+                <copy verbose='true' todir='{0}'>
+                    <fileset basedir='{1}'>
+                        <include name='{2}/**/*' />
+                    </fileset>
+                </copy>
+            </project>
+        ";
+
+        const string _xmlProjectTemplate6 = @"
+            <project basedir='{0}'>
+                <mkdir dir='{1}' />
+                <copy verbose='true' todir='{1}'>
+                    <fileset>
+                        <include name='{2}'/>
+                        <include name='{3}'/>
+                    </fileset>
+                </copy>
+            </project>";
 
         string tempFile1, tempFile2, tempFile3, tempFile4, tempFile5, tempFile6, tempFile7;
         string tempDir1, tempDir2, tempDir3, tempDir4, tempDir5;
@@ -152,6 +171,61 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
+        /// Checks to make sure that only specified subdirectories are copied when specified
+        /// in the include statement. Addresses Issue 85.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Only_SubDirectory()
+        {
+            string dest = CreateTempDir("a.85");
+            string destDir  = GetPath(dest, tempDir1);
+            string instructions = String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate5, destDir, tempDir1, "goo");
+            RunBuild(instructions);
+            
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should not have been created:" + tempFile1);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should not have been created:" + tempFile2);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir2,tempFile3)), "File should not have been created:" + tempFile3);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4,tempFile4)), "File should have been created:" + tempFile4);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile5)), "File should have been created:" + tempFile5);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should have been created:" + tempFile7);
+
+            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should not have been created:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should not have been created:" + tempDir5);
+        }
+
+        /// <summary>
+        /// Test to make sure that the copy task copies relative file paths when the basedir of the fileset
+        /// is not specified. Addresses Issue 88.
+        /// </summary>
+        [Test]
+        public void Test_Copy_Unspecified_Fileset_Basedir()
+        {
+            string dest = CreateTempDir("a.88");
+            string destDir  = GetPath(dest, tempDir1, tempDir3);
+            string instructions = String.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate6, tempDir2, destDir, 
+                "../goo/ha.he", "../goo/ha.he2");
+            RunBuild(instructions);
+
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile1)), "File should not have been created:" + tempFile1);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempFile2)), "File should not have been created:" + tempFile2);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir2,tempFile3)), "File should not have been created:" + tempFile3);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4,tempFile4)), "File should not have been created:" + tempFile4);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile5)), "File should have been created:" + tempFile5);
+            Assert.IsTrue(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile6)), "File should have been created:" + tempFile6);
+            Assert.IsFalse(File.Exists(GetPath(dest,tempDir1,tempDir3,tempFile7)), "File should not have been created:" + tempFile7);
+
+            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1)), "Dir should have been created:" + tempDir1);
+            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir2)), "Dir should not have been created:" + tempDir2);
+            Assert.IsTrue(Directory.Exists(GetPath(dest,tempDir1,tempDir3)), "Dir should have been created:" + tempDir3);
+            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir3,tempDir4)), "Dir should have been created:" + tempDir4);
+            Assert.IsFalse(Directory.Exists(GetPath(dest,tempDir1,tempDir5)), "Dir should not have been created:" + tempDir5);
+        }
+
+        /// <summary>
         /// Ensure that an invalid path for destination directory causes a 
         /// <see cref="BuildException" /> to be thrown.
         /// </summary>
@@ -174,7 +248,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// ensure it exists.
         /// </summary>
         [Test]
-        public void Test_Copy_Structure() {           
+        public void Test_Copy_Structure() {
             string dest = CreateTempDir("a.xx");
             
             RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate, dest, tempDir1 + "\\**\\*", string.Empty));
@@ -198,7 +272,7 @@ namespace Tests.NAnt.Core.Tasks {
         /// Simple directory copy test.
         /// </summary>
         [Test]
-        public void Test_copy_Dir_Structure()
+        public void Test_Copy_Dir_Structure()
         {
             string dest = Path.Combine(TempDirName, "a.c");
             RunBuild(String.Format(_xmlProjectTemplate4, dest, tempDir1));
@@ -467,6 +541,40 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "destination")), "Dir should have been created:" + GetPath(tempDir1, "destination"));
             Assert.IsTrue(Directory.Exists(GetPath(tempDir1, "source", "test")), "Dir should have been created:" + GetPath(tempDir1, "source", "test"));
             Assert.IsFalse(Directory.Exists(GetPath(tempDir1, "destination", "source", "test")), "Dir should not have been created:" + GetPath(tempDir1, "destination", "source","test"));
+        }
+        
+        
+        [Test]
+        public void Test_Copy_Subdirectories()
+        {
+            string newRootDir = CreateTempDir("Q.z");
+            string destDir = GetPath(newRootDir, "destination");
+            string expectedDir1 = GetPath(destDir, "goo");
+            string expectedFile1 = GetPath(expectedDir1, "ha.he");
+            string expectedFile2 = GetPath(expectedDir1, "ha.he2");
+            string expectedFile3 = GetPath(expectedDir1, "ha.he3");
+            string expectedDir2 = GetPath(expectedDir1, "x");
+            string expectedFile4 = GetPath(expectedDir2, "y.y");
+            string badSubDir1 = GetPath(destDir, "a.b");
+            string badSubDir2 = GetPath(destDir, "foo");
+            string badSubDir3 = GetPath(destDir, "empty");
+            
+            RunBuild(string.Format(CultureInfo.InvariantCulture, _xmlProjectTemplate5, destDir, tempDir1, "goo"));
+            
+            // Test to make sure that entire directory was not wasn't copied instead
+            Assert.IsFalse(Directory.Exists(badSubDir1), "Directory should not have been created", badSubDir1);
+            Assert.IsFalse(Directory.Exists(badSubDir2), "Directory should not have been created", badSubDir2);
+            Assert.IsFalse(Directory.Exists(badSubDir3), "Directory should not have been created", badSubDir3);
+            
+            // Test the existance of copied files
+            Assert.IsTrue(File.Exists(expectedFile1), "File should have been created: {0}", expectedFile1);
+            Assert.IsTrue(File.Exists(expectedFile2), "File should have been created: {0}", expectedFile2);
+            Assert.IsTrue(File.Exists(expectedFile3), "File should have been created: {0}", expectedFile3);
+            Assert.IsTrue(File.Exists(expectedFile4), "File should have been created: {0}", expectedFile4);
+            
+            // Test the existance of copied directories
+            Assert.IsTrue(Directory.Exists(expectedDir1), "Directory should have been created: {0}", expectedDir1);
+            Assert.IsTrue(Directory.Exists(expectedDir2), "Directory should have been created: {0}", expectedDir2);
         }
 
         /// <summary>

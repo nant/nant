@@ -19,9 +19,6 @@
 // Tomas Restrepo (tomasr@mvps.org)
 
 using System;
-using System.IO;
-using System.Text;
-using System.Xml;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
@@ -86,24 +83,32 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(match.Success, "SysInfo property should've been modified!" + Environment.NewLine + result);
         }
 
-        [Test]
-        [ExpectedException(typeof(TestBuildException))]
-        public void Test_FailOnIllegalPropertyNames() {
+        [TestCase("AnIllegalPropertyWithWrong^Chars>", "sys.env.AnIllegalPropertyWithWrong_Chars_")]
+        [TestCase("AnIllegalPropertyWithWrong(Chars)", "sys.env.AnIllegalPropertyWithWrong_Chars_")]
+        [TestCase("My(x86)Property", "sys.env.My_x86_Property")]
+        [TestCase("MyProgramFiles(x86)", "sys.env.MyProgramFiles.x86")]
+        [TestCase("MyCommonFiles(x86)", "sys.env.MyCommonFiles.x86")]
+        public void Test_FixEnvironmentVariablesThatWouldBeMappedToIllegalPropertyNames(string name, string expected)
+        {
             //
-            // ensure properties with parentheses will fail like ProgramFiles(x86)
+            // ensure properties with names that would be illegal property names are fixed (by replacing "_" invalid chars)
             // SetEnvironmentVariable is first available on .Net 2.0
             //
+            string value = "Value";
             string xml = @"<?xml version='1.0' ?>
             <project>
-                <sysinfo />
+                <sysinfo verbose='true' />
             </project>";
-            if (AssignEnvironmentVariable("AnIllegalPropertyWithPa(rens)", "AnIllegalPropertyWithParens")) {
-                RunBuild(xml);
+            if (AssignEnvironmentVariable(name, value))
+            {
+                string result = RunBuild(xml);
+                string expression = string.Format("{0} = {1}", expected, value);
+                Assert.IsTrue(result.Contains(expression), "SysInfo should have fixed an environment variable name that is not a valid property name!" + Environment.NewLine + result);
             } else {
                 throw new TestBuildException();
             }
-
         }
+
 
 #if (ONLY_1_0 || ONLY_1_1)
         [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError=true)]

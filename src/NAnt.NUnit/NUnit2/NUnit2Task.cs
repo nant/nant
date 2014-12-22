@@ -20,9 +20,7 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -35,13 +33,10 @@ using System.Xml.XPath;
 using NUnit.Core;
 using NUnit.Core.Filters;
 using TestOutput = NUnit.Core.TestOutput;
-using NUnit.Framework;
 using NUnit.Util;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
-
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Types;
 
@@ -307,7 +302,7 @@ namespace NAnt.NUnit2.Tasks {
                         Version nunitVersion = typeof(TestResult).Assembly.GetName().Version;
 
                         throw new BuildException(string.Format(CultureInfo.InvariantCulture, 
-                            "Failure executing test(s). If you assembly is not built using"
+                            "Failure executing test(s). If your assembly is not built using"
                             + " NUnit version {0}, then ensure you have redirected assembly"
                             + " bindings. Consult the documentation of the <nunit2> task"
                             + " for more information.", nunitVersion), Location, ex);

@@ -17,8 +17,6 @@
 //
 // Jaroslaw Kowalski (jkowalski@users.sourceforge.net)
 
-using System;
-
 using NAnt.Core;
 
 using NUnit.Framework;

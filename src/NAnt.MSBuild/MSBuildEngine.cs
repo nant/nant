@@ -18,11 +18,9 @@
 // Martin Aliger (martin_aliger@myrealbox.com)
 
 using System;
-using System.Text;
 using System.Diagnostics;
 
 using NAnt.Core;
-using NAnt.Core.Tasks;
 
 namespace NAnt.MSBuild {
     internal sealed class MSBuildEngine {

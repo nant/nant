@@ -17,16 +17,18 @@
 //
 // Ian MacLean (imaclean@gmail.com)
 
-using System;
-
-using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
-
 namespace NAnt.Core {
+    /// <summary>
+    /// Base class for implementing NAnt functions.
+    /// </summary>
     public abstract class FunctionSetBase {
         #region Protected Instance Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FunctionSetBase"/> class.
+        /// </summary>
+        /// <param name="project">The current project.</param>
+        /// <param name="properties">The projects properties.</param>
         protected FunctionSetBase(Project project, PropertyDictionary properties) {
             _project = project;
         }

@@ -19,10 +19,7 @@
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
 using System;
-using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;

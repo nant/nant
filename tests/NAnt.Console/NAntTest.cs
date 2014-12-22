@@ -22,9 +22,7 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Reflection;
 using X = System.Xml;
 
 using NUnit.Framework;

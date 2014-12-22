@@ -17,7 +17,6 @@
 //
 // Aaron Anderson (aaron@skypoint.com | aaron.anderson@farmcreditbank.com)
 
-using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 
@@ -25,7 +24,6 @@ using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Tasks;
 using NAnt.Core.Types;
-using NAnt.Core.Util;
 
 namespace NAnt.Win32.Tasks {
     /// <summary>

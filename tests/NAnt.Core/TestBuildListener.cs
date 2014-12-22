@@ -17,6 +17,7 @@
 //
 // Gert Driesen (drieseng@users.sourceforge.net)
 
+using System;
 using System.Collections;
 
 using NAnt.Core;
@@ -28,6 +29,8 @@ namespace Tests.NAnt.Core {
         public TestBuildListener() {
             _executedTargets = new Hashtable();
             _executedTasks = new Hashtable();
+            _targetStartTimes = new Hashtable();
+            _targetFinishTimes = new Hashtable();
             _loggedMessages = new ArrayList();
         }
 
@@ -52,11 +55,13 @@ namespace Tests.NAnt.Core {
                 } else {
                     _executedTargets.Add(e.Target.Name, 1);
                 }
+                _targetStartTimes[e.Target.Name] = DateTime.UtcNow;
             }
         }
 
         public void TargetFinished(object sender, BuildEventArgs e) {
             _targetFinishedFired = true;
+            _targetFinishTimes[e.Target.Name] = DateTime.UtcNow;
         }
 
         public void MessageLogged(object sender, BuildEventArgs e) {
@@ -88,6 +93,22 @@ namespace Tests.NAnt.Core {
                 return (int) _executedTargets[target];
             } else {
                 return 0;
+            }
+        }
+
+        public DateTime GetTargetStartTime(string target) {
+            if (_targetStartTimes.ContainsKey(target)) {
+                return (DateTime) _targetStartTimes[target];
+            } else {
+                return DateTime.MinValue;
+            }
+        }
+
+        public DateTime GetTargetFinishTime(string target) {
+            if (_targetFinishTimes.ContainsKey(target)) {
+                return (DateTime) _targetFinishTimes[target];
+            } else {
+                return DateTime.MinValue;
             }
         }
 
@@ -159,6 +180,8 @@ namespace Tests.NAnt.Core {
 
         private Hashtable _executedTargets;
         private Hashtable _executedTasks;
+        private Hashtable _targetStartTimes;
+        private Hashtable _targetFinishTimes;
         private ArrayList _loggedMessages;
         private bool _buildStartedFired;
         private bool _buildFinishedFired;

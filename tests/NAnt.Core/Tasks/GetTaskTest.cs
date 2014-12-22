@@ -20,12 +20,9 @@
 
 using System;
 using System.IO;
-using System.Net;
-
 using NUnit.Framework;
 
 using NAnt.Core.Tasks;
-using NAnt.Core.Types;
 
 namespace Tests.NAnt.Core.Tasks {
     [TestFixture]

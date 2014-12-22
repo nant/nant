@@ -18,16 +18,13 @@
 // Clayton Harbour (claytonharbour@sporadicism.com)
 
 using System;
-using System.Collections;
 using System.Globalization;
 using System.IO;
 
 using NUnit.Framework;
 
 using NAnt.Core;
-using NAnt.Core.Tasks;
 using Tests.NAnt.Core;
-using Tests.NAnt.VSNet;
 
 namespace Tests.NAnt.VSNet.Tasks {
     /// <summary>

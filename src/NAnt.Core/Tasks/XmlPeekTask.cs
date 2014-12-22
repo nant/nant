@@ -24,8 +24,6 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
-
-using NAnt.Core;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -61,6 +59,9 @@ namespace NAnt.Core.Tasks {
     ///   <para>
     ///   The example will read the server value from the above
     ///   configuration file.
+    ///   </para>
+    ///   <para>
+    ///   NOTE: The example below shows that the default namespace needs to also be declared. Simply set any prefix and use that prefix in the xpath.
     ///   </para>
     ///   <code>
     ///     <![CDATA[

@@ -73,6 +73,7 @@
     <Compile Include="NAnt.Console\NAntTest.cs" />
     <Compile Include="NAnt.Core\BuildFilesInResourcesTest.cs" />
     <Compile Include="NAnt.Core\BuildTestBase.cs" />
+    <Compile Include="NAnt.Core\ConcurrencyTest.cs" />
     <Compile Include="NAnt.Core\DirectoryScannerTest.cs" />
     <Compile Include="NAnt.Core\ElementTest.cs" />
     <Compile Include="NAnt.Core\ExceptionTest.cs" />

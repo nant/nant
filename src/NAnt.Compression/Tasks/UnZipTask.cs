@@ -17,17 +17,13 @@
 //
 // Scott Hernandez (ScottHernandez@hotmail.com)
 
-using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
-using ICSharpCode.SharpZipLib;
 using ICSharpCode.SharpZipLib.Zip;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Util;
 
 namespace NAnt.Compression.Tasks {
     /// <summary>

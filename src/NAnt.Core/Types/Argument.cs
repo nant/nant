@@ -18,11 +18,7 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.IO;
-using System.Text;
-
 using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {

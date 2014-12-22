@@ -26,8 +26,6 @@ using System.Xml;
 using NUnit.Framework;
 
 using NAnt.Core;
-using NAnt.Core.Attributes;
-using NAnt.Core.Types;
 
 namespace Tests.NAnt.Core {
     [TestFixture]
@@ -197,7 +195,7 @@ namespace Tests.NAnt.Core {
                 configDoc.DocumentElement);
             FrameworkInfo tf = project.Frameworks ["testnet-1.0"];
             if (!tf.IsValid) {
-                Assert.Ignore(tf.Description + "is not available.");
+                Assert.Ignore(tf.Description + " is not available.");
             }
 
             Assert.IsNull(tf.SdkDirectory, "#1");

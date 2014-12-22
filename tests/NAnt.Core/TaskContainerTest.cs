@@ -17,18 +17,12 @@
 //
 // Martin Aliger (martin_aliger@myrealbox.com)
 
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using System.Globalization;
 
 using NUnit.Framework;
 
 using NAnt.Core;
 using NAnt.Core.Types;
-using NAnt.Core.Attributes;
 
 namespace Tests.NAnt.Core {
 

@@ -17,7 +17,6 @@
 //
 // Giuseppe Greco (giuseppe.greco@agamura.com)
 
-using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -26,7 +25,6 @@ using NAnt.Core.Tasks;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
-using NAnt.DotNet.Tasks;
 
 namespace NAnt.DotNet.Tasks {
     /// <summary>

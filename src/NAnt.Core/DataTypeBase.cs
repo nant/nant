@@ -89,6 +89,16 @@ namespace NAnt.Core {
             }
         }
 
+        /// <summary>
+        /// Derived classes should override to this method to provide extra
+        /// initialization and validation not covered by the base class.
+        /// </summary>
+        /// <exception cref="BuildException">
+        /// </exception>
+        /// <remarks>
+        /// Access to the <see cref="XmlNode" /> that was used to initialize
+        /// this <see cref="Element" /> is available through <see cref="XmlNode" />.
+        /// </remarks>
         protected override void Initialize() {
             if (Parent == null) {
                 // output warning message

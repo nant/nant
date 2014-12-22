@@ -23,13 +23,10 @@ using System.IO;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using NAnt.Core.Types;
-
 using NAnt.DotNet.Types;
 
 using NAnt.NUnit.Types;
 using NAnt.NUnit2.Tasks;
-using NAnt.NUnit2.Types;
 
 namespace NAnt.NUnit2.Types {
     /// <summary>
