@@ -1,0 +1,6 @@
+
+language: c
+
+script: 
+    - make clean run-test TARGET=mono-2.0 
+    
