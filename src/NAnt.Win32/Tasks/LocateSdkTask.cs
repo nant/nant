@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml;
 using System.Globalization;
+using System.Collections.Generic;
 
 using NAnt.Core;
 using NAnt.Core.Attributes;
@@ -48,6 +49,7 @@ namespace NAnt.Win32.Tasks {
         private string _minNetFxVer = "2.0";
         private string _maxNetFxVer;
         private readonly string _registryBase = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows";
+        private readonly string _registryBaseWow6432 = @"SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows";
         private readonly string _regexNetFxTools = @"^WinSDK.*NetFx.*Tools.*$";
         
         #endregion Private Instance Fields
@@ -133,18 +135,29 @@ namespace NAnt.Win32.Tasks {
             bool sdkFound = false;
             
             // Get all of the WinSDK version keys from the user's registry and
-            // load them into a string array.
+            // load them into a string list. In 64 bit process, consider 32 bit
+            // registry subkey as well
             RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(_registryBase, false);
-            string[] installedWinSdkVersions = sdkRegSubKey.GetSubKeyNames();
+            List<string> installedWinSdkVersions = new List<string>(sdkRegSubKey.GetSubKeyNames());
+            RegistryKey sdkRegSubKey_x86 = null;
+            bool is64BitProcess = IntPtr.Size == 8;
+            if (is64BitProcess)
+            {
+                sdkRegSubKey_x86 = Registry.LocalMachine.OpenSubKey(_registryBaseWow6432, false);
+                if (sdkRegSubKey_x86 != null)
+                    foreach (string installedWinSdkVersionX86 in sdkRegSubKey_x86.GetSubKeyNames())
+                        if (!installedWinSdkVersions.Contains(installedWinSdkVersionX86))
+                            installedWinSdkVersions.Add(installedWinSdkVersionX86);
+            }
             
             // Sort and reverse the WinSDK version key array to make sure that
             // the latest version is reviewed first before reviewing earlier
             // versions.
-            Array.Sort(installedWinSdkVersions);
-            Array.Reverse(installedWinSdkVersions);
+            installedWinSdkVersions.Sort();
+            installedWinSdkVersions.Reverse();
             
             // Loop through all of the WinSDK version keys.
-            for(int i = 0; i < installedWinSdkVersions.Length; i++) {
+            for(int i = 0; i < installedWinSdkVersions.Count; i++) {
                 loopSdkVersion = StringToVersion(installedWinSdkVersions[i]);
                 
                 // If a maxVersion was indicated and the loopVersion is greater than
@@ -158,23 +171,50 @@ namespace NAnt.Win32.Tasks {
                 // If the loopVersion is greater than or equal to the minVersion, loop through the subkeys
                 // for a valid .NET sdk path
                 if (minSdkVersion <= loopSdkVersion) {
+                    RegistryKey sdkVerRegSubKey = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]);
                     // Gets all of the current WinSdk loop subkeys
-                    string[] installedWinSdkSubKeys = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).GetSubKeyNames();
-                    
+                    List<string> installedWinSdkSubKeys = new List<string>();
+                    if (sdkVerRegSubKey != null)
+                        installedWinSdkSubKeys.AddRange(sdkVerRegSubKey.GetSubKeyNames());
+                    RegistryKey sdkVerRegSubKey_x86 = null;
+                    if (sdkRegSubKey_x86 != null) {
+                        sdkVerRegSubKey_x86 = sdkRegSubKey_x86.OpenSubKey(installedWinSdkVersions[i]);
+                        if (sdkVerRegSubKey_x86 != null) {
+                            foreach (string installedWinSdkSubKey in sdkVerRegSubKey_x86.GetSubKeyNames())
+                                if (!installedWinSdkSubKeys.Contains(installedWinSdkSubKey))
+                                    installedWinSdkSubKeys.Add(installedWinSdkSubKey);
+                        }
+                    }
+
                     // Sort and reverse the order of the subkeys to go from greatest to least
-                    Array.Sort(installedWinSdkSubKeys);
-                    Array.Reverse(installedWinSdkSubKeys);
+                    installedWinSdkSubKeys.Sort();
+                    installedWinSdkSubKeys.Reverse();
                     
                     // Loop through all of the current WinSdk loop subkeys
-                    for(int j = 0; j < installedWinSdkSubKeys.Length; j++) {
+                    for(int j = 0; j < installedWinSdkSubKeys.Count; j++) {
                         // Check to see if the current subkey matches the RegEx string
                         if (Regex.IsMatch(installedWinSdkSubKeys[j], _regexNetFxTools)) {
                             // Initialize the necessary string array to hold all 
                             // possible directory locations
-                            string[] netFxDirs = new string[] {
-                                sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).OpenSubKey(installedWinSdkSubKeys[j]).GetValue("InstallationFolder").ToString(),
-                                Path.Combine(sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]).OpenSubKey(installedWinSdkSubKeys[j]).GetValue("InstallationFolder").ToString(), "bin")
-                            };
+                            // From Wow6432Node last so that value for 64 bit registry is used first
+                            List<string> netFxDirs = new List<string>();
+
+                            if (sdkVerRegSubKey != null) {
+                                RegistryKey winSdkRegKey = sdkVerRegSubKey.OpenSubKey(installedWinSdkSubKeys[j]);
+                                if (winSdkRegKey != null) {
+                                    string installDir = winSdkRegKey.GetValue("InstallationFolder").ToString();
+                                    netFxDirs.Add(installDir);
+                                    netFxDirs.Add(Path.Combine(installDir, "bin"));
+                                }
+                            }
+                            if (sdkVerRegSubKey_x86 != null) {
+                              RegistryKey winSdkRegKey = sdkVerRegSubKey_x86.OpenSubKey(installedWinSdkSubKeys[j]);
+                              if (winSdkRegKey != null) {
+                                string installDir = winSdkRegKey.GetValue("InstallationFolder").ToString();
+                                netFxDirs.Add(installDir);
+                                netFxDirs.Add(Path.Combine(installDir, "bin"));
+                              }
+                            }
                             
                             // Loop through all of the directories in the possible directory
                             // locations array
