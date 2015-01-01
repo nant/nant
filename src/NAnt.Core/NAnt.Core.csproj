@@ -59,6 +59,7 @@
     <Reference Include="System" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
     <Reference Include="log4net">
       <HintPath>..\..\lib\common\neutral\log4net.dll</HintPath>
     </Reference>
