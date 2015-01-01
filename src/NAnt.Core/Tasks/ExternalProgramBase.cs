@@ -20,6 +20,7 @@
 // Gert Driesen (drieseng@users.sourceforge.net)
 
 using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -81,11 +82,58 @@ namespace NAnt.Core.Tasks {
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
+        /// Used to specify the time out value (in milliseconds) to use for the
+        /// executetask method output threads
+        /// </summary>
+        private static readonly int outputTimeout;
+
+        /// <summary>
+        /// The app.config app settings key to get the output timeout value from.
+        /// </summary>
+        private const string outputTimeoutKey = "nant.externalprogram.output.timeout";
+
+        /// <summary>
         /// Will be used to ensure thread-safe operations.
         /// </summary>
         private static object _lockObject = new object();
 
         #endregion Private Static Fields
+
+        #region Static Constructors
+
+        /// <summary>
+        /// Static constructor that retrieves the specified timeout value for program
+        /// output.
+        /// </summary>
+        static ExternalProgramBase()
+        {
+            // Assigns the appropriate timeout value (in milliseconds) to use for
+            // the output threads.
+            const int defaultTimeout = 2000;
+
+            string appSettingStage = 
+                ConfigurationManager.AppSettings.Get(outputTimeoutKey);
+
+            if (!String.IsNullOrEmpty(appSettingStage))
+            {
+                int stageTimeout;
+                if (Int32.TryParse(appSettingStage, out stageTimeout))
+                {
+                    // Make sure that the stage Timeout value is valid
+                    if (stageTimeout >= 0 || stageTimeout == Timeout.Infinite)
+                    {
+                        outputTimeout = stageTimeout;
+                        return;
+                    }
+                }
+            }
+
+            // If the default timeout isn't specified or valid, use the specified
+            // default value.
+            outputTimeout = defaultTimeout;
+        }
+
+        #endregion
 
         #region Public Instance Properties
 
@@ -380,8 +428,8 @@ namespace NAnt.Core.Tasks {
                 process.WaitForExit(TimeOut);
 
                 // Wait for the threads to terminate
-                outputThread.Join(2000);
-                errorThread.Join(2000); 
+                outputThread.Join(outputTimeout);
+                errorThread.Join(outputTimeout);
 
                 if (!process.HasExited) {
                     try {
