@@ -1,4 +1,4 @@
-# NAnt make makefile for *nix
+# NAnt make makefile for Mono
 MONO=mono
 MCS=gmcs
 RESGEN=resgen
@@ -76,7 +76,12 @@ build-nant: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build build
 
 clean:
+ifeq ($(OS),Windows_NT)
+	if exist bootstrap rmdir /S /Q bootstrap
+	if exist build rmdir /S /Q build
+else
 	rm -fR build bootstrap
+endif
 
 install: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build install -D:prefix="$(prefix)" -D:destdir="$(DESTDIR)" -D:doc.prefix="$(docdir)"
@@ -93,12 +98,20 @@ bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNe
 	
 
 setup:
+ifeq ($(OS),Windows_NT)
+	if not exist bootstrap md bootstrap
+	if not exist bootstrap\lib md bootstrap\lib
+	xcopy lib bootstrap\lib /S /Y /Q
+	copy lib\common\neutral\log4net.dll bootstrap
+	copy src\NAnt.Console\App.config bootstrap\NAnt.exe.config
+else
 	mkdir -p bootstrap
 	cp -R lib/ bootstrap/lib
 	# Mono loads log4net before privatebinpath is set-up, so we need this in the same directory
 	# as NAnt.exe
 	cp lib/common/neutral/log4net.dll bootstrap
 	cp src/NAnt.Console/App.config bootstrap/NAnt.exe.config
+endif
 
 bootstrap/NAnt.Core.dll:
 	$(RESGEN)  src/NAnt.Core/Resources/Strings.resx bootstrap/NAnt.Core.Resources.Strings.resources
