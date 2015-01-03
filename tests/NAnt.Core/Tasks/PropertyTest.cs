@@ -190,6 +190,22 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         [Test]
+        public void Test_EscapedDollarPropertyValue()
+        {
+            string _xml = @"
+                    <project name='PropTests'>
+                        <property name='test.var' value='some simple value'/>
+                        <echo message='$${test.var} = ${test.var}'/>
+                    </project>";
+            string result = RunBuild(_xml);
+            Assert.IsTrue(result.IndexOf("${test.var} = some simple value") != -1,
+                String.Format("Value of escaped property not as expected. - '{0}'",
+                result));
+            Assert.IsTrue(result.IndexOf("$${test.var} = some simple value") == -1,
+                "Extra '$' character was not stripped");
+        }
+
+        [Test]
         public void CurrentFramework_NonExisting () {
             string _xml = @"
                     <project name='PropTests'>

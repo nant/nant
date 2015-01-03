@@ -363,7 +363,8 @@ namespace NAnt.Core {
                             tokenizer.SingleCharacterMode = true;
                             tokenizer.GetNextToken();
                         } else {
-                            output.Append('$');
+                            if (tokenizer.CurrentToken != ExpressionTokenizer.TokenType.Dollar)
+                                output.Append('$');
                             if (tokenizer.CurrentToken != ExpressionTokenizer.TokenType.EOF) {
                                 output.Append(tokenizer.TokenText);
                                 tokenizer.GetNextToken();
