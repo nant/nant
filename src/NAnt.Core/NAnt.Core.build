@@ -29,6 +29,7 @@
             <references>
                 <include name="${build.dir}/bin/log4net.dll"/>
                 <include name="System.Web.dll"/>
+                <include name="System.Configuration.dll"/>
             </references>
         </csc>
     </target>
