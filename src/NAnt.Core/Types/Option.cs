@@ -25,7 +25,7 @@ namespace NAnt.Core.Types {
     /// Represents an option.
     /// </summary>
     [ElementName("option")]
-    public class Option : Element {
+    public class Option : Element, IConditional {
         #region Private Instance Fields
 
         private string _name;

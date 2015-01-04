@@ -28,7 +28,7 @@ namespace NAnt.Core.Types {
     /// resources.
     /// </summary>
     [ElementName("proxy")]
-    public class Proxy : DataTypeBase {
+    public class Proxy : DataTypeBase, IConditional {
         #region Private Instance Fields
 
         private string _host;

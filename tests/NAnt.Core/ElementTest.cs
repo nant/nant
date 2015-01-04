@@ -101,6 +101,49 @@ namespace Tests.NAnt.Core {
         }
     }
 
+    /// <summary>
+    /// This is a test class to make sure that the if/unless conditionals
+    /// are processed as expected.
+    /// </summary>
+    [TaskName("conditionaltest")]
+    class ConditionalElementTestTask : Task
+    {
+        #region Public Static Fields
+
+        internal const string PropName = "quote";
+
+        #endregion
+
+        #region Private Instance Fields
+
+        private string _quote;
+
+        #endregion
+
+        #region Public Instance Properties
+
+        [TaskAttribute("quote")]
+        public string Quote
+        {
+            get { return _quote; }
+            set { _quote = value; }
+        }
+
+        #endregion
+        
+        #region Override implementation of Task
+
+        protected override void ExecuteTask() { 
+            string result = String.Format("The quote is \"{0}\".", Quote ?? String.Empty);
+            Log(Level.Info, result);
+
+            Properties.Add(PropName, result);
+
+        }
+
+        #endregion Override implementation of Task
+    }
+
     /*
     /// <summary>
     /// A simple task with a null element to test failures.
@@ -304,6 +347,70 @@ namespace Tests.NAnt.Core {
                 </project>";
 
             RunBuild(build);
+        }
+
+        [TestCase("I did not inhale", true)]
+        [TestCase("I did inhale", false)]
+        [TestCase("${does.not.exist}", false)]
+        public void Test_IfAttribute(string quote, bool ifAttr)
+        {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <conditionaltest quote='{0}' if='{1}'/>
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(String.Format(build, quote, ifAttr));
+            ExecuteProject(project);
+            
+            if (ifAttr)
+            {
+                Assert.IsTrue(project.Properties.Contains(ConditionalElementTestTask.PropName),
+                    String.Format("Project does not contain expected property: '{0}'", 
+                        ConditionalElementTestTask.PropName));
+                string result = project.Properties[ConditionalElementTestTask.PropName];
+                Assert.IsTrue(result.Contains(quote), 
+                    String.Format("Result does not contain quote: '{0}' | '{1}'", result, quote));
+            }
+            else
+            {
+                Assert.IsFalse(project.Properties.Contains(ConditionalElementTestTask.PropName),
+                    String.Format("Project does contain unexpected property: '{0}'", 
+                        ConditionalElementTestTask.PropName));
+            }
+        }
+
+        [TestCase("I did not inhale", false)]
+        [TestCase("I did inhale", true)]
+        [TestCase("${does.not.exist}", true)]
+        public void Test_UnlessAttribute(string quote, bool unlessAttr)
+        {
+            const string build = @"<?xml version='1.0' ?>
+                <project name='testing' default='test'>
+                     <target name='test'>
+                        <conditionaltest quote='{0}' unless='{1}'/>
+                     </target>
+                </project>";
+
+            Project project = CreateFilebasedProject(String.Format(build, quote, unlessAttr));
+            ExecuteProject(project);
+            
+            if (unlessAttr)
+            {
+                Assert.IsFalse(project.Properties.Contains(ConditionalElementTestTask.PropName),
+                    String.Format("Project does contain unexpected property: '{0}'", 
+                        ConditionalElementTestTask.PropName));
+            }
+            else
+            {
+                Assert.IsTrue(project.Properties.Contains(ConditionalElementTestTask.PropName),
+                    String.Format("Project does not contain expected property: '{0}'", 
+                        ConditionalElementTestTask.PropName));
+                string result = project.Properties[ConditionalElementTestTask.PropName];
+                Assert.IsTrue(result.Contains(quote), 
+                    String.Format("Result does not contain quote: '{0}' | '{1}'", result, quote));
+            }
         }
 
         #endregion Public Instance Methods

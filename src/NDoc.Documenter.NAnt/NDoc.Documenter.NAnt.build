@@ -8,6 +8,7 @@
             * current.build.defines - framework-specific build defines
     -->
     <target name="build">
+        <property name="build.dir.bin" value="${path::combine(build.dir, 'bin')}" unless="${property::exists('build.dir.bin')}"/>
         <!-- build main assembly -->
         <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}.dll" doc="${build.dir}/bin/${project::get-name()}.xml">
             <nowarn>
@@ -22,10 +23,10 @@
                 <include name="*.cs" />
                 <include name="../CommonAssemblyInfo.cs" />
             </sources>
-            <references basedir="${build.dir}/bin" failonempty="true">
+            <references basedir="${build.dir.bin}" failonempty="true">
                 <include name="NAnt.Core.dll" />
-                <include name="${nant::scan-probing-paths('NDoc.ExtendedUI.dll')}" />
-                <include name="${nant::scan-probing-paths('NDoc.Core.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir.bin,'NDoc.ExtendedUI.dll')}" />
+                <include name="${nant::scan-probing-paths(build.dir.bin,'NDoc.Core.dll')}" />
                 <include name="System.Web.dll" />
             </references>
             <resources basedir="Resources" prefix="Documenter.xslt.">
