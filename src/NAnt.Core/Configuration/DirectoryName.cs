@@ -39,18 +39,6 @@ namespace NAnt.Core.Configuration {
 
         #endregion Protected Instance Properties
 
-        #region Internal Instance Properties
-
-        internal bool Enabled
-        {
-            get
-            {
-                return IfDefined && !UnlessDefined;
-            }
-        }
-
-        #endregion Internal Instance Properties
-
         #region Explicit Interface Implementation
 
         bool IConditional.IfDefined

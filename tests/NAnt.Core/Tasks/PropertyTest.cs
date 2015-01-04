@@ -257,12 +257,11 @@ namespace Tests.NAnt.Core.Tasks {
         {
             string xml = "<project name='PropTests'>" +
                     "<property name='myMonth' value='january'/>" +
-                    "<property name='myMonth' value='december' unless=\"${myMonth == \'january\'}\"/>" +
+                    "<property name='myMonth' value='${does.not.exist}' unless=\"${property::exists('myMonth')}\"/>" +
                     "<echo message='${myMonth}'/>" +
                 "</project>";
             string result = RunBuild(xml);
             Assert.IsTrue(result.Contains("january"));
-            Assert.IsFalse(result.Contains("december"));
         }
     }
 }

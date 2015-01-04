@@ -138,7 +138,6 @@ namespace Tests.NAnt.Core {
             Log(Level.Info, result);
 
             Properties.Add(PropName, result);
-
         }
 
         #endregion Override implementation of Task
