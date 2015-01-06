@@ -84,6 +84,7 @@
     <Compile Include="NAnt.Core\LocationTest.cs" />
     <None Include="NAnt.Core\NAnt.Core.build" />
     <Compile Include="NAnt.Core\ProjectTest.cs" />
+    <Compile Include="NAnt.Core\PropertyDictionaryTest.cs" />
     <Compile Include="NAnt.Core\TargetTest.cs" />
     <Compile Include="NAnt.Core\TaskContainerTest.cs" />
     <Compile Include="NAnt.Core\TaskTest.cs" />

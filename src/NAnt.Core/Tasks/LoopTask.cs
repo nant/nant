@@ -429,9 +429,15 @@ namespace NAnt.Core.Tasks {
                         break;
                 }
             } finally {
-                // Restore all of the old property values
-                for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) {
-                    Properties[_props[nIndex]] = oldPropVals[nIndex];
+                // Restore all of the old property values. If any of the old properties
+                // contained a null value, remove that property from the dictionary.
+                string name = null;
+                string val = null;
+                for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) 
+                {
+                    name = _props[nIndex];
+                    val = oldPropVals[nIndex];
+                    if (val != null) Properties[name] = val;
                 }
             }
         }
