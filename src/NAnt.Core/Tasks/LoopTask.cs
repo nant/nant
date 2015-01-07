@@ -429,8 +429,9 @@ namespace NAnt.Core.Tasks {
                         break;
                 }
             } finally {
-                // Restore all of the old property values. If any of the old properties
-                // contained a null value, remove that property from the dictionary.
+                // Restore all of the old property values. Make sure that the loop property
+                // (or any other property) is not re-added back into the PropertyDictionary
+                // with a `null` value.
                 string name = null;
                 string val = null;
                 for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) 
