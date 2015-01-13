@@ -427,7 +427,12 @@ namespace NAnt.VSNet {
             map.AddBool("TurnOffAssemblyGeneration", "/NOASSEMBLY");
             map.AddBool("SupportUnloadOfDelayLoadedDLL", "/DELAY:UNLOAD");
             map.AddQuotedLinkerString("MergeSections", "/MERGE:", true);
-            map.AddEnum("TargetMachine", null, null, "/MACHINE:X86");
+            
+            // All available options for this item may be found here:
+            // http://msdn.microsoft.com/en-us/library/microsoft.visualstudio.vcprojectengine.machinetypeoption%28v=vs.100%29.aspx
+            map.AddEnum("TargetMachine", null, null,
+                "/MACHINE:X86", null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, "/MACHINE:X64");
 
             return map;
         }
