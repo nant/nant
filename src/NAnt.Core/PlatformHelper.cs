@@ -79,7 +79,9 @@ namespace NAnt.Core
             if ((p == 4) || (p == 6) || (p == 128))
                 IsUnix = true;
 
+#pragma warning disable 618
             IsWin32 = !IsUnix;
+#pragma warning restore 618
 
 #if NET_4_0
             Is64BitProcess = Environment.Is64BitProcess;

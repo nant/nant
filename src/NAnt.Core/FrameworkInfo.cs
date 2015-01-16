@@ -22,6 +22,7 @@ using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 using NAnt.Core.Configuration;
@@ -622,13 +623,58 @@ namespace NAnt.Core {
         /// Whether the file name is matched case-sensitively depends on the
         /// operating system.
         /// </remarks>
-        public string ResolveAssembly (string fileName) {
-            string resolvedAssembly = null;
+        public string ResolveAssembly (string fileName) 
+        {
+            return ResolveAssembly(fileName, null);
+        }
 
-            foreach (FileSet fileset in ReferenceAssemblies) {
-                resolvedAssembly = fileset.Find (fileName);
-                if (resolvedAssembly != null) {
-                    break;
+        /// <summary>
+        /// Resolves the specified assembly to a full path by matching it
+        /// against the reference assemblies with a regex matching ID of
+        /// <paramref name="assemblyId"/>.
+        /// </summary>
+        /// <param name="fileName">
+        /// The file name of the assembly to resolve (without path information).
+        /// </param>
+        /// <param name="assemblyId">
+        /// The regular expression to match with the reference assembly fileset id.
+        /// </param>
+        /// <returns>
+        /// An absolute path to the assembly, or <see langword="null" /> if the
+        /// assembly could not be found or no reference assemblies are configured
+        /// for the current framework.
+        /// </returns>
+        /// <remarks>
+        /// The file name is matched case-sensitively depends on the
+        /// operating system while the assembly ID regular expression is not 
+        /// case-sensitive.
+        /// </remarks>
+        public string ResolveAssembly(string fileName, string assemblyId)
+        {
+            string resolvedAssembly = null;
+            Regex aId = null;
+            RegexOptions regOps = RegexOptions.Compiled | RegexOptions.IgnoreCase;
+
+            if (!String.IsNullOrEmpty(assemblyId))
+            {
+                aId = new Regex(assemblyId, regOps);
+            }
+
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                foreach (FileSet f in ReferenceAssemblies)
+                {
+                    if (aId != null)
+                    {
+                        if (!aId.IsMatch(f.ID))
+                        {
+                            continue;
+                        }
+                    }
+                    resolvedAssembly = f.Find(fileName);
+
+                    if (!String.IsNullOrEmpty(resolvedAssembly))
+                        break;
                 }
             }
             return resolvedAssembly;
