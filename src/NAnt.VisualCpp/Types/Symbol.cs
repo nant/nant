@@ -26,7 +26,7 @@ namespace NAnt.VisualCpp.Types {
     /// <summary>
     /// Represents a symbol.
     /// </summary>
-    public class Symbol : Element {
+    public class Symbol : Element, IConditional {
         #region Private Instance Fields
 
         private string _symbolName;

@@ -24,7 +24,7 @@ namespace NAnt.DotNet.Types {
     /// <summary>
     /// Represents a compiler warning.
     /// </summary>
-    public class CompilerWarning : Element {
+    public class CompilerWarning : Element, IConditional {
         #region Private Instance Fields
 
         private string  _number;

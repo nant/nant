@@ -27,7 +27,7 @@ namespace NAnt.DotNet.Types {
     /// </summary>
     [Serializable()]
     [ElementName("import")]
-    public class NamespaceImport : Element {
+    public class NamespaceImport : Element, IConditional {
         #region Private Instance Fields
 
         private string _namespace;

@@ -25,7 +25,7 @@ namespace NAnt.NUnit2.Types {
     /// <summary>
     /// Represents a certain group of test cases or fixtures.
     /// </summary>
-    public class Category : Element {
+    public class Category : Element, IConditional {
         #region Private Instance Fields
 
         private string  _name;
