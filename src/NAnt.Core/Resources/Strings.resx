@@ -279,7 +279,7 @@
         <value>Read-only property "{0}" cannot be overwritten.</value>
     </data>
     <data name="NA1194">
-        <value>Property value '{0}' must not be null.</value>
+        <value>Property '{0}' cannot have null value.</value>
     </data>
     <!-- also a bunch of deprecated property warnings.　--> 
     <!--Messages From: \NAnt.Core/Target.cs-->
