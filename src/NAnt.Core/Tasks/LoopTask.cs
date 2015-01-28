@@ -429,9 +429,16 @@ namespace NAnt.Core.Tasks {
                         break;
                 }
             } finally {
-                // Restore all of the old property values
-                for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) {
-                    Properties[_props[nIndex]] = oldPropVals[nIndex];
+                // Restore all of the old property values. Make sure that the loop property
+                // (or any other property) is not re-added back into the PropertyDictionary
+                // with a `null` value.
+                string name = null;
+                string val = null;
+                for (int nIndex = 0; nIndex < oldPropVals.Length; nIndex++) 
+                {
+                    name = _props[nIndex];
+                    val = oldPropVals[nIndex];
+                    if (val != null) Properties[name] = val;
                 }
             }
         }

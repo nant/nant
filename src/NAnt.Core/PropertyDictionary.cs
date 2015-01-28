@@ -149,7 +149,7 @@ namespace NAnt.Core {
             }
 
             ValidatePropertyName(propertyName, Location.UnknownLocation);
-            ValidatePropertyValue(value, Location.UnknownLocation);
+            ValidatePropertyValue(propertyName, value, Location.UnknownLocation);
             base.OnValidate(key, value);
         }
 
@@ -517,17 +517,28 @@ namespace NAnt.Core {
             }
         }
 
-        private static void ValidatePropertyValue(object value, Location location) {
-            if (value != null) {
-                if (!(value is string)) {
-                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                        ResourceUtils.GetString("NA1066"), value.GetType()), 
+        private static void ValidatePropertyValue(string name, object value, Location loc) 
+        {
+            CultureInfo ci = CultureInfo.InvariantCulture;
+
+            try
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException(String.Format(ci,
+                        ResourceUtils.GetString("NA1194"), name));
+                }
+
+                if (!(value is string))
+                {
+                    throw new ArgumentException(String.Format(ci,
+                        ResourceUtils.GetString("NA1066"), value.GetType()),
                         "value");
                 }
-            } else {
-                // TODO: verify this
-                // throw new ArgumentException("Property value '" + propertyName + "' must not be null", "value");
-                return;
+            }
+            catch (Exception x)
+            {
+                throw new BuildException("Property value validation failed: ", loc, x);
             }
         }
 
