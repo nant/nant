@@ -65,7 +65,8 @@ namespace NAnt.Core.Tasks {
         
         // Contains names of tasks that should have the "mixed" attribute for the complex types.
         private static readonly string[] mixedTaskNames = new string[] {
-            "NAnt.Core.Tasks.DescriptionTask"
+            "NAnt.Core.Tasks.DescriptionTask",
+            "NAnt.Core.Tasks.EchoTask",
         };
 
         #endregion Private Static Fields
