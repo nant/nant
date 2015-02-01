@@ -14,5 +14,5 @@ env:
 
 script:
   - mono --version
-  - make clean run-test TARGET=$TARGET MCS=$MCS
+  - make clean run-test TARGET=$TARGET MCS="$MCS"
     
