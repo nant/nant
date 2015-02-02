@@ -128,6 +128,51 @@ namespace NAnt.Core.Functions {
             return assembly.Location;
         }
 
+        /// <summary>
+        /// Gets the value of the <see cref="AssemblyInformationalVersionAttribute"/> for the specified assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly to get an <see cref="AssemblyInformationalVersionAttribute"/> for.</param>
+        /// <returns>The InformationalVersion from the <see cref="AssemblyInformationalVersionAttribute"/>.</returns>
+        [Function("get-informational-version")]
+        public static string GetInformationalVersion(Assembly assembly) {
+            return GetAttributeProperty(assembly, typeof(AssemblyInformationalVersionAttribute), "InformationalVersion");
+        }
+
+        /// <summary>
+        /// Gets a custom attribute from the specified assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly from which to get the custom attribute.</param>
+        /// <param name="attributeAssemblyPath">The assembly which contains the custom attribute type.</param>
+        /// <param name="attributeTypeName">The name of the custom attribute type.</param>
+        /// <param name="propertyName">The name of the property to retreive from the custom attribute instance.</param>
+        /// <returns>The specified property from the custom attribute, as a string.</returns>
+        [Function("get-attribute-property")]
+        public static string GetAttributeProperty(Assembly assembly, string attributeAssemblyPath, string attributeTypeName, string propertyName) {
+            Assembly attributeAssembly = Assembly.LoadFile(attributeAssemblyPath);
+
+            return GetAttributeProperty(assembly, attributeAssembly, attributeTypeName, propertyName);
+        }
+
+        private static string GetAttributeProperty(Assembly assembly, Assembly attributeAssembly, string attributeTypeName, string propertyName) {
+            Type attributeType = attributeAssembly.GetType(attributeTypeName, true);
+
+            return GetAttributeProperty(assembly, attributeType, propertyName);
+        }
+
+        private static string GetAttributeProperty(Assembly assembly, Type attributeType, string propertyName) {
+            PropertyInfo property = attributeType.GetProperty(propertyName, BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            object[] attributes = assembly.GetCustomAttributes(attributeType, true);
+
+            if (attributes != null && attributes.Length > 0) {
+                object attribute = attributes[0];
+                object value = property.GetValue(attribute, null);
+
+                return Convert.ToString(value);
+            }
+
+            return null;
+        }
+
         #endregion Public Static Methods
     }
 }
