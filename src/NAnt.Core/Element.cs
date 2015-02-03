@@ -328,8 +328,19 @@ namespace NAnt.Core {
         protected virtual void InitializeXml(XmlNode elementNode, PropertyDictionary properties, FrameworkInfo framework) {
             _xmlNode = elementNode;
 
-            AttributeConfigurator configurator = new AttributeConfigurator(
-                this, elementNode, properties, framework);
+            IConditional conditional = this as IConditional;
+            AttributeConfigurator configurator;
+
+            if (conditional != null)
+            {
+                configurator =
+                    new ConditionalConfigurator(this, elementNode, properties, framework);
+            }
+            else
+            {
+                configurator =
+                    new AttributeConfigurator(this, elementNode, properties, framework);
+            }
             configurator.Initialize();
         }
 
@@ -1124,8 +1135,9 @@ namespace NAnt.Core {
                         elementType);
 
                     // check if element should actually be added
-                    ConditionalElement conditional = childElement as ConditionalElement;
-                    if (conditional != null && !conditional.Enabled) {
+                    IConditional conditional = childElement as IConditional;
+                    if (conditional != null && !(conditional.IfDefined && !conditional.UnlessDefined))
+                    {
                         continue;
                     }
 
@@ -1776,6 +1788,61 @@ namespace NAnt.Core {
             private interface IAttributeSetter {
                 void Set(XmlNode attributeNode, Element parent, PropertyInfo property, string value);
             }
+        }
+
+
+        private class ConditionalConfigurator : AttributeConfigurator
+        {
+            public ConditionalConfigurator(Element element, XmlNode elementNode, PropertyDictionary properties, FrameworkInfo targetFramework) :
+                base(element, elementNode, properties, targetFramework)
+            {
+                IConditional conditional = element as IConditional;
+                if (conditional == null) return;
+
+                Type currentType = element.GetType();
+                BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public |
+                    BindingFlags.Instance;
+                
+                PropertyInfo ifdefined = currentType.GetProperty("IfDefined", flags);
+
+                InitializeAttribute(ifdefined);
+                if (!conditional.IfDefined)
+                {
+                    _enabled = false;
+                }
+                else
+                {
+                    PropertyInfo unlessDefined = 
+                        currentType.GetProperty("UnlessDefined", flags);
+                    InitializeAttribute(unlessDefined);
+                    _enabled = !conditional.UnlessDefined;
+                }
+
+                if (!_enabled)
+                {
+                    // since we will not be processing other attributes or
+                    // child nodes, clear these collections to avoid
+                    // errors for unrecognized attributes/elements
+                    UnprocessedAttributes.Clear();
+                    UnprocessedChildNodes.Clear();
+                }
+            }
+
+            protected override bool InitializeAttribute(PropertyInfo propertyInfo)
+            {
+                if (!_enabled)
+                    return true;
+                return base.InitializeAttribute(propertyInfo);
+            }
+
+            protected override void InitializeOrderedChildElements()
+            {
+                if (!_enabled)
+                    return;
+                base.InitializeOrderedChildElements();
+            }
+
+            private readonly bool _enabled = true;
         }
     }
 }

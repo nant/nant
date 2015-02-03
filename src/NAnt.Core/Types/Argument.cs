@@ -65,7 +65,7 @@ namespace NAnt.Core.Types {
     /// </example>
     [Serializable]
     [ElementName("arg")]
-    public class Argument : Element {
+    public class Argument : Element, IConditional {
         #region Private Instance Fields
 
         private FileInfo _file;

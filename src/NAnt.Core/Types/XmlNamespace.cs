@@ -26,7 +26,7 @@ namespace NAnt.Core.Types {
     /// Represents an XML namespace.
     /// </summary>
     [ElementName("namespace")]
-    public class XmlNamespace : Element {
+    public class XmlNamespace : Element, IConditional {
         #region Private Instance Fields
 
         private string _prefix;

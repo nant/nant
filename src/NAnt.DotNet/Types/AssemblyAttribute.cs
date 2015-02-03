@@ -28,7 +28,7 @@ namespace NAnt.DotNet.Types {
     /// </summary>
     [ElementName("attribute")]
     [Serializable()]
-    public class AssemblyAttribute : Element {
+    public class AssemblyAttribute : Element, IConditional {
         #region Private Instance Fields
 
         private string _typeName;

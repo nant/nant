@@ -26,7 +26,7 @@ namespace NAnt.VisualCpp.Types {
     /// <summary>
     /// Represents a library.
     /// </summary>
-    public class Library : Element {
+    public class Library : Element, IConditional {
         #region Private Instance Fields
 
         private string _libraryName;

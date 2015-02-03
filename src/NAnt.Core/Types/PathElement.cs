@@ -29,7 +29,7 @@ namespace NAnt.Core.Types {
     /// </summary>
     [Serializable()]
     [ElementName("pathelement")]
-    public class PathElement : Element {
+    public class PathElement : Element, IConditional {
         #region Private Instance Fields
 
         private FileInfo _file;

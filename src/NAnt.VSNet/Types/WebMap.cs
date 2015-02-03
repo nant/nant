@@ -30,7 +30,7 @@ namespace NAnt.VSNet.Types {
     /// path.
     /// </summary>
     [Serializable()]
-    public class WebMap : Element {
+    public class WebMap : Element, IConditional {
         #region Private Instance Fields
 
         private string _url;

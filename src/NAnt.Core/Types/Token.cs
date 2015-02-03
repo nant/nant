@@ -23,7 +23,7 @@ namespace NAnt.Core.Types {
     /// ReplaceTokens filter token.
     /// </summary>
     [ElementName("token")]
-    public class Token : Element {
+    public class Token : Element, IConditional {
         #region Private Instance Fields
 
         private string _key;

@@ -38,7 +38,7 @@ namespace NAnt.Core {
     /// A task is a piece of code that can be executed.
     /// </remarks>
     [Serializable()]
-    public abstract class Task : Element {
+    public abstract class Task : Element, IConditional {
         #region Private Static Fields
 
         private static readonly log4net.ILog logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);

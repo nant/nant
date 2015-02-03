@@ -24,7 +24,7 @@ namespace NAnt.Core.Types {
     /// Represents an XSLT parameter.
     /// </summary>
     [ElementName("xsltparameter")]
-    public class XsltParameter : Element {
+    public class XsltParameter : Element, IConditional {
         #region Private Instance Fields
 
         private string _name = string.Empty;

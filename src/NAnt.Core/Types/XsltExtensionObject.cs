@@ -32,7 +32,7 @@ namespace NAnt.Core.Types {
     /// four basic XPath data types of number, string, Boolean or node set.
     /// </summary>
     [ElementName("xsltextensionobject")]
-    public class XsltExtensionObject : Element {
+    public class XsltExtensionObject : Element, IConditional {
         #region Private Instance Fields
 
         private string _namespaceUri = string.Empty;

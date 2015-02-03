@@ -27,7 +27,7 @@ namespace NAnt.Core.Types {
     /// Provides credentials for password-based authentication schemes.
     /// </summary>
     [ElementName("credential")]
-    public class Credential : DataTypeBase {
+    public class Credential : DataTypeBase, IConditional {
         #region Private Instance Fields
 
         private string _domain;

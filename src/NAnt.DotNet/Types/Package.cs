@@ -24,7 +24,7 @@ namespace NAnt.DotNet.Types {
     /// <summary>
     /// Represents a package.
     /// </summary>
-    public class Package : Element {
+    public class Package : Element, IConditional {
         #region Private Instance Fields
 
         private string _name;
