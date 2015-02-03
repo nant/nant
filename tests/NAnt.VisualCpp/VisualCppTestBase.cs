@@ -175,7 +175,7 @@ namespace Tests.NAnt.VisualCpp {
             foreach (string compiler in compilers) {
                 // get major version of compiler
                 int majorVersion = VersionFunctions.GetMajor(
-                    FileVersionInfoFunctions.GetProductVersion(
+                    FileVersionInfoFunctions.GetFileVersion(
                     FileVersionInfo.GetVersionInfo(compiler)));
                 // the MS compiler supports Managed Extensions starting from 
                 // product version 7 (VS.NET 2002)
