@@ -23,7 +23,7 @@ namespace NAnt.Core.Types {
     /// <summary>
     /// Pattern which is used by a <see cref="PatternSet"/> to include or exclude specific files.
     /// </summary>
-    public class Pattern : Element {
+    public class Pattern : Element, IConditional {
         #region Private Instance Fields
 
         private string _patternName;

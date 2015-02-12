@@ -88,6 +88,7 @@
     <Compile Include="FrameworkInfoDictionary.cs" />
     <Compile Include="FrameworkTypes.cs" />
     <Compile Include="FunctionSetBase.cs" />
+    <Compile Include="IConditional.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="LocationMap.cs" />
     <Compile Include="Log.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Attributes\TaskAttributeAttribute.cs" />
     <Compile Include="Attributes\TaskNameAttribute.cs" />
     <Compile Include="Attributes\ValidatorAttribute.cs" />
-    <Compile Include="Configuration\ConditionalElement.cs" />
     <Compile Include="Configuration\DirectoryName.cs" />
     <Compile Include="Configuration\DirList.cs" />
     <Compile Include="Configuration\ManagedExecutionMode.cs" />

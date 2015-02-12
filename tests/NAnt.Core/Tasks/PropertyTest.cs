@@ -263,5 +263,21 @@ namespace Tests.NAnt.Core.Tasks {
                 Assert.IsNotNull(inner.RawMessage, "#5");
             }
         }
+
+        /// <summary>
+        /// Test to make sure that the _unless_ xml attribute works as expected for
+        /// the property task (and other tasks as well)
+        /// </summary>
+        [Test]
+        public void Test_PropertyUnlessAttribute()
+        {
+            string xml = "<project name='PropTests'>" +
+                    "<property name='myMonth' value='january'/>" +
+                    "<property name='myMonth' value='${does.not.exist}' unless=\"${property::exists('myMonth')}\"/>" +
+                    "<echo message='${myMonth}'/>" +
+                "</project>";
+            string result = RunBuild(xml);
+            Assert.IsTrue(result.Contains("january"));
+        }
     }
 }

@@ -55,6 +55,26 @@
         <h3>Bug Fixes</h3>
         <h4>Tasks</h4>
         <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/">Tasks</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Make sure that the <c>if</c> and <c>unless</c> attributes are evaluated
+                    before trying to expand properties elsewhere within the task.
+                    (Issue <a href="https://github.com/nant/nant/issues/110">#110</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/foreach.html">Foreach</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    Prevent foreach from adding properties with null values into the property 
+                    dictionary.
+                    (Issue <a href="https://github.com/nant/nant/issues/84">#84</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
             <h5><a class="heading" href="help/tasks/copy.html">Copy</a></h5>
             <div style="margin-left: 20px;">
                 <p>
@@ -127,6 +147,12 @@
             </div>
         </div>
         <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/fundamentals/properties.html">Properties</a></h5>
+            <div style="margin-left: 20px;">
+                <p>Properties with <c>null</c> values are no longer allowed.</p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
             <h5>Parallel Execution</h5>
             <div style="margin-left: 20px;">
                 <p>Implemented parallel execution of targets in the project.
@@ -144,6 +170,15 @@
                 <p>
                     The output/error timeout value can now be specified in NAnt.exe.config.
                     (<a href="https://github.com/nant/nant/pull/132">Pull Request #132</a>)
+                </p>
+            </div>
+        </div>
+        <div style="margin-left: 20px;">
+            <h5><a class="heading" href="help/tasks/echo.html">Echo</a></h5>
+            <div style="margin-left: 20px;">
+                <p>
+                    <code>&lt;echo&gt;Some Important Message&lt;/echo&gt;</code> will not show warning in VS anymore when <code>nant.xsd</code> is used to enable build file support.
+                    (<a href="https://github.com/nant/nant/pull/122">Issue #122</a>)
                 </p>
             </div>
         </div>

@@ -691,6 +691,19 @@ namespace Tests.NAnt.Core.Tasks {
             Assert.IsTrue(listener.HasMessageBeenLogged (string.Empty, true), "#1");
         }
 
+        /// <summary>
+        /// Test to make sure that the if statement of the echo task evaluates the property before
+        /// trying to output text.
+        /// </summary>
+        [Test]
+        public void Test_EchoIfAttribute()
+        {
+            string xml = 
+                "<project><echo message='This should not output: ${does.not.exist}' if=\"${property::exists(\'does.not.exist\')}\"/></project>";
+            string result = RunBuild(xml);
+            Assert.IsFalse(result.Contains("This should not output:"));
+        }
+
         [Test]
         public void Log_Message_Whitespace() {
             string msg;

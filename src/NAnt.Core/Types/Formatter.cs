@@ -21,7 +21,7 @@ using NAnt.Core.Attributes;
 
 namespace NAnt.Core.Types {
     [ElementName("formatter")]
-    public class Formatter : Element {
+    public class Formatter : Element, IConditional {
         #region Private Instance Fields
 
         private string _property;

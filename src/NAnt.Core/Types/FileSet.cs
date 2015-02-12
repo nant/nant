@@ -846,7 +846,7 @@ namespace NAnt.Core.Types {
         // These classes provide a way of getting the Element task to initialize
         // the values from the build file.
 
-        public class Exclude : Element {
+        public class Exclude : Element, IConditional{
             #region Private Instance Fields
 
             private string _pattern;
@@ -966,7 +966,7 @@ namespace NAnt.Core.Types {
             #endregion Override implementation of Exclude
         }
 
-        public class ExcludesFile : Element {
+        public class ExcludesFile : Element, IConditional {
             #region Private Instance Fields
 
             private bool _ifDefined = true;

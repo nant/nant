@@ -28,7 +28,7 @@ namespace NAnt.Core.Types {
     /// </summary>
     [Serializable()]
     [ElementName("env")]
-    public class EnvironmentVariable : Element {
+    public class EnvironmentVariable : Element, IConditional {
         #region Private Instance Fields
 
         private string _name;
