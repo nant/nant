@@ -312,7 +312,16 @@ namespace NAnt.Core {
             }
 
             InitializeXml(elementNode, properties, framework);
-
+            
+            // If the current instance implements IConditional, check to make sure
+            // that IfDefined is true and UnlessDefined is false before initializing
+            // the rest of this instance
+            IConditional c = this as IConditional;
+            if (c != null && !(c.IfDefined && !c.UnlessDefined))
+            {
+                return;
+            }
+            
             // allow inherited classes a chance to do some custom initialization
             InitializeElement(elementNode);
             Initialize();
