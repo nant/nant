@@ -18,15 +18,21 @@
 // Gerry Shaw (gerry_shaw@yahoo.com)
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Globalization;
+using System.Xml;
 
 using NUnit.Framework;
 using NAnt.Core;
 using Tests.NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
+
+  using global::NAnt.Core.Tasks;
+  using global::NAnt.Core.Types;
 
     [TestFixture]
     public class ExecTaskTest : BuildTestBase {
@@ -35,6 +41,39 @@ namespace Tests.NAnt.Core.Tasks {
                 <exec {0}>{1}</exec>
             </project>";
 
+        /// <summary>
+        /// The file system operation delay in milliseconds.
+        /// Time to wait after any file system operation (create/delete files or directories).
+        /// </summary>
+        private const int FileSystemOperationDelay = 10;
+
+        /// <summary>
+        /// Gets the name of the build file.
+        /// </summary>
+        /// <value>
+        /// The name of the build file.
+        /// </value>
+        protected string BuildFileName { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the test project.
+        /// </summary>
+        /// <value>
+        /// The name of the test project.
+        /// </value>
+        protected string TestProjectName { get; private set; }
+
+        /// <summary>
+        /// This method will be called by NUnit for setup.
+        /// </summary>
+        public void PrepareTestEnvironment()
+        {
+          this.TestProjectName = "TestProject";
+          this.BuildFileName = "NAnt.build";
+          Directory.CreateDirectory(this.TestProjectName);
+          Thread.Sleep(FileSystemOperationDelay);
+          Environment.CurrentDirectory = Path.GetFullPath(this.TestProjectName);
+        }
 
         /// <summary>Test <arg> option.</summary>
         [Test]
@@ -74,6 +113,134 @@ namespace Tests.NAnt.Core.Tasks {
 
         private string FormatBuildFile(string attributes, string nestedElements) {
             return String.Format(CultureInfo.InvariantCulture, _format, attributes, nestedElements);
+        }
+
+        /// <summary>
+        /// Tests the default exit code.
+        /// </summary>
+        [Test]
+        public void TestDefaultExitCode()
+        {
+            this.PrepareTestEnvironment();
+            ExecTask task = this.CreateTaskWithProject();
+            task.FileName = @"cmd.exe";
+            task.Arguments.Add(new Argument("/c"));
+            task.Arguments.Add(new Argument("exit"));
+            task.Arguments.Add(new Argument(0.ToString(CultureInfo.InvariantCulture)));
+            task.Execute();
+        }
+
+        /// <summary>
+        /// Tests the expected exit code.
+        /// </summary>
+        [Test]
+        public void TestExpectedExitCode()
+        {
+            this.PrepareTestEnvironment();
+            int[] exitCodes =
+            {
+                byte.MaxValue, byte.MinValue, 
+                sbyte.MaxValue, sbyte.MinValue, 
+                short.MaxValue, short.MinValue, 
+                ushort.MaxValue, ushort.MinValue, 
+                int.MaxValue, int.MinValue 
+            };
+
+            foreach (int exitCode in exitCodes)
+            {
+                ExecTask task = this.CreateTaskWithProject();
+                task.FileName = @"cmd.exe";
+                task.Arguments.Add(new Argument("/c"));
+                task.Arguments.Add(new Argument("exit"));
+                task.Arguments.Add(new Argument(exitCode.ToString(CultureInfo.InvariantCulture)));
+                task.ExpectedExitCode = exitCode;
+                task.Execute();
+            }
+        }
+
+        /// <summary>
+        /// Tests the unexpected exit code.
+        /// </summary>
+        [Test]
+        public void TestUnexpectedExitCode()
+        {
+            this.PrepareTestEnvironment();
+            Dictionary<int, int> exitCodes = new Dictionary<int, int>();
+            exitCodes.Add(byte.MaxValue, byte.MinValue);
+            exitCodes.Add(sbyte.MaxValue, sbyte.MinValue);
+            exitCodes.Add(short.MaxValue, short.MinValue);
+            exitCodes.Add(ushort.MaxValue, ushort.MinValue);
+            exitCodes.Add(int.MaxValue, int.MinValue);
+
+            foreach (KeyValuePair<int, int> exitCode in exitCodes)
+            {
+                ExecTask task = this.CreateTaskWithProject();
+                task.FileName = @"cmd.exe";
+                task.Arguments.Add(new Argument("/c"));
+                task.Arguments.Add(new Argument("exit"));
+                task.Arguments.Add(new Argument(exitCode.Key.ToString(CultureInfo.InvariantCulture)));
+                task.ExpectedExitCode = exitCode.Value;
+                BuildException currentBuildException = null;
+                try
+                {
+                    task.Execute();
+                }
+                catch (BuildException ex)
+                {
+                    currentBuildException = ex;
+                }
+
+                Assert.IsNotNull(currentBuildException);
+            }
+
+            foreach (KeyValuePair<int, int> exitCode in exitCodes)
+            {
+                ExecTask task = this.CreateTaskWithProject();
+                task.FileName = @"cmd.exe";
+                task.Arguments.Add(new Argument("/c"));
+                task.Arguments.Add(new Argument("exit"));
+                task.Arguments.Add(new Argument(exitCode.Value.ToString(CultureInfo.InvariantCulture)));
+                task.ExpectedExitCode = exitCode.Key;
+                BuildException currentBuildException = null;
+                try
+                {
+                    task.Execute();
+                }
+                catch (BuildException ex)
+                {
+                  currentBuildException = ex;
+                }
+
+                Assert.IsNotNull(currentBuildException);  
+            }
+        }
+
+        /// <summary>
+        /// Creates the task with a project.
+        /// </summary>
+        /// <returns>
+        /// The task with a project.
+        /// </returns>
+        protected ExecTask CreateTaskWithProject()
+        {
+            // Create buildfile
+            XmlDocument buildFile = new XmlDocument();
+            XmlElement element = buildFile.CreateElement("project");
+            XmlAttribute projectName = buildFile.CreateAttribute("name");
+            projectName.Value = this.TestProjectName;
+            element.Attributes.Append(projectName);
+            buildFile.AppendChild(element);
+            string buildFileName = Path.GetFullPath(this.BuildFileName);
+            buildFile.Save(buildFileName);
+
+            // Create project
+            Project project = new Project(buildFileName, Level.Debug, 0);
+
+            // create task
+            ExecTask task = new ExecTask();
+            task.Project = project;
+            task.Parent = project;
+            return task;
         }
     }
 }
