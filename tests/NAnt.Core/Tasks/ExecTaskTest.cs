@@ -36,7 +36,11 @@ namespace Tests.NAnt.Core.Tasks {
 
     [TestFixture]
     public class ExecTaskTest : BuildTestBase {
-        const string _format = @"<?xml version='1.0' ?>
+      
+      private string _buildFileName;
+      private string _testProjectName;
+
+      const string _format = @"<?xml version='1.0' ?>
             <project>
                 <exec {0}>{1}</exec>
             </project>";
@@ -47,26 +51,34 @@ namespace Tests.NAnt.Core.Tasks {
         /// </summary>
         private const int FileSystemOperationDelay = 10;
 
-        /// <summary>
-        /// Gets the name of the build file.
-        /// </summary>
-        /// <value>
-        /// The name of the build file.
-        /// </value>
-        protected string BuildFileName { get; private set; }
+      /// <summary>
+      /// Gets the name of the build file.
+      /// </summary>
+      /// <value>
+      /// The name of the build file.
+      /// </value>
+      protected string BuildFileName
+      {
+        get { return _buildFileName; }
+        private set { _buildFileName = value; }
+      }
 
-        /// <summary>
-        /// Gets the name of the test project.
-        /// </summary>
-        /// <value>
-        /// The name of the test project.
-        /// </value>
-        protected string TestProjectName { get; private set; }
+      /// <summary>
+      /// Gets the name of the test project.
+      /// </summary>
+      /// <value>
+      /// The name of the test project.
+      /// </value>
+      protected string TestProjectName
+      {
+        get { return _testProjectName; }
+        private set { _testProjectName = value; }
+      }
 
-        /// <summary>
-        /// This method will be called by NUnit for setup.
-        /// </summary>
-        public void PrepareTestEnvironment()
+      /// <summary>
+      /// This method will be called by NUnit for setup.
+      /// </summary>
+      public void PrepareTestEnvironment()
         {
           this.TestProjectName = "TestProject";
           this.BuildFileName = "NAnt.build";

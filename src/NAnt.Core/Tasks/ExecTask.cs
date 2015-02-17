@@ -95,8 +95,9 @@ namespace NAnt.Core.Tasks {
         private EnvironmentSet _environmentSet = new EnvironmentSet();
         private string _resultProperty;
         private string _processIdProperty;
+        private int _expectedExitCode;
 
-        #endregion Private Instance Fields
+      #endregion Private Instance Fields
 
         #region Public Instance Properties
 
@@ -176,16 +177,20 @@ namespace NAnt.Core.Tasks {
             set { _resultProperty = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the expected exit code.
-        /// </summary>
-        /// <value>
-        /// The expected exit code.
-        /// </value>
-        [TaskAttribute("expectedexitcode")]
-        public int ExpectedExitCode { get; set; }
+      /// <summary>
+      /// Gets or sets the expected exit code.
+      /// </summary>
+      /// <value>
+      /// The expected exit code.
+      /// </value>
+      [TaskAttribute("expectedexitcode")]
+      public int ExpectedExitCode
+      {
+        get { return _expectedExitCode; }
+        set { _expectedExitCode = value; }
+      }
 
-        #endregion Public Instance Properties
+      #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
 
