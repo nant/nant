@@ -101,15 +101,14 @@ namespace NAnt.Core.Functions {
         /// <summary>
         /// Gets the product version of a file.
         /// </summary>
-        /// <param name="fileVersionInfo">A <see cref="FileVersionInfo" /> instance containing version information about a file.</param>
+        /// <param name="fileVersionInfo">A <see cref="string" /> containing version information about a file.</param>
         /// <returns>
         /// The product version of a file.
         /// </returns>
         /// <see cref="VersionFunctions" />
         [Function("get-product-version")]
-        public static Version GetProductVersion(FileVersionInfo fileVersionInfo) {
-            return new Version(fileVersionInfo.ProductMajorPart, fileVersionInfo.ProductMinorPart,
-                fileVersionInfo.ProductBuildPart, fileVersionInfo.ProductPrivatePart);
+        public static string GetProductVersion(FileVersionInfo fileVersionInfo) {
+            return fileVersionInfo.ProductVersion;
         }
 
         #endregion Public Static Methods
