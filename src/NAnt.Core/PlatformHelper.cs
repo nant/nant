@@ -19,9 +19,9 @@
 // Ryan Boggs (rmboggs@users.sourceforge.net)
 
 using System;
+using System.Diagnostics;
 
 #if !NET_4_0
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 #endif
 
@@ -79,9 +79,7 @@ namespace NAnt.Core
             if ((p == 4) || (p == 6) || (p == 128))
                 IsUnix = true;
 
-#pragma warning disable 618
             IsWin32 = !IsUnix;
-#pragma warning restore 618
 
 #if NET_4_0
             Is64BitProcess = Environment.Is64BitProcess;
@@ -90,8 +88,15 @@ namespace NAnt.Core
             Is64BitProcess = (IntPtr.Size == 8);
             Is64BitOs = Is64BitProcess;
 
-            if (!IsUnix) Is64BitOs |= Is32Bit && On64BitOperatingSystem();
+            if (!IsUnix)
+            {
+                Is64BitOs |= Is32Bit && OnWin64BitOperatingSystem();
+            }
 #endif
+            if (IsUnix)
+            {
+                Is64BitOs |= Is32Bit && OnUnix64BitOperatingSystem();
+            }
         }
 
         #endregion
@@ -171,6 +176,26 @@ namespace NAnt.Core
 
         #region Private Static Methods
 
+        private static bool OnUnix64BitOperatingSystem()
+        {
+            Process p = new Process();
+            string output;
+
+            p.StartInfo.FileName = "uname";
+            p.StartInfo.Arguments = "-m";
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.Start();
+
+            output = p.StandardOutput.ReadToEnd().TrimEnd('\n', '\r');
+            p.WaitForExit();
+
+            if (output.EndsWith("64"))
+                return true;
+
+            return false;
+        }
+
 #if !NET_4_0
 
         // This section should be removed as soon as the NAnt releases switch to
@@ -187,7 +212,7 @@ namespace NAnt.Core
             CallingConvention = CallingConvention.Winapi)]
         static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
-        static bool On64BitOperatingSystem()
+        static bool OnWin64BitOperatingSystem()
         {
             IsWow64ProcDel d;
             bool isWow64;
