@@ -484,13 +484,19 @@ namespace NAnt.Core.Types {
                 foreach (Include include in value) {
                     if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including AsIs=", 
+                                include.Pattern);
                             AsIs.Add(include.Pattern);
                         } else if (include.FromPath) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including FromPath=", 
+                                include.Pattern);
                             PathFiles.Add(include.Pattern);
                         } else {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including pattern", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including pattern", 
+                                include.Pattern);
                             Includes.Add(include.Pattern);
                         }
                     }
@@ -515,7 +521,9 @@ namespace NAnt.Core.Types {
             set {
                 foreach (Exclude exclude in value) {
                     if (exclude.IfDefined && !exclude.UnlessDefined) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding pattern", exclude.Pattern));
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
+                            "Excluding pattern", 
+                            exclude.Pattern);
                         Excludes.Add(exclude.Pattern);
                     }
                 }
@@ -545,17 +553,23 @@ namespace NAnt.Core.Types {
                     if (includesFile.IfDefined && !includesFile.UnlessDefined) {
                         if (includesFile.AsIs) {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including AsIs=", 
+                                    pattern);
                                 AsIs.Add(pattern);
                             }
                         } else if (includesFile.FromPath) {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including FromPath=", 
+                                    pattern);
                                 PathFiles.Add(pattern);
                             }
                         } else {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including Pattern=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including Pattern=", 
+                                    pattern);
                                 Includes.Add(pattern);
                             }
                         }
@@ -574,7 +588,9 @@ namespace NAnt.Core.Types {
                 foreach (ExcludesFile excludesFile in value) {
                     if (excludesFile.IfDefined && !excludesFile.UnlessDefined) {
                         foreach (string pattern in excludesFile.Patterns) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding=", pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Excluding=", 
+                                pattern);
                             Excludes.Add(pattern);
                         }
                     }

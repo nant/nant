@@ -167,11 +167,10 @@ namespace NAnt.Core {
         /// Executes the task unless it is skipped.
         /// </summary>
         public void Execute() {
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
+            logger.DebugFormat(CultureInfo.InvariantCulture,
                 ResourceUtils.GetString("String_TaskExecute"), 
-                Name));
-                
+                Name);
+
             if (IfDefined && !UnlessDefined) {
                 try {
                     Project.OnTaskStarted(this, new BuildEventArgs(this));

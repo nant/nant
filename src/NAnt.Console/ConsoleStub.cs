@@ -84,20 +84,17 @@ namespace NAnt.Console {
                 AppDomain.CurrentDomain.BaseDirectory);
 
             if (nantShadowCopyFilesSetting != null && bool.Parse(nantShadowCopyFilesSetting) == true) {
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "Shadowing files({0}) -- cleanup={1}", 
-                    nantShadowCopyFilesSetting, 
-                    nantCleanupShadowCopyFilesSetting));
+                    nantShadowCopyFilesSetting, nantCleanupShadowCopyFilesSetting);
 
                 System.AppDomainSetup myDomainSetup = new System.AppDomainSetup();
 
                 myDomainSetup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
 
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "NAntDomain.PrivateBinPath={0}", 
-                    myDomainSetup.PrivateBinPath));
+                    myDomainSetup.PrivateBinPath);
 
                 myDomainSetup.PrivateBinPath = privateBinPath;
 
@@ -105,11 +102,10 @@ namespace NAnt.Console {
 
                 // copy the config file location
                 myDomainSetup.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-            
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "NAntDomain.ConfigurationFile={0}", 
-                    myDomainSetup.ConfigurationFile));
+                    myDomainSetup.ConfigurationFile);
 
                 // yes, cache the files
                 myDomainSetup.ShadowCopyFiles = "true";
@@ -117,12 +113,11 @@ namespace NAnt.Console {
                 // shadowcopy everything in base directory of appdomain and
                 // privatebinpath
                 myDomainSetup.ShadowCopyDirectories = myDomainSetup.ApplicationBase 
-                    + Path.PathSeparator + myDomainSetup.PrivateBinPath; 
-                
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                    + Path.PathSeparator + myDomainSetup.PrivateBinPath;
+
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "NAntDomain.ShadowCopyDirectories={0}", 
-                    myDomainSetup.ShadowCopyDirectories));
+                    myDomainSetup.ShadowCopyDirectories);
 
                 // try to cache in .\cache folder, if that fails, let the system 
                 // figure it out.
@@ -138,10 +133,9 @@ namespace NAnt.Console {
                         myDomainSetup.CachePath = cachePathInfo.FullName;
                     }
 
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         "NAntDomain.CachePath={0}", 
-                        myDomainSetup.CachePath));
+                        myDomainSetup.CachePath);
                 }
 
                 // create the domain.
@@ -149,18 +143,16 @@ namespace NAnt.Console {
                 executionAD = AppDomain.CreateDomain(myDomainSetup.ApplicationName, AppDomain.CurrentDomain.Evidence, 
                     myDomainSetup, myDomainPermSet);
 
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "NAntDomain.SetupInfo:\n{0}", 
-                    executionAD.SetupInformation));
+                    executionAD.SetupInformation);
             }
 
             // use helper object to hold (and serialize) args for callback.
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
+            logger.DebugFormat(CultureInfo.InvariantCulture,
                 "Creating HelperArgs({0})", 
-                args.ToString()));
-            
+                args.ToString());
+
             HelperArguments helper = new HelperArguments(args, 
                 privateBinPath);
 
@@ -170,23 +162,20 @@ namespace NAnt.Console {
             if (!cd.Equals(executionAD)) {
                 string cachePath = executionAD.SetupInformation.CachePath;
 
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "Unloading '{0}' AppDomain", 
-                    executionAD.FriendlyName));
+                    executionAD.FriendlyName);
 
                 AppDomain.Unload(executionAD);
 
                 if (nantCleanupShadowCopyFilesSetting != null && bool.Parse(nantCleanupShadowCopyFilesSetting) == true) {
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         "Unloading '{0}' AppDomain", 
-                        executionAD.FriendlyName));
+                        executionAD.FriendlyName);
                     try {
-                        logger.Debug(string.Format(
-                            CultureInfo.InvariantCulture,
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
                             "Cleaning up CacheFiles in '{0}'", 
-                            cachePath));
+                            cachePath);
 
                         Directory.Delete(cachePath, true);
                     } catch (FileNotFoundException ex) {
@@ -204,10 +193,9 @@ namespace NAnt.Console {
 
                 throw new ApplicationException("No return code set!");
             } else {
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "Return Code = {0}", 
-                    helper.ExitCode));
+                    helper.ExitCode);
 
                 return helper.ExitCode;
             }
@@ -417,8 +405,9 @@ namespace NAnt.Console {
                 // add framework specific entries to privatebinpath
                 if (_probePaths != null) {
                     foreach (string probePath in _probePaths.Split(Path.PathSeparator)) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture,
-                            "Adding '{0}' to private bin path.", probePath));
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
+                            "Adding '{0}' to private bin path.", 
+                            probePath);
                         AppDomain.CurrentDomain.AppendPrivatePath(probePath);
                     }
                 }
@@ -447,10 +436,9 @@ namespace NAnt.Console {
                 // invoke the Main method and pass the command-line arguments as parameter.
                 _exitCode = (int) mainMethodInfo.Invoke(null, new object[] {_args});
 
-                logger.Debug(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.DebugFormat(CultureInfo.InvariantCulture,
                     "'{0}' returned {1}", 
-                    mainMethodInfo.ToString(), ExitCode));
+                    mainMethodInfo.ToString(), ExitCode);
             }
 
             #endregion Public Instance Methods

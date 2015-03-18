@@ -829,11 +829,9 @@ namespace NAnt.Core {
                     false);
 
                 if (buildAttribute != null) {
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("String_FoundAttribute"), 
-                        buildAttribute.Name, 
-                        propertyInfo.DeclaringType.FullName));
+                        buildAttribute.Name, propertyInfo.DeclaringType.FullName);
 
                     if (ElementXml != null) {
                         // locate attribute in build file
@@ -846,11 +844,9 @@ namespace NAnt.Core {
 
                         // if we don't process the xml then skip on
                         if (!buildAttribute.ProcessXml) {
-                            logger.Debug(string.Format(
-                                CultureInfo.InvariantCulture,
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
                                 ResourceUtils.GetString("String_SkippingAttribute"), 
-                                buildAttribute.Name, 
-                                propertyInfo.DeclaringType.FullName));
+                                buildAttribute.Name, propertyInfo.DeclaringType.FullName);
 
                             // consider this property done
                             return true;
@@ -900,12 +896,9 @@ namespace NAnt.Core {
                         attributeNode = frameworkAttributeNode;
                     }
 
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("String_SettingValue"), 
-                        propertyInfo.Name,
-                        attributeValue,
-                        propertyInfo.DeclaringType.Name));
+                        propertyInfo.Name, attributeValue, propertyInfo.DeclaringType.Name);
 
                     if (propertyInfo.CanWrite) {
                         // get the type of the property

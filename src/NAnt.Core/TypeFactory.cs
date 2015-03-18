@@ -570,9 +570,9 @@ namespace NAnt.Core {
                         ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
                     DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(extensionAssembly, type.FullName);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
-                            GetAssemblyLocation(dtb.Assembly), dtb.ClassName));
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
+                            ResourceUtils.GetString("String_AddingDataType"), 
+                            dtb.DataTypeName, GetAssemblyLocation(dtb.Assembly), dtb.ClassName);
 
                         DataTypeBuilders.Add(dtb);
                     }
