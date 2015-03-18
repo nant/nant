@@ -688,7 +688,7 @@ namespace NAnt.Core {
                 string label = String.Empty;
 
                 if (e.Task != null && !EmacsMode) {
-                    label = "[" + (e.Target == null ? string.Empty : e.Target.Name + " ") + e.Task.Name + "] ";
+                    label = string.Format("[{0}{1}] ", (e.Target == null ? string.Empty : e.Target.Name + " "), e.Task.Name);
                     label = label.PadLeft(e.Project.IndentationSize);
                 }
 

@@ -396,7 +396,7 @@ namespace NAnt.VSNet {
                     // skip the project
                     continue;
                 }
-                if (p.Guid == null || p.Guid == string.Empty) {
+                if (p.Guid == null || p.Guid.Length == 0) {
                     p.Guid = FindGuidFromPath(projectPath);
                 }
 

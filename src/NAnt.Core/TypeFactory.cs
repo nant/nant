@@ -616,7 +616,7 @@ namespace NAnt.Core {
 
                 if (acceptType) {
                     string prefix = functionSetAttribute.Prefix;
-                    if (prefix != null && prefix != String.Empty) {
+                    if (prefix != null && prefix.Length > 0) {
                         prefix += "::";
                     } else {
                         task.Log(Level.Warning, "Ignoring functions in type \"{0}\":"

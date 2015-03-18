@@ -308,9 +308,11 @@ namespace NAnt.Core.Types {
         [TaskAttribute("basedir")]
         public virtual DirectoryInfo BaseDirectory {
             get { 
-                if (_baseDirectory == null) {
-                    if (Parent != null && typeof(FileSet).IsAssignableFrom(Parent.GetType())) {
-                        return ((FileSet) Parent).BaseDirectory;
+                if (_baseDirectory == null)
+                {
+                    FileSet parent = Parent as FileSet;
+                    if (parent != null) {
+                        return parent.BaseDirectory;
                     } else if (Project != null) {
                         return new DirectoryInfo(Project.BaseDirectory);
                     }

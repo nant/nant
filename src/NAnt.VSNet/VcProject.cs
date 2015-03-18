@@ -1507,7 +1507,7 @@ namespace NAnt.VSNet {
 
                 string mapFileName = projectConfig.GetToolSetting(VcConfigurationBase.LinkerTool, "MapFileName");
                 if (!String.IsNullOrEmpty(mapFileName)) {
-                    mapArg.Line = "/MAP:" + LinkTask.QuoteArgumentValue(mapFileName);;
+                    mapArg.Line = "/MAP:" + LinkTask.QuoteArgumentValue(mapFileName);
                 } else {
                     mapArg.Line = "/MAP";
                 }
