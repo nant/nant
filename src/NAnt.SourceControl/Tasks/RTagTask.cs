@@ -214,7 +214,7 @@ namespace NAnt.SourceControl.Tasks {
         /// </summary>
         protected override void AppendSubCommandArgs() {
             base.AppendSubCommandArgs ();
-            if (this.Tag != null && this.Tag != string.Empty) {
+            if (this.Tag != null && this.Tag.Length > 0) {
                 this.AddArg(this.Tag);
             }
         }

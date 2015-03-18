@@ -113,7 +113,7 @@ namespace NAnt.Core.Attributes {
                     string msg = string.Format("String {0} does not match expression {1}.",
                             value, Expression);
                     if (null != this.ExpressionErrorMessage && 
-                        string.Empty != this.ExpressionErrorMessage) {
+                        this.ExpressionErrorMessage.Length > 0) {
                         msg = this.ExpressionErrorMessage;
                     }
                     throw new ValidationException(msg);
