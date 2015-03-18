@@ -417,10 +417,9 @@ namespace NAnt.Console {
                 //load the core by name!
                 Assembly nantCore = AppDomain.CurrentDomain.Load("NAnt.Core");
 
-                logger.Info(string.Format(
-                    CultureInfo.InvariantCulture,
+                logger.InfoFormat(CultureInfo.InvariantCulture,
                     "NAnt.Core Loaded: {0}", 
-                    nantCore.FullName));
+                    nantCore.FullName);
 
                 //get the ConsoleDriver by name
                 Type consoleDriverType = nantCore.GetType("NAnt.Core.ConsoleDriver", true, true);

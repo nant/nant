@@ -566,8 +566,9 @@ namespace NAnt.Core {
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
 
                 if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                        ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
+                    logger.InfoFormat(CultureInfo.InvariantCulture,
+                        ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), 
+                        type.Name);
                     DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(extensionAssembly, type.FullName);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
                         logger.DebugFormat(CultureInfo.InvariantCulture,

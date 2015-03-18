@@ -368,10 +368,9 @@ namespace NAnt.Core {
                                 Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                             try {
                                 foreach (ValidatorAttribute validator in validateAttributes) {
-                                    logger.Info(string.Format(
-                                        CultureInfo.InvariantCulture,
+                                    logger.InfoFormat(CultureInfo.InvariantCulture,
                                         ResourceUtils.GetString("NA1074"), 
-                                        attributeValue, Name, validator.GetType().Name));
+                                        attributeValue, Name, validator.GetType().Name);
 
                                     validator.Validate(attributeValue);
                                 }

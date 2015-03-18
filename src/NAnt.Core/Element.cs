@@ -909,11 +909,9 @@ namespace NAnt.Core {
                             Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                         try {
                             foreach (ValidatorAttribute validator in validateAttributes) {
-                                logger.Info(string.Format(
-                                    CultureInfo.InvariantCulture,
+                                logger.InfoFormat(CultureInfo.InvariantCulture,
                                     ResourceUtils.GetString("String_ValidatingElement"), 
-                                    validator.GetType().Name, ElementXml.Name, 
-                                    attributeNode.Name));
+                                    validator.GetType().Name, ElementXml.Name, attributeNode.Name);
 
                                 validator.Validate(attributeValue);
                             }
@@ -1457,7 +1455,9 @@ namespace NAnt.Core {
                         } else {
                             // fake the getter as null so we process the rest like there is no getter
                             getter = null;
-                            logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}_get() returned null; will go the route of set method to populate.", propInf.Name));
+                            logger.InfoFormat(CultureInfo.InvariantCulture,
+                                "{0}_get() returned null; will go the route of set method to populate.", 
+                                propInf.Name);
                         }
                     } else {
                         elementType = childElement.GetType();

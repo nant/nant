@@ -470,8 +470,11 @@ namespace NAnt.Core.Tasks {
 
                 logger.Info(args.ToString());
 
-                if (source != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, "{0}", source.Name));
+                if (source != null)
+                {
+                    logger.InfoFormat(CultureInfo.InvariantCulture,
+                        "{0}", 
+                        source.Name);
                 }
             }
 

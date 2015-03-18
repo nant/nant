@@ -614,11 +614,15 @@ namespace NAnt.Core.Types {
                         newestFile = fileInfo;
                     }
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is not newer than {1})", fileName, newestFile));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "File '{0}' does not exist (and is not newer than {1})", 
+                            fileName, newestFile);
                         continue;
                     }
                     if (newestFile != null && fileInfo.LastWriteTime > newestFile.LastWriteTime) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, newestFile));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "'{0}' was newer than {1}", 
+                            fileName, newestFile);
                         newestFile = fileInfo;
                     }
                 }
@@ -847,11 +851,15 @@ namespace NAnt.Core.Types {
                 if (Path.IsPathRooted(fileName)) {
                     FileInfo fileInfo = new FileInfo(fileName);
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' no longer exist (so the target might need to be updated)", fileName, targetLastWriteTime));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "File '{0}' no longer exist (so the target might need to be updated)", 
+                            fileName, targetLastWriteTime);
                         return fileName;
                     }
                     if (fileInfo.LastWriteTime > targetLastWriteTime) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, targetLastWriteTime));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "'{0}' was newer than {1}", 
+                            fileName, targetLastWriteTime);
                         return fileName;
                     }
                 }
