@@ -1403,7 +1403,7 @@ namespace NAnt.Core {
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
-            _message.AppendFormat((CultureInfo.InvariantCulture, line, args);
+            _message.AppendFormat(CultureInfo.InvariantCulture, line, args);
             
             if(_task.IsLogEnabledFor(OutputLevel))
                 _task.Log(OutputLevel, _message.ToString());
