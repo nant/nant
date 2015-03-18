@@ -97,7 +97,6 @@ namespace NAnt.Compression.Tasks {
         /// </summary>
         protected override void ExecuteTask() {
             Stream fs = null;
-            Stream instream = null;
 
             try {
                 // ensure archive exists
@@ -109,6 +108,7 @@ namespace NAnt.Compression.Tasks {
                 fs = SrcFile.OpenRead();
 
                 // wrap inputstream with corresponding compression method
+                Stream instream;
                 switch (CompressionMethod) {
                     case TarCompressionMethod.GZip:
                         instream = new GZipInputStream(fs);
