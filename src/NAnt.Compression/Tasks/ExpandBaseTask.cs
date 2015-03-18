@@ -90,7 +90,7 @@ namespace NAnt.Compression.Tasks {
                 // extract the entry
                 using (FileStream sw = new FileStream(destFile.FullName, FileMode.Create, FileAccess.Write)) {
                     int size = 2048;
-                    byte[] data = new byte[2048];
+                    byte[] data = new byte[size];
 
                     while (true) {
                         size = inputStream.Read(data, 0, data.Length);

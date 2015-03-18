@@ -1698,7 +1698,7 @@ namespace NAnt.Core {
             // dependency tree, not just on the Targets that depend on the
             // build Target.
             TopologicalTargetSort(root, targets, state, visiting, executeTargets);
-            Log(Level.Debug, "Build sequence for target `" + root + "' is " + executeTargets);
+            Log(Level.Debug, "Build sequence for target `{0}' is {1}", root, executeTargets);
             foreach (Target target in targets) {
                 string st = (string) state[target.Name];
 
@@ -1709,7 +1709,7 @@ namespace NAnt.Core {
                 }
             }
 
-            Log(Level.Debug, "Complete build sequence is " + executeTargets);
+            Log(Level.Debug, "Complete build sequence is {0}", executeTargets);
             return executeTargets;
         }
 
