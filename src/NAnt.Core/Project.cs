@@ -1336,8 +1336,11 @@ namespace NAnt.Core {
                 TaskStarted -= new BuildEventHandler(listener.TaskStarted);
                 TaskFinished -= new BuildEventHandler(listener.TaskFinished);
                 MessageLogged -= new BuildEventHandler(listener.MessageLogged);
-                if (typeof(IBuildLogger).IsAssignableFrom(listener.GetType())) {
-                    ((IBuildLogger)listener).Flush();
+
+                IBuildLogger buildLogger = listener as IBuildLogger;
+                
+                if (buildLogger != null) {
+                    buildLogger.Flush();
                 }
             }
 

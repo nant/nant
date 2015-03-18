@@ -390,11 +390,7 @@ namespace NAnt.Core {
                 return;
             }
             else {
-                BuildException buildException = null;
-
-                if (typeof (BuildException).IsAssignableFrom(exception.GetType())) {
-                    buildException = (BuildException) exception;
-                }
+                BuildException buildException = exception as BuildException;
 
                 if (buildException != null) {
                     // start build error node
