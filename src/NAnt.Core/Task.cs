@@ -278,6 +278,11 @@ namespace NAnt.Core {
         /// </para>
         /// </remarks>
         public override void Log(Level messageLevel, string message, params object[] args) {
+            if (!IsLogEnabledFor(messageLevel))
+            {
+                return;
+            }
+
             string logMessage = string.Format(CultureInfo.InvariantCulture, message, args);
             Log(messageLevel, logMessage);
         }
