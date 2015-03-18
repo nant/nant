@@ -230,8 +230,8 @@ namespace NAnt.SourceControl.Tasks {
                     }
                     _exeNameTemp = vcsFile.FullName;
                 }
-                Logger.Debug("_sharpcvslibExeName: " + _sharpcvslibExeName);
-                Logger.Debug("_exeNameTemp: " + _exeNameTemp);
+                Logger.DebugFormat("_sharpcvslibExeName: {0}", _sharpcvslibExeName);
+                Logger.DebugFormat("_exeNameTemp: {0}", _exeNameTemp);
                 Properties[PropExeName] = _exeNameTemp;
                 return _exeNameTemp;
             }
@@ -468,7 +468,7 @@ namespace NAnt.SourceControl.Tasks {
                 }
             }
 
-            Logger.Debug("number of arguments: " + Arguments.Count);
+            Logger.DebugFormat("number of arguments: {0}", Arguments.Count);
 
             // if set, pass cvsroot to command line tool
             if (Root != null) {

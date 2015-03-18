@@ -176,10 +176,10 @@ namespace NAnt.Core {
                     Project.OnTaskStarted(this, new BuildEventArgs(this));
                     ExecuteTask();
                 } catch (Exception ex) {
-                    logger.Error(string.Format(
+                    logger.ErrorFormat(
                         CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("NA1077"), 
-                        Name), ex);
+                        Name, ex);
 
                     if (FailOnError) {
                         throw;

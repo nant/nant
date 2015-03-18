@@ -187,9 +187,9 @@ namespace NAnt.Console {
             }
 
             if (helper == null || helper.ExitCode == -1) {
-                logger.Debug(string.Format(
+                logger.DebugFormat(
                     CultureInfo.InvariantCulture,
-                    "Return Code null or -1"));
+                    "Return Code null or -1");
 
                 throw new ApplicationException("No return code set!");
             } else {
