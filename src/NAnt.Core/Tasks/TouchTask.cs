@@ -189,7 +189,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // swallow any errors and move on
-                Log(Level.Verbose, msg + " " + ex.Message);
+                Log(Level.Verbose, "{0} {1}", msg, ex.Message);
             }
         }
 

@@ -229,13 +229,13 @@ namespace NAnt.Core {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
+        /// <param name="format">The message to be logged.</param>
         /// <remarks>
         /// The actual logging is delegated to the project.
         /// </remarks>
-        public virtual void Log(Level messageLevel, string message) {
+        public virtual void Log(Level messageLevel, string format) {
             if (Project != null) {
-                Project.Log(messageLevel, message);
+                Project.Log(messageLevel, format);
             }
         }
 
@@ -243,14 +243,14 @@ namespace NAnt.Core {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="format">The message to log, containing zero or more format items.</param>
         /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
         /// <remarks>
         /// The actual logging is delegated to the project.
         /// </remarks>
-        public virtual void Log(Level messageLevel, string message, params object[] args) {
+        public virtual void Log(Level messageLevel, string format, params object[] args) {
             if (Project != null) {
-                Project.Log(messageLevel, message, args);
+                Project.Log(messageLevel, format, args);
             }
         }
 
@@ -872,8 +872,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
                     } else {
@@ -1045,8 +1044,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
 
@@ -1097,8 +1095,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
 

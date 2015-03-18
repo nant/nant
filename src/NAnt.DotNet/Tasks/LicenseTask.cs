@@ -567,7 +567,7 @@ namespace NAnt.DotNet.Tasks {
                                 continue;
                             }
 
-                            licenseTask.Log(Level.Verbose, line + ": ");
+                            licenseTask.Log(Level.Verbose, "{0}: ", line);
 
                             // Strip off the assembly name, if it exists
                             string typeName;

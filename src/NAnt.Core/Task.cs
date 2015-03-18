@@ -221,7 +221,7 @@ namespace NAnt.Core {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
+        /// <param name="format">The message to be logged.</param>
         /// <remarks>
         /// <para>
         /// The actual logging is delegated to the project.
@@ -243,15 +243,15 @@ namespace NAnt.Core {
         /// as build listeners might be interested in receiving all messages.
         /// </para>
         /// </remarks>
-        public override void Log(Level messageLevel, string message) {
+        public override void Log(Level messageLevel, string format) {
             if (!IsLogEnabledFor(messageLevel)) {
                 return;
             }
 
             if (_verbose && messageLevel == Level.Verbose && Project.Threshold == Level.Info) {
-                Project.Log(this, Level.Info, message);
+                Project.Log(this, Level.Info, format);
             } else {
-                Project.Log(this, messageLevel, message);
+                Project.Log(this, messageLevel, format);
             }
         }
 
@@ -259,7 +259,7 @@ namespace NAnt.Core {
         /// Logs a formatted message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="format">The message to log, containing zero or more format items.</param>
         /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
         /// <remarks>
         /// <para>
@@ -277,13 +277,13 @@ namespace NAnt.Core {
         /// <see cref="Level.Info" />.
         /// </para>
         /// </remarks>
-        public override void Log(Level messageLevel, string message, params object[] args) {
+        public override void Log(Level messageLevel, string format, params object[] args) {
             if (!IsLogEnabledFor(messageLevel))
             {
                 return;
             }
 
-            string logMessage = string.Format(CultureInfo.InvariantCulture, message, args);
+            string logMessage = string.Format(CultureInfo.InvariantCulture, format, args);
             Log(messageLevel, logMessage);
         }
 
