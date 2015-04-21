@@ -229,13 +229,13 @@ namespace NAnt.Core {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to be logged.</param>
+        /// <param name="format">The message to be logged.</param>
         /// <remarks>
         /// The actual logging is delegated to the project.
         /// </remarks>
-        public virtual void Log(Level messageLevel, string message) {
+        public virtual void Log(Level messageLevel, string format) {
             if (Project != null) {
-                Project.Log(messageLevel, message);
+                Project.Log(messageLevel, format);
             }
         }
 
@@ -243,14 +243,14 @@ namespace NAnt.Core {
         /// Logs a message with the given priority.
         /// </summary>
         /// <param name="messageLevel">The message priority at which the specified message is to be logged.</param>
-        /// <param name="message">The message to log, containing zero or more format items.</param>
+        /// <param name="format">The message to log, containing zero or more format items.</param>
         /// <param name="args">An <see cref="object" /> array containing zero or more objects to format.</param>
         /// <remarks>
         /// The actual logging is delegated to the project.
         /// </remarks>
-        public virtual void Log(Level messageLevel, string message, params object[] args) {
+        public virtual void Log(Level messageLevel, string format, params object[] args) {
             if (Project != null) {
-                Project.Log(messageLevel, message, args);
+                Project.Log(messageLevel, format, args);
             }
         }
 
@@ -829,11 +829,9 @@ namespace NAnt.Core {
                     false);
 
                 if (buildAttribute != null) {
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("String_FoundAttribute"), 
-                        buildAttribute.Name, 
-                        propertyInfo.DeclaringType.FullName));
+                        buildAttribute.Name, propertyInfo.DeclaringType.FullName);
 
                     if (ElementXml != null) {
                         // locate attribute in build file
@@ -846,11 +844,9 @@ namespace NAnt.Core {
 
                         // if we don't process the xml then skip on
                         if (!buildAttribute.ProcessXml) {
-                            logger.Debug(string.Format(
-                                CultureInfo.InvariantCulture,
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
                                 ResourceUtils.GetString("String_SkippingAttribute"), 
-                                buildAttribute.Name, 
-                                propertyInfo.DeclaringType.FullName));
+                                buildAttribute.Name, propertyInfo.DeclaringType.FullName);
 
                             // consider this property done
                             return true;
@@ -876,8 +872,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
                     } else {
@@ -900,12 +895,9 @@ namespace NAnt.Core {
                         attributeNode = frameworkAttributeNode;
                     }
 
-                    logger.Debug(string.Format(
-                        CultureInfo.InvariantCulture,
+                    logger.DebugFormat(CultureInfo.InvariantCulture,
                         ResourceUtils.GetString("String_SettingValue"), 
-                        propertyInfo.Name,
-                        attributeValue,
-                        propertyInfo.DeclaringType.Name));
+                        propertyInfo.Name, attributeValue, propertyInfo.DeclaringType.Name);
 
                     if (propertyInfo.CanWrite) {
                         // get the type of the property
@@ -916,11 +908,9 @@ namespace NAnt.Core {
                             Attribute.GetCustomAttributes(propertyInfo, typeof(ValidatorAttribute));
                         try {
                             foreach (ValidatorAttribute validator in validateAttributes) {
-                                logger.Info(string.Format(
-                                    CultureInfo.InvariantCulture,
+                                logger.InfoFormat(CultureInfo.InvariantCulture,
                                     ResourceUtils.GetString("String_ValidatingElement"), 
-                                    validator.GetType().Name, ElementXml.Name, 
-                                    attributeNode.Name));
+                                    validator.GetType().Name, ElementXml.Name, attributeNode.Name);
 
                                 validator.Validate(attributeValue);
                             }
@@ -1054,8 +1044,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
 
@@ -1106,8 +1095,7 @@ namespace NAnt.Core {
                                 throw new BuildException(obsoleteMessage,
                                     Location);
                             } else {
-                                Element.Log(Level.Warning, Location.ToString() 
-                                    + " " + obsoleteMessage);
+                                Element.Log(Level.Warning, "{0} {1}", Location.ToString(), obsoleteMessage);
                             }
                         }
 
@@ -1464,7 +1452,9 @@ namespace NAnt.Core {
                         } else {
                             // fake the getter as null so we process the rest like there is no getter
                             getter = null;
-                            logger.Info(string.Format(CultureInfo.InvariantCulture,"{0}_get() returned null; will go the route of set method to populate.", propInf.Name));
+                            logger.InfoFormat(CultureInfo.InvariantCulture,
+                                "{0}_get() returned null; will go the route of set method to populate.", 
+                                propInf.Name);
                         }
                     } else {
                         elementType = childElement.GetType();

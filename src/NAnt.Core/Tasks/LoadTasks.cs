@@ -149,7 +149,7 @@ namespace NAnt.Core.Tasks {
                     if (FailOnError) {
                         throw new BuildException(message, Location, ex);
                     } else {
-                        Log(Level.Error, message + " " + ex.Message);
+                        Log(Level.Error, "{0} {1}", message, ex.Message);
                     }
                 }
             }

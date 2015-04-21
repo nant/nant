@@ -217,7 +217,7 @@ namespace NAnt.Core.Tasks {
                                 if (FailOnError) {
                                     throw new BuildException(msg, Location, ex);
                                 }
-                                Log(Level.Warning, msg + " " + ex.Message);
+                                Log(Level.Warning, "{0} {1}", msg, ex.Message);
                             }
                         }
                     }
@@ -259,7 +259,7 @@ namespace NAnt.Core.Tasks {
                         if (FailOnError) {
                             throw new BuildException(msg, Location, ex);
                         }
-                        Log(Level.Verbose, msg + " " + ex.Message);
+                        Log(Level.Verbose, "{0} {1}", msg, ex.Message);
                     }
                 }
                 DeleteDirectory(path);
@@ -271,7 +271,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Warning, msg + " " + ex.Message);
+                Log(Level.Warning, "{0} {1}", msg, ex.Message);
             }
         }
 
@@ -295,7 +295,7 @@ namespace NAnt.Core.Tasks {
                 if (FailOnError) {
                     throw new BuildException(msg, Location, ex);
                 }
-                Log(Level.Warning, msg + " " + ex.Message);
+                Log(Level.Warning, "{0} {1}", msg, ex.Message);
             }
         }
 

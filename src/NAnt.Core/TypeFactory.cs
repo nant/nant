@@ -566,13 +566,14 @@ namespace NAnt.Core {
                     Attribute.GetCustomAttribute(type, typeof(ElementNameAttribute));
 
                 if (type.IsSubclassOf(typeof(DataTypeBase)) && !type.IsAbstract && elementNameAttribute != null) {
-                    logger.Info(string.Format(CultureInfo.InvariantCulture, 
-                        ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), type.Name));
+                    logger.InfoFormat(CultureInfo.InvariantCulture,
+                        ResourceUtils.GetString("String_CreatingDataTypeBaseBuilder"), 
+                        type.Name);
                     DataTypeBaseBuilder dtb = new DataTypeBaseBuilder(extensionAssembly, type.FullName);
                     if (DataTypeBuilders[dtb.DataTypeName] == null) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture, 
-                            ResourceUtils.GetString("String_AddingDataType"), dtb.DataTypeName, 
-                            GetAssemblyLocation(dtb.Assembly), dtb.ClassName));
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
+                            ResourceUtils.GetString("String_AddingDataType"), 
+                            dtb.DataTypeName, GetAssemblyLocation(dtb.Assembly), dtb.ClassName);
 
                         DataTypeBuilders.Add(dtb);
                     }
@@ -616,7 +617,7 @@ namespace NAnt.Core {
 
                 if (acceptType) {
                     string prefix = functionSetAttribute.Prefix;
-                    if (prefix != null && prefix != String.Empty) {
+                    if (prefix != null && prefix.Length > 0) {
                         prefix += "::";
                     } else {
                         task.Log(Level.Warning, "Ignoring functions in type \"{0}\":"

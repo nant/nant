@@ -447,14 +447,14 @@ namespace NAnt.VSNet.Tasks {
             if (Projects.FileNames.Count > 0) {
                 Log(Level.Verbose, "Included projects:" );
                 foreach (string projectFile in Projects.FileNames) {
-                    Log(Level.Verbose, " - " + projectFile);
+                    Log(Level.Verbose, " - {0}", projectFile);
                 }
             }
 
             if (ReferenceProjects.FileNames.Count > 0) {
                 Log(Level.Verbose, "Reference projects:");
                 foreach (string projectFile in ReferenceProjects.FileNames) {
-                    Log(Level.Verbose, " - " + projectFile);
+                    Log(Level.Verbose, " - {0}", projectFile);
                 }
             }
             

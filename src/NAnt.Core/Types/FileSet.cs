@@ -308,9 +308,11 @@ namespace NAnt.Core.Types {
         [TaskAttribute("basedir")]
         public virtual DirectoryInfo BaseDirectory {
             get { 
-                if (_baseDirectory == null) {
-                    if (Parent != null && typeof(FileSet).IsAssignableFrom(Parent.GetType())) {
-                        return ((FileSet) Parent).BaseDirectory;
+                if (_baseDirectory == null)
+                {
+                    FileSet parent = Parent as FileSet;
+                    if (parent != null) {
+                        return parent.BaseDirectory;
                     } else if (Project != null) {
                         return new DirectoryInfo(Project.BaseDirectory);
                     }
@@ -482,13 +484,19 @@ namespace NAnt.Core.Types {
                 foreach (Include include in value) {
                     if (include.IfDefined && !include.UnlessDefined) {
                         if (include.AsIs) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including AsIs=", 
+                                include.Pattern);
                             AsIs.Add(include.Pattern);
                         } else if (include.FromPath) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including FromPath=", 
+                                include.Pattern);
                             PathFiles.Add(include.Pattern);
                         } else {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including pattern", include.Pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Including pattern", 
+                                include.Pattern);
                             Includes.Add(include.Pattern);
                         }
                     }
@@ -513,7 +521,9 @@ namespace NAnt.Core.Types {
             set {
                 foreach (Exclude exclude in value) {
                     if (exclude.IfDefined && !exclude.UnlessDefined) {
-                        logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding pattern", exclude.Pattern));
+                        logger.DebugFormat(CultureInfo.InvariantCulture,
+                            "Excluding pattern", 
+                            exclude.Pattern);
                         Excludes.Add(exclude.Pattern);
                     }
                 }
@@ -543,17 +553,23 @@ namespace NAnt.Core.Types {
                     if (includesFile.IfDefined && !includesFile.UnlessDefined) {
                         if (includesFile.AsIs) {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including AsIs=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including AsIs=", 
+                                    pattern);
                                 AsIs.Add(pattern);
                             }
                         } else if (includesFile.FromPath) {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including FromPath=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including FromPath=", 
+                                    pattern);
                                 PathFiles.Add(pattern);
                             }
                         } else {
                             foreach (string pattern in includesFile.Patterns) {
-                                logger.Debug(string.Format(CultureInfo.InvariantCulture, "Including Pattern=", pattern));
+                                logger.DebugFormat(CultureInfo.InvariantCulture,
+                                    "Including Pattern=", 
+                                    pattern);
                                 Includes.Add(pattern);
                             }
                         }
@@ -572,7 +588,9 @@ namespace NAnt.Core.Types {
                 foreach (ExcludesFile excludesFile in value) {
                     if (excludesFile.IfDefined && !excludesFile.UnlessDefined) {
                         foreach (string pattern in excludesFile.Patterns) {
-                            logger.Debug(string.Format(CultureInfo.InvariantCulture, "Excluding=", pattern));
+                            logger.DebugFormat(CultureInfo.InvariantCulture,
+                                "Excluding=", 
+                                pattern);
                             Excludes.Add(pattern);
                         }
                     }
@@ -596,11 +614,15 @@ namespace NAnt.Core.Types {
                         newestFile = fileInfo;
                     }
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' does not exist (and is not newer than {1})", fileName, newestFile));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "File '{0}' does not exist (and is not newer than {1})", 
+                            fileName, newestFile);
                         continue;
                     }
                     if (newestFile != null && fileInfo.LastWriteTime > newestFile.LastWriteTime) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, newestFile));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "'{0}' was newer than {1}", 
+                            fileName, newestFile);
                         newestFile = fileInfo;
                     }
                 }
@@ -829,11 +851,15 @@ namespace NAnt.Core.Types {
                 if (Path.IsPathRooted(fileName)) {
                     FileInfo fileInfo = new FileInfo(fileName);
                     if (!fileInfo.Exists) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "File '{0}' no longer exist (so the target might need to be updated)", fileName, targetLastWriteTime));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "File '{0}' no longer exist (so the target might need to be updated)", 
+                            fileName, targetLastWriteTime);
                         return fileName;
                     }
                     if (fileInfo.LastWriteTime > targetLastWriteTime) {
-                        logger.Info(string.Format(CultureInfo.InvariantCulture, "'{0}' was newer than {1}", fileName, targetLastWriteTime));
+                        logger.InfoFormat(CultureInfo.InvariantCulture,
+                            "'{0}' was newer than {1}", 
+                            fileName, targetLastWriteTime);
                         return fileName;
                     }
                 }

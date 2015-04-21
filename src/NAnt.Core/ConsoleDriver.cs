@@ -425,15 +425,16 @@ namespace NAnt.Core {
                     ResourceUtils.GetString("NA1006"), typeName));
             }
 
-            object buildLogger = Activator.CreateInstance(loggerType);
+            object logger = Activator.CreateInstance(loggerType);
 
-            if (!typeof(IBuildLogger).IsAssignableFrom(buildLogger.GetType())) {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
-                    buildLogger.GetType().FullName, typeof(IBuildLogger).FullName));
-            }
+            IBuildLogger buildLogger = logger as IBuildLogger;
 
-            return (IBuildLogger) buildLogger;
+            if (buildLogger != null)
+                return buildLogger;
+
+            throw new ArgumentException(
+                string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
+                    logger.GetType().FullName, typeof(IBuildLogger).FullName));
         }
 
         /// <summary>
@@ -457,15 +458,15 @@ namespace NAnt.Core {
                     ResourceUtils.GetString("NA1006"), typeName));
             }
 
-            object buildListener = Activator.CreateInstance(listenerType);
+            object listener = Activator.CreateInstance(listenerType);
 
-            if (!typeof(IBuildListener).IsAssignableFrom(buildListener.GetType())) {
-                throw new ArgumentException(
-                    string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
-                    buildListener.GetType().FullName, typeof(IBuildListener).FullName));
-            }
-
-            return (IBuildListener) buildListener;
+            IBuildListener buildListener = listener as IBuildListener;
+            if (buildListener != null) 
+                return buildListener;
+            
+            throw new ArgumentException(
+                string.Format(CultureInfo.InvariantCulture, "{0} does not implement {1}.",
+                    listener.GetType().FullName, typeof(IBuildListener).FullName));
         }
 
         #endregion Public Static Methods
@@ -514,7 +515,7 @@ namespace NAnt.Core {
             // DefaultLogger, or if logfile was specified on command-line. 
             // Setting the OutputWriter of the DefaultLogger to Console.Out 
             // would cause issues with unit tests.
-            if (!typeof(DefaultLogger).IsAssignableFrom(buildLogger.GetType()) || cmdlineOptions.LogFile != null) {
+            if (!(buildLogger is DefaultLogger) || cmdlineOptions.LogFile != null) {
                 buildLogger.OutputWriter = outputWriter;
             }
 

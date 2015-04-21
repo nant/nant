@@ -180,7 +180,7 @@ namespace NAnt.Core.Tasks {
         /// Executes the task.
         /// </summary>
         protected override void ExecuteTask() {
-            Log(Level.Info, "Setting system information properties under " + Prefix + "*");
+            Log(Level.Info, "Setting system information properties under {0}*", Prefix);
 
             // set properties
             Properties[Prefix + "clr.version"] = Environment.Version.ToString();
@@ -218,7 +218,7 @@ namespace NAnt.Core.Tasks {
                 foreach (DictionaryEntry entry in Properties) {
                     string name = (string) entry.Key;
                     if (name.StartsWith(Prefix)) {
-                        Log(Level.Info, name + " = " + entry.Value.ToString());
+                        Log(Level.Info, "{0} = {1}", name, entry.Value.ToString());
                     }
                 }
             }
