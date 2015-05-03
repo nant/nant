@@ -135,9 +135,16 @@ namespace Tests.NAnt.Core.Tasks {
         {
             this.PrepareTestEnvironment();
             ExecTask task = this.CreateTaskWithProject();
-            task.FileName = @"cmd.exe";
-            task.Arguments.Add(new Argument("/c"));
-            task.Arguments.Add(new Argument("exit"));
+            if (PlatformHelper.IsUnix)
+            {
+              task.FileName = "exit";
+            }
+            else
+            {
+              task.FileName = @"cmd.exe";
+              task.Arguments.Add(new Argument("/c"));
+              task.Arguments.Add(new Argument("exit"));
+            }
             task.Arguments.Add(new Argument(0.ToString(CultureInfo.InvariantCulture)));
             task.Execute();
         }
@@ -161,9 +168,16 @@ namespace Tests.NAnt.Core.Tasks {
             foreach (int exitCode in exitCodes)
             {
                 ExecTask task = this.CreateTaskWithProject();
-                task.FileName = @"cmd.exe";
-                task.Arguments.Add(new Argument("/c"));
-                task.Arguments.Add(new Argument("exit"));
+                if (PlatformHelper.IsUnix)
+                {
+                  task.FileName = "exit";
+                }
+                else
+                {
+                  task.FileName = @"cmd.exe";
+                  task.Arguments.Add(new Argument("/c"));
+                  task.Arguments.Add(new Argument("exit"));
+                }
                 task.Arguments.Add(new Argument(exitCode.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode;
                 task.Execute();
@@ -187,9 +201,16 @@ namespace Tests.NAnt.Core.Tasks {
             foreach (KeyValuePair<int, int> exitCode in exitCodes)
             {
                 ExecTask task = this.CreateTaskWithProject();
-                task.FileName = @"cmd.exe";
-                task.Arguments.Add(new Argument("/c"));
-                task.Arguments.Add(new Argument("exit"));
+                if (PlatformHelper.IsUnix)
+                {
+                  task.FileName = "exit";
+                }
+                else
+                {
+                  task.FileName = @"cmd.exe";
+                  task.Arguments.Add(new Argument("/c"));
+                  task.Arguments.Add(new Argument("exit"));
+                }
                 task.Arguments.Add(new Argument(exitCode.Key.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode.Value;
                 BuildException currentBuildException = null;
@@ -208,9 +229,16 @@ namespace Tests.NAnt.Core.Tasks {
             foreach (KeyValuePair<int, int> exitCode in exitCodes)
             {
                 ExecTask task = this.CreateTaskWithProject();
-                task.FileName = @"cmd.exe";
-                task.Arguments.Add(new Argument("/c"));
-                task.Arguments.Add(new Argument("exit"));
+                if (PlatformHelper.IsUnix)
+                {
+                  task.FileName = "exit";
+                }
+                else
+                {
+                  task.FileName = @"cmd.exe";
+                  task.Arguments.Add(new Argument("/c"));
+                  task.Arguments.Add(new Argument("exit"));
+                }
                 task.Arguments.Add(new Argument(exitCode.Value.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode.Key;
                 BuildException currentBuildException = null;
