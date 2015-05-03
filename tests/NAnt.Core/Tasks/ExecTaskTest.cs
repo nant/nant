@@ -157,30 +157,41 @@ namespace Tests.NAnt.Core.Tasks {
         public void TestExpectedExitCode()
         {
             this.PrepareTestEnvironment();
-            int[] exitCodes =
+            List<int> exitCodes = new List<int>();
+            
+            exitCodes.Add(byte.MaxValue);
+            exitCodes.Add(byte.MinValue);
+            exitCodes.Add(sbyte.MaxValue);
+
+            // Bash supports only exit codes from 0  to 255
+            if (PlatformHelper.IsWindows)
             {
-                byte.MaxValue, byte.MinValue, 
-                sbyte.MaxValue, sbyte.MinValue, 
-                short.MaxValue, short.MinValue, 
-                ushort.MaxValue, ushort.MinValue, 
-                int.MaxValue, int.MinValue 
-            };
+                exitCodes.Add(sbyte.MinValue);
+                exitCodes.Add(short.MaxValue);
+                exitCodes.Add(short.MinValue);
+                exitCodes.Add(ushort.MaxValue);
+                exitCodes.Add(ushort.MinValue);
+                exitCodes.Add(int.MaxValue);
+                exitCodes.Add(int.MinValue);
+            }
 
             foreach (int exitCode in exitCodes)
             {
                 ExecTask task = this.CreateTaskWithProject();
                 if (PlatformHelper.IsUnix)
                 {
-                  task.FileName = "bash";
-                  task.Arguments.Add(new Argument("-c"));
+                    task.FileName = "bash";
+                    task.Arguments.Add(new Argument("-c"));
+                    task.Arguments.Add(new Argument("\"exit " + exitCode.ToString(CultureInfo.InvariantCulture) + "\""));
                 }
                 else
                 {
-                  task.FileName = @"cmd.exe";
-                  task.Arguments.Add(new Argument("/c"));
+                    task.FileName = @"cmd.exe";
+                    task.Arguments.Add(new Argument("/c"));
+                    task.Arguments.Add(new Argument("exit"));
+                    task.Arguments.Add(new Argument(exitCode.ToString(CultureInfo.InvariantCulture)));
                 }
-                task.Arguments.Add(new Argument("exit"));
-                task.Arguments.Add(new Argument(exitCode.ToString(CultureInfo.InvariantCulture)));
+                
                 task.ExpectedExitCode = exitCode;
                 task.Execute();
             }
@@ -193,12 +204,18 @@ namespace Tests.NAnt.Core.Tasks {
         public void TestUnexpectedExitCode()
         {
             this.PrepareTestEnvironment();
+            // Dictonary with test data. Key: produced exit code, value: expected exit code
             Dictionary<int, int> exitCodes = new Dictionary<int, int>();
             exitCodes.Add(byte.MaxValue, byte.MinValue);
-            exitCodes.Add(sbyte.MaxValue, sbyte.MinValue);
-            exitCodes.Add(short.MaxValue, short.MinValue);
-            exitCodes.Add(ushort.MaxValue, ushort.MinValue);
-            exitCodes.Add(int.MaxValue, int.MinValue);
+            
+            // Bash supports only exit codes from 0  to 255
+            if (PlatformHelper.IsWindows)
+            {
+                exitCodes.Add(sbyte.MaxValue, sbyte.MinValue);
+                exitCodes.Add(short.MaxValue, short.MinValue);
+                exitCodes.Add(ushort.MaxValue, ushort.MinValue);
+                exitCodes.Add(int.MaxValue, int.MinValue);
+            }
 
             foreach (KeyValuePair<int, int> exitCode in exitCodes)
             {
@@ -207,14 +224,16 @@ namespace Tests.NAnt.Core.Tasks {
                 {
                   task.FileName = "bash";
                   task.Arguments.Add(new Argument("-c"));
+                  task.Arguments.Add(new Argument("\"exit " + exitCode.Key.ToString(CultureInfo.InvariantCulture) + "\""));
                 }
                 else
                 {
                   task.FileName = @"cmd.exe";
                   task.Arguments.Add(new Argument("/c"));
+                  task.Arguments.Add(new Argument("exit"));
+                  task.Arguments.Add(new Argument(exitCode.Key.ToString(CultureInfo.InvariantCulture)));
                 }
-                task.Arguments.Add(new Argument("exit"));
-                task.Arguments.Add(new Argument(exitCode.Key.ToString(CultureInfo.InvariantCulture)));
+                
                 task.ExpectedExitCode = exitCode.Value;
                 BuildException currentBuildException = null;
                 try
