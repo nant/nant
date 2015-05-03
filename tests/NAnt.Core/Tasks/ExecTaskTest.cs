@@ -137,14 +137,15 @@ namespace Tests.NAnt.Core.Tasks {
             ExecTask task = this.CreateTaskWithProject();
             if (PlatformHelper.IsUnix)
             {
-              task.FileName = "exit";
+              task.FileName = "bash";
+              task.Arguments.Add(new Argument("-c"));
             }
             else
             {
               task.FileName = @"cmd.exe";
               task.Arguments.Add(new Argument("/c"));
-              task.Arguments.Add(new Argument("exit"));
             }
+            task.Arguments.Add(new Argument("exit"));
             task.Arguments.Add(new Argument(0.ToString(CultureInfo.InvariantCulture)));
             task.Execute();
         }
@@ -170,14 +171,15 @@ namespace Tests.NAnt.Core.Tasks {
                 ExecTask task = this.CreateTaskWithProject();
                 if (PlatformHelper.IsUnix)
                 {
-                  task.FileName = "exit";
+                  task.FileName = "bash";
+                  task.Arguments.Add(new Argument("-c"));
                 }
                 else
                 {
                   task.FileName = @"cmd.exe";
                   task.Arguments.Add(new Argument("/c"));
-                  task.Arguments.Add(new Argument("exit"));
                 }
+                task.Arguments.Add(new Argument("exit"));
                 task.Arguments.Add(new Argument(exitCode.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode;
                 task.Execute();
@@ -203,14 +205,15 @@ namespace Tests.NAnt.Core.Tasks {
                 ExecTask task = this.CreateTaskWithProject();
                 if (PlatformHelper.IsUnix)
                 {
-                  task.FileName = "exit";
+                  task.FileName = "bash";
+                  task.Arguments.Add(new Argument("-c"));
                 }
                 else
                 {
                   task.FileName = @"cmd.exe";
                   task.Arguments.Add(new Argument("/c"));
-                  task.Arguments.Add(new Argument("exit"));
                 }
+                task.Arguments.Add(new Argument("exit"));
                 task.Arguments.Add(new Argument(exitCode.Key.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode.Value;
                 BuildException currentBuildException = null;
@@ -231,14 +234,15 @@ namespace Tests.NAnt.Core.Tasks {
                 ExecTask task = this.CreateTaskWithProject();
                 if (PlatformHelper.IsUnix)
                 {
-                  task.FileName = "exit";
+                  task.FileName = "bash";
+                  task.Arguments.Add(new Argument("-c"));
                 }
                 else
                 {
                   task.FileName = @"cmd.exe";
                   task.Arguments.Add(new Argument("/c"));
-                  task.Arguments.Add(new Argument("exit"));
                 }
+                task.Arguments.Add(new Argument("exit"));
                 task.Arguments.Add(new Argument(exitCode.Value.ToString(CultureInfo.InvariantCulture)));
                 task.ExpectedExitCode = exitCode.Key;
                 BuildException currentBuildException = null;
