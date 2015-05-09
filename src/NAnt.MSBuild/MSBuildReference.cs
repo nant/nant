@@ -36,7 +36,7 @@ namespace NAnt.MSBuild {
         }
 
         public MSBuildReferenceHelper(string priv, bool privatedefault) {
-            _isPrivateSpecified = (priv != null && priv.Length>0);
+            _isPrivateSpecified = !string.IsNullOrEmpty(priv);
             if (_isPrivateSpecified) {
                 _isPrivate = (priv.ToLower() == "true");
             }

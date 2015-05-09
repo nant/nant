@@ -201,7 +201,7 @@ namespace NAnt.Core.Tasks {
 
                     if (sourcePath.Equals(destinationPath, StringComparison.InvariantCulture))
                     {
-                        Log(Level.Warning, "Skipping self-move of {0}." + sourcePath);
+                        Log(Level.Warning, "Skipping self-move of {{0}}.{0}", sourcePath);
                         continue;
                     }
 

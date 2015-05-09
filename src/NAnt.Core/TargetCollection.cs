@@ -36,11 +36,10 @@ namespace NAnt.Core {
                 throw new BuildException("Null Target!");
             }
 
-            logger.Debug(string.Format(
-                CultureInfo.InvariantCulture,
+            logger.DebugFormat(CultureInfo.InvariantCulture,
                 ResourceUtils.GetString("String_AddingTarget"), 
-                t.Name));
-            
+                t.Name);
+
             // check for existing target with same name.
             if (Find(t.Name) == null) {
                 return base.Add(t);

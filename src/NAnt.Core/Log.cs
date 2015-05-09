@@ -688,7 +688,7 @@ namespace NAnt.Core {
                 string label = String.Empty;
 
                 if (e.Task != null && !EmacsMode) {
-                    label = "[" + (e.Target == null ? string.Empty : e.Target.Name + " ") + e.Task.Name + "] ";
+                    label = string.Format("[{0}{1}] ", (e.Target == null ? string.Empty : e.Target.Name + " "), e.Task.Name);
                     label = label.PadLeft(e.Project.IndentationSize);
                 }
 
@@ -1372,7 +1372,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="value"></param>
         public override void Write(string value) {
-            _message += value;
+            _message.Append(value);
         }
 
         /// <summary>
@@ -1388,9 +1388,12 @@ namespace NAnt.Core {
         /// </summary>
         /// <param name="value">The string to write. If <paramref name="value" /> is a null reference, only the line termination characters are written.</param>
         public override void WriteLine(string value) {
-            _message += value;
-            _task.Log(OutputLevel, _message);
-            _message = string.Empty;
+            _message.Append(value);
+            
+            if (_task.IsLogEnabledFor(OutputLevel))
+                _task.Log(OutputLevel, _message.ToString());
+            
+            _message.Length = 0;
         }
 
         /// <summary>
@@ -1400,9 +1403,12 @@ namespace NAnt.Core {
         /// <param name="line">The formatting string.</param>
         /// <param name="args">The object array to write into format string.</param>
         public override void WriteLine(string line, params object[] args) {
-            _message += string.Format(CultureInfo.InvariantCulture, line, args);
-            _task.Log(OutputLevel, _message);
-            _message = string.Empty;
+            _message.AppendFormat(CultureInfo.InvariantCulture, line, args);
+            
+            if(_task.IsLogEnabledFor(OutputLevel))
+                _task.Log(OutputLevel, _message.ToString());
+            
+            _message.Length = 0;
         }
 
         /// <summary>
@@ -1410,8 +1416,10 @@ namespace NAnt.Core {
         /// </summary>
         public override void Flush() {
             if (_message.Length != 0) {
-                _task.Log(OutputLevel, _message);
-                _message = string.Empty;
+                if(_task.IsLogEnabledFor(OutputLevel))
+                    _task.Log(OutputLevel, _message.ToString());
+                
+                _message.Length = 0;
             }
         }
 
@@ -1464,7 +1472,7 @@ namespace NAnt.Core {
 
         private readonly Task _task;
         private readonly Level _outputLevel;
-        private string _message = string.Empty;
+        private StringBuilder _message = new StringBuilder();
 
         #endregion Private Instance Fields
     }

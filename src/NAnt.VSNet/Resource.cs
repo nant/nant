@@ -84,7 +84,7 @@ namespace NAnt.VSNet {
         /// </value>
         public bool IsResX {
             get { 
-                return InputFile.Extension.ToLower(CultureInfo.InvariantCulture) == ".resx";
+                return InputFile.Extension.Equals(".resx", StringComparison.OrdinalIgnoreCase);
             }
         }
 

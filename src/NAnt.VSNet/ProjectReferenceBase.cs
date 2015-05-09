@@ -143,7 +143,7 @@ namespace NAnt.VSNet {
             StringCollection assemblyReferences = null;
 
             // check if parent is a VB.NET project
-            if (typeof(VBProject).IsAssignableFrom(Parent.GetType())) {
+            if (Parent is VBProject) {
                 assemblyReferences = Project.GetAssemblyReferences(solutionConfiguration);
             } else {
                 assemblyReferences = new StringCollection();

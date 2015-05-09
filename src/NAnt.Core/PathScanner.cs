@@ -159,7 +159,7 @@ namespace NAnt.Core {
                         // In case of UnauthorizedAccessException,
                         // log the issue as a warning and move on to
                         // the next path.
-                        logger.Warn( "Access to the path \"" + scanPath + "\" is denied.", e );
+                        logger.Warn( string.Format("Access to the path \"{0}\" is denied.", scanPath), e );
                         continue;
                     }
                 }

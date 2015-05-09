@@ -481,7 +481,7 @@ namespace NAnt.DotNet.Tasks {
                 WriteOption(writer, "imports", imports);
             }
 
-            if (OptionCompare != null && OptionCompare.ToUpper(CultureInfo.InvariantCulture) != "FALSE") {
+            if (OptionCompare != null && !OptionCompare.Equals("FALSE", StringComparison.InvariantCultureIgnoreCase)) {
                 WriteOption(writer, "optioncompare", OptionCompare);
             }
 
