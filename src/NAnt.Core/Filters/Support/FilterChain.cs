@@ -34,7 +34,7 @@ namespace NAnt.Core.Filters {
     /// <remarks>
     /// <para>
     /// A FilterChain represents a collection of one or more filters that can 
-    /// be appled to a <see cref="Task"/> such as the <see cref="CopyTask"/>.
+    /// be applied to a <see cref="Task"/> such as the <see cref="CopyTask"/>.
     /// In the case of the <see cref="CopyTask"/>, the contents of the copied 
     /// files are filtered through each filter specified in the filter chain. 
     /// Filtering occurs in the order the filters are specified with filtered

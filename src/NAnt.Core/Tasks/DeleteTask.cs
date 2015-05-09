@@ -37,7 +37,7 @@ namespace NAnt.Core.Tasks {
     ///   <para>
     ///   If the <see cref="File" /> or <see cref="Directory" /> attribute is 
     ///   set then the fileset contents will be ignored. To delete the files 
-    ///   in the fileset ommit the <see cref="File" /> and <see cref="Directory" />
+    ///   in the fileset omit the <see cref="File" /> and <see cref="Directory" />
     ///   attributes in the <c>&lt;delete&gt;</c> element.
     ///   </para>
     ///   <para>

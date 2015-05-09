@@ -188,7 +188,7 @@ namespace NAnt.Core.Tasks {
         /// <remarks>
         /// The default implementation will never allow the standard output
         /// to be redirected to a file.  Deriving classes should override this 
-        /// property to change this behaviour.
+        /// property to change this behavior.
         /// </remarks>
         public virtual FileInfo Output {
             get { return null; } 
@@ -315,7 +315,7 @@ namespace NAnt.Core.Tasks {
         /// the external program will be written.
         /// </value>
         /// <remarks>
-        /// By default, standard output messages wil be written to the build log
+        /// By default, standard output messages will be written to the build log
         /// with level <see cref="Level.Info" />.
         /// </remarks>
         public virtual TextWriter OutputWriter {
@@ -338,7 +338,7 @@ namespace NAnt.Core.Tasks {
         /// program will be written.
         /// </value>
         /// <remarks>
-        /// By default, error output wil be written to the build log with level 
+        /// By default, error output will be written to the build log with level 
         /// <see cref="Level.Warning" />.
         /// </remarks>
         public virtual TextWriter ErrorWriter {

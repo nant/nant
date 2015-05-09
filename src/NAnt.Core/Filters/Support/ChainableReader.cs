@@ -27,7 +27,7 @@ namespace NAnt.Core.Filters {
     /// Implements a abstraction over a TextReader that allows the class to represent
     /// either a TextReader or another ChainableReader to which it is chained.
     ///
-    /// By passing a ChainableReader as a constructor paramater it is possiable to
+    /// By passing a ChainableReader as a constructor parameter it is possible to
     /// chain many ChainableReaders together.  The last ChainableReader in the chain must
     /// be based on a TextReader.
     /// </remarks>
@@ -132,7 +132,7 @@ namespace NAnt.Core.Filters {
         #region Implementation of IDisposable
 
         /// <summary>
-        /// Calls close and supresses the finalizer for the object.
+        /// Calls close and suppresses the finalizer for the object.
         /// </summary>
         public void Dispose() {
             Close();

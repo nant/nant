@@ -202,7 +202,7 @@ namespace Tests.NAnt.Core.Tasks
         };
 
         /// <summary>
-        /// Muliple format valid email addresses.
+        /// Multiple format valid email addresses.
         /// </summary>
         string[] _multiEmails = new string[]
         {
@@ -221,7 +221,7 @@ namespace Tests.NAnt.Core.Tasks
         };
 
         /// <summary>
-        /// Mulitple format valid (name) email addresses.
+        /// Multiple format valid (name) email addresses.
         /// </summary>
         string[] _multiParenthesisNameEmails = new string[]
         {

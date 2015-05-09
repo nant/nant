@@ -471,7 +471,7 @@ namespace NAnt.Core {
         /// <param name="buildElement">The build element.</param>
         /// <param name="elementType">Type of the element.</param>
         /// <returns></returns>
-        /// <exception cref="BuildException">If a datatype references contains an id attribute, a reference is not defined or a wrong reference type is used.
+        /// <exception cref="BuildException">If a data type references contains an id attribute, a reference is not defined or a wrong reference type is used.
         /// </exception>
         public static Element InitializeBuildElement(Element parent, XmlNode childNode, Element buildElement, Type elementType) {
             // if subtype of DataTypeBase

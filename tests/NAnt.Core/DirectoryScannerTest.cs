@@ -172,7 +172,7 @@ namespace Tests.NAnt.Core {
             Assert.AreEqual (2, _scanner.FileNames.Count, "#6");
         }
 
-        /// <summary>Test ? wildcard and / seperator.</summary>
+        /// <summary>Test ? wildcard and / separator.</summary>
         /// <remarks>
         ///   Matches all the files in the folder2 directory that being with Foo 
         ///   and one extra character and end with .txt.
@@ -214,7 +214,7 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Test * wildcard with basedirectory ending with directory separator 
+        /// Test * wildcard with base directory ending with directory separator 
         /// character.
         /// </summary>
         [Test]
@@ -239,7 +239,7 @@ namespace Tests.NAnt.Core {
         }
 
         /// <summary>
-        /// Test * wildcard with basedirectory ending with slash
+        /// Test * wildcard with base directory ending with slash
         /// character.
         /// </summary>
         /// <remarks>
@@ -557,7 +557,7 @@ namespace Tests.NAnt.Core {
             CheckScan(includedFileNames, excludedFileNames);
         }
 
-        /// <summary>Test shorthand for exclusing all files recursively.</summary>
+        /// <summary>Test shorthand for excluding all files recursively.</summary>
         [Test]
         public void Test_ShorthandExcludes() {
             string[] includedFileNames = new string[] {

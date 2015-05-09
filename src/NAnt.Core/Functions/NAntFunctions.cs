@@ -37,7 +37,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Functions {
     /// <summary>
-    /// Class which provides NAnt runtime information and operatons.
+    /// Class which provides NAnt runtime information and operations.
     /// </summary>
     [FunctionSet("nant", "NAnt")]
     public class NAntFunctions : FunctionSetBase {

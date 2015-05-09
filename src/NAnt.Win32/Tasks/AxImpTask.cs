@@ -98,7 +98,7 @@ namespace NAnt.Win32.Tasks {
         /// the resulting assembly should be signed with a strong name.
         /// </summary>
         /// <value>
-        /// The keyfile to use to sign the resulting assembly with a strong name.
+        /// The key file to use to sign the resulting assembly with a strong name.
         /// </value>
         /// <remarks><a href="ms-help://MS.NETFrameworkSDK/cptools/html/cpgrftypelibraryimportertlbimpexe.htm">See the Microsoft.NET Framework SDK documentation for details.</a></remarks>
         [TaskAttribute("keyfile")]

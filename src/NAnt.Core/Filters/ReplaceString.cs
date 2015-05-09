@@ -136,7 +136,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Reads the next character applying the filter logic.
         /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         public override int Read() {
             return GetNextCharacter(ReadChar);
         }
@@ -148,7 +148,7 @@ namespace NAnt.Core.Filters {
         /// Peek currently is not supported.
         /// </summary>
         /// <returns>
-        /// Char as an int or -1 if at the end of the stream.
+        /// Char as an integer value or -1 if at the end of the stream.
         /// </returns>
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
@@ -161,7 +161,7 @@ namespace NAnt.Core.Filters {
 
         /// <summary>
         /// <para>
-        /// Helper function used to search for the filter's traget string. If the string
+        /// Helper function used to search for the filter's target string. If the string
         /// is found the result is true. If the string was not found false is returned and
         /// nonMatchingChars contains the characters that were read to determine if the 
         /// string is present.
@@ -173,7 +173,7 @@ namespace NAnt.Core.Filters {
         /// </para>
         /// </summary>
         /// <param name="startChar">First character in target string</param>
-        /// <param name="streamEnded">Ture if the stream ended while search for the string.</param>
+        /// <param name="streamEnded">True if the stream ended while search for the string.</param>
         /// <param name="nonMatchingChars">Characters that were read while searching for the string.</param>
         /// <returns></returns>
         private bool FindString(int startChar, out bool streamEnded, out string nonMatchingChars) {
@@ -225,7 +225,7 @@ namespace NAnt.Core.Filters {
         /// <see cref="AcquireCharDelegate"/> allows for the same implementation for Read and Peek
         /// </summary>
         /// <param name="AcquireChar">Delegate to acquire the next character. (Read/Peek)</param>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         private int GetNextCharacter(AcquireCharDelegate AcquireChar) {
             int ch;
 

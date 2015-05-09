@@ -82,7 +82,7 @@ namespace NAnt.Core {
         VendorMask = Mono | MS,
 
         /// <summary>
-        /// All frameworks supported on the current platform, regarless of their
+        /// All frameworks supported on the current platform, regardless of their
         /// installation state, target device or vendor.
         /// </summary>
         All = Installed | NotInstalled

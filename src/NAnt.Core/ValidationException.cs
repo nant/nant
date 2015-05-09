@@ -54,7 +54,7 @@ namespace NAnt.Core {
         /// that caused the exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        /// <param name="location">The location in the build file where the exception occured.</param>
+        /// <param name="location">The location in the build file where the exception occurred.</param>
         public ValidationException(String message, Location location) : base(message, location) {
         }
 
@@ -65,7 +65,7 @@ namespace NAnt.Core {
         /// exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        /// <param name="location">The location in the build file where the exception occured.</param>
+        /// <param name="location">The location in the build file where the exception occurred.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
         public ValidationException(String message, Location location, Exception innerException) : base(message, location, innerException) {
         }

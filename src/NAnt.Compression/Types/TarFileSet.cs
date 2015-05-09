@@ -93,7 +93,7 @@ namespace NAnt.Compression.Types {
         }
 
         /// <summary>
-        /// The groupname for the tar entry.
+        /// The group name for the tar entry.
         /// </summary>
         [TaskAttribute("groupname")]
         public string GroupName {

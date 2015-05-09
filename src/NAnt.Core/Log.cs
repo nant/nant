@@ -65,7 +65,7 @@ namespace NAnt.Core {
         Info = 3000,
 
         /// <summary>
-        /// Designates potentionally harmful events.
+        /// Designates potentially harmful events.
         /// </summary>
         Warning = 4000,
 
@@ -641,7 +641,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Outputs an indented message to the build log if its priority is 
-        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// greater than or equal to the <see cref="Threshold" /> of the 
         /// logger.
         /// </summary>
         /// <param name="messageLevel">The priority of the message to output.</param>
@@ -653,7 +653,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Outputs an indented message to the build log if its priority is 
-        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// greater than or equal to the <see cref="Threshold" /> of the 
         /// logger.
         /// </summary>
         /// <param name="e">The event to output.</param>
@@ -669,7 +669,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Outputs an indented message to the build log if its priority is 
-        /// greather than or equal to the <see cref="Threshold" /> of the 
+        /// greater than or equal to the <see cref="Threshold" /> of the 
         /// logger.
         /// </summary>
         /// <param name="e">The event to output.</param>

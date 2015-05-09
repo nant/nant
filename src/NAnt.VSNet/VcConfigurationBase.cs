@@ -138,7 +138,7 @@ namespace NAnt.VSNet {
         /// targets.
         /// </summary>
         /// <value>
-        /// Tthe name of the configuration, including the platform it targets.
+        /// The name of the configuration, including the platform it targets.
         /// </value>
         internal string FullName {
             get { return _name; }

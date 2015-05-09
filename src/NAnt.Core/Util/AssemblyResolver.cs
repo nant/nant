@@ -30,7 +30,7 @@ namespace NAnt.Core.Util {
         #region Public Instance Constructors
 
         /// <summary> 
-        /// Initializes an instanse of the <see cref="AssemblyResolver" /> 
+        /// Initializes an instance of the <see cref="AssemblyResolver" /> 
         /// class.
         /// </summary>
         public AssemblyResolver() {
@@ -38,7 +38,7 @@ namespace NAnt.Core.Util {
         }
 
         /// <summary> 
-        /// Initializes an instanse of the <see cref="AssemblyResolver" /> 
+        /// Initializes an instance of the <see cref="AssemblyResolver" /> 
         /// class in the context of the given <see cref="Task" />.
         /// </summary>
         public AssemblyResolver(Task task) : this() {

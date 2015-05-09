@@ -66,10 +66,10 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Gets or sets the buildfile that should be executed.
+        /// Gets or sets the build file that should be executed.
         /// </summary>
         /// <value>
-        /// The buildfile that should be executed.
+        /// The build file that should be executed.
         /// </value>
         /// <remarks>
         /// Can be both a file or an URI.
@@ -153,7 +153,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Gets a value indicating whether parent directories should be searched
-        /// for a buildfile.
+        /// for a build file.
         /// </summary>
         /// <value>
         /// <see langword="true" /> if parent directories should be searched for 
@@ -220,7 +220,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Gets a collection containing fully qualified type names of classes 
-        /// implementating <see cref="IBuildListener" /> that should be added 
+        /// implementing <see cref="IBuildListener" /> that should be added 
         /// to the project as listeners.
         /// </summary>
         /// <value>

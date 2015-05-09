@@ -210,17 +210,17 @@ namespace NAnt.Console {
         /// </summary>
         /// <remarks>
         ///   <para>
-        ///   For the common version dir, we do not use the framework version
+        ///   For the common version directory, we do not use the framework version
         ///   as defined in the NAnt configuration file but the CLR version
         ///   since the assemblies in that directory are not specific to a 
         ///   certain family and the framwork version might differ between
-        ///   families (eg. mono 1.0 == .NET 1.1).
+        ///   families (e.g. mono 1.0 == .NET 1.1).
         ///   </para>
         /// </remarks>
         /// <param name="runtimeFramework">The runtime framework.</param>
         /// <param name="baseDir">The base directory of the domain.</param>
         /// <returns>
-        /// The privatebinpath.
+        /// The private bin path.
         /// </returns>
         private static string ConstructPrivateBinPath (Framework runtimeFramework, string baseDir) {
             StringBuilder sb = new StringBuilder ();
@@ -366,7 +366,7 @@ namespace NAnt.Console {
             /// Initializes a new instance of the <see cref="HelperArguments" />
             /// class with the specified command-line arguments.
             /// </summary>
-            /// <param name="args">The commandline arguments passed to NAnt.exe.</param>
+            /// <param name="args">The command-line arguments passed to NAnt.exe.</param>
             /// <param name="probePaths">Directories relative to the base directory of the AppDomain to probe for missing assembly references.</param>
             public HelperArguments(string[] args, string probePaths) {
                 _args = args;

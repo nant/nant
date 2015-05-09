@@ -118,7 +118,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The command-line arguments for the program.  These will be
         /// passed as is to the external program. When quoting is necessary,
-        /// these must be explictly set as part of the value. Consider using
+        /// these must be explicitly set as part of the value. Consider using
         /// nested <see cref="ExternalProgramBase.Arguments" /> elements instead.
         /// </summary>
         [TaskAttribute("commandline")]

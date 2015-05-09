@@ -158,7 +158,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Reads the next character applying the filter logic.
         /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         public override int Read() {
             return GetNextCharacter(ReadChar);
         }
@@ -170,7 +170,7 @@ namespace NAnt.Core.Filters {
         /// Peek currently is not supported.
         /// </summary>
         /// <returns>
-        /// Char as an int or -1 if at the end of the stream.
+        /// Char as an integer value or -1 if at the end of the stream.
         /// </returns>
         public override int Peek() {
             //Need to maintain seperate state for Read and Peek for this to work
@@ -308,7 +308,7 @@ namespace NAnt.Core.Filters {
         /// <see cref="AcquireCharDelegate"/> allows for the same implementation for Read and Peek
         /// </summary>
         /// <param name="AcquireChar">Delegate to acquire the next character. (Read/Peek)</param>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         private int GetNextCharacter(AcquireCharDelegate AcquireChar) {
             int ch;
 

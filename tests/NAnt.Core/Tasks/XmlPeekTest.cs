@@ -274,7 +274,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Ensures a <see cref="BuildException" /> is thrown when a nodeindex
+        /// Ensures a <see cref="BuildException" /> is thrown when a node index
         /// is set that is out of range.
         /// </summary>
         [Test]

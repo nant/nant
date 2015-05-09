@@ -43,7 +43,7 @@ namespace NAnt.Core.Tasks {
     ///   ignored.
     ///   </para>
     ///   <note>
-    ///   Since NAnt 0.86, a newline will no longer be implictly added when
+    ///   Since NAnt 0.86, a newline will no longer be implicitly added when
     ///   writing a message to a file.
     ///   </note>
     /// </remarks>

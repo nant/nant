@@ -54,7 +54,7 @@ namespace NAnt.Core.Util {
         /// If the <see cref="Type" /> cannot be instantiated from the assembly
         /// qualified type name, then we'll try to instantiate the type using its
         /// simple type name from an already loaded assembly with an assembly 
-        /// name mathing the assembly in the assembly qualified type name.
+        /// name matching the assembly in the assembly qualified type name.
         /// </remarks>
         /// <returns>
         /// The type loaded or <see langword="null" /> if it could not be loaded.

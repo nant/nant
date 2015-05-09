@@ -371,7 +371,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates if the output from the cvs command should be supressed.
+        /// Indicates if the output from the cvs command should be suppressed.
         /// The default is <see langword="false" />.
         /// </summary>
         [TaskAttribute("quiet", Required=false)]
@@ -523,7 +523,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Override to append any commands before the modele and files.
+        /// Override to append any commands before the modell and files.
         /// </summary>
         protected virtual void AppendSubCommandArgs() {
 
@@ -545,7 +545,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Append the command line options or commen names for the options
+        /// Append the command line options or common names for the options
         ///     to the generic options collection.  This is then piped to the
         ///     command line as a switch.
         /// </summary>
@@ -561,7 +561,7 @@ namespace NAnt.SourceControl.Tasks {
 
         /// <summary>
         /// Add the given argument to the command line options.  Note that are not explicitly
-        /// quoted are split into seperate arguments.  This is to resolve a recent issue
+        /// quoted are split into separate arguments.  This is to resolve a recent issue
         /// with quoting command line arguments.
         /// </summary>
         /// <param name="arg"></param>

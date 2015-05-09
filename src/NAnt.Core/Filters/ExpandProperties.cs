@@ -94,7 +94,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Reads the next character applying the filter logic.
         /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         public override int Read() {
             int temp = Peek();
             if (! AtEnd) {
@@ -106,7 +106,7 @@ namespace NAnt.Core.Filters {
         /// <summary>
         /// Reads the next character applying the filter logic without advancing the current position in the stream.
         /// </summary>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         public override int Peek() {
             if (AtEnd) {
                 return -1;

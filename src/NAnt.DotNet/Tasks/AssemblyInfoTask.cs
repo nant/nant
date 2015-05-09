@@ -510,8 +510,8 @@ namespace NAnt.DotNet.Tasks {
             /// type name from a list of assemblies.
             /// </summary>
             /// <param name="assemblies">The collection of assemblies that the type should tried to be instantiated from.</param>
-            /// <param name="imports">The list of imports that can be used to resolve the typename to a full typename.</param>
-            /// <param name="typename">The typename that should be used to determine the type to which the specified value should be converted.</param>
+            /// <param name="imports">The list of imports that can be used to resolve the type name to a full type name.</param>
+            /// <param name="typename">The type name that should be used to determine the type to which the specified value should be converted.</param>
             /// <param name="value">The <see cref="string" /> value that should be converted to a typed value.</param>
             /// <returns></returns>
             /// <exception cref="BuildException">

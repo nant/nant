@@ -135,7 +135,7 @@ namespace NAnt.MSNet.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Peforms actions on the service in order to reach the desired status.
+        /// Performs actions on the service in order to reach the desired status.
         /// </summary>
         protected override void ExecuteTask() {
             // get handle to service

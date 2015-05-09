@@ -166,7 +166,7 @@ namespace NAnt.Core {
         /// Initializes a new instance of the <see cref="DirectoryScanner" />
         /// specifying whether patterns are to be match case-sensitively.
         /// </summary>
-        /// <param name="caseSensitive">Specifies whether patterns are to be matched case-sensititely.</param>
+        /// <param name="caseSensitive">Specifies whether patterns are to be matched case-sensitively.</param>
         public DirectoryScanner (bool caseSensitive) {
             _caseSensitive = caseSensitive;
         }
@@ -662,7 +662,7 @@ namespace NAnt.Core {
         /// search pattern.
         /// </summary>
         /// <param name="isInclude">Whether this pattern is an include or exclude pattern</param>
-        /// <param name="originalNAntPattern">NAnt searh pattern (relative to the Basedirectory OR absolute, relative paths refering to parent directories ( ../ ) also supported)</param>
+        /// <param name="originalNAntPattern">NAnt search pattern (relative to the base directory OR absolute, relative paths referring to parent directories ( ../ ) also supported)</param>
         /// <param name="searchDirectory">Out. Absolute canonical path to the directory to be searched</param>
         /// <param name="recursive">Out. Whether the pattern is potentially recursive or not</param>
         /// <param name="isRegex">Out. Whether this is a regex pattern or not</param>
@@ -1074,7 +1074,7 @@ namespace NAnt.Core {
         /// Converts search pattern to a regular expression pattern.
         /// </summary>
         /// <param name="nantPattern">Search pattern relative to the search directory.</param>
-        /// <returns>Regular expresssion</returns>
+        /// <returns>Regular expression</returns>
         private static string ToRegexPattern(string nantPattern) {
             StringBuilder pattern = CleanPath(nantPattern);
 

@@ -253,7 +253,7 @@ namespace Tests.NAnt.Core {
         /// The full path to the temporary file.
         /// </returns>
         /// <remarks>
-        /// The file is created and existance is checked.
+        /// The file is created and existence is checked.
         /// </remarks>
         public string CreateTempFile(string name) {
             return CreateTempFile(name, null);
@@ -267,7 +267,7 @@ namespace Tests.NAnt.Core {
         /// The full path to the new file.
         /// </returns>
         /// <remarks>
-        /// The file is created and existance is checked.
+        /// The file is created and existence is checked.
         /// </remarks>
         public string CreateTempFile(string name, string contents) {
             string filename = Path.Combine(TempDirName, name);
@@ -291,7 +291,7 @@ namespace Tests.NAnt.Core {
         /// The full path to the temp directory.
         /// </returns>
         /// <remarks>
-        /// The directory is created and existance is checked.
+        /// The directory is created and existence is checked.
         /// </remarks>
         public string CreateTempDir(string name) {
             return TempDir.Create(Path.Combine(TempDirName, name));
@@ -302,7 +302,7 @@ namespace Tests.NAnt.Core {
         #region Protected Instance Methods
 
         /// <remarks>
-        ///   <para>No need to add SetUp attribute to overriden method.</para>
+        ///   <para>No need to add SetUp attribute to overridden method.</para>
         ///   <para>Super classes that override SetUp must call the base class first.</para>
         /// </remarks>
         protected virtual void SetUp() {

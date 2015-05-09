@@ -34,7 +34,7 @@ namespace NAnt.VSNet.Extensibility {
         /// <param name="xmlDefinition"></param>
         /// <returns></returns>
         /// <remarks>
-        /// This enables the override in other providers. Do not return big numbers, mainly when compring only on filename.
+        /// This enables the override in other providers. Do not return big numbers, mainly when comparing only on filename.
         /// </remarks>
         int IsSupported(string projectExt, XmlElement xmlDefinition);
         ProjectBase GetInstance(SolutionBase solution, string projectPath, XmlElement xmlDefinition, SolutionTask solutionTask, TempFileCollection tfc, GacCache gacCache, ReferencesResolver refResolver, DirectoryInfo outputDir);

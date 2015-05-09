@@ -224,7 +224,7 @@ namespace Tests.NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// Simple file to dir move test.
+        /// Simple file to directory move test.
         /// </summary>
         [Test]
         public void SimpleFileToDirMoveTest()

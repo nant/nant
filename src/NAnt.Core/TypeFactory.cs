@@ -460,7 +460,7 @@ namespace NAnt.Core {
         /// <param name="elementNode">The element XML node.</param>
         /// <param name="proj">The current project.</param>
         /// <returns>The created instance.</returns>
-        /// <exception cref="System.ArgumentNullException">If elementNode or proj is <c>null</c>.
+        /// <exception cref="System.ArgumentNullException">If <paramref name="elementNode"/> or <paramref name="proj"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="BuildException">If no builder for the elment can be found.
         /// </exception>
@@ -598,7 +598,7 @@ namespace NAnt.Core {
         /// <param name="task">The <see cref="Task" /> which will be used to output messages to the build log.</param>
         /// <returns>
         /// <see langword="true" /> if <paramref name="type" /> represents a
-        /// valid set of funtions; otherwise, <see langword="false" />.
+        /// valid set of functions; otherwise, <see langword="false" />.
         /// </returns>
         private static bool ScanTypeForFunctions(Type type, Task task) {
             try {

@@ -292,7 +292,7 @@ namespace NAnt.DotNet.Tasks {
         
         /// <summary>
         /// The namespace prefix for any custom functions defined in the script. 
-        /// If ommitted the prefix will default to 'script'
+        /// If omitted the prefix will default to 'script'
         /// </summary>
         [TaskAttribute("prefix", Required=false)]
         public string Prefix {

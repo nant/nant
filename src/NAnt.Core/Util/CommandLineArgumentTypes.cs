@@ -38,13 +38,13 @@ namespace NAnt.Core.Util {
         Unique      = 0x02,
 
         /// <summary>
-        /// Inidicates that the argument may be specified more than once.
+        /// Indicates that the argument may be specified more than once.
         /// Only valid if the argument is a collection
         /// </summary>
         Multiple    = 0x04,
 
         /// <summary>
-        /// Inidicates that if this argument is specified, no other arguments may be specified.
+        /// Indicates that if this argument is specified, no other arguments may be specified.
         /// </summary>
         Exclusive    = 0x08,
 

@@ -418,7 +418,7 @@ namespace NAnt.MSNet.Tasks {
         /// </summary>
         /// <value>
         /// A <see cref="System.String" /> that contains the visibility
-        /// suboptions.
+        /// sub-options.
         /// </value>
         /// <remarks>
         /// <para>

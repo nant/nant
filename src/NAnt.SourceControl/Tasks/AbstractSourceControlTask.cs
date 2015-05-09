@@ -101,7 +101,7 @@ namespace NAnt.SourceControl.Tasks {
         #region Protected Instance Properties
 
         /// <summary>
-        /// The name of the passfile, overriden for each version control system (VCS).
+        /// The name of the passfile, overridden for each version control system (VCS).
         /// </summary>
         protected abstract string PassFileName {get;}
 
@@ -212,7 +212,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// A collection of options that can be used to modify the default behavoir
+        /// A collection of options that can be used to modify the default behavior
         /// of the version control commands.  See the sub-tasks for implementation
         /// specifics.
         /// </summary>
@@ -325,7 +325,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <param name="value">The option value or command line switch
         ///     of the option.</param>
         /// <param name="on"><code>true</code> if the option should be
-        ///     appended to the commandline, otherwise <code>false</code>.</param>
+        ///     appended to the command line, otherwise <code>false</code>.</param>
         protected void SetGlobalOption (String name, String value, bool on) {
             Option option;
             Log(Level.Debug, "Name: {0}", name);
@@ -351,7 +351,7 @@ namespace NAnt.SourceControl.Tasks {
         /// <param name="value">The option value or command line switch
         ///     of the option.</param>
         /// <param name="on"><code>true</code> if the option should be
-        ///     appended to the commandline, otherwise <code>false</code>.</param>
+        ///     appended to the command line, otherwise <code>false</code>.</param>
         protected void SetCommandOption (String name, String value, bool on) {
             Option option;
             if (CommandOptions.Contains(name)) {

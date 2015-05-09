@@ -44,7 +44,7 @@ namespace NAnt.Core
         /// </summary>
         /// <value>
         /// <see langword="true" />, as a <see cref="ElementContainer" /> is
-        /// responsable for creating tasks from the nested build elements.
+        /// responsible for creating tasks from the nested build elements.
         /// </value>
         protected override bool CustomXmlProcessing {
             get { return true;}
@@ -111,7 +111,7 @@ namespace NAnt.Core
         /// <summary>
         /// Creates the child task specified by the passed XmlNode.
         /// </summary>
-        /// <param name="node">The node specifiing the task.</param>
+        /// <param name="node">The node specifying the task.</param>
         /// <returns>The created task instance.</returns>
         protected virtual Task CreateChildTask(XmlNode node) {
             return Project.CreateTask(node);

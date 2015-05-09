@@ -144,7 +144,7 @@ namespace NAnt.Core.Functions {
         /// <param name="assembly">The assembly from which to get the custom attribute.</param>
         /// <param name="attributeAssemblyPath">The assembly which contains the custom attribute type.</param>
         /// <param name="attributeTypeName">The name of the custom attribute type.</param>
-        /// <param name="propertyName">The name of the property to retreive from the custom attribute instance.</param>
+        /// <param name="propertyName">The name of the property to retrieve from the custom attribute instance.</param>
         /// <returns>The specified property from the custom attribute, as a string.</returns>
         [Function("get-attribute-property")]
         public static string GetAttributeProperty(Assembly assembly, string attributeAssemblyPath, string attributeTypeName, string propertyName) {

@@ -187,7 +187,7 @@ namespace NAnt.VSNet {
         /// Holds the C++ sources for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the C++ source files for that
         /// build configuration.
         /// </remarks>
@@ -205,7 +205,7 @@ namespace NAnt.VSNet {
         /// Gets the resources for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the resources files for that
         /// build configuration.
         /// </remarks>
@@ -223,7 +223,7 @@ namespace NAnt.VSNet {
         /// Get the IDL files for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the IDL files for that build 
         /// configuration.
         /// </remarks>
@@ -696,7 +696,7 @@ namespace NAnt.VSNet {
         /// Holds the C++ sources for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the C++ source files for that
         /// build configuration.
         /// </remarks>
@@ -706,7 +706,7 @@ namespace NAnt.VSNet {
         /// Holds the resources for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the resources files for that
         /// build configuration.
         /// </remarks>
@@ -716,7 +716,7 @@ namespace NAnt.VSNet {
         /// Holds the IDL files for each build configuration.
         /// </summary>
         /// <remarks>
-        /// The key of the hashtable is a build configuration, and the
+        /// The key of the hash table is a build configuration, and the
         /// value is an ArrayList holding the IDL files for that build 
         /// configuration.
         /// </remarks>

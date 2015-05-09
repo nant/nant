@@ -319,7 +319,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Copies the Hashtable elements to a one-dimensional Array instance at the specified index.
+        /// Copies the hash table elements to a one-dimensional Array instance at the specified index.
         /// </summary>
         /// <param name="array">The one-dimensional Array that is the destination of the DictionaryEntry objects copied from Hashtable. The Array must have zero-based indexing.</param>
         /// <param name="index">The zero-based index in array at which copying begins.</param>
@@ -374,10 +374,10 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Returns a synchronized (thread-safe) wrapper for the Hashtable.
+        /// Returns a synchronized (thread-safe) wrapper for the hash table.
         /// </summary>
-        /// <param name="nonSync">The Hashtable to synchronize.</param>
-        /// <returns>A synchronized (thread-safe) wrapper for the Hashtable.</returns>
+        /// <param name="nonSync">The Hash table to synchronize.</param>
+        /// <returns>A synchronized (thread-safe) wrapper for the hash table.</returns>
         public static DataTypeBaseDictionary Synchronized(DataTypeBaseDictionary nonSync) {
             DataTypeBaseDictionary sync = new DataTypeBaseDictionary();
             sync.InnerHash = Hashtable.Synchronized(nonSync.InnerHash);
