@@ -17,6 +17,8 @@ DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,ONLY_2_0
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,ONLY_3_5
 !else if "$(TARGET)" == "net-4.0" || "$(TARGET)" == "mono-4.0"
 DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0
+!else if "$(TARGET)" == "net-4.5" || "$(TARGET)" == "mono-4.5"
+DEFINE = $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5
 !else
 !error Specified target "$(TARGET)" is not valid
 !endif
