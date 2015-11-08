@@ -361,7 +361,7 @@ namespace NAnt.Core.Tasks {
                     sb.AppendLine();
                     sb.AppendLine(GetExceptionMessage(e.InnerException));
                 }
-                return sb.ToString();
+                return sb.ToString().Trim();
             }
 
             #endregion
