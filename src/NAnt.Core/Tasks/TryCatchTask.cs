@@ -355,6 +355,7 @@ namespace NAnt.Core.Tasks {
                     }
                 }
 #endif
+
                 // Get the inner exception information if available.
                 if (e.InnerException != null)
                 {
