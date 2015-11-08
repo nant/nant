@@ -19,6 +19,8 @@
 
 using NAnt.Core.Attributes;
 using NAnt.Core.Util;
+using System;
+using System.Text;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
@@ -290,7 +292,7 @@ namespace NAnt.Core.Tasks {
                 if (Property != null) {
                     propertyExists = Project.Properties.Contains(Property);
                     originalPropertyValue = Project.Properties[Property];
-                    Project.Properties[Property] = be.RawMessage;
+                    Project.Properties[Property] = GetExceptionMessage(be);
                 }
 
                 try {
@@ -309,6 +311,61 @@ namespace NAnt.Core.Tasks {
             }
 
             #endregion Public Instance Methods
+
+            #region Private Instance Methods
+
+            /// <summary>
+            /// Parses out the complete exception and inner exception information to be
+            /// consumed by the catch element.
+            /// </summary>
+            /// <param name="e">
+            /// The exception object to get the messages from.
+            /// </param>
+            /// <returns>
+            /// The complete exception message.
+            /// </returns>
+            private string GetExceptionMessage(Exception e)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                // Get the main message from the exception.
+                if (e is BuildException)
+                {
+                    sb.AppendLine(((BuildException)e).RawMessage);
+                }
+                else
+                {
+                    sb.AppendLine(e.Message);
+                }
+
+#if NET_4_0
+                // If e is an aggregated exception, get the messages from
+                // the inner exceptions if they exist.
+                if (e is AggregateException)
+                {
+                    AggregateException agg = e as AggregateException;
+
+                    if (agg.InnerExceptions != null)
+                    {
+                        foreach (Exception inner in agg.InnerExceptions)
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine(GetExceptionMessage(inner));
+                        }
+                    }
+                }
+#endif
+
+                // Get the inner exception information if available.
+                if (e.InnerException != null)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(GetExceptionMessage(e.InnerException));
+                }
+                return sb.ToString().Trim();
+            }
+
+            #endregion
         }
     }
 }
