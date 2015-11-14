@@ -789,6 +789,12 @@
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
+    <target name="set-net-4.5-framework-configuration">
+        <property name="nant.settings.currentframework" value="net-4.5" />
+        <property name="current.build.defines" value="${build.defines}NET,NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5" dynamic="true" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="true" />
+    </target>
     <target name="set-mono-2.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-2.0" />
         <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,NET_2_0,ONLY_2_0" dynamic="true" />
@@ -804,6 +810,12 @@
     <target name="set-mono-4.0-framework-configuration">
         <property name="nant.settings.currentframework" value="mono-4.0" />
         <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,ONLY_4_0" dynamic="true" />
+        <property name="link.sdkdoc.version" value="SDK_v1_1" />
+        <property name="link.sdkdoc.web" value="true" />
+    </target>
+    <target name="set-mono-4.5-framework-configuration">
+        <property name="nant.settings.currentframework" value="mono-4.5" />
+        <property name="current.build.defines" value="${build.defines}MONO,NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5" dynamic="true" />
         <property name="link.sdkdoc.version" value="SDK_v1_1" />
         <property name="link.sdkdoc.web" value="true" />
     </target>
