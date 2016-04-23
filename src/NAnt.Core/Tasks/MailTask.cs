@@ -530,7 +530,7 @@ namespace NAnt.Core.Tasks {
         /// The content of the specified file.
         /// </returns>
         private string ReadFile(string filename) {
-            using (StreamReader reader = new StreamReader(File.OpenRead(filename))) 
+            using (StreamReader reader = new StreamReader(filename)) 
             {
                 string result = reader.ReadToEnd();
                 reader.Close();
