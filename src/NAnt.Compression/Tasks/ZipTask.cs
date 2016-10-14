@@ -74,6 +74,7 @@ namespace NAnt.Compression.Tasks {
         private Encoding _encoding;
         private Hashtable _addedDirs = new Hashtable();
         private Hashtable _fileEntries = new Hashtable();
+        private string _passWord;
 
         #endregion Private Instance Fields
 
@@ -175,6 +176,15 @@ namespace NAnt.Compression.Tasks {
             set { _encoding = value; }
         }
 
+        /// <summary>
+        /// The password to protect the Zip.
+        /// </summary>
+        [TaskAttribute("password", Required = false)]
+        public string PassWord {
+            get { return _passWord; }
+            set { _passWord = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -200,6 +210,11 @@ namespace NAnt.Compression.Tasks {
 
                 // set compression level
                 zOutstream.SetLevel(ZipLevel);
+
+                // set password
+                if(!String.IsNullOrEmpty(PassWord)) {
+                    zOutstream.Password = PassWord;
+                }
 
                 // set comment
                 if (!String.IsNullOrEmpty(Comment)) {
