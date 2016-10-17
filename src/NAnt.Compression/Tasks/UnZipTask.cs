@@ -50,6 +50,7 @@ namespace NAnt.Compression.Tasks {
         private FileInfo _zipfile;
         private DirectoryInfo _toDir;
         private Encoding _encoding;
+        private string _passWord;
 
         #endregion Private Instance Fields
 
@@ -93,6 +94,15 @@ namespace NAnt.Compression.Tasks {
             set { _encoding = value; }
         }
 
+        /// <summary>
+        /// The password that protect the Zip
+        /// </summary>
+        [TaskAttribute("password", Required = false)]
+        public string PassWord {
+            get { return _passWord; }
+            set { _passWord = value; }
+        }
+
         #endregion Public Instance Properties
 
         #region Override implementation of Task
@@ -115,6 +125,11 @@ namespace NAnt.Compression.Tasks {
                 using (ZipInputStream s = new ZipInputStream(ZipFile.OpenRead())) {
                     Log(Level.Info, "Unzipping '{0}' to '{1}'.", 
                         ZipFile.FullName, ToDirectory.FullName);
+
+                    // set the password that protect the Zip
+                    if(!string.IsNullOrEmpty(PassWord)) {
+                        s.Password = PassWord;
+                    }
 
                     ZipEntry entry;
 
