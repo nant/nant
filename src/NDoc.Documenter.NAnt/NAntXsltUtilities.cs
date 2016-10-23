@@ -307,7 +307,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the type node of the specivied identifier.
+        /// Gets the type node of the specified identifier.
         /// </summary>
         /// <param name="cref">The identifier.</param>
         /// <returns>The type node.</returns>
@@ -330,7 +330,7 @@ namespace NDoc.Documenter.NAnt {
         /// <summary>
         /// Gets the method node by identifier.
         /// </summary>
-        /// <param name="cref">The mehtod identifier.</param>
+        /// <param name="cref">The method identifier.</param>
         /// <returns>The method node.</returns>
         public XmlNode GetMethodNodeByID(string cref) {
             if (cref[1] == ':' && !cref.StartsWith("M:")) {
@@ -494,7 +494,7 @@ namespace NDoc.Documenter.NAnt {
         /// Gets the BuildElementAttribute name for the "class/property" XmlNode
         /// </summary>
         /// <param name="propertyNode">The XmlNode to look for a name.</param>
-        /// <returns>The BuildElementAttrbute.Name if the attribute exists for the node.</returns>
+        /// <returns>The BuildElementAttribute.Name if the attribute exists for the node.</returns>
         internal string GetElementNameForProperty(XmlNode propertyNode) {
             // check whether property is a task attribute
             XmlAttribute taskAttributeNode = propertyNode.SelectSingleNode("attribute[@name='" + typeof(TaskAttributeAttribute).FullName + "']/property[@name='Name']/@value") as XmlAttribute;
@@ -701,7 +701,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the TaskNameAttrbute name for the "class" XmlNode
+        /// Gets the TaskNameAttribute name for the "class" XmlNode
         /// </summary>
         /// <param name="typeNode">The XmlNode to look for a name.</param>
         /// <returns>The <see cref="ElementNameAttribute.Name" /> if the attribute exists for the node.</returns>
@@ -726,7 +726,7 @@ namespace NDoc.Documenter.NAnt {
         }
 
         /// <summary>
-        /// Gets the function name for methods that represent a NAtn function.
+        /// Gets the function name for methods that represent a NAnt function.
         /// </summary>
         /// <param name="methodNode">The XmlNode to look for a name.</param>
         /// <returns>

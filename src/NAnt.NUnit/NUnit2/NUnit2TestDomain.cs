@@ -190,7 +190,7 @@ namespace NAnt.NUnit2.Tasks {
             #region Public Instance Constructors
 
             /// <summary> 
-            /// Initializes an instanse of the <see cref="AssemblyResolveHandler" />
+            /// Initializes an instance of the <see cref="AssemblyResolveHandler" />
             /// class.
             /// </summary>
             public AssemblyResolveHandler(string[] probePaths, string[] referenceAssemblies) {

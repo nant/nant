@@ -88,7 +88,7 @@ namespace NAnt.Core.Util
         /// <param name="sourceFileName">The file to copy</param>
         /// <param name="destFileName">The file to copy to</param>
         /// <param name="filterChain">Chain of filters to apply when copying, or <see langword="null" /> is no filters should be applied.</param>
-        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
+        /// <param name="inputEncoding">The encoding used to read the source file.</param>
         /// <param name="outputEncoding">The encoding used to write the destination file.</param>
         public static void CopyFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
             // determine if filters are available
@@ -159,7 +159,7 @@ namespace NAnt.Core.Util
         /// <param name="sourceFileName">The file to move.</param>
         /// <param name="destFileName">The file to move move to.</param>
         /// <param name="filterChain">Chain of filters to apply when moving, or <see langword="null" /> is no filters should be applied.</param>
-        /// <param name="inputEncoding">The encoding used to read the soure file.</param>
+        /// <param name="inputEncoding">The encoding used to read the source file.</param>
         /// <param name="outputEncoding">The encoding used to write the destination file.</param>
         public static void MoveFile(string sourceFileName, string destFileName, FilterChain filterChain, Encoding inputEncoding, Encoding outputEncoding) {
             // if no filters have been defined, and no input or output encoding

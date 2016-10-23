@@ -256,7 +256,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Specifies whether the compiler should perform optimizations to the 
-        /// make output files smaller, faster, and more effecient. The default 
+        /// make output files smaller, faster, and more efficient. The default 
         /// is <see langword="false" />.
         /// </summary>
         /// <value>

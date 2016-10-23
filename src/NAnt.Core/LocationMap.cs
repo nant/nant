@@ -260,7 +260,7 @@ namespace NAnt.Core {
 
             /// <summary>
             /// Initializes a new instance of the <see cref="TextPosition" />
-            /// with the speified line and column.
+            /// with the specified line and column.
             /// </summary>
             /// <param name="line">The line coordinate of the position.</param>
             /// <param name="column">The column coordinate of the position.</param>

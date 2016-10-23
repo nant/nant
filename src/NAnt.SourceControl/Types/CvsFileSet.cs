@@ -39,7 +39,7 @@ namespace NAnt.SourceControl.Types {
         #region Public Instance Properties
 
         /// <summary>
-        /// Indicates whether the entires in the .cvsignore should be used to limit the 
+        /// Indicates whether the entries in the .cvsignore should be used to limit the 
         /// file list; <see langword="true"/> to exclude files in .cvsignore, otherwise
         /// <see langword="false"/>.  The default is <see langword="true"/>.
         /// </summary>

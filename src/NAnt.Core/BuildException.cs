@@ -69,7 +69,7 @@ namespace NAnt.Core {
         /// caused the exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        /// <param name="location">The location in the build file where the exception occured.</param>
+        /// <param name="location">The location in the build file where the exception occurred.</param>
         public BuildException(String message, Location location) : base(message) {
             _location = location;
         }
@@ -80,7 +80,7 @@ namespace NAnt.Core {
         /// instance of the exception that is the cause of the current exception.
         /// </summary>
         /// <param name="message">A descriptive message to include with the exception.</param>
-        /// <param name="location">The location in the build file where the exception occured.</param>
+        /// <param name="location">The location in the build file where the exception occurred.</param>
         /// <param name="innerException">A nested exception that is the cause of the current exception.</param>
         public BuildException(String message, Location location, Exception innerException) : base(message, innerException) {
             _location = location;

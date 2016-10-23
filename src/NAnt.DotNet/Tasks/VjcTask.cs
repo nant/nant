@@ -202,7 +202,7 @@ namespace NAnt.DotNet.Tasks {
         /// Associate Java-language/COM package names.
         /// </summary>
         /// <value>
-        /// The value of this propery. must be <c>package=namespace</c>, <c>@filename</c>, 
+        /// The value of this property. must be <c>package=namespace</c>, <c>@filename</c>, 
         /// or an empty string.
         /// </value>
         /// <remarks>

@@ -24,7 +24,7 @@ using NAnt.Core.Types;
 
 namespace NAnt.SourceControl.Tasks {
     /// <summary>
-    /// Exports a cvs module in preperation for a release (i.e. the CVS version
+    /// Exports a cvs module in preparation for a release (i.e. the CVS version
     /// folders are not exported).
     /// </summary>
     /// <example>
@@ -104,7 +104,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Indicates whether the head revision should be used if the revison specified by
+        /// Indicates whether the head revision should be used if the revision specified by
         /// <see cref="Revision"/> or the <see cref="Date"/> tags are not
         /// found. The default is <see langword="false" />.
         /// </summary>

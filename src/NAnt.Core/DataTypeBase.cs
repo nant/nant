@@ -73,10 +73,10 @@ namespace NAnt.Core {
         #region Override implementation of Element
         
         /// <summary>
-        /// Gets the name of the datatype.
+        /// Gets the name of the data type.
         /// </summary>
         /// <value>
-        /// The name of the datatype.
+        /// The name of the data type.
         /// </value>
         public override string Name {
             get {

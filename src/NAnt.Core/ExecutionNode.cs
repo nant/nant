@@ -25,7 +25,7 @@ using System.Threading;
 namespace NAnt.Core {
 
     /// <summary>
-    /// Respresents a single node in the execution graph. A node typically corresponds to a target in the project.
+    /// Represents a single node in the execution graph. A node typically corresponds to a target in the project.
     /// </summary>
     internal class ExecutionNode {
 
@@ -35,7 +35,7 @@ namespace NAnt.Core {
         private string _name;
 
         /// <summary>
-        /// Total number of prerequisistes of the node.
+        /// Total number of prerequisites of the node.
         /// </summary>
         private int _prerequisitesCount;
 
@@ -68,7 +68,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Total number of prerequisistes of the node.
+        /// Total number of prerequisites of the node.
         /// </summary>
         public int PrerequisitesCount {
             get {

@@ -87,7 +87,7 @@ namespace NAnt.Core {
         }
 
         /// <summary>
-        /// Scans all direcetories in the PATH environment variable for files.
+        /// Scans all directories in the PATH environment variable for files.
         /// </summary>
         /// <returns>
         /// List of matching files found in the PATH.

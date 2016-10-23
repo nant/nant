@@ -118,7 +118,7 @@ namespace NAnt.Core.Tasks {
         }
 
         /// <summary>
-        /// The target to execute. To specify more than one target seperate 
+        /// The target to execute. To specify more than one target separate 
         /// targets with a space. Targets are executed in order if possible. 
         /// The default is to use target specified in the project's default 
         /// attribute.

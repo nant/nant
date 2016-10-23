@@ -20,6 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -94,8 +95,9 @@ namespace NAnt.Core.Tasks {
         private EnvironmentSet _environmentSet = new EnvironmentSet();
         private string _resultProperty;
         private string _processIdProperty;
+        private int _expectedExitCode;
 
-        #endregion Private Instance Fields
+      #endregion Private Instance Fields
 
         #region Public Instance Properties
 
@@ -116,7 +118,7 @@ namespace NAnt.Core.Tasks {
         /// <summary>
         /// The command-line arguments for the program.  These will be
         /// passed as is to the external program. When quoting is necessary,
-        /// these must be explictly set as part of the value. Consider using
+        /// these must be explicitly set as part of the value. Consider using
         /// nested <see cref="ExternalProgramBase.Arguments" /> elements instead.
         /// </summary>
         [TaskAttribute("commandline")]
@@ -175,7 +177,20 @@ namespace NAnt.Core.Tasks {
             set { _resultProperty = value; }
         }
 
-        #endregion Public Instance Properties
+      /// <summary>
+      /// Gets or sets the expected exit code.
+      /// </summary>
+      /// <value>
+      /// The expected exit code.
+      /// </value>
+      [TaskAttribute("expectedexitcode")]
+      public int ExpectedExitCode
+      {
+        get { return _expectedExitCode; }
+        set { _expectedExitCode = value; }
+      }
+
+      #endregion Public Instance Properties
 
         #region Override implementation of ExternalProgramBase
 
@@ -340,7 +355,53 @@ namespace NAnt.Core.Tasks {
         /// Executes the external program.
         /// </summary>
         protected override void ExecuteTask() {
-            base.ExecuteTask();
+            try
+            {
+                this.Log(Level.Debug, "Calling ExecuteTask of base class");
+                base.ExecuteTask();
+            }
+            catch (BuildException exception)
+            {
+                this.Log(Level.Debug, "Caught exception: " + exception);
+                const string ExceptionMessage = @"External Program Failed: {0} \(return code was ([\+-]?\d+)\)";
+                string regexPattern = string.Format(ExceptionMessage, Regex.Escape(this.ProgramFileName));
+                Match match = new Regex(regexPattern).Match(exception.Message);
+                if (match.Success && (match.Groups.Count == 2))
+                {
+                  this.Log(Level.Debug, "Exception message matches");
+                  int exitCode;
+                  if (int.TryParse(match.Groups[1].Value, out exitCode))
+                  {
+                    if (exitCode != this.ExpectedExitCode)
+                    {
+                        throw;
+                    }
+                  }
+                  else
+                  {
+                      throw;
+                  }
+                }
+                else
+                {
+                    this.Log(Level.Debug, "Exception message doesn't match");
+                    throw;  
+                }
+            }
+
+            // If the following statement is reached, no exception was thrown by the exec task
+            // Check if the current exit code equals the expected exit code.
+            if (this.ExitCode != this.ExpectedExitCode)
+            {
+                throw new BuildException(
+                                string.Format(
+                                  CultureInfo.InvariantCulture,
+                                  ResourceUtils.GetString("NA1119"),
+                                  ProgramFileName,
+                                  this.ExitCode),
+                                Location);
+            }
+
             if (ResultProperty != null) {
                 Properties[ResultProperty] = base.ExitCode.ToString(
                     CultureInfo.InvariantCulture);

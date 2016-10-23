@@ -5,7 +5,7 @@ using NAnt.DotNet.Tasks;
 
 namespace NAnt.DotNet.Types {
     /// <summary>
-    /// Controls the behaviour of a compiler with regards to the reporting of
+    /// Controls the behavior of a compiler with regards to the reporting of
     /// warnings.
     /// </summary>
     /// <example>

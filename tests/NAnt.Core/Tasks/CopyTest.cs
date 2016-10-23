@@ -308,7 +308,7 @@ namespace Tests.NAnt.Core.Tasks {
 
         /// <summary>
         /// Copy everything from under tempDir1 to a new temp directory and 
-        /// ensure it exists. Do NOT copy empty dirs.
+        /// ensure it exists. Do NOT copy empty directories.
         /// </summary>
         [Test]
         public void Test_Copy_Structure_ExcludeEmptyDirs() {            

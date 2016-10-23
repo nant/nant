@@ -25,7 +25,7 @@ namespace NAnt.Core.Attributes {
     /// </summary>
     /// <remarks>
     /// Attach this attribute to a subclass of Element to have NAnt be able
-    /// to recognize it.  The name should be short but must not confict
+    /// to recognize it.  The name should be short but must not conflict
     /// with any other element already in use.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class, Inherited=false, AllowMultiple=false)]

@@ -30,7 +30,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core {
     /// <summary>
-    /// Encalsulates information about installed frameworks incuding version 
+    /// Encapsulates information about installed frameworks including version 
     /// information and directory locations for finding tools.
     /// </summary>
     [Serializable()]
@@ -412,7 +412,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <value>
         /// The directory containing the SDK tools for the framework or a null 
-        /// reference if the configured sdk directory does not exist, or is not
+        /// reference if the configured SDK directory does not exist, or is not
         /// valid.
         /// </value>
         /// <exception cref="ArgumentException">The framework is not valid.</exception>

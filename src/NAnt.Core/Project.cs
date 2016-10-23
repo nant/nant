@@ -356,7 +356,7 @@ namespace NAnt.Core {
         /// Gets or sets the indentation size of the build output.
         /// </summary>
         /// <value>
-        /// The indendation size of the build output.
+        /// The indentation size of the build output.
         /// </value>
         public int IndentationSize {
             get { return _indentationSize; }
@@ -751,7 +751,7 @@ namespace NAnt.Core {
         /// <remarks>
         /// <para>
         /// This is the collection of <see cref="DataTypeBase" /> instances that
-        /// are defined by <see cref="DataTypeBase" /> (eg fileset) declarations.
+        /// are defined by <see cref="DataTypeBase" /> (e.g. fileset) declarations.
         /// </para>
         /// </remarks>
         public DataTypeBaseDictionary DataTypeReferences {
@@ -832,7 +832,7 @@ namespace NAnt.Core {
         /// <exception cref="ArgumentException">
         ///   <para><paramref name="node" /> is from an XML file that was not loaded by NAnt.</para>
         ///   <para>-or</para>
-        ///   <para><paramref name="node" /> was not processed by NAnt (eg. an XML declaration).</para>
+        ///   <para><paramref name="node" /> was not processed by NAnt (e.g. an XML declaration).</para>
         /// </exception>
         public Location GetLocation(XmlNode node) {
             return LocationMap.GetLocation(node);
@@ -968,7 +968,7 @@ namespace NAnt.Core {
         /// Writes a <see cref="Target" /> level message to the build log with 
         /// the given <see cref="Level" />.
         /// </summary>
-        /// <param name="target">The <see cref="Target" /> from which the message orignated.</param>
+        /// <param name="target">The <see cref="Target" /> from which the message originated.</param>
         /// <param name="messageLevel">The level to log at.</param>
         /// <param name="message">The message to log.</param>
         public void Log(Target target, Level messageLevel, string message) {
@@ -1684,7 +1684,7 @@ namespace NAnt.Core {
         /// <returns>
         /// A collection of <see cref="Target" /> instances in sorted order.
         /// </returns>
-        /// <exception cref="BuildException">There is a cyclic dependecy among the targets, or a named target does not exist.</exception>
+        /// <exception cref="BuildException">There is a cyclic dependency among the targets, or a named target does not exist.</exception>
         public TargetCollection TopologicalTargetSort(string root, TargetCollection targets) {
             TargetCollection executeTargets = new TargetCollection();
             Hashtable state = new Hashtable();
@@ -1747,7 +1747,7 @@ namespace NAnt.Core {
         /// <param name="targets">A collection of <see cref="Target" /> instances.</param>
         /// <param name="state">A mapping from targets to states The states in question are "VISITING" and "VISITED". Must not be <see langword="null" />.</param>
         /// <param name="visiting">A stack of targets which are currently being visited. Must not be <see langword="null" />.</param>
-        /// <param name="executeTargets">The list to add target names to. This will end up containing the complete list of depenencies in dependency order. Must not be <see langword="null" />.</param>
+        /// <param name="executeTargets">The list to add target names to. This will end up containing the complete list of dependencies in dependency order. Must not be <see langword="null" />.</param>
         /// <exception cref="BuildException">
         ///   <para>A non-existent target is specified</para>
         ///   <para>-or-</para>

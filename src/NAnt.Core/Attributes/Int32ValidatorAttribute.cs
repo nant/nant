@@ -39,7 +39,7 @@ namespace NAnt.Core.Attributes {
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Int32ValidatorAttribute" /> 
-        /// class with the specied minimum and maximum values.
+        /// class with the specified minimum and maximum values.
         /// </summary>
         /// <param name="minValue">The minimum value.</param>
         /// <param name="maxValue">The maximum value.</param>

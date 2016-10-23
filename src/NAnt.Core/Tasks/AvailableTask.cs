@@ -77,7 +77,7 @@ namespace NAnt.Core.Tasks {
     /// <example>
     ///   <para>
     ///   Sets the <c>build.dir.present</c> property to <see langword="true" /> 
-    ///   if the directory is available on the filesystem and <see langword="false" /> 
+    ///   if the directory is available on the file system and <see langword="false" /> 
     ///   if the directory is not available.
     ///   </para>
     ///   <code>

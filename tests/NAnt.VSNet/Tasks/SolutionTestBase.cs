@@ -118,7 +118,7 @@ namespace Tests.NAnt.VSNet.Tasks {
         }
 
         /// <summary>
-        /// The <see cref="Tests.NAnt.VSNet.Tasks.LanguageType"/> that the test is targetting.
+        /// The <see cref="Tests.NAnt.VSNet.Tasks.LanguageType"/> that the test is targeting.
         /// </summary>
         protected abstract LanguageType CurrentLanguage {get;}
 
@@ -164,8 +164,8 @@ namespace Tests.NAnt.VSNet.Tasks {
         /// <param name="cvsroot">Cvsroot used to checkout the project.</param>
         /// <param name="module">Module to checkout.</param>
         /// <param name="destination">Place to put the files checkout out.</param>
-        /// <param name="password">Password, or <code>String.Empty</code> if no passord.</param>
-        /// <param name="date">The date tag to use when checking out the project (used to seperate
+        /// <param name="password">Password, or <code>String.Empty</code> if no password.</param>
+        /// <param name="date">The date tag to use when checking out the project (used to separate
         ///     a failing test from a failing build, and most times this is the current date 
         ///     unless a project has been failing consistently.</param>
         protected void CheckoutFiles (string cvsroot, string module, string destination, 

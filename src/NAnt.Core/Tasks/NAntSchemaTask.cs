@@ -37,7 +37,7 @@ namespace NAnt.Core.Tasks {
     /// </summary>
     /// <remarks>
     ///   <para>
-    ///   This can be used in conjuntion with the command-line option to do XSD 
+    ///   This can be used in conjunction with the command-line option to do XSD 
     ///   Schema validation on the build file.
     ///   </para>
     /// </remarks>
@@ -173,7 +173,7 @@ namespace NAnt.Core.Tasks {
         /// </summary>
         /// <param name="stream">The output stream to save the schema to. If <see langword="null" />, writing is ignored, no exception generated.</param>
         /// <param name="tasks">The list of tasks to generate XML Schema for.</param>
-        /// <param name="dataTypes">The list of datatypes to generate XML Schema for.</param>
+        /// <param name="dataTypes">The list of data types to generate XML Schema for.</param>
         /// <param name="targetNS">The target namespace to output.</param>
         /// <returns>The new NAnt Schema.</returns>
         public static XmlSchema WriteSchema(System.IO.Stream stream, Type[] tasks, Type[] dataTypes, string targetNS) {

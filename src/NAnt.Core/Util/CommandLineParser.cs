@@ -28,7 +28,7 @@ using System.Text;
 
 namespace NAnt.Core.Util {
     /// <summary>
-    /// Commandline parser.
+    /// Command line parser.
     /// </summary>
     public class CommandLineParser {
         #region Public Instance Constructors

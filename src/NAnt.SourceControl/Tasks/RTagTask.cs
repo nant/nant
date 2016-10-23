@@ -210,7 +210,7 @@ namespace NAnt.SourceControl.Tasks {
         }
 
         /// <summary>
-        /// Append the tag information to the commandline.
+        /// Append the tag information to the command line.
         /// </summary>
         protected override void AppendSubCommandArgs() {
             base.AppendSubCommandArgs ();

@@ -152,7 +152,7 @@ namespace NAnt.VSNet {
         ///     </listheader>
         ///     <item>
         ///       <term>General</term>
-        ///       <description>Addtional Include Directories (/I[path])</description>
+        ///       <description>Additional Include Directories (/I[path])</description>
         ///     </item>
         ///     <item>
         ///       <term>General</term>
@@ -575,7 +575,7 @@ namespace NAnt.VSNet {
 
         /// <summary>
         /// Represents a command-line argument of which the value should be
-        /// quoted, and of which trailing backslahes should be duplicated.
+        /// quoted, and of which trailing backslashes should be duplicated.
         /// </summary>
         private class QuotedLinkerStringArgument: VcStringArgument {
             #region Internal Instance Constructors

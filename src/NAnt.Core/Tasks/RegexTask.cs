@@ -28,7 +28,7 @@ using NAnt.Core.Util;
 
 namespace NAnt.Core.Tasks {
     /// <summary>
-    /// Sets project properties based on the evaluatuion of a regular expression.
+    /// Sets project properties based on the evaluation of a regular expression.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -96,10 +96,10 @@ namespace NAnt.Core.Tasks {
         #region Public Instance Properties
 
         /// <summary>
-        /// Represents the regular expression to be evalued.
+        /// Represents the regular expression to be evaluated.
         /// </summary>
         /// <value>
-        /// The regular expression to be evalued.
+        /// The regular expression to be evaluated.
         /// </value>
         /// <remarks>
         /// The pattern must contain one or more named constructs, which may 

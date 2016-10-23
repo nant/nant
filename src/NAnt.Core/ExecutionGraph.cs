@@ -44,7 +44,7 @@ namespace NAnt.Core {
         private int _activeNodes = 0;
 
         /// <summary>
-        /// The collection of exceptions that occured during execution.
+        /// The collection of exceptions that occurred during execution.
         /// </summary>
         private List<Exception> _exceptions = new List<Exception>();
 

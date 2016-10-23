@@ -139,7 +139,7 @@ namespace NAnt.Core.Util {
         }
 
         /// <summary>
-        /// Gets a value indicating whether a mathing command-line argument 
+        /// Gets a value indicating whether a matching command-line argument 
         /// was already found.
         /// </summary>
         /// <value>

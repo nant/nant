@@ -72,7 +72,7 @@ namespace NAnt.VSNet.Tasks {
     /// <para>
     /// The <see cref="SolutionTask" /> also supports the model of referencing 
     /// projects by their output filenames, rather than referencing them inside 
-    /// the solution.  It will automatically detect the existance of a file 
+    /// the solution.  It will automatically detect the existence of a file 
     /// reference and convert it to a project reference.  For example, if project
     /// &quot;A&quot; references the file in the release output directory of 
     /// project &quot;B&quot;, the <see cref="SolutionTask" /> will automatically 
@@ -358,7 +358,7 @@ namespace NAnt.VSNet.Tasks {
         /// </summary>
         /// <remarks>
         /// <para>
-        /// TODO: some documentataion which properties could be defined here.
+        /// TODO: some documentation which properties could be defined here.
         /// </para>
         /// </remarks>
         [BuildElementArray("property", ElementType = typeof(PropertyTask))]

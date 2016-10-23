@@ -582,7 +582,7 @@ namespace NAnt.Core {
 
         /// <summary>
         /// Maintains a list of the property names of which the value is expanded
-        /// on usage, not at initalization.
+        /// on usage, not at initialization.
         /// </summary>
         private StringCollection _dynamicProperties = new StringCollection();
 
@@ -602,7 +602,7 @@ namespace NAnt.Core {
         internal const string Visiting = "VISITING";
 
         /// <summary>
-        /// Constant for the "visited" state, used when travesing a DFS of 
+        /// Constant for the "visited" state, used when traversing a DFS of 
         /// property references.
         /// </summary>
         internal const string Visited = "VISITED";

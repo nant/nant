@@ -113,7 +113,7 @@ namespace NAnt.Core.Filters {
         /// <see cref="AcquireCharDelegate"/> allows for the same implementation for Read and Peek
         /// </summary>
         /// <param name="AcquireChar">Delegate to acquire the next character. (Read/Peek)</param>
-        /// <returns>Char as an int or -1 if at the end of the stream</returns>
+        /// <returns>Char as an integer value or -1 if at the end of the stream</returns>
         private int GetNextCharacter(AcquireCharDelegate AcquireChar) {
             if (_spacesRemaining == 0) {
                 int nextChar = AcquireChar();

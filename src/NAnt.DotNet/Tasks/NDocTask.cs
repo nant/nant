@@ -51,7 +51,7 @@ namespace NAnt.DotNet.Tasks {
     ///   distribution available to the <see cref="NDocTask" />, copy the 
     ///   documenter assembly (and possible dependencies) to the &quot;lib&quot; 
     ///   directory corresponding with the CLR you're running NAnt on 
-    ///   (eg. &lt;nant root&gt;/bin/lib/net/1.1).
+    ///   (e.g. &lt;nant root&gt;/bin/lib/net/1.1).
     ///   </note>
     /// </remarks>
     /// <example>
@@ -165,7 +165,7 @@ namespace NAnt.DotNet.Tasks {
         #region Override implementation of Task
 
         /// <summary>
-        /// Initializes the taks and verifies the parameters.
+        /// Initializes the task and verifies the parameters.
         /// </summary>
         protected override void Initialize() {
             // expand and store clone of the xml node
@@ -342,7 +342,7 @@ namespace NAnt.DotNet.Tasks {
 
         /// <summary>
         /// Represents the method that will be called to update the current
-        /// step's precent complete value.
+        /// step's percent complete value.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A <see cref="ProgressArgs" /> that contains the event data.</param>

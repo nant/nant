@@ -1287,7 +1287,7 @@ namespace NAnt.DotNet.Tasks {
         /// <see langword="null" /> if the dependent source file does not exist.
         /// </returns>
         /// <remarks>
-        /// This behaviour may be overidden by each particular compiler to 
+        /// This behavior may be overridden by each particular compiler to 
         /// support the namespace/classname syntax for that language.
         /// </remarks>
         protected virtual ResourceLinkage GetResourceLinkage(string dependentFile, CultureInfo resourceCulture) {

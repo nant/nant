@@ -46,7 +46,7 @@ namespace NAnt.Core {
         /// </summary>
         /// <value>
         /// <see langword="true" />, as a <see cref="TaskContainer" /> is
-        /// responsable for creating tasks from the nested build elements.
+        /// responsible for creating tasks from the nested build elements.
         /// </value>
         protected override bool CustomXmlProcessing {
             get { return true;}
