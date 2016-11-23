@@ -70,6 +70,19 @@ namespace NAnt.Core.Functions {
         }
 
         /// <summary>
+        /// Checks to see if the underlying operating system is 64bit.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> the underlying operating system is 64bit;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-64bit")]
+        public static bool Is64Bit()
+        {
+            return PlatformHelper.Is64BitOs;
+        }
+
+        /// <summary>
         /// Converts the value of the specified operating system to its equivalent
         /// <see cref="string" /> representation.
         /// </summary>

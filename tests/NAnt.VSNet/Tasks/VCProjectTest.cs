@@ -18,7 +18,6 @@
 // Thomas Strauss (strausst@arcor.de)
 
 using System.IO;
-
 using NUnit.Framework;
 using Tests.NAnt.VisualCpp;
 
@@ -186,7 +185,7 @@ namespace Tests.NAnt.VSNet.Tasks {
                                 ProgramDatabaseFile='$(OutDir)/HelloWorld.pdb'
                                 SubSystem='2'
                                 ImportLibrary='$(OutDir)/HelloWorld.lib'
-                                TargetMachine='1' />
+                                TargetMachine='0' />
                             <Tool Name='VCMIDLTool' />
                             <Tool Name='VCPostBuildEventTool' />
                             <Tool Name='VCPreBuildEventTool' />
