@@ -394,7 +394,7 @@ namespace NAnt.DotNet.Tasks {
             
             Log(Level.Debug, ResourceUtils.GetString("String_GeneratedCodeLooksLike") + "\n{0}", code);
 
-            CompilerResults results = compiler.CompileAssemblyFromDom(options, compileUnit);
+            CompilerResults results = compiler.CompileAssemblyFromSource(options, code);
 
             Assembly compiled = null;
             if (results.Errors.Count > 0) {
