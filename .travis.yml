@@ -11,6 +11,7 @@ install:
 env:
   - TARGET=mono-2.0 MCS="mcs -sdk:2"
   - TARGET=mono-4.0 MCS="mcs -sdk:4"
+  - TARGET=mono-4.5 MCS="mcs -sdk:4"
 
 script:
   - mono --version
