@@ -177,6 +177,7 @@ namespace Tests.NAnt.Core {
         }
 
         [Test]
+        [Ignore("Inconsistent namespaces for 'GetManifestResourceStream' method between .NET and Mono")]
         public void Invalid_SDK() {
             const string xml = @"<?xml version=""1.0"" ?>
                 <project>
