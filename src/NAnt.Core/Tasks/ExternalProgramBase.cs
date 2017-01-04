@@ -57,6 +57,7 @@ namespace NAnt.Core.Tasks {
         private ArgumentCollection _arguments = new ArgumentCollection();
         private ManagedExecution _managed = ManagedExecution.Default;
         private string _exeName;
+        private string _successExitCodes = DefaultSuccessExitCodes;
         private int _timeout = Int32.MaxValue;
         private TextWriter _outputWriter;
         private TextWriter _errorWriter;
@@ -74,6 +75,12 @@ namespace NAnt.Core.Tasks {
         /// if the process could not be started, or did not exit (in time).
         /// </summary>
         public const int UnknownExitCode = -1000;
+
+        /// <summary>
+        /// Defines the default success exit code returned by the program. The
+        /// value is zero.
+        /// </summary>
+        public const string DefaultSuccessExitCodes = "0";
 
         #endregion Public Static Fields
 
@@ -136,6 +143,22 @@ namespace NAnt.Core.Tasks {
         #endregion
 
         #region Public Instance Properties
+
+        /// <summary>
+        /// The comma seperated list of valid exit codes from the executed program.
+        /// </summary>
+        /// <value>
+        /// The comma seperated list of valid exit codes.
+        /// </value>
+        /// <remarks>
+        /// Defaults to simply zero.
+        /// </remarks>
+        [TaskAttribute("successexitcodes")]
+        public virtual string SuccessExitCodes
+        {
+            get { return (_successExitCodes != null) ? _successExitCodes : DefaultSuccessExitCodes; }
+            set { _successExitCodes = value; }
+        }
 
         /// <summary>
         /// The name of the executable that should be used to launch the 
@@ -449,7 +472,9 @@ namespace NAnt.Core.Tasks {
 
                 _exitCode = process.ExitCode;
 
-                if (process.ExitCode != 0) {
+                string exitCodeString = _exitCode.ToString();
+                if (string.IsNullOrEmpty(Array.Find<string>(SuccessExitCodes.Split(','), s => string.Compare(s, exitCodeString)==0)))
+                {
                     throw new BuildException(
                         String.Format(CultureInfo.InvariantCulture, 
                         ResourceUtils.GetString("NA1119"), 
