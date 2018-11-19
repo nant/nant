@@ -13,7 +13,7 @@
     <PostBuildEvent />
     <NoConfig>false</NoConfig>
     <ProductVersion>8.0.50727</ProductVersion>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -33,6 +33,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -125,6 +126,7 @@
     <Compile Include="TaskBuilderCollection.cs" />
     <Compile Include="TaskContainer.cs" />
     <Compile Include="TypeFactory.cs" />
+    <Compile Include="Util\FileSystemEnumerator.cs" />
     <Compile Include="ValidationException.cs" />
     <Compile Include="XmlLogger.cs" />
     <Compile Include="Attributes\BooleanValidatorAttribute.cs" />
