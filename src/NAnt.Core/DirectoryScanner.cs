@@ -53,9 +53,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using NAnt.Core.Util;
 
 #if NET_4_0
 using System.Threading.Tasks;
@@ -510,7 +512,7 @@ namespace NAnt.Core {
 
                 // If the current directory does not contain any files or directories,
                 // indicate that BaseDirectory has empty directories and exit loop.
-                if (tmp.GetFiles().Length == 0 && tmp.GetDirectories().Length == 0)
+                if (!tmp.EnumerateFiles().Any() && !tmp.EnumerateDirectories().Any())
                 {
                     _hasEmptyDirectories = true;
                     break;
@@ -860,7 +862,7 @@ namespace NAnt.Core {
             }
 
             // scan files
-            foreach (FileInfo fileInfo in currentDirectoryInfo.GetFiles()) {
+            foreach (FileInfo fileInfo in currentDirectoryInfo.EnumerateFiles()) {
                 string filename = Path.Combine(path, fileInfo.Name);
                 if (IsPathExcluded(filename, excludedPatterns))
                 {
@@ -1041,10 +1043,10 @@ namespace NAnt.Core {
             if (!rootDir.Exists) return;
             
             // Get the files located in rootDir
-            foreach (FileInfo f in rootDir.GetFiles()) _baseDirFileSystem.Add(f);
+            foreach (FileInfo f in rootDir.EnumerateFiles()) _baseDirFileSystem.Add(f);
             
             // Retrieve all the subdirectory info
-            foreach (DirectoryInfo d in rootDir.GetDirectories())
+            foreach (DirectoryInfo d in rootDir.EnumerateDirectories())
             {
                 _baseDirFileSystem.Add(d);
                 GetAllFileSystemInfo(d);

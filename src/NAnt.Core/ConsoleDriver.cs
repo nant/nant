@@ -24,6 +24,7 @@ using System;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Permissions;
 using System.Text;
@@ -352,14 +353,14 @@ namespace NAnt.Core {
 
                 // look for a default.build
                 DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                FileInfo[] files = directoryInfo.GetFiles("default.build");
+                FileInfo[] files = directoryInfo.EnumerateFiles("default.build").ToArray();
                 if (files.Length == 1) {
                     buildFileName = files[0].FullName;
                     return buildFileName;
                 }
                 
                 // now find any file ending in .build
-                files = directoryInfo.GetFiles(searchPattern);
+                files = directoryInfo.EnumerateFiles( searchPattern).ToArray();
                 if (files.Length == 1) { // got a single .build
                     buildFileName = files[0].FullName;
                 } else if (files.Length > 1) {

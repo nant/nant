@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-
+using System.Linq;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -328,7 +328,7 @@ namespace NAnt.Core.Tasks {
                             }
                         
                             DirectoryInfo dirInfo = new DirectoryInfo(Source);
-                            FileInfo[] files = dirInfo.GetFiles();
+                            FileInfo[] files = dirInfo.EnumerateFiles().ToArray();
                         
                             foreach (FileInfo file in files) {
                                 DoWork(file.FullName);

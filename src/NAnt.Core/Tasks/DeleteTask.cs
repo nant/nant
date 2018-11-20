@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using System.Globalization;
-
+using System.Linq;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
 using NAnt.Core.Util;
@@ -247,7 +247,7 @@ namespace NAnt.Core.Tasks {
                 }
 
                 // next, delete all files in the directory
-                string[] files = System.IO.Directory.GetFiles(path);
+                string[] files = new DirectoryInfo( path ).EnumerateFiles().Select( x => x.FullName ).ToArray();
                 foreach (string file in files) {
                     try {
                         System.IO.File.SetAttributes(file, FileAttributes.Normal);

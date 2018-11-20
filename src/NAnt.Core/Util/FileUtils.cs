@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using NAnt.Core.Filters;
@@ -69,7 +70,7 @@ namespace NAnt.Core.Util
                 Directory.CreateDirectory(destDir);
             }
 
-            files = sDir.GetFiles();
+            files = sDir.EnumerateFiles().ToArray();
             foreach (FileInfo f in files)
             {
                 f.CopyTo(Path.Combine(destDir, f.Name), false);

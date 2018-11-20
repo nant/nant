@@ -21,6 +21,7 @@ using System.Collections;
 using System.IO;
 using NAnt.Core.Attributes;
 using NAnt.Core.Types;
+using NAnt.Core.Util;
 using NAnt.SourceControl.Tasks;
 
 namespace NAnt.SourceControl.Types {
@@ -75,11 +76,11 @@ namespace NAnt.SourceControl.Types {
         #region Private Instance Methods
 
         private void ScanCvsIgnores(DirectoryInfo dir, ArrayList ignoreFiles) {
-            foreach (FileInfo file in dir.GetFiles("*.cvsignore")) {
+            foreach (FileInfo file in dir.EnumerateFiles("*.cvsignore")) {
                 AddCvsIgnores(file, ignoreFiles);
             }
 
-            foreach (DirectoryInfo subDir in dir.GetDirectories()) {
+            foreach (DirectoryInfo subDir in dir.EnumerateDirectories()) {
                 this.ScanCvsIgnores(subDir, ignoreFiles);
             }
         }

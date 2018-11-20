@@ -22,6 +22,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
 
@@ -29,6 +30,7 @@ using NUnit.Core;
 
 using System.Security;
 using System.Security.Permissions;
+using NAnt.Core.Util;
 
 namespace NAnt.NUnit2.Tasks {
     /// <summary>
@@ -250,8 +252,8 @@ namespace NAnt.NUnit2.Tasks {
                     if (!Directory.Exists(path)) {
                         continue;
                     }
-
-                    string[] assemblies = Directory.GetFiles(path, "*.dll");
+                    
+                    string[] assemblies = new DirectoryInfo( path ).EnumerateFiles( "*.dll" ).Select( x => x.FullName ).ToArray();
 
                     foreach (string assemblyFile in assemblies) {
                         Assembly assembly = TryLoad (assemblyFile, args.Name, isFullName);

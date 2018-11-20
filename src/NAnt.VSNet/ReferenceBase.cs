@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Specialized;   
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using NAnt.Core;
 using NAnt.Core.Util;
 
@@ -215,7 +216,7 @@ namespace NAnt.VSNet {
             string relatedFilesPattern = Path.GetFileName(Path.ChangeExtension(file, ".*"));
 
             // iterate over each file matching the pattern
-            foreach (string relatedFile in Directory.GetFiles(Path.GetDirectoryName(file), relatedFilesPattern)) {
+            foreach (string relatedFile in new DirectoryInfo( directory ).EnumerateFiles(relatedFilesPattern).Select(x=>x.FullName)) {
                 // ignore files that do not have same base filename as reference file
                 // eg. when reference file is MS.Runtime.dll, we do not want files 
                 //     named MS.Runtime.Interop.dll

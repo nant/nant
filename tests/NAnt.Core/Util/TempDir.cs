@@ -20,7 +20,8 @@
 
 using System;
 using System.IO;
-
+using System.Linq;
+using NAnt.Core.Util;
 using NUnit.Framework;
 
 namespace Tests.NAnt.Core.Util {
@@ -51,7 +52,7 @@ namespace Tests.NAnt.Core.Util {
             bool bError = false;
             try {
                 if (Directory.Exists(path)) {
-                    // ensure directorty is writable
+                    // ensure directory is writable
                     File.SetAttributes(path, FileAttributes.Normal);
                     // ensure all files and subdirectories are writable
                     SetAllFileAttributesToNormal(path);
@@ -59,9 +60,9 @@ namespace Tests.NAnt.Core.Util {
                     foreach (string directoryName in directoryNames) {
                         Delete(directoryName);
                     }
-                    string[] fileNames = Directory.GetFiles(path);
-                    foreach (string fileName in fileNames) {
-                        File.Delete(fileName);
+                    var files = new DirectoryInfo( path ).EnumerateFiles();
+                    foreach (var file in files) {
+                        File.Delete(file.FullName);
                     }
                     Directory.Delete(path, true);
                 }
@@ -80,12 +81,12 @@ namespace Tests.NAnt.Core.Util {
         /// to <see cref="FileAttributes.Normal" />.
         /// </summary>
         private static void SetAllFileAttributesToNormal(string path) {
-            string[] fileNames = Directory.GetFiles(path);
+            string[] fileNames = new DirectoryInfo(path).EnumerateFiles().Select(x => x.FullName).ToArray();
             foreach (string fileName in fileNames) {
                 File.SetAttributes(fileName, FileAttributes.Normal);
             }
 
-            string[] directoryNames = Directory.GetDirectories(path);
+            string[] directoryNames = new DirectoryInfo( path ).EnumerateDirectories().Select( x => x.FullName ).ToArray();
             foreach (string directoryName in directoryNames) {
                 File.SetAttributes(directoryName, FileAttributes.Normal);
                 SetAllFileAttributesToNormal(directoryName);

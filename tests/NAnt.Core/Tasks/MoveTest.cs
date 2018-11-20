@@ -26,6 +26,7 @@ using NUnit.Framework;
 
 using NAnt.Core;
 using NAnt.Core.Tasks;
+using NAnt.Core.Util;
 
 namespace Tests.NAnt.Core.Tasks {
     /// <summary>
@@ -316,7 +317,7 @@ namespace Tests.NAnt.Core.Tasks {
         private void PrintDirContents(DirectoryInfo dir)
         {
             if (!dir.Exists) return;
-            foreach (FileInfo f in dir.GetFiles())
+            foreach (var f in dir.EnumerateFiles())
             {
                 System.Console.WriteLine(f.FullName);
             }

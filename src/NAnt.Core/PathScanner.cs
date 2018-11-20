@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Specialized;
 using System.IO;
-
+using System.Linq;
 using NAnt.Core.Util;
 
 namespace NAnt.Core {
@@ -149,10 +149,10 @@ namespace NAnt.Core {
                     }
 
                     try {
-                        string[] found = Directory.GetFiles(scanPath, fileName);
+                        var found = new DirectoryInfo(scanPath).EnumerateFiles(fileName).ToArray();
 
-                        if (found.Length > 0) {
-                            scannedNames.Add(found[0]);
+                        if (found.Any()) {
+                            scannedNames.Add(found.First().FullName);
                             break;
                         } 
                     } catch (UnauthorizedAccessException e) {
@@ -161,9 +161,16 @@ namespace NAnt.Core {
                         // the next path.
                         logger.Warn( string.Format("Access to the path \"{0}\" is denied.", scanPath), e );
                         continue;
+                    } catch (Exception e)
+                    {
+                        // In case of UnauthorizedAccessException,
+                        // log the issue as a warning and move on to
+                        // the next path.
+                        logger.Warn( string.Format( "Exception scanning path \"{0}\".", scanPath ), e );
+                        continue;
                     }
                 }
-            }
+        }
 
             // return an enumerator to the scanned (& found) files
             return scannedNames;
