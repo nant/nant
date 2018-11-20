@@ -8,6 +8,7 @@
     <property name="project.name" value="nant" />
     <property name="project.version" value="0.93" unless="${property::exists('project.version')}" />
     <property name="project.release.type" value="dev" unless="${property::exists('project.release.type')}" /> <!-- nightly | dev | alpha | beta# | rc# | release -->
+    <property name="target.platform" value="anycpu" unless="${property::exists('target.platform')}" />
 
     <if test="${project.release.type == 'nightly'}">
         <property name="project.version.full" value="${project.version + '-nightly-' + build.date}" />
@@ -76,11 +77,13 @@
     <target name="debug" description="Perform a 'debug' build">
         <property name="project.config" value="debug" />
         <property name="build.debug" value="true" />
+        <property name="build.platform" value="${target.platform}" />
         <property name="build.dir" value="${project::get-base-directory()}/build/${framework::get-target-framework()}.${platform::get-name()}/${project.name}-${project.config}" />
     </target>
     <target name="release" description="Perform a 'release' build">
         <property name="project.config" value="release" />
         <property name="build.debug" value="false" />
+        <property name="build.platform" value="${target.platform}" />
         <property name="build.dir" value="${project::get-base-directory()}/build/${project.name}" />
     </target>
 

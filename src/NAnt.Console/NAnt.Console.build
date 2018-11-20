@@ -7,12 +7,13 @@
             * build.warnaserror     - (true|false) treat warnings as errors
             * current.build.defines - framework-specific build defines
             * nant.console.name     - assembly name for NAnt Console
+            * build.platform        - (x86|x64|anycpu) limit which platforms code can run on
     -->
     <target name="build">
         <!-- Target Config (App.config) Filename and path -->
         <property name="target.config.file" value="${build.dir}/bin/${nant.console.name}.exe.config" />
         <!-- build NAnt.Console -->
-        <csc target="exe" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
+        <csc target="exe" platform="${build.platform}" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${nant.console.name}.exe" doc="${build.dir}/bin/${nant.console.name}.xml">
             <warnaserror>
                 <!-- do not consider deprecation warnings as errors on .NET 2.0 (and higher)-->
                 <exclude number="618" if="${framework::get-family(framework::get-target-framework())== 'net' and framework::get-version(framework::get-target-framework()) >= version::parse('2.0')}" />

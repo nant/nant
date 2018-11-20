@@ -6,10 +6,11 @@
             * build.debug           - (true|false) debug build?
             * build.warnaserror     - (true|false) treat warnings as errors
             * current.build.defines - framework-specific build defines
+            * build.platform        - (x86|x64|anycpu) limit which platforms code can run on
     -->
     <target name="build" if="${framework::get-family(framework::get-target-framework()) == 'net'}">
         <!-- build main assembly -->
-        <csc target="library" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}Tasks.dll" doc="${build.dir}/bin/${project::get-name()}Tasks.xml">
+        <csc target="library" platform="${build.platform}" define="${current.build.defines}" warnaserror="${build.warnaserror}" debug="${build.debug}" output="${build.dir}/bin/${project::get-name()}Tasks.dll" doc="${build.dir}/bin/${project::get-name()}Tasks.xml">
             <warnaserror>
                 <!-- do not consider deprecation warnings as errors on .NET 2.0 -->
                 <exclude number="618" if="${framework::get-target-framework() == 'net-2.0'}" />
