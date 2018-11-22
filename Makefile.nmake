@@ -1,8 +1,8 @@
 #NAnt nmake makefile for building on windows
 CSC=csc
 RESGEN=resgen
-TARGET=net-3.5
-PLATFORM=x86
+TARGET=net-2.0
+PLATFORM=anycpu
 
 !ifdef MONO
 DEFINE = MONO
