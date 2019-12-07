@@ -1,11 +1,11 @@
 # NAnt make makefile for Mono
-MONO=mono
-MCS=gmcs
-RESGEN=resgen
-TARGET=mono-2.0
+MONO?=mono
+MCS?=mcs
+RESGEN?=resgen
+TARGET?=mono-4.5-api
 
 # Contains a list of acceptable targets used to build NAnt
-VALID_TARGETS := mono-2.0 mono-3.5 mono-4.0 mono-4.5 net-2.0 net-3.5 net-4.0 net-4.5
+VALID_TARGETS := mono-2.0 mono-3.5 mono-4.0 mono-4.5 mono-4.5-api net-2.0 net-3.5 net-4.0 net-4.5
 
 ifndef DIRSEP
 ifeq ($(OS),Windows_NT)
@@ -60,6 +60,12 @@ ifeq ($(findstring 4.5,$(SELECTED_TARGET)),4.5)
 DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5
 endif
 
+# Similar to mono-4.5 (only available for mono-4.5-api)
+ifeq ($(findstring 4.5,$(SELECTED_TARGET)),4.5-api)
+DEFINE := $(DEFINE),NET_1_0,NET_1_1,NET_2_0,NET_3_5,NET_4_0,NET_4_5,ONLY_4_5
+endif
+
+
 # If TARGET var is invalid, throw an error
 else
 $(error Specified target "$(TARGET)" is not valid)
@@ -93,14 +99,14 @@ install: bootstrap
 
 run-test: bootstrap
 	$(NANT) $(TARGET_FRAMEWORK) -f:NAnt.build test
-	
+
 bootstrap/NAnt.exe:
 	$(MCS) $(DEBUG) -target:exe -define:$(DEFINE) -out:bootstrap${DIRSEP}NAnt.exe -r:bootstrap${DIRSEP}log4net.dll \
 		-r:System.Configuration.dll -recurse:src${DIRSEP}NAnt.Console${DIRSEP}*.cs src${DIRSEP}CommonAssemblyInfo.cs
 
 
 bootstrap: setup bootstrap/NAnt.exe bootstrap/NAnt.Core.dll bootstrap/NAnt.DotNetTasks.dll bootstrap/NAnt.CompressionTasks.dll ${PLATFORM_REFERENCES}
-	
+
 
 setup:
 ifeq ($(OS),Windows_NT)
