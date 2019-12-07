@@ -89,7 +89,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\NAnt.Compression\NAnt.Compression.csproj">
       <Project>{8F80C098-94A4-44DB-A25D-C9E455FC3120}</Project>
