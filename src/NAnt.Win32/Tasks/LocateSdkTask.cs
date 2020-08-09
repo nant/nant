@@ -138,7 +138,13 @@ namespace NAnt.Win32.Tasks {
             // load them into a string list. In 64 bit process, consider 32 bit
             // registry subkey as well
             RegistryKey sdkRegSubKey = Registry.LocalMachine.OpenSubKey(_registryBase, false);
-            List<string> installedWinSdkVersions = new List<string>(sdkRegSubKey.GetSubKeyNames());
+            List<string> installedWinSdkVersions = new List<string>();
+            if (sdkRegSubKey != null) {
+                foreach (string installedWinSdkVersion in sdkRegSubKey.GetSubKeyNames()) {
+                    installedWinSdkVersions.Add(installedWinSdkVersion);
+                }
+            }
+
             RegistryKey sdkRegSubKey_x86 = null;
             bool is64BitProcess = IntPtr.Size == 8;
             if (is64BitProcess)
@@ -171,7 +177,10 @@ namespace NAnt.Win32.Tasks {
                 // If the loopVersion is greater than or equal to the minVersion, loop through the subkeys
                 // for a valid .NET sdk path
                 if (minSdkVersion <= loopSdkVersion) {
-                    RegistryKey sdkVerRegSubKey = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]);
+                    RegistryKey sdkVerRegSubKey = null;
+                    if (sdkRegSubKey != null) {
+                        sdkVerRegSubKey = sdkRegSubKey.OpenSubKey(installedWinSdkVersions[i]);
+                    }
                     // Gets all of the current WinSdk loop subkeys
                     List<string> installedWinSdkSubKeys = new List<string>();
                     if (sdkVerRegSubKey != null)
@@ -269,6 +278,7 @@ namespace NAnt.Win32.Tasks {
             if (!sdkFound) {
                 throw new BuildException(String.Format(CultureInfo.InvariantCulture,"System does not have minimum specified Windows SDK {0}!", _minWinSdkVer));
             }
+            Log(Level.Debug, "Using NETFX SDK: {0}", Properties[_propName]);
         }
 
         #endregion Override implementation of Task
