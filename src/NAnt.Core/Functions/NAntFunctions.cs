@@ -570,6 +570,19 @@ namespace NAnt.Core.Functions {
         #region Public Static Methods
 
         /// <summary>
+        /// Checks to see if NAnt is running on a 64bit process.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if NAnt is running on a 64bit process;
+        /// otherwise, <see langword="false" />.
+        /// </returns>
+        [Function("is-64bit")]
+        public static bool Is64Bit()
+        {
+            return PlatformHelper.Is64BitProcess;
+        }
+
+        /// <summary>
         /// Checks whether NAnt is running on Windows (and not just 32-bit Windows
         /// as the name may lead you to believe).
         /// </summary>
